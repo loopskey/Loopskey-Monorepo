@@ -1,6 +1,6 @@
 "use client";
 
-import { solutionEntries } from "@utils/constant";
+import { solutionEntries } from "@/utils/site-navigation";
 import { useActiveRole } from "@/providers/active-role-provider";
 import { useI18n } from "@/hooks/useI18n";
 import { cn } from "@/lib/utils";

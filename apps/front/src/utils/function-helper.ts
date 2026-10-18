@@ -4,15 +4,10 @@ import { TProfessionalWishlistItem } from "@/types/hooks.types";
 import { ProviderDashboardRange } from "@/lib/graphql/base";
 import { PromotionRequestStatus } from "@/lib/graphql/base";
 import { PromotionType, Role } from "@/lib/graphql/base";
-import { TGraphQLDocument } from "@/types/rtk.types";
 
 // ============== OAuth Element ==============
 export const isRole = (value: string | null): value is Role =>
   Object.values(Role).includes(value as Role);
-
-// ============== RTK Query ==============
-export const documentToString = (document: TGraphQLDocument): string =>
-  String(document);
 
 // ============== I18n ==============
 export type DictValue =
@@ -27,36 +22,7 @@ export type DictObject = {
   [key: string]: DictValue;
 };
 
-export const getByKey = (source: unknown, key: string): unknown => {
-  return key.split(".").reduce<unknown>((current, part) => {
-    if (typeof current !== "object" || current === null) return undefined;
-    return (current as Record<string, unknown>)[part];
-  }, source);
-};
-
-export const isStringArray = (value: unknown): value is string[] =>
-  Array.isArray(value) && value.every((item) => typeof item === "string");
-
-// ============== Header =================
-export const isValidHref = (href: unknown): href is string =>
-  typeof href === "string" && href.trim().length > 0;
-
-export const normalizePath = (path: string) => {
-  if (!path || path === "/") return "/";
-  return path.replace(/\/+$/, "");
-};
-
-// ============== User Menu =================
-export const getInitials = (
-  fullName?: string | null,
-  email?: string | null,
-) => {
-  if (fullName?.trim()) {
-    const parts = fullName.trim().split(/\s+/).slice(0, 2);
-    return parts.map((p) => p[0]?.toUpperCase()).join("");
-  }
-  return email?.[0]?.toUpperCase() ?? "U";
-};
+export { getByKey, isStringArray } from "@/lib/i18n/translator";
 
 // ============= Content Details ============
 export const formatTime = (value: string) => {
@@ -106,20 +72,6 @@ export const formatCurrency = (value?: number | null) =>
     currency: "USD",
     maximumFractionDigits: 2,
   }).format(Number(value ?? 0));
-
-export const isValidImageSrc = (value?: string | boolean | null) => {
-  if (typeof value === "boolean") return value;
-  if (!value) return false;
-  const src = value.trim();
-  if (!src) return false;
-  if (src.startsWith("/")) return true;
-  try {
-    const url = new URL(src);
-    return url.protocol === "http:" || url.protocol === "https:";
-  } catch {
-    return false;
-  }
-};
 
 // ================= Admin Dashboard =============
 export const numberValue = (value: unknown) => Number(value ?? 0);

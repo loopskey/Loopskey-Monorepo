@@ -1,9 +1,8 @@
 "use client";
 
 import { TAddToCalendarButtonProps } from "@/types/content-module.types";
-import { AddCalendarEventDialog } from "@modules/ProfessionalDashboard/parts/AddCalendarEventDialog";
 import { getContentTypeStyle } from "@/utils/content-type-style";
-import { useCurrentUserQuery } from "@/lib/rtk/endpoints/auth.api";
+import { usePublicSession } from "@/hooks/usePublicSession";
 import { CalendarPlus } from "lucide-react";
 import { useState } from "react";
 import { useI18n } from "@/hooks/useI18n";
@@ -11,16 +10,23 @@ import { Button } from "@ui/button";
 import { Role } from "@/lib/graphql/base";
 import { cn } from "@/lib/utils";
 
+import dynamic from "next/dynamic";
+
+const AddCalendarEventDialog = dynamic(
+  () => import("@modules/ContentDetail/parts/LazyAddCalendarEventDialog"),
+);
+
 export const AddToCalendarButton = ({
   prefill,
   className,
   contentType,
 }: TAddToCalendarButtonProps) => {
   const { t } = useI18n();
-  const { data } = useCurrentUserQuery();
+  const { user } = usePublicSession();
   const [open, setOpen] = useState(false);
+  const [hasOpened, setHasOpened] = useState(false);
 
-  if (data?.user?.role !== Role.Professional) return null;
+  if (user?.role !== Role.Professional) return null;
 
   const label = t("contentDetails.actions.addToCalendar");
   const style = getContentTypeStyle(contentType ?? prefill.contentType);
@@ -33,17 +39,22 @@ export const AddToCalendarButton = ({
         type="button"
         variant="outline"
         className={cn(style.softClass, "justify-center", className)}
-        onClick={() => setOpen(true)}
+        onClick={() => {
+          setHasOpened(true);
+          setOpen(true);
+        }}
       >
         <CalendarPlus className="h-4 w-4" />
         {label}
       </Button>
 
-      <AddCalendarEventDialog
-        open={open}
-        prefill={prefill}
-        onOpenChange={setOpen}
-      />
+      {hasOpened && (
+        <AddCalendarEventDialog
+          open={open}
+          prefill={prefill}
+          onOpenChange={setOpen}
+        />
+      )}
     </>
   );
 };

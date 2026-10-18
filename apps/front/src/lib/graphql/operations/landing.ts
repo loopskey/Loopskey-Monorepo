@@ -1,5 +1,5 @@
 import * as Types from "@/lib/graphql/base";
-import { TypedDocumentString } from "@/lib/graphql/base";
+import { TypedDocumentString } from "@/lib/graphql/document";
 export type PopularCategoryFieldsFragment = { __typename?: 'PopularCategory', category: string, totalItems: number, courseCount: number, eventCount: number, podcastCount: number, youtubeCount: number, averageRating: number, popularityScore: number };
 
 export type PopularCategoriesQueryVariables = Types.Exact<{

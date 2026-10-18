@@ -1,0 +1,384 @@
+{
+  "cpdProgress": {
+    "compliance": {
+      "AT_RISK": "At Risk",
+      "EVIDENCE_INCOMPLETE": "Evidence Incomplete",
+      "IN_PROGRESS": "In Progress",
+      "NOT_STARTED": "Not Started",
+      "ON_TRACK": "On Track",
+      "REPORTING_PERIOD_EXPIRED": "Reporting Period Expired",
+      "REQUIREMENTS_COMPLETED": "Requirements Completed"
+    },
+    "requirements": {
+      "activities": {
+        "reason": "Reason: {{note}}",
+        "state": {
+          "AWAITING_REVIEW": "Pending review",
+          "COUNTED": "Accepted",
+          "REJECTED": "Rejected"
+        },
+        "status": {
+          "APPROVED": "Approved",
+          "PENDING": "Pending",
+          "REJECTED": "Rejected"
+        }
+      },
+      "band": {
+        "AT_RISK": "At risk",
+        "NOT_STARTED": "Not started",
+        "ON_TRACK": "On track",
+        "RENEWAL_READY": "Renewal ready"
+      },
+      "daysLeft": "{{count}} days left",
+      "dueToday": "Due today",
+      "evidencePolicy": {
+        "NOT_REQUIRED": "Not required",
+        "REQUIRED_NEEDS_REVIEW": "Required and reviewed by your association",
+        "REQUIRED_NO_REVIEW": "Required"
+      },
+      "noDeadline": "No deadline",
+      "overdue": "{{count}} days overdue",
+      "source": {
+        "ASSOCIATION": "Association",
+        "PLAN": "Personal plan"
+      }
+    },
+    "validation": {
+      "categoryName": "Category name is required.",
+      "categoryTotalOverTotal": "Category targets exceed the total required credits.",
+      "completedOverTotal": "Completed credits cannot exceed the total required.",
+      "duplicateCategory": "Category names must be unique.",
+      "endBeforeStart": "End date must not be before the start date.",
+      "evidenceRequired": "Select at least one evidence type.",
+      "nonNegative": "Value cannot be negative.",
+      "number": "Enter a valid number.",
+      "positive": "Value must be greater than zero.",
+      "recipientLabelRequired": "Enter the recipient name.",
+      "reminderTimingRequired": "Choose when to be reminded.",
+      "required": "This field is required."
+    }
+  },
+  "professionalDashboard": {
+    "calendar": {
+      "addDialog": {
+        "description": "Create a personal event on your calendar.",
+        "fields": {
+          "duration": "Duration in minutes (optional)",
+          "endDate": "End date & time (optional)",
+          "notes": "Notes (optional)",
+          "startDate": "Start date & time",
+          "title": "Title",
+          "type": "Type"
+        },
+        "submit": "Add event",
+        "success": "Event added to your calendar.",
+        "title": "Add to calendar"
+      },
+      "types": {
+        "COURSE": "Course",
+        "EVENT": "Event",
+        "MEETING": "Meeting",
+        "OTHER": "Other",
+        "TRAINING": "Training",
+        "WEBINAR": "Webinar"
+      }
+    },
+    "cpdPduTracker": {
+      "actions": {
+        "delete": "Delete activity",
+        "edit": "Edit activity",
+        "view": "View activity details"
+      },
+      "activities": {
+        "deleteDescription": "This permanently removes the activity and any evidence files attached to it.",
+        "deleteSuccess": "Activity deleted successfully.",
+        "deleteTitle": "Delete this activity?",
+        "downloadError": "Could not download that file.",
+        "emptyDescription": "Add your first activity to start tracking your continuing professional development.",
+        "emptyTitle": "No learning activities yet",
+        "errorDescription": "Check your connection and try again.",
+        "errorTitle": "Activities could not load",
+        "noMatchDescription": "Try widening your search, or clear the filters to see every activity.",
+        "noMatchTitle": "No activities match your filters",
+        "subtitle": "Manage every learning activity you have recorded.",
+        "title": "Activities"
+      },
+      "activityTypes": {
+        "CERTIFICATION_PROGRAM": "Certification Program",
+        "CONFERENCE": "Conference",
+        "COURSE": "Course",
+        "EVENT": "Event",
+        "EXAM_ASSESSMENT": "Exam / Assessment",
+        "MEETING": "Meeting",
+        "MENTORSHIP": "Mentorship Session",
+        "OTHER": "Other",
+        "PODCAST": "Podcast",
+        "READING_ARTICLE": "Reading / Article",
+        "SELF_STUDY": "Self-Study",
+        "SEMINAR": "Seminar",
+        "TEACHING": "Teaching / Presentation",
+        "TRAINING_SESSION": "Training Session",
+        "VIDEO_LECTURE": "Video / Recorded Lecture",
+        "VOLUNTEERING": "Volunteering / Professional Service",
+        "WEBINAR": "Webinar",
+        "WORKSHOP": "Workshop",
+        "YOUTUBE": "YouTube"
+      },
+      "addActivity": {
+        "addActivity": "Add Activity",
+        "addAnother": "Add Another Activity",
+        "back": "Back",
+        "backToRequirements": "Back to Requirements",
+        "cancelDescription": "You have unsaved changes. Leaving now will discard everything you entered.",
+        "cancelTitle": "Discard this activity?",
+        "createSuccess": "Activity added successfully.",
+        "discardChanges": "Discard changes",
+        "editTitle": "Edit Learning Activity",
+        "keepEditing": "Keep editing",
+        "next": "Next",
+        "steps": {
+          "1": {
+            "description": "Title, type, date and provider",
+            "title": "Basic Information"
+          },
+          "2": {
+            "description": "Credits, category and reporting year",
+            "title": "CPD/PDU Details"
+          },
+          "3": {
+            "description": "Certificates and supporting notes",
+            "title": "Evidence & Files"
+          },
+          "4": {
+            "description": "What you learned, then review",
+            "title": "Learning Outcome"
+          }
+        },
+        "stepsLabel": "Activity steps",
+        "subtitle": "Record a learning activity and the credits it earned.",
+        "successDescription": "Your CPD/PDU totals and charts have been updated.",
+        "title": "Add Learning Activity",
+        "updateActivity": "Update Activity",
+        "updateSuccess": "Activity updated successfully.",
+        "viewActivities": "View My Activities"
+      },
+      "categories": {
+        "BUSINESS": "Business / Strategy",
+        "COMMUNICATION": "Communication",
+        "COMPLIANCE": "Safety / Compliance",
+        "DIGITAL_AI": "Digital / AI Skills",
+        "ETHICS": "Ethics",
+        "INDUSTRY_KNOWLEDGE": "Industry Knowledge",
+        "LEADERSHIP": "Leadership",
+        "OTHER": "Other",
+        "PROFESSIONAL_PRACTICE": "Professional Practice",
+        "RESEARCH_INNOVATION": "Research / Innovation",
+        "STRATEGIC": "Strategic",
+        "TECHNICAL": "Technical Skills"
+      },
+      "completionStatuses": {
+        "COMPLETED": "Completed",
+        "INCOMPLETE": "Incomplete"
+      },
+      "creditTypes": {
+        "CEU": "CEU",
+        "CPD": "CPD",
+        "CPE": "CPE",
+        "PDU": "PDU",
+        "TRAINING_HOUR": "Training Hour"
+      },
+      "cycleProgress": {
+        "ahead": "{{amount}} ahead of pace",
+        "behind": "{{amount}} behind pace",
+        "byCategory": "By category",
+        "category": "Category",
+        "due": "Due",
+        "earned": "Earned",
+        "expectedToday": "Expected today",
+        "onPace": "On pace",
+        "perMonth": "Needed per month",
+        "remaining": "Remaining",
+        "required": "Required",
+        "subtitle": "Earned versus required credits for your current plan",
+        "summary": "Earned {{earned}} of {{total}} {{credit}} ({{percent}}%).",
+        "title": "Cycle Progress",
+        "total": "Total"
+      },
+      "detail": {
+        "approvalStatus": "Approval status",
+        "back": "Back to My Learning Activities",
+        "cancel": "Cancel",
+        "createdAt": "Created",
+        "downloadFile": "Download {{name}}",
+        "edit": "Edit activity",
+        "errors": {
+          "generic": {
+            "description": "We couldn't load this activity. Please check your connection and try again.",
+            "title": "Something went wrong"
+          },
+          "not-found": {
+            "description": "This learning activity no longer exists, or it isn't available on your account.",
+            "title": "Activity not found"
+          },
+          "unauthorized": {
+            "description": "This learning activity belongs to another account.",
+            "title": "You can't view this activity"
+          }
+        },
+        "evidenceLink": "Open external evidence link",
+        "eyebrow": "Activity Details",
+        "fileUploaded": "Uploaded {{date}}",
+        "linkedContent": "Linked content",
+        "retry": "Try again",
+        "sections": {
+          "credits": "CPD / PDU details",
+          "evidence": "Evidence & attachments",
+          "noEvidence": "No evidence files were attached to this activity.",
+          "notes": "Description & notes",
+          "overview": "Overview",
+          "record": "Record details"
+        },
+        "title": "Activity Details",
+        "updatedAt": "Last updated"
+      },
+      "evidence": {
+        "chooseFiles": "Choose files",
+        "download": "Download",
+        "dropHint": "PDF, JPG, PNG, DOC or DOCX. Up to 20 MB per file.",
+        "dropTitle": "Upload certificate or proof",
+        "existingTitle": "Attached files",
+        "fileTooLarge": "\"{{name}}\" is larger than 20 MB.",
+        "fileTypeInvalid": "\"{{name}}\" is not an accepted file type.",
+        "limitReached": "You have reached the maximum of {{max}} files.",
+        "pendingTitle": "Files to upload",
+        "remaining": "You can add {{count}} more file(s).",
+        "remove": "Remove",
+        "removed": "File removed.",
+        "retryUpload": "Retry Upload",
+        "tooManyFiles": "You can attach at most {{max}} files.",
+        "uploadFailed": "The activity was saved, but the files could not be uploaded. Your files are still selected — use Retry to finish."
+      },
+      "eyebrow": "My Learning Activities",
+      "fields": {
+        "activityType": "Activity type",
+        "category": "CPD / PDU category",
+        "creditType": "Credit type",
+        "creditValue": "Credit value / hours",
+        "creditValueHint": "Must be greater than 0. Decimals such as 1.5 are allowed.",
+        "dateCompleted": "Date completed",
+        "description": "Activity description / notes",
+        "descriptionPlaceholder": "Briefly describe the activity.",
+        "evidenceNote": "File notes",
+        "evidenceNotePlaceholder": "Notes about the certificate of completion, attendance proof or related evidence.",
+        "issuingOrganization": "Issuing organization",
+        "learningOutcome": "Learning outcome",
+        "learningOutcomeHint": "What did you learn, and how will you apply it in your work?",
+        "learningOutcomePlaceholder": "Describe what you learned and how you will apply it.",
+        "providerOrganizer": "Provider / organizer",
+        "providerOrganizerPlaceholder": "Who delivered this activity?",
+        "relatedCertification": "Related certification / licence",
+        "reportingYear": "Reporting year",
+        "reportingYearHint": "Defaults to the year of the completion date.",
+        "requirement": "Requirement",
+        "requirementHint": "Choose the requirement this activity counts toward. Leave it empty to count it by credit type and date as usual.",
+        "requirementPlaceholder": "No specific requirement",
+        "subCategory": "Sub-category",
+        "subCategoryPlaceholder": "Select a category first",
+        "title": "Activity title",
+        "titlePlaceholder": "e.g. Advanced Risk Management Workshop"
+      },
+      "filters": {
+        "activityType": "Activity type",
+        "any": "Any",
+        "category": "Category",
+        "certificate": "Certificate",
+        "clear": "Clear filters",
+        "creditType": "Credit type",
+        "dateFrom": "Completed from",
+        "dateTo": "Completed to",
+        "hasCertificate": "Has certificate",
+        "noCertificate": "No certificate",
+        "reportingYear": "Reporting year",
+        "search": "Search",
+        "searchPlaceholder": "Search title or provider...",
+        "status": "Status"
+      },
+      "quickActions": {
+        "addActivity": "Add Learning Activity"
+      },
+      "review": {
+        "files": "Evidence files",
+        "subtitle": "Check everything below, then add your activity.",
+        "title": "Ready to submit"
+      },
+      "statuses": {
+        "APPROVED": "Approved",
+        "PENDING": "Pending review",
+        "REJECTED": "Rejected"
+      },
+      "subtitle": "Track and manage your continuing professional development.",
+      "summary": {
+        "completedTitle": "Activities Completed & Logged",
+        "evidenceHelper": "{{files}} file(s)",
+        "evidenceTitle": "Activities With Evidence"
+      },
+      "table": {
+        "actions": "Actions",
+        "attached": "View",
+        "category": "Category",
+        "certificate": "Certificate",
+        "creditType": "Credit Type",
+        "creditValue": "Credit Value",
+        "dateCompleted": "Date Completed",
+        "noFile": "No file",
+        "provider": "Provider / Organizer",
+        "reportingYear": "Reporting Year",
+        "status": "Status",
+        "title": "Activity Title",
+        "type": "Activity Type"
+      },
+      "targetsDialog": {
+        "cancel": "Cancel",
+        "category": "Category",
+        "description": "Set a target for a specific CPD/PDU category and year. Saving updates the existing target for that category rather than adding a duplicate.",
+        "existingHint": "Current target: {{target}} PDUs. Saving will replace it.",
+        "loadingExisting": "Loading your current target...",
+        "newHint": "No target set for this category yet.",
+        "save": "Save target",
+        "success": "PDU target saved successfully.",
+        "target": "Target PDUs",
+        "title": "Adjust yearly targets",
+        "year": "Applicable year"
+      },
+      "title": "My Learning Activities"
+    }
+  },
+  "providerDashboard": {
+    "createEvent": {
+      "enums": {
+        "deliveryMode": {
+          "HYBRID": "Hybrid",
+          "IN_PERSON": "In person",
+          "LIVE_ONLINE": "Live online",
+          "RECORDED": "Recorded"
+        }
+      }
+    },
+    "promotions": {
+      "statuses": {
+        "APPROVED": "Approved",
+        "PENDING": "Pending",
+        "REJECTED": "Rejected"
+      },
+      "types": {
+        "BANNER": "Banner promotion",
+        "COMBO_PACKAGE": "Combo package",
+        "EMAIL_CAMPAIGN": "Email campaign",
+        "FEATURED": "Featured placement",
+        "FEATURED_LISTING": "Featured listing",
+        "SOCIAL_BOOST": "Social boost",
+        "SOCIAL_MEDIA_BOOST": "Social media boost"
+      }
+    }
+  }
+}

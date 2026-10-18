@@ -1,11 +1,10 @@
-"use client";
-
 import { Quote, Sparkles, Star } from "lucide-react";
 import { RevealOnScroll } from "@elements/reveal-scroll";
+import { loadTranslator } from "@/i18n/dictionaries";
 import { GlassCard } from "@elements/glass-card";
-import { useMemo } from "react";
-import { useI18n } from "@hooks/useI18n";
 import { cn } from "@lib/utils";
+
+import type { PublicLocale } from "@/lib/i18n/locale";
 
 type TestimonialItem = {
   key: string;
@@ -31,23 +30,20 @@ const testimonialItems: TestimonialItem[] = [
   },
 ];
 
-const LandingTestimonials = () => {
-  const { t } = useI18n();
+const LandingTestimonials = async ({ locale }: { locale: PublicLocale }) => {
+  const { t } = await loadTranslator(locale);
 
-  const testimonials = useMemo(() => {
-    return testimonialItems.map((item) => ({
-      ...item,
-      quote: t(`landing.testimonials.items.${item.key}.quote`),
-      name: t(`landing.testimonials.items.${item.key}.name`),
-      role: t(`landing.testimonials.items.${item.key}.role`),
-      tag: t(`landing.testimonials.items.${item.key}.tag`),
-    }));
-  }, [t]);
+  const testimonials = testimonialItems.map((item) => ({
+    ...item,
+    quote: t(`landing.testimonials.items.${item.key}.quote`),
+    name: t(`landing.testimonials.items.${item.key}.name`),
+    role: t(`landing.testimonials.items.${item.key}.role`),
+    tag: t(`landing.testimonials.items.${item.key}.tag`),
+  }));
 
   return (
     <section className="relative overflow-x-clip px-4 py-16 sm:px-6 lg:px-8">
-      <div className="pointer-events-none absolute inset-0 -z-10">
-      </div>
+      <div className="pointer-events-none absolute inset-0 -z-10"></div>
 
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <RevealOnScroll direction="up">
@@ -81,7 +77,6 @@ const LandingTestimonials = () => {
                   index === 1 && "lg:-mt-6",
                 )}
               >
-
                 <div className="relative z-10 flex h-full flex-col">
                   <div className="mb-6 flex items-center justify-between gap-4">
                     <div className="flex items-center gap-1">

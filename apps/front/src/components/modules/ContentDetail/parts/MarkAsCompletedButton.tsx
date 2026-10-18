@@ -4,7 +4,7 @@ import { useProfessionalContentCompletionQuery } from "@/lib/rtk/endpoints/profe
 import { CheckCircle2, CircleCheckBig } from "lucide-react";
 import { TMarkAsCompletedButtonProps } from "@/types/content-module.types";
 import { getContentTypeStyle } from "@/utils/content-type-style";
-import { useCurrentUserQuery } from "@/lib/rtk/endpoints/auth.api";
+import { usePublicSession } from "@/hooks/usePublicSession";
 import { useState } from "react";
 import { useI18n } from "@/hooks/useI18n";
 import { Button } from "@ui/button";
@@ -13,10 +13,8 @@ import { cn } from "@/lib/utils";
 
 import dynamic from "next/dynamic";
 
-const MarkAsCompletedDialog = dynamic(() =>
-  import("@modules/ContentDetail/parts/MarkAsCompletedDialog").then(
-    (module) => module.MarkAsCompletedDialog,
-  ),
+const MarkAsCompletedDialog = dynamic(
+  () => import("@modules/ContentDetail/parts/LazyMarkAsCompletedDialog"),
 );
 
 const MODAL = "contentDetails.markCompleted";
@@ -26,11 +24,11 @@ export const MarkAsCompletedButton = ({
   className,
 }: TMarkAsCompletedButtonProps) => {
   const { t } = useI18n();
-  const { data } = useCurrentUserQuery();
+  const { user } = usePublicSession();
   const [open, setOpen] = useState(false);
   const [hasOpened, setHasOpened] = useState(false);
 
-  const isProfessional = data?.user?.role === Role.Professional;
+  const isProfessional = user?.role === Role.Professional;
 
   const { data: existing } = useProfessionalContentCompletionQuery(
     {

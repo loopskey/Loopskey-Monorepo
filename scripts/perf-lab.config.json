@@ -1,0 +1,56 @@
+{
+  "targets": {
+    "lcpMs": 2500,
+    "cls": 0.1,
+    "tbtMs": 200
+  },
+  "profiles": {
+    "mobile": {
+      "description": "Moto G Power class device: 412x823 at DPR 1.75, 4x CPU slowdown, 150 ms RTT, 1.6 Mbps down, 750 Kbps up (Lighthouse mobile values, applied as DevTools throttling)",
+      "viewport": {
+        "width": 412,
+        "height": 823,
+        "deviceScaleFactor": 1.75,
+        "mobile": true
+      },
+      "userAgent": "Mozilla/5.0 (Linux; Android 11; moto g power (2022)) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Mobile Safari/537.36",
+      "cpuSlowdown": 4,
+      "network": {
+        "latencyMs": 150,
+        "downloadKbps": 1638.4,
+        "uploadKbps": 750
+      }
+    },
+    "desktop": {
+      "description": "1350x940 at DPR 1, no CPU slowdown, 40 ms RTT, 10 Mbps both ways (Lighthouse desktop values, applied as DevTools throttling)",
+      "viewport": {
+        "width": 1350,
+        "height": 940,
+        "deviceScaleFactor": 1,
+        "mobile": false
+      },
+      "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36",
+      "cpuSlowdown": 1,
+      "network": {
+        "latencyMs": 40,
+        "downloadKbps": 10240,
+        "uploadKbps": 10240
+      }
+    }
+  },
+  "routes": {
+    "home": "/",
+    "catalog": "/content",
+    "course": "/courses/fixture-course",
+    "event": "/events/fixture-event",
+    "podcast": "/podcasts/fixture-podcast",
+    "youtube": "/youtube/fixture-channel",
+    "topic": "/topics/fixture-topic",
+    "provider": "/providers/fixture-provider",
+    "about": "/about",
+    "static": "/cookies",
+    "contact": "/contact",
+    "home-fr": "/fr"
+  },
+  "representative": ["home", "catalog", "course", "about"]
+}

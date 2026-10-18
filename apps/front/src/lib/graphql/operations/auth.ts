@@ -1,5 +1,5 @@
 import * as Types from "@/lib/graphql/base";
-import { TypedDocumentString } from "@/lib/graphql/base";
+import { TypedDocumentString } from "@/lib/graphql/document";
 export type RegisterMutationVariables = Types.Exact<{
   input: Types.RegisterInput;
 }>;
@@ -27,16 +27,6 @@ export type LoginMutationVariables = Types.Exact<{
 
 
 export type LoginMutation = { __typename?: 'Mutation', login: { __typename?: 'AuthPayload', code: string, success: boolean, message: string, user?: { __typename?: 'AuthUser', id: string, role: Types.Role, email?: string | null, status: Types.UserStatus, fullName?: string | null, emailVerifiedAt?: string | null, forcePasswordChange: boolean } | null } };
-
-export type RefreshTokenMutationVariables = Types.Exact<{ [key: string]: never; }>;
-
-
-export type RefreshTokenMutation = { __typename?: 'Mutation', refreshToken: { __typename?: 'AuthPayload', code: string, success: boolean, message: string, user?: { __typename?: 'AuthUser', id: string, role: Types.Role, email?: string | null, status: Types.UserStatus, fullName?: string | null, avatarUrl?: string | null, emailVerifiedAt?: string | null, forcePasswordChange: boolean } | null } };
-
-export type LogoutMutationVariables = Types.Exact<{ [key: string]: never; }>;
-
-
-export type LogoutMutation = { __typename?: 'Mutation', logout: { __typename?: 'AuthPayload', code: string, success: boolean, message: string } };
 
 export type ForgotPasswordMutationVariables = Types.Exact<{
   input: Types.ForgotPasswordInput;
@@ -107,11 +97,6 @@ export type ChangePasswordMutationVariables = Types.Exact<{
 
 
 export type ChangePasswordMutation = { __typename?: 'Mutation', changePassword: { __typename?: 'AuthPayload', code: string, success: boolean, message: string, user?: { __typename?: 'AuthUser', id: string, role: Types.Role, email?: string | null, status: Types.UserStatus, fullName?: string | null, emailVerifiedAt?: string | null, forcePasswordChange: boolean } | null } };
-
-export type CurrentUserQueryVariables = Types.Exact<{ [key: string]: never; }>;
-
-
-export type CurrentUserQuery = { __typename?: 'Query', currentUser: { __typename?: 'AuthPayload', code: string, success: boolean, message: string, user?: { __typename?: 'AuthUser', id: string, bio?: string | null, role: Types.Role, email?: string | null, status: Types.UserStatus, fullName?: string | null, avatarUrl?: string | null, emailVerifiedAt?: string | null, forcePasswordChange: boolean } | null } };
 
 export type RequestEmailChangeMutationVariables = Types.Exact<{
   input: Types.RequestEmailChangeInput;
@@ -214,34 +199,6 @@ export const LoginDocument = /*#__PURE__*/ new TypedDocumentString(`
   }
 }
     `) as unknown as TypedDocumentString<LoginMutation, LoginMutationVariables>;
-export const RefreshTokenDocument = /*#__PURE__*/ new TypedDocumentString(`
-    mutation RefreshToken {
-  refreshToken {
-    code
-    success
-    message
-    user {
-      id
-      role
-      email
-      status
-      fullName
-      avatarUrl
-      emailVerifiedAt
-      forcePasswordChange
-    }
-  }
-}
-    `) as unknown as TypedDocumentString<RefreshTokenMutation, RefreshTokenMutationVariables>;
-export const LogoutDocument = /*#__PURE__*/ new TypedDocumentString(`
-    mutation Logout {
-  logout {
-    code
-    success
-    message
-  }
-}
-    `) as unknown as TypedDocumentString<LogoutMutation, LogoutMutationVariables>;
 export const ForgotPasswordDocument = /*#__PURE__*/ new TypedDocumentString(`
     mutation ForgotPassword($input: ForgotPasswordInput!) {
   forgotPassword(input: $input) {
@@ -339,26 +296,6 @@ export const ChangePasswordDocument = /*#__PURE__*/ new TypedDocumentString(`
   }
 }
     `) as unknown as TypedDocumentString<ChangePasswordMutation, ChangePasswordMutationVariables>;
-export const CurrentUserDocument = /*#__PURE__*/ new TypedDocumentString(`
-    query CurrentUser {
-  currentUser {
-    code
-    success
-    message
-    user {
-      id
-      bio
-      role
-      email
-      status
-      fullName
-      avatarUrl
-      emailVerifiedAt
-      forcePasswordChange
-    }
-  }
-}
-    `) as unknown as TypedDocumentString<CurrentUserQuery, CurrentUserQueryVariables>;
 export const RequestEmailChangeDocument = /*#__PURE__*/ new TypedDocumentString(`
     mutation RequestEmailChange($input: RequestEmailChangeInput!) {
   requestEmailChange(input: $input) {

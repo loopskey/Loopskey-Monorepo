@@ -1,6 +1,6 @@
 "use client";
 
-import { isValidImageSrc } from "@utils/function-helper";
+import { isValidImageSrc } from "@utils/image-src.util";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
 

@@ -1,13 +1,10 @@
+import { getAuthErrorCode } from "@/utils/graphql-error.util";
 import { AuthMessageCode } from "@loopskey/api-contracts/error-codes";
+import { getObjectValue } from "@/utils/graphql-error.util";
 
 import type { TGraphQLBaseQueryError } from "@/types/rtk.types";
 
 export type TAuthErrorCode = AuthMessageCode;
-
-const getObjectValue = (value: unknown, key: string): unknown => {
-  if (!value || typeof value !== "object") return undefined;
-  return (value as Record<string, unknown>)[key];
-};
 
 const KNOWN_AUTH_CODES = new Set<string>(Object.values(AuthMessageCode));
 
@@ -55,24 +52,10 @@ const AUTH_ERROR_TRANSLATION_KEYS: Partial<Record<AuthMessageCode, string>> = {
     "authPages.oauth.linkedinSignupNotAllowedForRole",
 };
 
+export { getAuthErrorCode };
+
 export const isAuthErrorCode = (value: unknown): value is TAuthErrorCode =>
   typeof value === "string" && KNOWN_AUTH_CODES.has(value);
-
-export const getAuthErrorCode = (error: unknown): string | null => {
-  const queryError = error as TGraphQLBaseQueryError | undefined;
-  const firstError = queryError?.errors?.[0];
-  const extensionCode = firstError?.extensions?.code;
-  if (typeof extensionCode === "string") return extensionCode;
-  const originalError = firstError?.extensions?.originalError;
-  const originalCode = getObjectValue(originalError, "code");
-  if (typeof originalCode === "string") return originalCode;
-  const originalMessage = getObjectValue(originalError, "message");
-  if (originalMessage && typeof originalMessage === "object") {
-    const messageCode = getObjectValue(originalMessage, "code");
-    if (typeof messageCode === "string") return messageCode;
-  }
-  return null;
-};
 
 export const getAuthErrorTranslationKey = (
   errorOrCode: unknown,

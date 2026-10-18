@@ -1,5 +1,5 @@
 import * as Types from "@/lib/graphql/base";
-import { TypedDocumentString } from "@/lib/graphql/base";
+import { TypedDocumentString } from "@/lib/graphql/document";
 export type TopicHubItemFieldsFragment = { __typename?: 'TopicHubItem', kind: Types.ContentUrlKind, slug: string, title: string, summary?: string | null, imageUrl?: string | null, category?: string | null };
 
 export type AdminTopicHubSummaryFieldsFragment = { __typename?: 'AdminTopicHubSummary', id: string, slug: string, title: string, status: Types.TopicHubStatus, version: number, linkCount: number, eligibleLinkCount: number, needsReview: boolean, excludeFromIndex: boolean, publishedAt?: string | null, updatedAt: string };

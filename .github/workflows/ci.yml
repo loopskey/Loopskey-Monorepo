@@ -91,6 +91,15 @@ jobs:
       - name: Build
         run: npx turbo run build --affected
 
+      - name: Check public JavaScript targets and ceilings
+        shell: bash
+        run: |
+          if [ ! -f apps/front/.next/BUILD_ID ]; then
+            echo "The frontend was not built in this run, so there is nothing to measure."
+            exit 0
+          fi
+          npm run bundle-report --workspace front -- --check-targets --check-ceilings
+
       - name: Check generated GraphQL types
         shell: bash
         run: |
@@ -111,6 +120,11 @@ jobs:
 
       - name: SEO diagnostic self-test
         run: node scripts/seo-audit.mjs --self-test
+
+      - name: Performance lab self-test
+        run: |
+          node scripts/perf-lab.mjs --self-test
+          node scripts/perf-fixture-api.mjs --self-test
 
       - name: Audit the production build
         shell: bash

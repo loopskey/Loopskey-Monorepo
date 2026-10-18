@@ -8,6 +8,8 @@ import { getProviderByline } from "@/lib/server/public-content";
 import { DetailOpenTracker } from "@elements/detail-open-tracker";
 import { contentMetadata } from "@/lib/social-card/metadata";
 import { noindexMetadata } from "@/lib/site/page-metadata";
+import { ClientMessages } from "@elements/client-messages";
+import { StoreProvider } from "@/providers/rtk-provider";
 import { channelGraph } from "@/lib/structured-data/detail-graphs";
 import { detailTrail } from "@/lib/structured-data/trail";
 import { ContentType } from "@/lib/graphql/base";
@@ -65,32 +67,34 @@ const Page = async ({ params }: TContentDetailPageProps) => {
     locale: publicLocale,
   });
   return (
-    <>
-      <DetailOpenTracker contentType={ContentType.Youtube} />
-      {!channel.excludeFromIndex && (
-        <JsonLd
-          nodes={channelGraph({
-            content: channel,
-            locale: publicLocale,
-            trail,
-          })}
+    <ClientMessages scope="detail" locale={publicLocale}>
+      <StoreProvider>
+        <DetailOpenTracker contentType={ContentType.Youtube} />
+        {!channel.excludeFromIndex && (
+          <JsonLd
+            nodes={channelGraph({
+              content: channel,
+              locale: publicLocale,
+              trail,
+            })}
+          />
+        )}
+        <YoutubeDetail
+          channel={channel}
+          videos={videos}
+          breadcrumbs={
+            <>
+              <Breadcrumbs trail={trail} locale={publicLocale} />
+              <ContentRelations
+                hubs={hubs}
+                byline={byline}
+                locale={publicLocale}
+              />
+            </>
+          }
         />
-      )}
-      <YoutubeDetail
-        channel={channel}
-        videos={videos}
-        breadcrumbs={
-          <>
-            <Breadcrumbs trail={trail} locale={publicLocale} />
-            <ContentRelations
-              hubs={hubs}
-              byline={byline}
-              locale={publicLocale}
-            />
-          </>
-        }
-      />
-    </>
+      </StoreProvider>
+    </ClientMessages>
   );
 };
 

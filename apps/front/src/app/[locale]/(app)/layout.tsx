@@ -1,7 +1,8 @@
 import { PreferredLanguageProvider } from "@/providers/preferred-language-provider";
 import { DEFAULT_PUBLIC_LOCALE } from "@/lib/i18n/locale";
-import { notFound } from "next/navigation";
+import { StoreProvider } from "@/providers/rtk-provider";
 import { ReactNode } from "react";
+import { notFound } from "next/navigation";
 
 type TAppLayoutProps = {
   children: ReactNode;
@@ -11,7 +12,11 @@ type TAppLayoutProps = {
 const AppLayout = async ({ children, params }: TAppLayoutProps) => {
   const { locale } = await params;
   if (locale !== DEFAULT_PUBLIC_LOCALE) notFound();
-  return <PreferredLanguageProvider>{children}</PreferredLanguageProvider>;
+  return (
+    <StoreProvider>
+      <PreferredLanguageProvider>{children}</PreferredLanguageProvider>
+    </StoreProvider>
+  );
 };
 
 export default AppLayout;

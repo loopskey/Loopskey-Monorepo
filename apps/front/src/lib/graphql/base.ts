@@ -1,4 +1,3 @@
-import { DocumentTypeDecoration } from '@graphql-typed-document-node/core';
 export type Maybe<T> = T | null;
 export type InputMaybe<T> = T | null;
 export type Exact<T extends { [key: string]: unknown }> = { [K in keyof T]: T[K] };
@@ -323,11 +322,12 @@ export type AdminUserFilter = {
   status?: InputMaybe<UserStatus>;
 };
 
-export enum AppLanguage {
-  En = 'EN',
-  Fr = 'FR'
-}
+export const AppLanguage = {
+  En: 'EN',
+  Fr: 'FR'
+} as const;
 
+export type AppLanguage = typeof AppLanguage[keyof typeof AppLanguage];
 export type ApproveIngestionItems = {
   itemIds?: InputMaybe<Array<Scalars['String']['input']>>;
   search?: InputMaybe<Scalars['String']['input']>;
@@ -341,26 +341,29 @@ export type ApproveIngestionItemsResult = {
 };
 
 /** Assignment status */
-export enum AssignmentStatus {
-  Active = 'ACTIVE',
-  Archived = 'ARCHIVED',
-  Completed = 'COMPLETED'
-}
+export const AssignmentStatus = {
+  Active: 'ACTIVE',
+  Archived: 'ARCHIVED',
+  Completed: 'COMPLETED'
+} as const;
 
+export type AssignmentStatus = typeof AssignmentStatus[keyof typeof AssignmentStatus];
 /** Target type of assignment */
-export enum AssignmentTargetKind {
-  All = 'ALL',
-  Department = 'DEPARTMENT',
-  Member = 'MEMBER',
-  Role = 'ROLE'
-}
+export const AssignmentTargetKind = {
+  All: 'ALL',
+  Department: 'DEPARTMENT',
+  Member: 'MEMBER',
+  Role: 'ROLE'
+} as const;
 
+export type AssignmentTargetKind = typeof AssignmentTargetKind[keyof typeof AssignmentTargetKind];
 /** Assignment type (HARD / SOFT) */
-export enum AssignmentType {
-  Hard = 'HARD',
-  Soft = 'SOFT'
-}
+export const AssignmentType = {
+  Hard: 'HARD',
+  Soft: 'SOFT'
+} as const;
 
+export type AssignmentType = typeof AssignmentType[keyof typeof AssignmentType];
 export type Association = {
   __typename?: 'Association';
   contactEmail?: Maybe<Scalars['String']['output']>;
@@ -398,13 +401,14 @@ export type AssociationActivationStatus = {
   status: AssociationActivationTokenStatus;
 };
 
-export enum AssociationActivationTokenStatus {
-  Expired = 'EXPIRED',
-  Invalid = 'INVALID',
-  Used = 'USED',
-  Valid = 'VALID'
-}
+export const AssociationActivationTokenStatus = {
+  Expired: 'EXPIRED',
+  Invalid: 'INVALID',
+  Used: 'USED',
+  Valid: 'VALID'
+} as const;
 
+export type AssociationActivationTokenStatus = typeof AssociationActivationTokenStatus[keyof typeof AssociationActivationTokenStatus];
 export type AssociationActivityCounts = {
   __typename?: 'AssociationActivityCounts';
   awaitingReview: Scalars['Int']['output'];
@@ -473,28 +477,31 @@ export type AssociationAttentionRow = {
 };
 
 /** Which attention list a row or a send belongs to */
-export enum AssociationAttentionSection {
-  BelowThreshold = 'BELOW_THRESHOLD',
-  CategoryBehind = 'CATEGORY_BEHIND',
-  ExpiringCertificates = 'EXPIRING_CERTIFICATES',
-  NewJoiners = 'NEW_JOINERS',
-  ReadyReports = 'READY_REPORTS'
-}
+export const AssociationAttentionSection = {
+  BelowThreshold: 'BELOW_THRESHOLD',
+  CategoryBehind: 'CATEGORY_BEHIND',
+  ExpiringCertificates: 'EXPIRING_CERTIFICATES',
+  NewJoiners: 'NEW_JOINERS',
+  ReadyReports: 'READY_REPORTS'
+} as const;
 
+export type AssociationAttentionSection = typeof AssociationAttentionSection[keyof typeof AssociationAttentionSection];
 /** Whether one activity counted toward a requirement, waits on a decision, or was rejected */
-export enum AssociationAttributionState {
-  AwaitingReview = 'AWAITING_REVIEW',
-  Counted = 'COUNTED',
-  Rejected = 'REJECTED'
-}
+export const AssociationAttributionState = {
+  AwaitingReview: 'AWAITING_REVIEW',
+  Counted: 'COUNTED',
+  Rejected: 'REJECTED'
+} as const;
 
+export type AssociationAttributionState = typeof AssociationAttributionState[keyof typeof AssociationAttributionState];
 /** Which members a requirement applies to */
-export enum AssociationAudienceKind {
-  AllMembers = 'ALL_MEMBERS',
-  Group = 'GROUP',
-  SpecificMembers = 'SPECIFIC_MEMBERS'
-}
+export const AssociationAudienceKind = {
+  AllMembers: 'ALL_MEMBERS',
+  Group: 'GROUP',
+  SpecificMembers: 'SPECIFIC_MEMBERS'
+} as const;
 
+export type AssociationAudienceKind = typeof AssociationAudienceKind[keyof typeof AssociationAudienceKind];
 export type AssociationBulkInviteFailure = {
   __typename?: 'AssociationBulkInviteFailure';
   code: Scalars['String']['output'];
@@ -572,13 +579,14 @@ export type AssociationCategoryProgressRow = {
 };
 
 /** How far a member has got against what was required of them */
-export enum AssociationComplianceBand {
-  AtRisk = 'AT_RISK',
-  NotStarted = 'NOT_STARTED',
-  OnTrack = 'ON_TRACK',
-  RenewalReady = 'RENEWAL_READY'
-}
+export const AssociationComplianceBand = {
+  AtRisk: 'AT_RISK',
+  NotStarted: 'NOT_STARTED',
+  OnTrack: 'ON_TRACK',
+  RenewalReady: 'RENEWAL_READY'
+} as const;
 
+export type AssociationComplianceBand = typeof AssociationComplianceBand[keyof typeof AssociationComplianceBand];
 export type AssociationComplianceFilterInput = {
   groupId?: InputMaybe<Scalars['ID']['input']>;
   memberIds?: InputMaybe<Array<Scalars['ID']['input']>>;
@@ -641,12 +649,13 @@ export type AssociationEvidenceFile = {
 };
 
 /** Whether members must attach evidence, and whether it is reviewed */
-export enum AssociationEvidencePolicy {
-  NotRequired = 'NOT_REQUIRED',
-  RequiredNeedsReview = 'REQUIRED_NEEDS_REVIEW',
-  RequiredNoReview = 'REQUIRED_NO_REVIEW'
-}
+export const AssociationEvidencePolicy = {
+  NotRequired: 'NOT_REQUIRED',
+  RequiredNeedsReview: 'REQUIRED_NEEDS_REVIEW',
+  RequiredNoReview: 'REQUIRED_NO_REVIEW'
+} as const;
 
+export type AssociationEvidencePolicy = typeof AssociationEvidencePolicy[keyof typeof AssociationEvidencePolicy];
 export type AssociationGeneratedReport = {
   __typename?: 'AssociationGeneratedReport';
   createdAt: Scalars['DateTime']['output'];
@@ -674,13 +683,14 @@ export type AssociationGeneratedReportFilter = {
 };
 
 /** Whether an export is being generated, ready to download, failed, or past its retention */
-export enum AssociationGeneratedReportState {
-  Expired = 'EXPIRED',
-  Failed = 'FAILED',
-  Pending = 'PENDING',
-  Ready = 'READY'
-}
+export const AssociationGeneratedReportState = {
+  Expired: 'EXPIRED',
+  Failed: 'FAILED',
+  Pending: 'PENDING',
+  Ready: 'READY'
+} as const;
 
+export type AssociationGeneratedReportState = typeof AssociationGeneratedReportState[keyof typeof AssociationGeneratedReportState];
 export type AssociationGroup = {
   __typename?: 'AssociationGroup';
   createdAt: Scalars['DateTime']['output'];
@@ -728,13 +738,14 @@ export type AssociationInvitationDelivery = {
 };
 
 /** Whether an invitation linked an existing account, queued a new email, or was held back by the resend cooldown or daily limit */
-export enum AssociationInviteOutcome {
-  InvitationCooldown = 'INVITATION_COOLDOWN',
-  InvitationLimitReached = 'INVITATION_LIMIT_REACHED',
-  InvitationSent = 'INVITATION_SENT',
-  LinkedExistingUser = 'LINKED_EXISTING_USER'
-}
+export const AssociationInviteOutcome = {
+  InvitationCooldown: 'INVITATION_COOLDOWN',
+  InvitationLimitReached: 'INVITATION_LIMIT_REACHED',
+  InvitationSent: 'INVITATION_SENT',
+  LinkedExistingUser: 'LINKED_EXISTING_USER'
+} as const;
 
+export type AssociationInviteOutcome = typeof AssociationInviteOutcome[keyof typeof AssociationInviteOutcome];
 export type AssociationInviteResult = {
   __typename?: 'AssociationInviteResult';
   member: AssociationMember;
@@ -742,12 +753,13 @@ export type AssociationInviteResult = {
 };
 
 /** Whether a submission after the deadline is accepted, and how */
-export enum AssociationLateSubmissionPolicy {
-  AcceptedDuringGrace = 'ACCEPTED_DURING_GRACE',
-  AcceptedFlaggedLate = 'ACCEPTED_FLAGGED_LATE',
-  NotAccepted = 'NOT_ACCEPTED'
-}
+export const AssociationLateSubmissionPolicy = {
+  AcceptedDuringGrace: 'ACCEPTED_DURING_GRACE',
+  AcceptedFlaggedLate: 'ACCEPTED_FLAGGED_LATE',
+  NotAccepted: 'NOT_ACCEPTED'
+} as const;
 
+export type AssociationLateSubmissionPolicy = typeof AssociationLateSubmissionPolicy[keyof typeof AssociationLateSubmissionPolicy];
 export type AssociationLearningContent = {
   __typename?: 'AssociationLearningContent';
   audienceKind: AssociationAudienceKind;
@@ -789,12 +801,13 @@ export type AssociationLearningContentIdInput = {
 };
 
 /** Whether a library item is a draft, published, or withdrawn */
-export enum AssociationLearningContentStatus {
-  Draft = 'DRAFT',
-  Published = 'PUBLISHED',
-  Withdrawn = 'WITHDRAWN'
-}
+export const AssociationLearningContentStatus = {
+  Draft: 'DRAFT',
+  Published: 'PUBLISHED',
+  Withdrawn: 'WITHDRAWN'
+} as const;
 
+export type AssociationLearningContentStatus = typeof AssociationLearningContentStatus[keyof typeof AssociationLearningContentStatus];
 export type AssociationLearningContentTarget = {
   __typename?: 'AssociationLearningContentTarget';
   groupId?: Maybe<Scalars['ID']['output']>;
@@ -811,16 +824,17 @@ export type AssociationLearningEngagement = {
 };
 
 /** The kind of content an external (non-catalogue) library item is, chosen by the association */
-export enum AssociationLearningExternalType {
-  Article = 'ARTICLE',
-  Course = 'COURSE',
-  Event = 'EVENT',
-  Other = 'OTHER',
-  Podcast = 'PODCAST',
-  Video = 'VIDEO',
-  Webinar = 'WEBINAR'
-}
+export const AssociationLearningExternalType = {
+  Article: 'ARTICLE',
+  Course: 'COURSE',
+  Event: 'EVENT',
+  Other: 'OTHER',
+  Podcast: 'PODCAST',
+  Video: 'VIDEO',
+  Webinar: 'WEBINAR'
+} as const;
 
+export type AssociationLearningExternalType = typeof AssociationLearningExternalType[keyof typeof AssociationLearningExternalType];
 export type AssociationMember = {
   __typename?: 'AssociationMember';
   activatedAt?: Maybe<Scalars['DateTime']['output']>;
@@ -936,12 +950,13 @@ export type AssociationMemberGroup = {
 };
 
 /** How a member came to join the association's roster */
-export enum AssociationMemberJoinedVia {
-  BulkImported = 'BULK_IMPORTED',
-  Invited = 'INVITED',
-  LinkedExistingAccount = 'LINKED_EXISTING_ACCOUNT'
-}
+export const AssociationMemberJoinedVia = {
+  BulkImported: 'BULK_IMPORTED',
+  Invited: 'INVITED',
+  LinkedExistingAccount: 'LINKED_EXISTING_ACCOUNT'
+} as const;
 
+export type AssociationMemberJoinedVia = typeof AssociationMemberJoinedVia[keyof typeof AssociationMemberJoinedVia];
 export type AssociationMemberProfile = {
   __typename?: 'AssociationMemberProfile';
   assignments: Array<AssociationAssignmentProgress>;
@@ -1007,12 +1022,13 @@ export type AssociationMemberStats = {
 };
 
 /** Where a member stands between invitation and membership */
-export enum AssociationMemberStatus {
-  Active = 'ACTIVE',
-  Inactive = 'INACTIVE',
-  PendingActivation = 'PENDING_ACTIVATION'
-}
+export const AssociationMemberStatus = {
+  Active: 'ACTIVE',
+  Inactive: 'INACTIVE',
+  PendingActivation: 'PENDING_ACTIVATION'
+} as const;
 
+export type AssociationMemberStatus = typeof AssociationMemberStatus[keyof typeof AssociationMemberStatus];
 export type AssociationMemberSummary = {
   __typename?: 'AssociationMemberSummary';
   awaitingReviewCount: Scalars['Int']['output'];
@@ -1043,13 +1059,14 @@ export type AssociationMessageBatch = {
 };
 
 /** Where one recipient's copy of a message stands */
-export enum AssociationMessageDeliveryState {
-  Failed = 'FAILED',
-  Queued = 'QUEUED',
-  Sent = 'SENT',
-  Skipped = 'SKIPPED'
-}
+export const AssociationMessageDeliveryState = {
+  Failed: 'FAILED',
+  Queued: 'QUEUED',
+  Sent: 'SENT',
+  Skipped: 'SKIPPED'
+} as const;
 
+export type AssociationMessageDeliveryState = typeof AssociationMessageDeliveryState[keyof typeof AssociationMessageDeliveryState];
 export type AssociationMessageHistoryRow = {
   __typename?: 'AssociationMessageHistoryRow';
   createdAt: Scalars['DateTime']['output'];
@@ -1087,27 +1104,29 @@ export type AssociationMessageSkip = {
 };
 
 /** Why a member in the audience was deliberately not written to */
-export enum AssociationMessageSkipReason {
-  Cooldown = 'COOLDOWN',
-  EmailSuppressed = 'EMAIL_SUPPRESSED',
-  InactiveAccount = 'INACTIVE_ACCOUNT',
-  NotInList = 'NOT_IN_LIST',
-  NoLongerApplicable = 'NO_LONGER_APPLICABLE',
-  NoVerifiedEmail = 'NO_VERIFIED_EMAIL'
-}
+export const AssociationMessageSkipReason = {
+  Cooldown: 'COOLDOWN',
+  EmailSuppressed: 'EMAIL_SUPPRESSED',
+  InactiveAccount: 'INACTIVE_ACCOUNT',
+  NotInList: 'NOT_IN_LIST',
+  NoLongerApplicable: 'NO_LONGER_APPLICABLE',
+  NoVerifiedEmail: 'NO_VERIFIED_EMAIL'
+} as const;
 
+export type AssociationMessageSkipReason = typeof AssociationMessageSkipReason[keyof typeof AssociationMessageSkipReason];
 /** Which templated message the platform sends on the association's behalf */
-export enum AssociationMessageType {
-  BehindThreshold = 'BEHIND_THRESHOLD',
-  CategoryBehind = 'CATEGORY_BEHIND',
-  CertificateExpiring = 'CERTIFICATE_EXPIRING',
-  GroupAdded = 'GROUP_ADDED',
-  Invitation = 'INVITATION',
-  LearningContentAssigned = 'LEARNING_CONTENT_ASSIGNED',
-  RequirementAssigned = 'REQUIREMENT_ASSIGNED',
-  Welcome = 'WELCOME'
-}
+export const AssociationMessageType = {
+  BehindThreshold: 'BEHIND_THRESHOLD',
+  CategoryBehind: 'CATEGORY_BEHIND',
+  CertificateExpiring: 'CERTIFICATE_EXPIRING',
+  GroupAdded: 'GROUP_ADDED',
+  Invitation: 'INVITATION',
+  LearningContentAssigned: 'LEARNING_CONTENT_ASSIGNED',
+  RequirementAssigned: 'REQUIREMENT_ASSIGNED',
+  Welcome: 'WELCOME'
+} as const;
 
+export type AssociationMessageType = typeof AssociationMessageType[keyof typeof AssociationMessageType];
 export type AssociationMissingEvidenceRow = {
   __typename?: 'AssociationMissingEvidenceRow';
   awaitingReviewCount: Scalars['Int']['output'];
@@ -1254,10 +1273,11 @@ export type AssociationRecentActivity = {
 };
 
 /** What must be true for a requirement to count as renewed */
-export enum AssociationRenewalCondition {
-  TotalCreditsMet = 'TOTAL_CREDITS_MET'
-}
+export const AssociationRenewalCondition = {
+  TotalCreditsMet: 'TOTAL_CREDITS_MET'
+} as const;
 
+export type AssociationRenewalCondition = typeof AssociationRenewalCondition[keyof typeof AssociationRenewalCondition];
 export type AssociationRenewalReadinessRow = {
   __typename?: 'AssociationRenewalReadinessRow';
   awaitingReviewCount: Scalars['Int']['output'];
@@ -1304,25 +1324,27 @@ export type AssociationReportFilterInput = {
 };
 
 /** Whether an export is a branded document for circulation or a workbook for analysis */
-export enum AssociationReportFormat {
-  Excel = 'EXCEL',
-  Pdf = 'PDF'
-}
+export const AssociationReportFormat = {
+  Excel: 'EXCEL',
+  Pdf: 'PDF'
+} as const;
 
+export type AssociationReportFormat = typeof AssociationReportFormat[keyof typeof AssociationReportFormat];
 export type AssociationReportPaginationInput = {
   cursor?: InputMaybe<Scalars['String']['input']>;
   take?: InputMaybe<Scalars['Int']['input']>;
 };
 
 /** The period a report covers, as a preset or an explicit range */
-export enum AssociationReportPeriod {
-  Custom = 'CUSTOM',
-  Last_30Days = 'LAST_30_DAYS',
-  Last_90Days = 'LAST_90_DAYS',
-  LastYear = 'LAST_YEAR',
-  ThisYear = 'THIS_YEAR'
-}
+export const AssociationReportPeriod = {
+  Custom: 'CUSTOM',
+  Last_30Days: 'LAST_30_DAYS',
+  Last_90Days: 'LAST_90_DAYS',
+  LastYear: 'LAST_YEAR',
+  ThisYear: 'THIS_YEAR'
+} as const;
 
+export type AssociationReportPeriod = typeof AssociationReportPeriod[keyof typeof AssociationReportPeriod];
 export type AssociationReportSummary = {
   __typename?: 'AssociationReportSummary';
   atRisk: Scalars['Int']['output'];
@@ -1346,22 +1368,24 @@ export type AssociationReportSummary = {
 };
 
 /** Which of the six reports an export renders */
-export enum AssociationReportType {
-  CategoryCompletion = 'CATEGORY_COMPLETION',
-  GroupProgress = 'GROUP_PROGRESS',
-  MemberProgress = 'MEMBER_PROGRESS',
-  MissingEvidence = 'MISSING_EVIDENCE',
-  OverviewSummary = 'OVERVIEW_SUMMARY',
-  RenewalReadiness = 'RENEWAL_READINESS'
-}
+export const AssociationReportType = {
+  CategoryCompletion: 'CATEGORY_COMPLETION',
+  GroupProgress: 'GROUP_PROGRESS',
+  MemberProgress: 'MEMBER_PROGRESS',
+  MissingEvidence: 'MISSING_EVIDENCE',
+  OverviewSummary: 'OVERVIEW_SUMMARY',
+  RenewalReadiness: 'RENEWAL_READINESS'
+} as const;
 
+export type AssociationReportType = typeof AssociationReportType[keyof typeof AssociationReportType];
 /** How often a requirement's obligation repeats */
-export enum AssociationReportingCycle {
-  Annual = 'ANNUAL',
-  MultiYear = 'MULTI_YEAR',
-  OneTime = 'ONE_TIME'
-}
+export const AssociationReportingCycle = {
+  Annual: 'ANNUAL',
+  MultiYear: 'MULTI_YEAR',
+  OneTime: 'ONE_TIME'
+} as const;
 
+export type AssociationReportingCycle = typeof AssociationReportingCycle[keyof typeof AssociationReportingCycle];
 export type AssociationRequirement = {
   __typename?: 'AssociationRequirement';
   archivedAt?: Maybe<Scalars['DateTime']['output']>;
@@ -1439,12 +1463,13 @@ export type AssociationRequirementStats = {
 };
 
 /** Where a requirement stands in its draft, published, archived life */
-export enum AssociationRequirementStatus {
-  Archived = 'ARCHIVED',
-  Draft = 'DRAFT',
-  Published = 'PUBLISHED'
-}
+export const AssociationRequirementStatus = {
+  Archived: 'ARCHIVED',
+  Draft: 'DRAFT',
+  Published: 'PUBLISHED'
+} as const;
 
+export type AssociationRequirementStatus = typeof AssociationRequirementStatus[keyof typeof AssociationRequirementStatus];
 export type AssociationRequirementTarget = {
   __typename?: 'AssociationRequirementTarget';
   groupId?: Maybe<Scalars['ID']['output']>;
@@ -1483,14 +1508,15 @@ export type AssociationSettingsImpact = {
 };
 
 /** When a requirement's submission window opens, relative to its deadline */
-export enum AssociationSubmissionWindow {
-  Days_30 = 'DAYS_30',
-  Days_60 = 'DAYS_60',
-  Days_90 = 'DAYS_90',
-  Days_180 = 'DAYS_180',
-  WholePeriod = 'WHOLE_PERIOD'
-}
+export const AssociationSubmissionWindow = {
+  Days_30: 'DAYS_30',
+  Days_60: 'DAYS_60',
+  Days_90: 'DAYS_90',
+  Days_180: 'DAYS_180',
+  WholePeriod: 'WHOLE_PERIOD'
+} as const;
 
+export type AssociationSubmissionWindow = typeof AssociationSubmissionWindow[keyof typeof AssociationSubmissionWindow];
 export type AttachRetiredContentSlugInput = {
   contentId: Scalars['ID']['input'];
   evidence: Scalars['String']['input'];
@@ -1499,44 +1525,45 @@ export type AttachRetiredContentSlugInput = {
   retiredSlug: Scalars['String']['input'];
 };
 
-export enum AuditAction {
-  AdminProfileUpdated = 'ADMIN_PROFILE_UPDATED',
-  AssociationAccountActivated = 'ASSOCIATION_ACCOUNT_ACTIVATED',
-  AssociationAccountCreated = 'ASSOCIATION_ACCOUNT_CREATED',
-  AssociationActivationResent = 'ASSOCIATION_ACTIVATION_RESENT',
-  AssociationActivityApproved = 'ASSOCIATION_ACTIVITY_APPROVED',
-  AssociationActivityRejected = 'ASSOCIATION_ACTIVITY_REJECTED',
-  AssociationMemberInvitationAccepted = 'ASSOCIATION_MEMBER_INVITATION_ACCEPTED',
-  AssociationSettingsUpdated = 'ASSOCIATION_SETTINGS_UPDATED',
-  ContentIndexExclusionChanged = 'CONTENT_INDEX_EXCLUSION_CHANGED',
-  ContentSeoUpdated = 'CONTENT_SEO_UPDATED',
-  ContentSlugChanged = 'CONTENT_SLUG_CHANGED',
-  ContentUrlAliasAttached = 'CONTENT_URL_ALIAS_ATTACHED',
-  IngestionItemApproved = 'INGESTION_ITEM_APPROVED',
-  IngestionItemRejected = 'INGESTION_ITEM_REJECTED',
-  OrganizationAccountActivated = 'ORGANIZATION_ACCOUNT_ACTIVATED',
-  OrganizationAccountCreated = 'ORGANIZATION_ACCOUNT_CREATED',
-  OrganizationActivationResent = 'ORGANIZATION_ACTIVATION_RESENT',
-  OrganizationMemberRemoved = 'ORGANIZATION_MEMBER_REMOVED',
-  OrganizationMemberUpdated = 'ORGANIZATION_MEMBER_UPDATED',
-  OrganizationNotificationFailed = 'ORGANIZATION_NOTIFICATION_FAILED',
-  OrganizationSettingsUpdated = 'ORGANIZATION_SETTINGS_UPDATED',
-  OrganizationViewed = 'ORGANIZATION_VIEWED',
-  OrgAccessRequestApproved = 'ORG_ACCESS_REQUEST_APPROVED',
-  OrgAccessRequestRejected = 'ORG_ACCESS_REQUEST_REJECTED',
-  OrgAccessRequestSubmitted = 'ORG_ACCESS_REQUEST_SUBMITTED',
-  ProviderProfileIndexExclusionChanged = 'PROVIDER_PROFILE_INDEX_EXCLUSION_CHANGED',
-  ProviderProfileReviewed = 'PROVIDER_PROFILE_REVIEWED',
-  ProviderProfileSubmitted = 'PROVIDER_PROFILE_SUBMITTED',
-  ProviderProfileWithdrawn = 'PROVIDER_PROFILE_WITHDRAWN',
-  TopicHubIndexExclusionChanged = 'TOPIC_HUB_INDEX_EXCLUSION_CHANGED',
-  TopicHubStatusChanged = 'TOPIC_HUB_STATUS_CHANGED',
-  TopicHubUpdated = 'TOPIC_HUB_UPDATED',
-  UserDeleted = 'USER_DELETED',
-  UserExported = 'USER_EXPORTED',
-  UserStatusUpdated = 'USER_STATUS_UPDATED'
-}
+export const AuditAction = {
+  AdminProfileUpdated: 'ADMIN_PROFILE_UPDATED',
+  AssociationAccountActivated: 'ASSOCIATION_ACCOUNT_ACTIVATED',
+  AssociationAccountCreated: 'ASSOCIATION_ACCOUNT_CREATED',
+  AssociationActivationResent: 'ASSOCIATION_ACTIVATION_RESENT',
+  AssociationActivityApproved: 'ASSOCIATION_ACTIVITY_APPROVED',
+  AssociationActivityRejected: 'ASSOCIATION_ACTIVITY_REJECTED',
+  AssociationMemberInvitationAccepted: 'ASSOCIATION_MEMBER_INVITATION_ACCEPTED',
+  AssociationSettingsUpdated: 'ASSOCIATION_SETTINGS_UPDATED',
+  ContentIndexExclusionChanged: 'CONTENT_INDEX_EXCLUSION_CHANGED',
+  ContentSeoUpdated: 'CONTENT_SEO_UPDATED',
+  ContentSlugChanged: 'CONTENT_SLUG_CHANGED',
+  ContentUrlAliasAttached: 'CONTENT_URL_ALIAS_ATTACHED',
+  IngestionItemApproved: 'INGESTION_ITEM_APPROVED',
+  IngestionItemRejected: 'INGESTION_ITEM_REJECTED',
+  OrganizationAccountActivated: 'ORGANIZATION_ACCOUNT_ACTIVATED',
+  OrganizationAccountCreated: 'ORGANIZATION_ACCOUNT_CREATED',
+  OrganizationActivationResent: 'ORGANIZATION_ACTIVATION_RESENT',
+  OrganizationMemberRemoved: 'ORGANIZATION_MEMBER_REMOVED',
+  OrganizationMemberUpdated: 'ORGANIZATION_MEMBER_UPDATED',
+  OrganizationNotificationFailed: 'ORGANIZATION_NOTIFICATION_FAILED',
+  OrganizationSettingsUpdated: 'ORGANIZATION_SETTINGS_UPDATED',
+  OrganizationViewed: 'ORGANIZATION_VIEWED',
+  OrgAccessRequestApproved: 'ORG_ACCESS_REQUEST_APPROVED',
+  OrgAccessRequestRejected: 'ORG_ACCESS_REQUEST_REJECTED',
+  OrgAccessRequestSubmitted: 'ORG_ACCESS_REQUEST_SUBMITTED',
+  ProviderProfileIndexExclusionChanged: 'PROVIDER_PROFILE_INDEX_EXCLUSION_CHANGED',
+  ProviderProfileReviewed: 'PROVIDER_PROFILE_REVIEWED',
+  ProviderProfileSubmitted: 'PROVIDER_PROFILE_SUBMITTED',
+  ProviderProfileWithdrawn: 'PROVIDER_PROFILE_WITHDRAWN',
+  TopicHubIndexExclusionChanged: 'TOPIC_HUB_INDEX_EXCLUSION_CHANGED',
+  TopicHubStatusChanged: 'TOPIC_HUB_STATUS_CHANGED',
+  TopicHubUpdated: 'TOPIC_HUB_UPDATED',
+  UserDeleted: 'USER_DELETED',
+  UserExported: 'USER_EXPORTED',
+  UserStatusUpdated: 'USER_STATUS_UPDATED'
+} as const;
 
+export type AuditAction = typeof AuditAction[keyof typeof AuditAction];
 export type AuthPayload = {
   __typename?: 'AuthPayload';
   code: Scalars['String']['output'];
@@ -1545,11 +1572,12 @@ export type AuthPayload = {
   user?: Maybe<AuthUser>;
 };
 
-export enum AuthRegisterRole {
-  Professional = 'PROFESSIONAL',
-  Provider = 'PROVIDER'
-}
+export const AuthRegisterRole = {
+  Professional: 'PROFESSIONAL',
+  Provider: 'PROVIDER'
+} as const;
 
+export type AuthRegisterRole = typeof AuthRegisterRole[keyof typeof AuthRegisterRole];
 export type AuthUrl = {
   __typename?: 'AuthUrl';
   url: Scalars['String']['output'];
@@ -1603,44 +1631,49 @@ export type BulkOrganizationMemberRowInput = {
   jobRole?: InputMaybe<Scalars['String']['input']>;
 };
 
-export enum CpdEvidenceType {
-  AttendanceProof = 'ATTENDANCE_PROOF',
-  Certificate = 'CERTIFICATE',
-  Other = 'OTHER',
-  SelfDeclaration = 'SELF_DECLARATION'
-}
+export const CpdEvidenceType = {
+  AttendanceProof: 'ATTENDANCE_PROOF',
+  Certificate: 'CERTIFICATE',
+  Other: 'OTHER',
+  SelfDeclaration: 'SELF_DECLARATION'
+} as const;
 
-export enum CpdPlanStatus {
-  Active = 'ACTIVE',
-  Archived = 'ARCHIVED',
-  Completed = 'COMPLETED',
-  Draft = 'DRAFT'
-}
+export type CpdEvidenceType = typeof CpdEvidenceType[keyof typeof CpdEvidenceType];
+export const CpdPlanStatus = {
+  Active: 'ACTIVE',
+  Archived: 'ARCHIVED',
+  Completed: 'COMPLETED',
+  Draft: 'DRAFT'
+} as const;
 
-export enum CpdReminderTiming {
-  Days_7 = 'DAYS_7',
-  Days_14 = 'DAYS_14',
-  Days_30 = 'DAYS_30',
-  Days_60 = 'DAYS_60'
-}
+export type CpdPlanStatus = typeof CpdPlanStatus[keyof typeof CpdPlanStatus];
+export const CpdReminderTiming = {
+  Days_7: 'DAYS_7',
+  Days_14: 'DAYS_14',
+  Days_30: 'DAYS_30',
+  Days_60: 'DAYS_60'
+} as const;
 
-export enum CpdReportRecipientType {
-  Association = 'ASSOCIATION',
-  Manager = 'MANAGER',
-  Organization = 'ORGANIZATION',
-  Other = 'OTHER',
-  Self = 'SELF'
-}
+export type CpdReminderTiming = typeof CpdReminderTiming[keyof typeof CpdReminderTiming];
+export const CpdReportRecipientType = {
+  Association: 'ASSOCIATION',
+  Manager: 'MANAGER',
+  Organization: 'ORGANIZATION',
+  Other: 'OTHER',
+  Self: 'SELF'
+} as const;
 
-export enum CalendarEventType {
-  Course = 'COURSE',
-  Event = 'EVENT',
-  Meeting = 'MEETING',
-  Other = 'OTHER',
-  Training = 'TRAINING',
-  Webinar = 'WEBINAR'
-}
+export type CpdReportRecipientType = typeof CpdReportRecipientType[keyof typeof CpdReportRecipientType];
+export const CalendarEventType = {
+  Course: 'COURSE',
+  Event: 'EVENT',
+  Meeting: 'MEETING',
+  Other: 'OTHER',
+  Training: 'TRAINING',
+  Webinar: 'WEBINAR'
+} as const;
 
+export type CalendarEventType = typeof CalendarEventType[keyof typeof CalendarEventType];
 export type Cart = {
   __typename?: 'Cart';
   createdAt: Scalars['DateTime']['output'];
@@ -1665,37 +1698,42 @@ export type CartItem = {
   updatedAt: Scalars['DateTime']['output'];
 };
 
-export enum CartItemStatus {
-  Active = 'ACTIVE',
-  Removed = 'REMOVED'
-}
+export const CartItemStatus = {
+  Active: 'ACTIVE',
+  Removed: 'REMOVED'
+} as const;
 
-export enum CartStatus {
-  Abandoned = 'ABANDONED',
-  Active = 'ACTIVE',
-  CheckedOut = 'CHECKED_OUT'
-}
+export type CartItemStatus = typeof CartItemStatus[keyof typeof CartItemStatus];
+export const CartStatus = {
+  Abandoned: 'ABANDONED',
+  Active: 'ACTIVE',
+  CheckedOut: 'CHECKED_OUT'
+} as const;
 
-export enum CertificateSort {
-  ExpirySoonest = 'EXPIRY_SOONEST',
-  Name = 'NAME',
-  Oldest = 'OLDEST',
-  Recent = 'RECENT'
-}
+export type CartStatus = typeof CartStatus[keyof typeof CartStatus];
+export const CertificateSort = {
+  ExpirySoonest: 'EXPIRY_SOONEST',
+  Name: 'NAME',
+  Oldest: 'OLDEST',
+  Recent: 'RECENT'
+} as const;
 
-export enum CertificateStatus {
-  Active = 'ACTIVE',
-  Expired = 'EXPIRED',
-  ExpiringSoon = 'EXPIRING_SOON',
-  Revoked = 'REVOKED'
-}
+export type CertificateSort = typeof CertificateSort[keyof typeof CertificateSort];
+export const CertificateStatus = {
+  Active: 'ACTIVE',
+  Expired: 'EXPIRED',
+  ExpiringSoon: 'EXPIRING_SOON',
+  Revoked: 'REVOKED'
+} as const;
 
-export enum CertificateStatusFilter {
-  Active = 'ACTIVE',
-  Expired = 'EXPIRED',
-  ExpiringSoon = 'EXPIRING_SOON'
-}
+export type CertificateStatus = typeof CertificateStatus[keyof typeof CertificateStatus];
+export const CertificateStatusFilter = {
+  Active: 'ACTIVE',
+  Expired: 'EXPIRED',
+  ExpiringSoon: 'EXPIRING_SOON'
+} as const;
 
+export type CertificateStatusFilter = typeof CertificateStatusFilter[keyof typeof CertificateStatusFilter];
 export type Certification = {
   __typename?: 'Certification';
   abbreviation: Scalars['String']['output'];
@@ -1750,12 +1788,13 @@ export type CompleteProfessionalOnboardingInput = {
 };
 
 /** Organization compliance cycle */
-export enum ComplianceCycle {
-  Annual = 'ANNUAL',
-  Biannual = 'BIANNUAL',
-  Quarterly = 'QUARTERLY'
-}
+export const ComplianceCycle = {
+  Annual: 'ANNUAL',
+  Biannual: 'BIANNUAL',
+  Quarterly: 'QUARTERLY'
+} as const;
 
+export type ComplianceCycle = typeof ComplianceCycle[keyof typeof ComplianceCycle];
 export type ConfirmExternalLearningInput = {
   activityId: Scalars['String']['input'];
   certificateUrl?: InputMaybe<Scalars['String']['input']>;
@@ -1765,20 +1804,21 @@ export type ConfirmExternalLearningInput = {
   status: ExternalLearningStatus;
 };
 
-export enum ContactInquiryType {
-  AccessibilityFeedback = 'ACCESSIBILITY_FEEDBACK',
-  AccountSupport = 'ACCOUNT_SUPPORT',
-  AssociationPartnership = 'ASSOCIATION_PARTNERSHIP',
-  ContentProviderInquiry = 'CONTENT_PROVIDER_INQUIRY',
-  CpdPduTracking = 'CPD_PDU_TRACKING',
-  GeneralQuestion = 'GENERAL_QUESTION',
-  OrganizationSolution = 'ORGANIZATION_SOLUTION',
-  Other = 'OTHER',
-  PrivacyRequest = 'PRIVACY_REQUEST',
-  SecurityConcern = 'SECURITY_CONCERN',
-  TechnicalSupport = 'TECHNICAL_SUPPORT'
-}
+export const ContactInquiryType = {
+  AccessibilityFeedback: 'ACCESSIBILITY_FEEDBACK',
+  AccountSupport: 'ACCOUNT_SUPPORT',
+  AssociationPartnership: 'ASSOCIATION_PARTNERSHIP',
+  ContentProviderInquiry: 'CONTENT_PROVIDER_INQUIRY',
+  CpdPduTracking: 'CPD_PDU_TRACKING',
+  GeneralQuestion: 'GENERAL_QUESTION',
+  OrganizationSolution: 'ORGANIZATION_SOLUTION',
+  Other: 'OTHER',
+  PrivacyRequest: 'PRIVACY_REQUEST',
+  SecurityConcern: 'SECURITY_CONCERN',
+  TechnicalSupport: 'TECHNICAL_SUPPORT'
+} as const;
 
+export type ContactInquiryType = typeof ContactInquiryType[keyof typeof ContactInquiryType];
 export type ContentActionInput = {
   contentId: Scalars['String']['input'];
   contentType: ContentType;
@@ -1807,12 +1847,13 @@ export type ContentEnrollment = {
   userId: Scalars['String']['output'];
 };
 
-export enum ContentEnrollmentStatus {
-  Active = 'ACTIVE',
-  Canceled = 'CANCELED',
-  Completed = 'COMPLETED'
-}
+export const ContentEnrollmentStatus = {
+  Active: 'ACTIVE',
+  Canceled: 'CANCELED',
+  Completed: 'COMPLETED'
+} as const;
 
+export type ContentEnrollmentStatus = typeof ContentEnrollmentStatus[keyof typeof ContentEnrollmentStatus];
 export type ContentReview = {
   __typename?: 'ContentReview';
   comment?: Maybe<Scalars['String']['output']>;
@@ -1845,22 +1886,24 @@ export type ContentSeoSettings = {
   locales: Array<ContentSeoLocale>;
 };
 
-export enum ContentType {
-  Course = 'COURSE',
-  Event = 'EVENT',
-  Podcast = 'PODCAST',
-  Youtube = 'YOUTUBE'
-}
+export const ContentType = {
+  Course: 'COURSE',
+  Event: 'EVENT',
+  Podcast: 'PODCAST',
+  Youtube: 'YOUTUBE'
+} as const;
 
-export enum ContentUrlKind {
-  Course = 'COURSE',
-  Event = 'EVENT',
-  Podcast = 'PODCAST',
-  Provider = 'PROVIDER',
-  Topic = 'TOPIC',
-  Youtube = 'YOUTUBE'
-}
+export type ContentType = typeof ContentType[keyof typeof ContentType];
+export const ContentUrlKind = {
+  Course: 'COURSE',
+  Event: 'EVENT',
+  Podcast: 'PODCAST',
+  Provider: 'PROVIDER',
+  Topic: 'TOPIC',
+  Youtube: 'YOUTUBE'
+} as const;
 
+export type ContentUrlKind = typeof ContentUrlKind[keyof typeof ContentUrlKind];
 export type ContentUrlResolution = {
   __typename?: 'ContentUrlResolution';
   slug: Scalars['String']['output'];
@@ -1911,21 +1954,22 @@ export type Course = {
   updatedAt: Scalars['DateTime']['output'];
 };
 
-export enum CourseCategory {
-  Business = 'BUSINESS',
-  Compliance = 'COMPLIANCE',
-  Cpd = 'CPD',
-  Design = 'DESIGN',
-  Education = 'EDUCATION',
-  Engineering = 'ENGINEERING',
-  Finance = 'FINANCE',
-  Healthcare = 'HEALTHCARE',
-  Leadership = 'LEADERSHIP',
-  Marketing = 'MARKETING',
-  Other = 'OTHER',
-  Technology = 'TECHNOLOGY'
-}
+export const CourseCategory = {
+  Business: 'BUSINESS',
+  Compliance: 'COMPLIANCE',
+  Cpd: 'CPD',
+  Design: 'DESIGN',
+  Education: 'EDUCATION',
+  Engineering: 'ENGINEERING',
+  Finance: 'FINANCE',
+  Healthcare: 'HEALTHCARE',
+  Leadership: 'LEADERSHIP',
+  Marketing: 'MARKETING',
+  Other: 'OTHER',
+  Technology: 'TECHNOLOGY'
+} as const;
 
+export type CourseCategory = typeof CourseCategory[keyof typeof CourseCategory];
 export type CourseCategoryFacet = {
   __typename?: 'CourseCategoryFacet';
   count: Scalars['Int']['output'];
@@ -1950,13 +1994,14 @@ export type CourseFilterInput = {
   status?: InputMaybe<CourseStatus>;
 };
 
-export enum CourseLevel {
-  Advanced = 'ADVANCED',
-  AllLevels = 'ALL_LEVELS',
-  Beginner = 'BEGINNER',
-  Intermediate = 'INTERMEDIATE'
-}
+export const CourseLevel = {
+  Advanced: 'ADVANCED',
+  AllLevels: 'ALL_LEVELS',
+  Beginner: 'BEGINNER',
+  Intermediate: 'INTERMEDIATE'
+} as const;
 
+export type CourseLevel = typeof CourseLevel[keyof typeof CourseLevel];
 export type CourseLevelFacet = {
   __typename?: 'CourseLevelFacet';
   count: Scalars['Int']['output'];
@@ -1982,26 +2027,28 @@ export type CourseRatingFacet = {
   minimum: Scalars['Float']['output'];
 };
 
-export enum CourseSortField {
-  CreatedAt = 'CREATED_AT',
-  Price = 'PRICE',
-  Professionals = 'PROFESSIONALS',
-  Rating = 'RATING',
-  Title = 'TITLE',
-  UpdatedAt = 'UPDATED_AT'
-}
+export const CourseSortField = {
+  CreatedAt: 'CREATED_AT',
+  Price: 'PRICE',
+  Professionals: 'PROFESSIONALS',
+  Rating: 'RATING',
+  Title: 'TITLE',
+  UpdatedAt: 'UPDATED_AT'
+} as const;
 
+export type CourseSortField = typeof CourseSortField[keyof typeof CourseSortField];
 export type CourseSortInput = {
   direction?: InputMaybe<SortDirection>;
   field?: InputMaybe<CourseSortField>;
 };
 
-export enum CourseStatus {
-  Archived = 'ARCHIVED',
-  Draft = 'DRAFT',
-  Published = 'PUBLISHED'
-}
+export const CourseStatus = {
+  Archived: 'ARCHIVED',
+  Draft: 'DRAFT',
+  Published: 'PUBLISHED'
+} as const;
 
+export type CourseStatus = typeof CourseStatus[keyof typeof CourseStatus];
 export type CourseTranslation = {
   __typename?: 'CourseTranslation';
   description: Scalars['String']['output'];
@@ -2360,14 +2407,15 @@ export type CreateYouTubeVideoInput = {
   views?: InputMaybe<Scalars['Int']['input']>;
 };
 
-export enum CreditType {
-  Ceu = 'CEU',
-  Cpd = 'CPD',
-  Cpe = 'CPE',
-  Pdu = 'PDU',
-  TrainingHour = 'TRAINING_HOUR'
-}
+export const CreditType = {
+  Ceu: 'CEU',
+  Cpd: 'CPD',
+  Cpe: 'CPE',
+  Pdu: 'PDU',
+  TrainingHour: 'TRAINING_HOUR'
+} as const;
 
+export type CreditType = typeof CreditType[keyof typeof CreditType];
 export type CsvExport = {
   __typename?: 'CsvExport';
   content: Scalars['String']['output'];
@@ -2389,15 +2437,16 @@ export type CurriculumLesson = {
   updatedAt: Scalars['DateTime']['output'];
 };
 
-export enum CurriculumLessonType {
-  Article = 'ARTICLE',
-  Assignment = 'ASSIGNMENT',
-  Download = 'DOWNLOAD',
-  LiveSession = 'LIVE_SESSION',
-  Quiz = 'QUIZ',
-  Video = 'VIDEO'
-}
+export const CurriculumLessonType = {
+  Article: 'ARTICLE',
+  Assignment: 'ASSIGNMENT',
+  Download: 'DOWNLOAD',
+  LiveSession: 'LIVE_SESSION',
+  Quiz: 'QUIZ',
+  Video: 'VIDEO'
+} as const;
 
+export type CurriculumLessonType = typeof CurriculumLessonType[keyof typeof CurriculumLessonType];
 export type CurriculumSection = {
   __typename?: 'CurriculumSection';
   courseId: Scalars['String']['output'];
@@ -2410,13 +2459,14 @@ export type CurriculumSection = {
   updatedAt: Scalars['DateTime']['output'];
 };
 
-export enum DeliveryFormat {
-  InPerson = 'IN_PERSON',
-  LiveCohort = 'LIVE_COHORT',
-  Online = 'ONLINE',
-  SelfPaced = 'SELF_PACED'
-}
+export const DeliveryFormat = {
+  InPerson: 'IN_PERSON',
+  LiveCohort: 'LIVE_COHORT',
+  Online: 'ONLINE',
+  SelfPaced: 'SELF_PACED'
+} as const;
 
+export type DeliveryFormat = typeof DeliveryFormat[keyof typeof DeliveryFormat];
 export type EditorialUrl = {
   __typename?: 'EditorialUrl';
   availableLocales: Array<AppLanguage>;
@@ -2510,34 +2560,36 @@ export type EventCatalogFilterInput = {
   type?: InputMaybe<EventType>;
 };
 
-export enum EventCategory {
-  Business = 'BUSINESS',
-  Compliance = 'COMPLIANCE',
-  Cpd = 'CPD',
-  Design = 'DESIGN',
-  Education = 'EDUCATION',
-  Engineering = 'ENGINEERING',
-  Finance = 'FINANCE',
-  Healthcare = 'HEALTHCARE',
-  Leadership = 'LEADERSHIP',
-  Marketing = 'MARKETING',
-  Other = 'OTHER',
-  Technology = 'TECHNOLOGY'
-}
+export const EventCategory = {
+  Business: 'BUSINESS',
+  Compliance: 'COMPLIANCE',
+  Cpd: 'CPD',
+  Design: 'DESIGN',
+  Education: 'EDUCATION',
+  Engineering: 'ENGINEERING',
+  Finance: 'FINANCE',
+  Healthcare: 'HEALTHCARE',
+  Leadership: 'LEADERSHIP',
+  Marketing: 'MARKETING',
+  Other: 'OTHER',
+  Technology: 'TECHNOLOGY'
+} as const;
 
+export type EventCategory = typeof EventCategory[keyof typeof EventCategory];
 export type EventCategoryFacet = {
   __typename?: 'EventCategoryFacet';
   count: Scalars['Int']['output'];
   value: EventCategory;
 };
 
-export enum EventDeliveryMode {
-  Hybrid = 'HYBRID',
-  InPerson = 'IN_PERSON',
-  LiveOnline = 'LIVE_ONLINE',
-  Recorded = 'RECORDED'
-}
+export const EventDeliveryMode = {
+  Hybrid: 'HYBRID',
+  InPerson: 'IN_PERSON',
+  LiveOnline: 'LIVE_ONLINE',
+  Recorded: 'RECORDED'
+} as const;
 
+export type EventDeliveryMode = typeof EventDeliveryMode[keyof typeof EventDeliveryMode];
 export type EventFilterFacets = {
   __typename?: 'EventFilterFacets';
   categories: Array<EventCategoryFacet>;
@@ -2581,15 +2633,16 @@ export type EventRegistration = {
   userId: Scalars['String']['output'];
 };
 
-export enum EventRegistrationStatus {
-  Attended = 'ATTENDED',
-  Canceled = 'CANCELED',
-  Cancelled = 'CANCELLED',
-  Completed = 'COMPLETED',
-  NotAttended = 'NOT_ATTENDED',
-  Registered = 'REGISTERED'
-}
+export const EventRegistrationStatus = {
+  Attended: 'ATTENDED',
+  Canceled: 'CANCELED',
+  Cancelled: 'CANCELLED',
+  Completed: 'COMPLETED',
+  NotAttended: 'NOT_ATTENDED',
+  Registered: 'REGISTERED'
+} as const;
 
+export type EventRegistrationStatus = typeof EventRegistrationStatus[keyof typeof EventRegistrationStatus];
 export type EventScheduleItem = {
   __typename?: 'EventScheduleItem';
   createdAt: Scalars['DateTime']['output'];
@@ -2604,34 +2657,37 @@ export type EventScheduleItem = {
   updatedAt: Scalars['DateTime']['output'];
 };
 
-export enum EventSortDirection {
-  Asc = 'ASC',
-  Desc = 'DESC'
-}
+export const EventSortDirection = {
+  Asc: 'ASC',
+  Desc: 'DESC'
+} as const;
 
-export enum EventSortField {
-  Attendees = 'ATTENDEES',
-  AverageRating = 'AVERAGE_RATING',
-  CreatedAt = 'CREATED_AT',
-  Price = 'PRICE',
-  StartDate = 'START_DATE',
-  Title = 'TITLE',
-  UpdatedAt = 'UPDATED_AT',
-  Views = 'VIEWS'
-}
+export type EventSortDirection = typeof EventSortDirection[keyof typeof EventSortDirection];
+export const EventSortField = {
+  Attendees: 'ATTENDEES',
+  AverageRating: 'AVERAGE_RATING',
+  CreatedAt: 'CREATED_AT',
+  Price: 'PRICE',
+  StartDate: 'START_DATE',
+  Title: 'TITLE',
+  UpdatedAt: 'UPDATED_AT',
+  Views: 'VIEWS'
+} as const;
 
+export type EventSortField = typeof EventSortField[keyof typeof EventSortField];
 export type EventSortInput = {
   direction?: InputMaybe<EventSortDirection>;
   field?: InputMaybe<EventSortField>;
 };
 
-export enum EventStatus {
-  Archived = 'ARCHIVED',
-  Cancelled = 'CANCELLED',
-  Draft = 'DRAFT',
-  Published = 'PUBLISHED'
-}
+export const EventStatus = {
+  Archived: 'ARCHIVED',
+  Cancelled: 'CANCELLED',
+  Draft: 'DRAFT',
+  Published: 'PUBLISHED'
+} as const;
 
+export type EventStatus = typeof EventStatus[keyof typeof EventStatus];
 export type EventTranslation = {
   __typename?: 'EventTranslation';
   description: Scalars['String']['output'];
@@ -2644,32 +2700,34 @@ export type EventTranslation = {
   version: Scalars['Int']['output'];
 };
 
-export enum EventType {
-  Conference = 'CONFERENCE',
-  Course = 'COURSE',
-  Networking = 'NETWORKING',
-  Other = 'OTHER',
-  Seminar = 'SEMINAR',
-  Training = 'TRAINING',
-  Webinar = 'WEBINAR',
-  Workshop = 'WORKSHOP'
-}
+export const EventType = {
+  Conference: 'CONFERENCE',
+  Course: 'COURSE',
+  Networking: 'NETWORKING',
+  Other: 'OTHER',
+  Seminar: 'SEMINAR',
+  Training: 'TRAINING',
+  Webinar: 'WEBINAR',
+  Workshop: 'WORKSHOP'
+} as const;
 
+export type EventType = typeof EventType[keyof typeof EventType];
 export type EventTypeFacet = {
   __typename?: 'EventTypeFacet';
   count: Scalars['Int']['output'];
   value: EventType;
 };
 
-export enum ExperienceRange {
-  ElevenToFifteenYears = 'ELEVEN_TO_FIFTEEN_YEARS',
-  LessThanOneYear = 'LESS_THAN_ONE_YEAR',
-  OneToTwoYears = 'ONE_TO_TWO_YEARS',
-  SixteenPlusYears = 'SIXTEEN_PLUS_YEARS',
-  SixToTenYears = 'SIX_TO_TEN_YEARS',
-  ThreeToFiveYears = 'THREE_TO_FIVE_YEARS'
-}
+export const ExperienceRange = {
+  ElevenToFifteenYears: 'ELEVEN_TO_FIFTEEN_YEARS',
+  LessThanOneYear: 'LESS_THAN_ONE_YEAR',
+  OneToTwoYears: 'ONE_TO_TWO_YEARS',
+  SixteenPlusYears: 'SIXTEEN_PLUS_YEARS',
+  SixToTenYears: 'SIX_TO_TEN_YEARS',
+  ThreeToFiveYears: 'THREE_TO_FIVE_YEARS'
+} as const;
 
+export type ExperienceRange = typeof ExperienceRange[keyof typeof ExperienceRange];
 export type ExternalLearningActionResponse = {
   __typename?: 'ExternalLearningActionResponse';
   code: Scalars['String']['output'];
@@ -2709,26 +2767,28 @@ export type ExternalLearningFilterInput = {
   status?: InputMaybe<ExternalLearningStatus>;
 };
 
-export enum ExternalLearningProvider {
-  Coursera = 'COURSERA',
-  Edx = 'EDX',
-  LinkedinLearning = 'LINKEDIN_LEARNING',
-  Other = 'OTHER',
-  Udemy = 'UDEMY'
-}
+export const ExternalLearningProvider = {
+  Coursera: 'COURSERA',
+  Edx: 'EDX',
+  LinkedinLearning: 'LINKEDIN_LEARNING',
+  Other: 'OTHER',
+  Udemy: 'UDEMY'
+} as const;
 
-export enum ExternalLearningStatus {
-  AskedConfirmation = 'ASKED_CONFIRMATION',
-  Clicked = 'CLICKED',
-  Completed = 'COMPLETED',
-  EnrolledConfirmed = 'ENROLLED_CONFIRMED',
-  EvidenceUploaded = 'EVIDENCE_UPLOADED',
-  Ignored = 'IGNORED',
-  Rejected = 'REJECTED',
-  Started = 'STARTED',
-  Verified = 'VERIFIED'
-}
+export type ExternalLearningProvider = typeof ExternalLearningProvider[keyof typeof ExternalLearningProvider];
+export const ExternalLearningStatus = {
+  AskedConfirmation: 'ASKED_CONFIRMATION',
+  Clicked: 'CLICKED',
+  Completed: 'COMPLETED',
+  EnrolledConfirmed: 'ENROLLED_CONFIRMED',
+  EvidenceUploaded: 'EVIDENCE_UPLOADED',
+  Ignored: 'IGNORED',
+  Rejected: 'REJECTED',
+  Started: 'STARTED',
+  Verified: 'VERIFIED'
+} as const;
 
+export type ExternalLearningStatus = typeof ExternalLearningStatus[keyof typeof ExternalLearningStatus];
 export type ForgotPasswordInput = {
   email: Scalars['String']['input'];
 };
@@ -2780,25 +2840,28 @@ export type IngestionBatchDetail = {
   updatedCount: Scalars['Int']['output'];
 };
 
-export enum IngestionBatchMode {
-  Full = 'FULL',
-  Incremental = 'INCREMENTAL'
-}
+export const IngestionBatchMode = {
+  Full: 'FULL',
+  Incremental: 'INCREMENTAL'
+} as const;
 
-export enum IngestionBatchStatus {
-  Completed = 'COMPLETED',
-  Failed = 'FAILED',
-  Processing = 'PROCESSING',
-  Received = 'RECEIVED'
-}
+export type IngestionBatchMode = typeof IngestionBatchMode[keyof typeof IngestionBatchMode];
+export const IngestionBatchStatus = {
+  Completed: 'COMPLETED',
+  Failed: 'FAILED',
+  Processing: 'PROCESSING',
+  Received: 'RECEIVED'
+} as const;
 
-export enum IngestionContentKind {
-  Course = 'COURSE',
-  Event = 'EVENT',
-  Podcast = 'PODCAST',
-  Youtube = 'YOUTUBE'
-}
+export type IngestionBatchStatus = typeof IngestionBatchStatus[keyof typeof IngestionBatchStatus];
+export const IngestionContentKind = {
+  Course: 'COURSE',
+  Event: 'EVENT',
+  Podcast: 'PODCAST',
+  Youtube: 'YOUTUBE'
+} as const;
 
+export type IngestionContentKind = typeof IngestionContentKind[keyof typeof IngestionContentKind];
 export type IngestionItem = {
   __typename?: 'IngestionItem';
   batchId?: Maybe<Scalars['String']['output']>;
@@ -2846,13 +2909,14 @@ export type IngestionItemReport = {
   unmappedFields: Array<Scalars['String']['output']>;
 };
 
-export enum IngestionItemState {
-  Accepted = 'ACCEPTED',
-  Pending = 'PENDING',
-  Rejected = 'REJECTED',
-  Stale = 'STALE'
-}
+export const IngestionItemState = {
+  Accepted: 'ACCEPTED',
+  Pending: 'PENDING',
+  Rejected: 'REJECTED',
+  Stale: 'STALE'
+} as const;
 
+export type IngestionItemState = typeof IngestionItemState[keyof typeof IngestionItemState];
 export type IngestionPageInfo = {
   __typename?: 'IngestionPageInfo';
   hasNextPage: Scalars['Boolean']['output'];
@@ -2864,13 +2928,14 @@ export type IngestionPagination = {
   take?: InputMaybe<Scalars['Int']['input']>;
 };
 
-export enum IngestionReviewReason {
-  MissingDescription = 'MISSING_DESCRIPTION',
-  PlaceholderContent = 'PLACEHOLDER_CONTENT',
-  PlaceholderUrl = 'PLACEHOLDER_URL',
-  PreviouslyRejected = 'PREVIOUSLY_REJECTED'
-}
+export const IngestionReviewReason = {
+  MissingDescription: 'MISSING_DESCRIPTION',
+  PlaceholderContent: 'PLACEHOLDER_CONTENT',
+  PlaceholderUrl: 'PLACEHOLDER_URL',
+  PreviouslyRejected: 'PREVIOUSLY_REJECTED'
+} as const;
 
+export type IngestionReviewReason = typeof IngestionReviewReason[keyof typeof IngestionReviewReason];
 export type IngestionSource = {
   __typename?: 'IngestionSource';
   autoPublish: Scalars['Boolean']['output'];
@@ -2941,29 +3006,32 @@ export type LandingCatalogSearchItem = {
   videoCount?: Maybe<Scalars['Int']['output']>;
 };
 
-export enum LearningBudgetPreference {
-  FiveHundredPlus = 'FIVE_HUNDRED_PLUS',
-  FreeOnly = 'FREE_ONLY',
-  HundredTo_500 = 'HUNDRED_TO_500',
-  Under_100 = 'UNDER_100'
-}
+export const LearningBudgetPreference = {
+  FiveHundredPlus: 'FIVE_HUNDRED_PLUS',
+  FreeOnly: 'FREE_ONLY',
+  HundredTo_500: 'HUNDRED_TO_500',
+  Under_100: 'UNDER_100'
+} as const;
 
-export enum LearningFormat {
-  Article = 'ARTICLE',
-  Course = 'COURSE',
-  Podcast = 'PODCAST',
-  Video = 'VIDEO',
-  Webinar = 'WEBINAR',
-  Workshop = 'WORKSHOP'
-}
+export type LearningBudgetPreference = typeof LearningBudgetPreference[keyof typeof LearningBudgetPreference];
+export const LearningFormat = {
+  Article: 'ARTICLE',
+  Course: 'COURSE',
+  Podcast: 'PODCAST',
+  Video: 'VIDEO',
+  Webinar: 'WEBINAR',
+  Workshop: 'WORKSHOP'
+} as const;
 
-export enum LearningTimeCommitment {
-  MoreThanFiveHours = 'MORE_THAN_FIVE_HOURS',
-  OneToTwoHours = 'ONE_TO_TWO_HOURS',
-  ThreeToFiveHours = 'THREE_TO_FIVE_HOURS',
-  TwoToThreeHours = 'TWO_TO_THREE_HOURS'
-}
+export type LearningFormat = typeof LearningFormat[keyof typeof LearningFormat];
+export const LearningTimeCommitment = {
+  MoreThanFiveHours: 'MORE_THAN_FIVE_HOURS',
+  OneToTwoHours: 'ONE_TO_TWO_HOURS',
+  ThreeToFiveHours: 'THREE_TO_FIVE_HOURS',
+  TwoToThreeHours: 'TWO_TO_THREE_HOURS'
+} as const;
 
+export type LearningTimeCommitment = typeof LearningTimeCommitment[keyof typeof LearningTimeCommitment];
 export type LoginInput = {
   email: Scalars['String']['input'];
   password: Scalars['String']['input'];
@@ -2984,13 +3052,14 @@ export type MemberInvitationStatus = {
   status: MemberInvitationTokenStatus;
 };
 
-export enum MemberInvitationTokenStatus {
-  Expired = 'EXPIRED',
-  Invalid = 'INVALID',
-  Used = 'USED',
-  Valid = 'VALID'
-}
+export const MemberInvitationTokenStatus = {
+  Expired: 'EXPIRED',
+  Invalid: 'INVALID',
+  Used: 'USED',
+  Valid: 'VALID'
+} as const;
 
+export type MemberInvitationTokenStatus = typeof MemberInvitationTokenStatus[keyof typeof MemberInvitationTokenStatus];
 export type ModerateProviderPublicProfileInput = {
   note?: InputMaybe<Scalars['String']['input']>;
   profileId: Scalars['ID']['input'];
@@ -4180,13 +4249,14 @@ export type MyWishlistInput = {
   sortBy?: InputMaybe<WishlistSortBy>;
 };
 
-export enum NotificationDeliveryStatus {
-  Failed = 'FAILED',
-  NotRequested = 'NOT_REQUESTED',
-  Pending = 'PENDING',
-  Sent = 'SENT'
-}
+export const NotificationDeliveryStatus = {
+  Failed: 'FAILED',
+  NotRequested: 'NOT_REQUESTED',
+  Pending: 'PENDING',
+  Sent: 'SENT'
+} as const;
 
+export type NotificationDeliveryStatus = typeof NotificationDeliveryStatus[keyof typeof NotificationDeliveryStatus];
 export type OrganizationAccessRequest = {
   __typename?: 'OrganizationAccessRequest';
   approvedUserId?: Maybe<Scalars['String']['output']>;
@@ -4229,12 +4299,13 @@ export type OrganizationAccessRequestPaginationInput = {
   page?: InputMaybe<Scalars['Int']['input']>;
 };
 
-export enum OrganizationAccessRequestStatus {
-  Approved = 'APPROVED',
-  Pending = 'PENDING',
-  Rejected = 'REJECTED'
-}
+export const OrganizationAccessRequestStatus = {
+  Approved: 'APPROVED',
+  Pending: 'PENDING',
+  Rejected: 'REJECTED'
+} as const;
 
+export type OrganizationAccessRequestStatus = typeof OrganizationAccessRequestStatus[keyof typeof OrganizationAccessRequestStatus];
 export type OrganizationActionResponse = {
   __typename?: 'OrganizationActionResponse';
   code: Scalars['String']['output'];
@@ -4248,13 +4319,14 @@ export type OrganizationActivationStatus = {
   status: OrganizationActivationTokenStatus;
 };
 
-export enum OrganizationActivationTokenStatus {
-  Expired = 'EXPIRED',
-  Invalid = 'INVALID',
-  Used = 'USED',
-  Valid = 'VALID'
-}
+export const OrganizationActivationTokenStatus = {
+  Expired: 'EXPIRED',
+  Invalid: 'INVALID',
+  Used: 'USED',
+  Valid: 'VALID'
+} as const;
 
+export type OrganizationActivationTokenStatus = typeof OrganizationActivationTokenStatus[keyof typeof OrganizationActivationTokenStatus];
 export type OrganizationAssignment = {
   __typename?: 'OrganizationAssignment';
   courseId?: Maybe<Scalars['String']['output']>;
@@ -4432,11 +4504,12 @@ export type OrganizationMemberFilterInput = {
 };
 
 /** Status of organization member */
-export enum OrganizationMemberStatus {
-  Active = 'ACTIVE',
-  Inactive = 'INACTIVE'
-}
+export const OrganizationMemberStatus = {
+  Active: 'ACTIVE',
+  Inactive: 'INACTIVE'
+} as const;
 
+export type OrganizationMemberStatus = typeof OrganizationMemberStatus[keyof typeof OrganizationMemberStatus];
 export type OrganizationMembersStats = {
   __typename?: 'OrganizationMembersStats';
   activeMembers: Scalars['Int']['output'];
@@ -4517,12 +4590,13 @@ export type OrganizationReportFilterInput = {
   startDate?: InputMaybe<Scalars['String']['input']>;
 };
 
-export enum OrganizationReportRangeEnum {
-  CurrentYear = 'CURRENT_YEAR',
-  Custom = 'CUSTOM',
-  LastQuarter = 'LAST_QUARTER'
-}
+export const OrganizationReportRangeEnum = {
+  CurrentYear: 'CURRENT_YEAR',
+  Custom: 'CUSTOM',
+  LastQuarter: 'LAST_QUARTER'
+} as const;
 
+export type OrganizationReportRangeEnum = typeof OrganizationReportRangeEnum[keyof typeof OrganizationReportRangeEnum];
 export type OrganizationReportSummary = {
   __typename?: 'OrganizationReportSummary';
   averageCompliance: Scalars['Float']['output'];
@@ -4580,64 +4654,69 @@ export type OrganizationTrendingTopic = {
   title: Scalars['String']['output'];
 };
 
-export enum OrganizationType {
-  Association = 'ASSOCIATION',
-  Company = 'COMPANY',
-  Government = 'GOVERNMENT',
-  NonProfit = 'NON_PROFIT',
-  Other = 'OTHER',
-  TrainingProvider = 'TRAINING_PROVIDER',
-  University = 'UNIVERSITY'
-}
+export const OrganizationType = {
+  Association: 'ASSOCIATION',
+  Company: 'COMPANY',
+  Government: 'GOVERNMENT',
+  NonProfit: 'NON_PROFIT',
+  Other: 'OTHER',
+  TrainingProvider: 'TRAINING_PROVIDER',
+  University: 'UNIVERSITY'
+} as const;
 
-export enum PduCategory {
-  Business = 'BUSINESS',
-  Communication = 'COMMUNICATION',
-  Compliance = 'COMPLIANCE',
-  DigitalAi = 'DIGITAL_AI',
-  Ethics = 'ETHICS',
-  IndustryKnowledge = 'INDUSTRY_KNOWLEDGE',
-  Leadership = 'LEADERSHIP',
-  Other = 'OTHER',
-  ProfessionalPractice = 'PROFESSIONAL_PRACTICE',
-  ResearchInnovation = 'RESEARCH_INNOVATION',
-  Strategic = 'STRATEGIC',
-  Technical = 'TECHNICAL'
-}
+export type OrganizationType = typeof OrganizationType[keyof typeof OrganizationType];
+export const PduCategory = {
+  Business: 'BUSINESS',
+  Communication: 'COMMUNICATION',
+  Compliance: 'COMPLIANCE',
+  DigitalAi: 'DIGITAL_AI',
+  Ethics: 'ETHICS',
+  IndustryKnowledge: 'INDUSTRY_KNOWLEDGE',
+  Leadership: 'LEADERSHIP',
+  Other: 'OTHER',
+  ProfessionalPractice: 'PROFESSIONAL_PRACTICE',
+  ResearchInnovation: 'RESEARCH_INNOVATION',
+  Strategic: 'STRATEGIC',
+  Technical: 'TECHNICAL'
+} as const;
 
-export enum PduCompletionStatus {
-  Completed = 'COMPLETED',
-  Incomplete = 'INCOMPLETE'
-}
+export type PduCategory = typeof PduCategory[keyof typeof PduCategory];
+export const PduCompletionStatus = {
+  Completed: 'COMPLETED',
+  Incomplete: 'INCOMPLETE'
+} as const;
 
-export enum PduSource {
-  CertificationProgram = 'CERTIFICATION_PROGRAM',
-  Conference = 'CONFERENCE',
-  Course = 'COURSE',
-  Event = 'EVENT',
-  ExamAssessment = 'EXAM_ASSESSMENT',
-  Meeting = 'MEETING',
-  Mentorship = 'MENTORSHIP',
-  Other = 'OTHER',
-  Podcast = 'PODCAST',
-  ReadingArticle = 'READING_ARTICLE',
-  SelfStudy = 'SELF_STUDY',
-  Seminar = 'SEMINAR',
-  Teaching = 'TEACHING',
-  TrainingSession = 'TRAINING_SESSION',
-  VideoLecture = 'VIDEO_LECTURE',
-  Volunteering = 'VOLUNTEERING',
-  Webinar = 'WEBINAR',
-  Workshop = 'WORKSHOP',
-  Youtube = 'YOUTUBE'
-}
+export type PduCompletionStatus = typeof PduCompletionStatus[keyof typeof PduCompletionStatus];
+export const PduSource = {
+  CertificationProgram: 'CERTIFICATION_PROGRAM',
+  Conference: 'CONFERENCE',
+  Course: 'COURSE',
+  Event: 'EVENT',
+  ExamAssessment: 'EXAM_ASSESSMENT',
+  Meeting: 'MEETING',
+  Mentorship: 'MENTORSHIP',
+  Other: 'OTHER',
+  Podcast: 'PODCAST',
+  ReadingArticle: 'READING_ARTICLE',
+  SelfStudy: 'SELF_STUDY',
+  Seminar: 'SEMINAR',
+  Teaching: 'TEACHING',
+  TrainingSession: 'TRAINING_SESSION',
+  VideoLecture: 'VIDEO_LECTURE',
+  Volunteering: 'VOLUNTEERING',
+  Webinar: 'WEBINAR',
+  Workshop: 'WORKSHOP',
+  Youtube: 'YOUTUBE'
+} as const;
 
-export enum PduStatus {
-  Approved = 'APPROVED',
-  Pending = 'PENDING',
-  Rejected = 'REJECTED'
-}
+export type PduSource = typeof PduSource[keyof typeof PduSource];
+export const PduStatus = {
+  Approved: 'APPROVED',
+  Pending: 'PENDING',
+  Rejected: 'REJECTED'
+} as const;
 
+export type PduStatus = typeof PduStatus[keyof typeof PduStatus];
 export type PaginatedAdminAuditLogs = {
   __typename?: 'PaginatedAdminAuditLogs';
   items: Array<AdminAuditLog>;
@@ -5007,14 +5086,15 @@ export type PatchRoadmapDraftInput = {
   timeCommitment?: InputMaybe<LearningTimeCommitment>;
 };
 
-export enum PaymentStatus {
-  Cancelled = 'CANCELLED',
-  Failed = 'FAILED',
-  Paid = 'PAID',
-  Pending = 'PENDING',
-  Refunded = 'REFUNDED'
-}
+export const PaymentStatus = {
+  Cancelled: 'CANCELLED',
+  Failed: 'FAILED',
+  Paid: 'PAID',
+  Pending: 'PENDING',
+  Refunded: 'REFUNDED'
+} as const;
 
+export type PaymentStatus = typeof PaymentStatus[keyof typeof PaymentStatus];
 export type Podcast = {
   __typename?: 'Podcast';
   availableLocales?: Maybe<Array<AppLanguage>>;
@@ -5045,24 +5125,25 @@ export type Podcast = {
   updatedAt: Scalars['DateTime']['output'];
 };
 
-export enum PodcastCategory {
-  Ai = 'AI',
-  Business = 'BUSINESS',
-  Career = 'CAREER',
-  Compliance = 'COMPLIANCE',
-  Cpd = 'CPD',
-  Data = 'DATA',
-  Design = 'DESIGN',
-  Education = 'EDUCATION',
-  Engineering = 'ENGINEERING',
-  Finance = 'FINANCE',
-  Healthcare = 'HEALTHCARE',
-  Leadership = 'LEADERSHIP',
-  Marketing = 'MARKETING',
-  Other = 'OTHER',
-  Technology = 'TECHNOLOGY'
-}
+export const PodcastCategory = {
+  Ai: 'AI',
+  Business: 'BUSINESS',
+  Career: 'CAREER',
+  Compliance: 'COMPLIANCE',
+  Cpd: 'CPD',
+  Data: 'DATA',
+  Design: 'DESIGN',
+  Education: 'EDUCATION',
+  Engineering: 'ENGINEERING',
+  Finance: 'FINANCE',
+  Healthcare: 'HEALTHCARE',
+  Leadership: 'LEADERSHIP',
+  Marketing: 'MARKETING',
+  Other: 'OTHER',
+  Technology: 'TECHNOLOGY'
+} as const;
 
+export type PodcastCategory = typeof PodcastCategory[keyof typeof PodcastCategory];
 export type PodcastCategoryFacet = {
   __typename?: 'PodcastCategoryFacet';
   count: Scalars['Int']['output'];
@@ -5110,31 +5191,34 @@ export type PodcastPaginationInput = {
   take?: InputMaybe<Scalars['Int']['input']>;
 };
 
-export enum PodcastSortDirection {
-  Asc = 'ASC',
-  Desc = 'DESC'
-}
+export const PodcastSortDirection = {
+  Asc: 'ASC',
+  Desc: 'DESC'
+} as const;
 
-export enum PodcastSortField {
-  CreatedAt = 'CREATED_AT',
-  EpisodeCount = 'EPISODE_COUNT',
-  Listeners = 'LISTENERS',
-  Rating = 'RATING',
-  Title = 'TITLE',
-  UpdatedAt = 'UPDATED_AT'
-}
+export type PodcastSortDirection = typeof PodcastSortDirection[keyof typeof PodcastSortDirection];
+export const PodcastSortField = {
+  CreatedAt: 'CREATED_AT',
+  EpisodeCount: 'EPISODE_COUNT',
+  Listeners: 'LISTENERS',
+  Rating: 'RATING',
+  Title: 'TITLE',
+  UpdatedAt: 'UPDATED_AT'
+} as const;
 
+export type PodcastSortField = typeof PodcastSortField[keyof typeof PodcastSortField];
 export type PodcastSortInput = {
   direction?: InputMaybe<PodcastSortDirection>;
   field?: InputMaybe<PodcastSortField>;
 };
 
-export enum PodcastStatus {
-  Archived = 'ARCHIVED',
-  Draft = 'DRAFT',
-  Published = 'PUBLISHED'
-}
+export const PodcastStatus = {
+  Archived: 'ARCHIVED',
+  Draft: 'DRAFT',
+  Published: 'PUBLISHED'
+} as const;
 
+export type PodcastStatus = typeof PodcastStatus[keyof typeof PodcastStatus];
 export type PodcastTranslation = {
   __typename?: 'PodcastTranslation';
   description: Scalars['String']['output'];
@@ -5366,28 +5450,30 @@ export type ProfessionalExploreRoadmap = {
   totalSteps: Scalars['Int']['output'];
 };
 
-export enum ProfessionalGoal {
-  ExploreProfessionalPath = 'EXPLORE_PROFESSIONAL_PATH',
-  GrowInCurrentRole = 'GROW_IN_CURRENT_ROLE',
-  MaintainCertification = 'MAINTAIN_CERTIFICATION',
-  PrepareForNextRole = 'PREPARE_FOR_NEXT_ROLE'
-}
+export const ProfessionalGoal = {
+  ExploreProfessionalPath: 'EXPLORE_PROFESSIONAL_PATH',
+  GrowInCurrentRole: 'GROW_IN_CURRENT_ROLE',
+  MaintainCertification: 'MAINTAIN_CERTIFICATION',
+  PrepareForNextRole: 'PREPARE_FOR_NEXT_ROLE'
+} as const;
 
-export enum ProfessionalIndustry {
-  Construction = 'CONSTRUCTION',
-  Education = 'EDUCATION',
-  Engineering = 'ENGINEERING',
-  Finance = 'FINANCE',
-  Healthcare = 'HEALTHCARE',
-  Legal = 'LEGAL',
-  Manufacturing = 'MANUFACTURING',
-  Marketing = 'MARKETING',
-  NonProfit = 'NON_PROFIT',
-  Other = 'OTHER',
-  PublicSector = 'PUBLIC_SECTOR',
-  Technology = 'TECHNOLOGY'
-}
+export type ProfessionalGoal = typeof ProfessionalGoal[keyof typeof ProfessionalGoal];
+export const ProfessionalIndustry = {
+  Construction: 'CONSTRUCTION',
+  Education: 'EDUCATION',
+  Engineering: 'ENGINEERING',
+  Finance: 'FINANCE',
+  Healthcare: 'HEALTHCARE',
+  Legal: 'LEGAL',
+  Manufacturing: 'MANUFACTURING',
+  Marketing: 'MARKETING',
+  NonProfit: 'NON_PROFIT',
+  Other: 'OTHER',
+  PublicSector: 'PUBLIC_SECTOR',
+  Technology: 'TECHNOLOGY'
+} as const;
 
+export type ProfessionalIndustry = typeof ProfessionalIndustry[keyof typeof ProfessionalIndustry];
 export type ProfessionalManualCalendarEvent = {
   __typename?: 'ProfessionalManualCalendarEvent';
   contentId?: Maybe<Scalars['String']['output']>;
@@ -5762,20 +5848,22 @@ export type ProfessionalTaxonomyTermsInput = {
   take?: InputMaybe<Scalars['Int']['input']>;
 };
 
-export enum ProfileSectionKey {
-  BasicProfile = 'BASIC_PROFILE',
-  Certifications = 'CERTIFICATIONS',
-  Preferences = 'PREFERENCES',
-  ProfessionalDetails = 'PROFESSIONAL_DETAILS',
-  SkillsInterests = 'SKILLS_INTERESTS'
-}
+export const ProfileSectionKey = {
+  BasicProfile: 'BASIC_PROFILE',
+  Certifications: 'CERTIFICATIONS',
+  Preferences: 'PREFERENCES',
+  ProfessionalDetails: 'PROFESSIONAL_DETAILS',
+  SkillsInterests: 'SKILLS_INTERESTS'
+} as const;
 
-export enum ProfileTaxonomyKind {
-  Role = 'ROLE',
-  SkillArea = 'SKILL_AREA',
-  Subject = 'SUBJECT'
-}
+export type ProfileSectionKey = typeof ProfileSectionKey[keyof typeof ProfileSectionKey];
+export const ProfileTaxonomyKind = {
+  Role: 'ROLE',
+  SkillArea: 'SKILL_AREA',
+  Subject: 'SUBJECT'
+} as const;
 
+export type ProfileTaxonomyKind = typeof ProfileTaxonomyKind[keyof typeof ProfileTaxonomyKind];
 export type PromotionRequest = {
   __typename?: 'PromotionRequest';
   budget?: Maybe<Scalars['Float']['output']>;
@@ -5791,20 +5879,22 @@ export type PromotionRequest = {
   updatedAt: Scalars['DateTime']['output'];
 };
 
-export enum PromotionRequestStatus {
-  Approved = 'APPROVED',
-  Cancelled = 'CANCELLED',
-  Pending = 'PENDING',
-  Rejected = 'REJECTED'
-}
+export const PromotionRequestStatus = {
+  Approved: 'APPROVED',
+  Cancelled: 'CANCELLED',
+  Pending: 'PENDING',
+  Rejected: 'REJECTED'
+} as const;
 
-export enum PromotionType {
-  ComboPackage = 'COMBO_PACKAGE',
-  EmailCampaign = 'EMAIL_CAMPAIGN',
-  FeaturedListing = 'FEATURED_LISTING',
-  SocialMediaBoost = 'SOCIAL_MEDIA_BOOST'
-}
+export type PromotionRequestStatus = typeof PromotionRequestStatus[keyof typeof PromotionRequestStatus];
+export const PromotionType = {
+  ComboPackage: 'COMBO_PACKAGE',
+  EmailCampaign: 'EMAIL_CAMPAIGN',
+  FeaturedListing: 'FEATURED_LISTING',
+  SocialMediaBoost: 'SOCIAL_MEDIA_BOOST'
+} as const;
 
+export type PromotionType = typeof PromotionType[keyof typeof PromotionType];
 export type ProviderAnalytics = {
   __typename?: 'ProviderAnalytics';
   avgFeePerAttendee: Scalars['Float']['output'];
@@ -5865,13 +5955,14 @@ export type ProviderDashboardPaginationInput = {
   take?: InputMaybe<Scalars['Int']['input']>;
 };
 
-export enum ProviderDashboardRange {
-  Last_7Days = 'LAST_7_DAYS',
-  Last_30Days = 'LAST_30_DAYS',
-  Last_90Days = 'LAST_90_DAYS',
-  ThisYear = 'THIS_YEAR'
-}
+export const ProviderDashboardRange = {
+  Last_7Days: 'LAST_7_DAYS',
+  Last_30Days: 'LAST_30_DAYS',
+  Last_90Days: 'LAST_90_DAYS',
+  ThisYear: 'THIS_YEAR'
+} as const;
 
+export type ProviderDashboardRange = typeof ProviderDashboardRange[keyof typeof ProviderDashboardRange];
 export type ProviderDashboardRangeInput = {
   range?: InputMaybe<ProviderDashboardRange>;
 };
@@ -5924,24 +6015,27 @@ export type ProviderProfile = {
   website?: Maybe<Scalars['String']['output']>;
 };
 
-export enum ProviderProfileDecision {
-  Approve = 'APPROVE',
-  Reject = 'REJECT'
-}
+export const ProviderProfileDecision = {
+  Approve: 'APPROVE',
+  Reject: 'REJECT'
+} as const;
 
-export enum ProviderProfileReviewState {
-  Approved = 'APPROVED',
-  Draft = 'DRAFT',
-  Rejected = 'REJECTED',
-  Submitted = 'SUBMITTED'
-}
+export type ProviderProfileDecision = typeof ProviderProfileDecision[keyof typeof ProviderProfileDecision];
+export const ProviderProfileReviewState = {
+  Approved: 'APPROVED',
+  Draft: 'DRAFT',
+  Rejected: 'REJECTED',
+  Submitted: 'SUBMITTED'
+} as const;
 
-export enum ProviderProfileStatus {
-  Published = 'PUBLISHED',
-  Unpublished = 'UNPUBLISHED',
-  Withdrawn = 'WITHDRAWN'
-}
+export type ProviderProfileReviewState = typeof ProviderProfileReviewState[keyof typeof ProviderProfileReviewState];
+export const ProviderProfileStatus = {
+  Published: 'PUBLISHED',
+  Unpublished: 'UNPUBLISHED',
+  Withdrawn: 'WITHDRAWN'
+} as const;
 
+export type ProviderProfileStatus = typeof ProviderProfileStatus[keyof typeof ProviderProfileStatus];
 export type ProviderPromotionFilterInput = {
   eventId?: InputMaybe<Scalars['String']['input']>;
   promotionType?: InputMaybe<PromotionType>;
@@ -7253,12 +7347,13 @@ export type RoadmapChatMessage = {
   widget?: Maybe<RoadmapWidget>;
 };
 
-export enum RoadmapChatRole {
-  Assistant = 'ASSISTANT',
-  Professional = 'PROFESSIONAL',
-  System = 'SYSTEM'
-}
+export const RoadmapChatRole = {
+  Assistant: 'ASSISTANT',
+  Professional: 'PROFESSIONAL',
+  System: 'SYSTEM'
+} as const;
 
+export type RoadmapChatRole = typeof RoadmapChatRole[keyof typeof RoadmapChatRole];
 export type RoadmapChatTurnInput = {
   answerField?: InputMaybe<RoadmapDraftFieldKey>;
   answerValue?: InputMaybe<Scalars['String']['input']>;
@@ -7266,77 +7361,84 @@ export type RoadmapChatTurnInput = {
   message: Scalars['String']['input'];
 };
 
-export enum RoadmapDraftFieldKey {
-  BudgetPreference = 'BUDGET_PREFERENCE',
-  CertificationName = 'CERTIFICATION_NAME',
-  Context = 'CONTEXT',
-  CpdEnabled = 'CPD_ENABLED',
-  Goal = 'GOAL',
-  GoalReason = 'GOAL_REASON',
-  PreferredContentTypes = 'PREFERRED_CONTENT_TYPES',
-  PreferredDeliveryFormats = 'PREFERRED_DELIVERY_FORMATS',
-  PreferredFormats = 'PREFERRED_FORMATS',
-  SkillLevel = 'SKILL_LEVEL',
-  Subjects = 'SUBJECTS',
-  TargetDate = 'TARGET_DATE',
-  TargetRole = 'TARGET_ROLE',
-  TimeCommitment = 'TIME_COMMITMENT'
-}
+export const RoadmapDraftFieldKey = {
+  BudgetPreference: 'BUDGET_PREFERENCE',
+  CertificationName: 'CERTIFICATION_NAME',
+  Context: 'CONTEXT',
+  CpdEnabled: 'CPD_ENABLED',
+  Goal: 'GOAL',
+  GoalReason: 'GOAL_REASON',
+  PreferredContentTypes: 'PREFERRED_CONTENT_TYPES',
+  PreferredDeliveryFormats: 'PREFERRED_DELIVERY_FORMATS',
+  PreferredFormats: 'PREFERRED_FORMATS',
+  SkillLevel: 'SKILL_LEVEL',
+  Subjects: 'SUBJECTS',
+  TargetDate: 'TARGET_DATE',
+  TargetRole: 'TARGET_ROLE',
+  TimeCommitment: 'TIME_COMMITMENT'
+} as const;
 
-export enum RoadmapDraftStatus {
-  Collecting = 'COLLECTING',
-  Completed = 'COMPLETED',
-  Failed = 'FAILED',
-  Generating = 'GENERATING',
-  Ready = 'READY'
-}
+export type RoadmapDraftFieldKey = typeof RoadmapDraftFieldKey[keyof typeof RoadmapDraftFieldKey];
+export const RoadmapDraftStatus = {
+  Collecting: 'COLLECTING',
+  Completed: 'COMPLETED',
+  Failed: 'FAILED',
+  Generating: 'GENERATING',
+  Ready: 'READY'
+} as const;
 
-export enum RoadmapDraftStep {
-  Certification = 'CERTIFICATION',
-  Context = 'CONTEXT',
-  CpdRequirements = 'CPD_REQUIREMENTS',
-  CpdTracking = 'CPD_TRACKING',
-  Goal = 'GOAL',
-  GoalReason = 'GOAL_REASON',
-  Preferences = 'PREFERENCES',
-  Review = 'REVIEW',
-  TargetDate = 'TARGET_DATE'
-}
+export type RoadmapDraftStatus = typeof RoadmapDraftStatus[keyof typeof RoadmapDraftStatus];
+export const RoadmapDraftStep = {
+  Certification: 'CERTIFICATION',
+  Context: 'CONTEXT',
+  CpdRequirements: 'CPD_REQUIREMENTS',
+  CpdTracking: 'CPD_TRACKING',
+  Goal: 'GOAL',
+  GoalReason: 'GOAL_REASON',
+  Preferences: 'PREFERENCES',
+  Review: 'REVIEW',
+  TargetDate: 'TARGET_DATE'
+} as const;
 
-export enum RoadmapEnrollmentStatus {
-  Active = 'ACTIVE',
-  Completed = 'COMPLETED',
-  Unenrolled = 'UNENROLLED'
-}
+export type RoadmapDraftStep = typeof RoadmapDraftStep[keyof typeof RoadmapDraftStep];
+export const RoadmapEnrollmentStatus = {
+  Active: 'ACTIVE',
+  Completed: 'COMPLETED',
+  Unenrolled: 'UNENROLLED'
+} as const;
 
+export type RoadmapEnrollmentStatus = typeof RoadmapEnrollmentStatus[keyof typeof RoadmapEnrollmentStatus];
 export type RoadmapGenerationFailure = {
   __typename?: 'RoadmapGenerationFailure';
   code: RoadmapGenerationFailureCode;
   recoveryActions: Array<RoadmapGenerationRecoveryAction>;
 };
 
-export enum RoadmapGenerationFailureCode {
-  InvalidGeneratedRoadmap = 'INVALID_GENERATED_ROADMAP',
-  NoMatchingContent = 'NO_MATCHING_CONTENT',
-  TemporaryServiceFailure = 'TEMPORARY_SERVICE_FAILURE',
-  Unknown = 'UNKNOWN'
-}
+export const RoadmapGenerationFailureCode = {
+  InvalidGeneratedRoadmap: 'INVALID_GENERATED_ROADMAP',
+  NoMatchingContent: 'NO_MATCHING_CONTENT',
+  TemporaryServiceFailure: 'TEMPORARY_SERVICE_FAILURE',
+  Unknown: 'UNKNOWN'
+} as const;
 
-export enum RoadmapGenerationRecoveryAction {
-  Retry = 'RETRY',
-  ReviewBudget = 'REVIEW_BUDGET',
-  ReviewFormats = 'REVIEW_FORMATS',
-  ReviewSubjects = 'REVIEW_SUBJECTS',
-  StartOver = 'START_OVER'
-}
+export type RoadmapGenerationFailureCode = typeof RoadmapGenerationFailureCode[keyof typeof RoadmapGenerationFailureCode];
+export const RoadmapGenerationRecoveryAction = {
+  Retry: 'RETRY',
+  ReviewBudget: 'REVIEW_BUDGET',
+  ReviewFormats: 'REVIEW_FORMATS',
+  ReviewSubjects: 'REVIEW_SUBJECTS',
+  StartOver: 'START_OVER'
+} as const;
 
-export enum RoadmapMatchTier {
-  Broad = 'BROAD',
-  Exact = 'EXACT',
-  Related = 'RELATED',
-  Similar = 'SIMILAR'
-}
+export type RoadmapGenerationRecoveryAction = typeof RoadmapGenerationRecoveryAction[keyof typeof RoadmapGenerationRecoveryAction];
+export const RoadmapMatchTier = {
+  Broad: 'BROAD',
+  Exact: 'EXACT',
+  Related: 'RELATED',
+  Similar: 'SIMILAR'
+} as const;
 
+export type RoadmapMatchTier = typeof RoadmapMatchTier[keyof typeof RoadmapMatchTier];
 export type RoadmapRecommendation = {
   __typename?: 'RoadmapRecommendation';
   contentId: Scalars['ID']['output'];
@@ -7348,17 +7450,19 @@ export type RoadmapRecommendation = {
   title: Scalars['String']['output'];
 };
 
-export enum RoadmapSource {
-  Catalog = 'CATALOG',
-  Generated = 'GENERATED'
-}
+export const RoadmapSource = {
+  Catalog: 'CATALOG',
+  Generated: 'GENERATED'
+} as const;
 
-export enum RoadmapStatus {
-  Archived = 'ARCHIVED',
-  Draft = 'DRAFT',
-  Published = 'PUBLISHED'
-}
+export type RoadmapSource = typeof RoadmapSource[keyof typeof RoadmapSource];
+export const RoadmapStatus = {
+  Archived: 'ARCHIVED',
+  Draft: 'DRAFT',
+  Published: 'PUBLISHED'
+} as const;
 
+export type RoadmapStatus = typeof RoadmapStatus[keyof typeof RoadmapStatus];
 export type RoadmapStepProgress = {
   __typename?: 'RoadmapStepProgress';
   completedAt?: Maybe<Scalars['DateTime']['output']>;
@@ -7373,11 +7477,12 @@ export type RoadmapStepProgress = {
   totalSteps: Scalars['Int']['output'];
 };
 
-export enum RoadmapStepProgressStatus {
-  Completed = 'COMPLETED',
-  InProgress = 'IN_PROGRESS'
-}
+export const RoadmapStepProgressStatus = {
+  Completed: 'COMPLETED',
+  InProgress: 'IN_PROGRESS'
+} as const;
 
+export type RoadmapStepProgressStatus = typeof RoadmapStepProgressStatus[keyof typeof RoadmapStepProgressStatus];
 export type RoadmapSubjectOption = {
   __typename?: 'RoadmapSubjectOption';
   id: Scalars['ID']['output'];
@@ -7398,14 +7503,15 @@ export type RoadmapWidget = {
   type: RoadmapWidgetKind;
 };
 
-export enum RoadmapWidgetKind {
-  Date = 'DATE',
-  MultiSelect = 'MULTI_SELECT',
-  SingleSelect = 'SINGLE_SELECT',
-  Text = 'TEXT',
-  YesNo = 'YES_NO'
-}
+export const RoadmapWidgetKind = {
+  Date: 'DATE',
+  MultiSelect: 'MULTI_SELECT',
+  SingleSelect: 'SINGLE_SELECT',
+  Text: 'TEXT',
+  YesNo: 'YES_NO'
+} as const;
 
+export type RoadmapWidgetKind = typeof RoadmapWidgetKind[keyof typeof RoadmapWidgetKind];
 export type RoadmapWidgetOption = {
   __typename?: 'RoadmapWidgetOption';
   groupLabel?: Maybe<Scalars['String']['output']>;
@@ -7413,14 +7519,15 @@ export type RoadmapWidgetOption = {
   value: Scalars['String']['output'];
 };
 
-export enum Role {
-  Admin = 'ADMIN',
-  Association = 'ASSOCIATION',
-  Organization = 'ORGANIZATION',
-  Professional = 'PROFESSIONAL',
-  Provider = 'PROVIDER'
-}
+export const Role = {
+  Admin: 'ADMIN',
+  Association: 'ASSOCIATION',
+  Organization: 'ORGANIZATION',
+  Professional: 'PROFESSIONAL',
+  Provider: 'PROVIDER'
+} as const;
 
+export type Role = typeof Role[keyof typeof Role];
 export type SaveContentSeoInput = {
   contentId: Scalars['ID']['input'];
   expectedVersion?: InputMaybe<Scalars['Int']['input']>;
@@ -7531,24 +7638,26 @@ export type SearchHealthVitalSegment = {
   template: TelemetryRouteTemplate;
 };
 
-export enum SearchHealthVitalStatus {
-  Good = 'GOOD',
-  InsufficientData = 'INSUFFICIENT_DATA',
-  NeedsImprovement = 'NEEDS_IMPROVEMENT',
-  Poor = 'POOR'
-}
+export const SearchHealthVitalStatus = {
+  Good: 'GOOD',
+  InsufficientData: 'INSUFFICIENT_DATA',
+  NeedsImprovement: 'NEEDS_IMPROVEMENT',
+  Poor: 'POOR'
+} as const;
 
+export type SearchHealthVitalStatus = typeof SearchHealthVitalStatus[keyof typeof SearchHealthVitalStatus];
 export type SendAssociationMessageInput = {
   audience: AssociationMessageAudienceInput;
   messageType: AssociationMessageType;
 };
 
-export enum SessionStatus {
-  Active = 'ACTIVE',
-  Expired = 'EXPIRED',
-  Revoked = 'REVOKED'
-}
+export const SessionStatus = {
+  Active: 'ACTIVE',
+  Expired: 'EXPIRED',
+  Revoked: 'REVOKED'
+} as const;
 
+export type SessionStatus = typeof SessionStatus[keyof typeof SessionStatus];
 export type SetAssociationGroupActiveInput = {
   groupId: Scalars['ID']['input'];
   isActive: Scalars['Boolean']['input'];
@@ -7625,18 +7734,20 @@ export type SetYouTubeChannelTranslationPublicationInput = {
   published: Scalars['Boolean']['input'];
 };
 
-export enum SkillLevel {
-  Advanced = 'ADVANCED',
-  Beginner = 'BEGINNER',
-  Expert = 'EXPERT',
-  Intermediate = 'INTERMEDIATE'
-}
+export const SkillLevel = {
+  Advanced: 'ADVANCED',
+  Beginner: 'BEGINNER',
+  Expert: 'EXPERT',
+  Intermediate: 'INTERMEDIATE'
+} as const;
 
-export enum SortDirection {
-  Asc = 'ASC',
-  Desc = 'DESC'
-}
+export type SkillLevel = typeof SkillLevel[keyof typeof SkillLevel];
+export const SortDirection = {
+  Asc: 'ASC',
+  Desc: 'DESC'
+} as const;
 
+export type SortDirection = typeof SortDirection[keyof typeof SortDirection];
 export type SubmitAssociationAccessRequestInput = {
   associationName: Scalars['String']['input'];
   country: Scalars['String']['input'];
@@ -7698,35 +7809,38 @@ export type TelemetryAck = {
   dropped: Scalars['Int']['output'];
 };
 
-export enum TelemetryAttribution {
-  Direct = 'DIRECT',
-  Internal = 'INTERNAL',
-  OrganicSearch = 'ORGANIC_SEARCH',
-  Referral = 'REFERRAL',
-  Social = 'SOCIAL',
-  Unattributed = 'UNATTRIBUTED'
-}
+export const TelemetryAttribution = {
+  Direct: 'DIRECT',
+  Internal: 'INTERNAL',
+  OrganicSearch: 'ORGANIC_SEARCH',
+  Referral: 'REFERRAL',
+  Social: 'SOCIAL',
+  Unattributed: 'UNATTRIBUTED'
+} as const;
 
+export type TelemetryAttribution = typeof TelemetryAttribution[keyof typeof TelemetryAttribution];
 export type TelemetryBatchInput = {
   conversions?: Array<TelemetryConversionInput>;
   vitals?: Array<TelemetryVitalInput>;
 };
 
-export enum TelemetryContentKind {
-  Course = 'COURSE',
-  Event = 'EVENT',
-  None = 'NONE',
-  Podcast = 'PODCAST',
-  Youtube = 'YOUTUBE'
-}
+export const TelemetryContentKind = {
+  Course: 'COURSE',
+  Event: 'EVENT',
+  None: 'NONE',
+  Podcast: 'PODCAST',
+  Youtube: 'YOUTUBE'
+} as const;
 
-export enum TelemetryConversionEvent {
-  CatalogDetailOpen = 'CATALOG_DETAIL_OPEN',
-  ExternalContentAction = 'EXTERNAL_CONTENT_ACTION',
-  RegistrationCompleted = 'REGISTRATION_COMPLETED',
-  RegistrationStart = 'REGISTRATION_START'
-}
+export type TelemetryContentKind = typeof TelemetryContentKind[keyof typeof TelemetryContentKind];
+export const TelemetryConversionEvent = {
+  CatalogDetailOpen: 'CATALOG_DETAIL_OPEN',
+  ExternalContentAction: 'EXTERNAL_CONTENT_ACTION',
+  RegistrationCompleted: 'REGISTRATION_COMPLETED',
+  RegistrationStart: 'REGISTRATION_START'
+} as const;
 
+export type TelemetryConversionEvent = typeof TelemetryConversionEvent[keyof typeof TelemetryConversionEvent];
 export type TelemetryConversionInput = {
   attribution: TelemetryAttribution;
   contentKind?: TelemetryContentKind;
@@ -7736,77 +7850,86 @@ export type TelemetryConversionInput = {
   role?: TelemetryRegistrationRole;
 };
 
-export enum TelemetryDevice {
-  Desktop = 'DESKTOP',
-  Mobile = 'MOBILE'
-}
+export const TelemetryDevice = {
+  Desktop: 'DESKTOP',
+  Mobile: 'MOBILE'
+} as const;
 
-export enum TelemetryIntakeKind {
-  Conversion = 'CONVERSION',
-  Vital = 'VITAL'
-}
+export type TelemetryDevice = typeof TelemetryDevice[keyof typeof TelemetryDevice];
+export const TelemetryIntakeKind = {
+  Conversion: 'CONVERSION',
+  Vital: 'VITAL'
+} as const;
 
-export enum TelemetryIntakeOutcome {
-  Accepted = 'ACCEPTED',
-  Disabled = 'DISABLED',
-  Duplicate = 'DUPLICATE',
-  Invalid = 'INVALID',
-  RateLimited = 'RATE_LIMITED',
-  SampledOut = 'SAMPLED_OUT',
-  SinkFailed = 'SINK_FAILED'
-}
+export type TelemetryIntakeKind = typeof TelemetryIntakeKind[keyof typeof TelemetryIntakeKind];
+export const TelemetryIntakeOutcome = {
+  Accepted: 'ACCEPTED',
+  Disabled: 'DISABLED',
+  Duplicate: 'DUPLICATE',
+  Invalid: 'INVALID',
+  RateLimited: 'RATE_LIMITED',
+  SampledOut: 'SAMPLED_OUT',
+  SinkFailed: 'SINK_FAILED'
+} as const;
 
-export enum TelemetryLocale {
-  En = 'EN',
-  Fr = 'FR',
-  Unknown = 'UNKNOWN'
-}
+export type TelemetryIntakeOutcome = typeof TelemetryIntakeOutcome[keyof typeof TelemetryIntakeOutcome];
+export const TelemetryLocale = {
+  En: 'EN',
+  Fr: 'FR',
+  Unknown: 'UNKNOWN'
+} as const;
 
-export enum TelemetryMetric {
-  Cls = 'CLS',
-  Inp = 'INP',
-  Lcp = 'LCP'
-}
+export type TelemetryLocale = typeof TelemetryLocale[keyof typeof TelemetryLocale];
+export const TelemetryMetric = {
+  Cls: 'CLS',
+  Inp: 'INP',
+  Lcp: 'LCP'
+} as const;
 
-export enum TelemetryNavigationType {
-  BackForward = 'BACK_FORWARD',
-  Navigate = 'NAVIGATE',
-  Prerender = 'PRERENDER',
-  Reload = 'RELOAD',
-  Restore = 'RESTORE'
-}
+export type TelemetryMetric = typeof TelemetryMetric[keyof typeof TelemetryMetric];
+export const TelemetryNavigationType = {
+  BackForward: 'BACK_FORWARD',
+  Navigate: 'NAVIGATE',
+  Prerender: 'PRERENDER',
+  Reload: 'RELOAD',
+  Restore: 'RESTORE'
+} as const;
 
-export enum TelemetryRating {
-  Good = 'GOOD',
-  NeedsImprovement = 'NEEDS_IMPROVEMENT',
-  Poor = 'POOR'
-}
+export type TelemetryNavigationType = typeof TelemetryNavigationType[keyof typeof TelemetryNavigationType];
+export const TelemetryRating = {
+  Good: 'GOOD',
+  NeedsImprovement: 'NEEDS_IMPROVEMENT',
+  Poor: 'POOR'
+} as const;
 
-export enum TelemetryRegistrationRole {
-  None = 'NONE',
-  Professional = 'PROFESSIONAL',
-  Provider = 'PROVIDER'
-}
+export type TelemetryRating = typeof TelemetryRating[keyof typeof TelemetryRating];
+export const TelemetryRegistrationRole = {
+  None: 'NONE',
+  Professional: 'PROFESSIONAL',
+  Provider: 'PROVIDER'
+} as const;
 
-export enum TelemetryRouteTemplate {
-  About = 'ABOUT',
-  Company = 'COMPANY',
-  Contact = 'CONTACT',
-  ContentCatalog = 'CONTENT_CATALOG',
-  CourseDetail = 'COURSE_DETAIL',
-  EventDetail = 'EVENT_DETAIL',
-  Faq = 'FAQ',
-  Home = 'HOME',
-  Legal = 'LEGAL',
-  PodcastDetail = 'PODCAST_DETAIL',
-  ProviderProfile = 'PROVIDER_PROFILE',
-  Services = 'SERVICES',
-  Solutions = 'SOLUTIONS',
-  Support = 'SUPPORT',
-  TopicHub = 'TOPIC_HUB',
-  YoutubeDetail = 'YOUTUBE_DETAIL'
-}
+export type TelemetryRegistrationRole = typeof TelemetryRegistrationRole[keyof typeof TelemetryRegistrationRole];
+export const TelemetryRouteTemplate = {
+  About: 'ABOUT',
+  Company: 'COMPANY',
+  Contact: 'CONTACT',
+  ContentCatalog: 'CONTENT_CATALOG',
+  CourseDetail: 'COURSE_DETAIL',
+  EventDetail: 'EVENT_DETAIL',
+  Faq: 'FAQ',
+  Home: 'HOME',
+  Legal: 'LEGAL',
+  PodcastDetail: 'PODCAST_DETAIL',
+  ProviderProfile: 'PROVIDER_PROFILE',
+  Services: 'SERVICES',
+  Solutions: 'SOLUTIONS',
+  Support: 'SUPPORT',
+  TopicHub: 'TOPIC_HUB',
+  YoutubeDetail: 'YOUTUBE_DETAIL'
+} as const;
 
+export type TelemetryRouteTemplate = typeof TelemetryRouteTemplate[keyof typeof TelemetryRouteTemplate];
 export type TelemetryVitalInput = {
   device: TelemetryDevice;
   id: Scalars['String']['input'];
@@ -7818,12 +7941,13 @@ export type TelemetryVitalInput = {
   value: Scalars['Float']['input'];
 };
 
-export enum Theme {
-  Dark = 'DARK',
-  Light = 'LIGHT',
-  System = 'SYSTEM'
-}
+export const Theme = {
+  Dark: 'DARK',
+  Light: 'LIGHT',
+  System: 'SYSTEM'
+} as const;
 
+export type Theme = typeof Theme[keyof typeof Theme];
 export type TopicHub = {
   __typename?: 'TopicHub';
   availableLocales: Array<AppLanguage>;
@@ -7866,12 +7990,13 @@ export type TopicHubSectionInput = {
   heading: Scalars['String']['input'];
 };
 
-export enum TopicHubStatus {
-  Draft = 'DRAFT',
-  Published = 'PUBLISHED',
-  Withdrawn = 'WITHDRAWN'
-}
+export const TopicHubStatus = {
+  Draft: 'DRAFT',
+  Published: 'PUBLISHED',
+  Withdrawn: 'WITHDRAWN'
+} as const;
 
+export type TopicHubStatus = typeof TopicHubStatus[keyof typeof TopicHubStatus];
 export type TopicHubSummary = {
   __typename?: 'TopicHubSummary';
   introduction: Scalars['String']['output'];
@@ -8357,13 +8482,14 @@ export type UserPaginationInput = {
   page?: InputMaybe<Scalars['Int']['input']>;
 };
 
-export enum UserStatus {
-  Active = 'ACTIVE',
-  Deleted = 'DELETED',
-  Disabled = 'DISABLED',
-  Pending = 'PENDING'
-}
+export const UserStatus = {
+  Active: 'ACTIVE',
+  Deleted: 'DELETED',
+  Disabled: 'DISABLED',
+  Pending: 'PENDING'
+} as const;
 
+export type UserStatus = typeof UserStatus[keyof typeof UserStatus];
 export type VerifyEmailChangeInput = {
   code: Scalars['String']['input'];
   newEmail: Scalars['String']['input'];
@@ -8399,39 +8525,42 @@ export type WishlistItem = {
   userId: Scalars['String']['output'];
 };
 
-export enum WishlistPriceFilter {
-  Free = 'FREE',
-  Paid = 'PAID'
-}
+export const WishlistPriceFilter = {
+  Free: 'FREE',
+  Paid: 'PAID'
+} as const;
 
-export enum WishlistSortBy {
-  Newest = 'NEWEST',
-  Oldest = 'OLDEST',
-  PriceAsc = 'PRICE_ASC',
-  PriceDesc = 'PRICE_DESC',
-  RatingDesc = 'RATING_DESC',
-  TitleAsc = 'TITLE_ASC',
-  TitleDesc = 'TITLE_DESC'
-}
+export type WishlistPriceFilter = typeof WishlistPriceFilter[keyof typeof WishlistPriceFilter];
+export const WishlistSortBy = {
+  Newest: 'NEWEST',
+  Oldest: 'OLDEST',
+  PriceAsc: 'PRICE_ASC',
+  PriceDesc: 'PRICE_DESC',
+  RatingDesc: 'RATING_DESC',
+  TitleAsc: 'TITLE_ASC',
+  TitleDesc: 'TITLE_DESC'
+} as const;
 
-export enum YouTubeCategory {
-  Ai = 'AI',
-  Business = 'BUSINESS',
-  Career = 'CAREER',
-  Compliance = 'COMPLIANCE',
-  Cpd = 'CPD',
-  Data = 'DATA',
-  Design = 'DESIGN',
-  Education = 'EDUCATION',
-  Engineering = 'ENGINEERING',
-  Finance = 'FINANCE',
-  Healthcare = 'HEALTHCARE',
-  Leadership = 'LEADERSHIP',
-  Marketing = 'MARKETING',
-  Other = 'OTHER',
-  Technology = 'TECHNOLOGY'
-}
+export type WishlistSortBy = typeof WishlistSortBy[keyof typeof WishlistSortBy];
+export const YouTubeCategory = {
+  Ai: 'AI',
+  Business: 'BUSINESS',
+  Career: 'CAREER',
+  Compliance: 'COMPLIANCE',
+  Cpd: 'CPD',
+  Data: 'DATA',
+  Design: 'DESIGN',
+  Education: 'EDUCATION',
+  Engineering: 'ENGINEERING',
+  Finance: 'FINANCE',
+  Healthcare: 'HEALTHCARE',
+  Leadership: 'LEADERSHIP',
+  Marketing: 'MARKETING',
+  Other: 'OTHER',
+  Technology: 'TECHNOLOGY'
+} as const;
 
+export type YouTubeCategory = typeof YouTubeCategory[keyof typeof YouTubeCategory];
 export type YouTubeCategoryFacet = {
   __typename?: 'YouTubeCategoryFacet';
   count: Scalars['Int']['output'];
@@ -8494,31 +8623,34 @@ export type YouTubeChannelPaginationInput = {
   take?: InputMaybe<Scalars['Int']['input']>;
 };
 
-export enum YouTubeChannelSortDirection {
-  Asc = 'ASC',
-  Desc = 'DESC'
-}
+export const YouTubeChannelSortDirection = {
+  Asc: 'ASC',
+  Desc: 'DESC'
+} as const;
 
-export enum YouTubeChannelSortField {
-  CreatedAt = 'CREATED_AT',
-  Subscribers = 'SUBSCRIBERS',
-  Title = 'TITLE',
-  UpdatedAt = 'UPDATED_AT',
-  VideoCount = 'VIDEO_COUNT',
-  Views = 'VIEWS'
-}
+export type YouTubeChannelSortDirection = typeof YouTubeChannelSortDirection[keyof typeof YouTubeChannelSortDirection];
+export const YouTubeChannelSortField = {
+  CreatedAt: 'CREATED_AT',
+  Subscribers: 'SUBSCRIBERS',
+  Title: 'TITLE',
+  UpdatedAt: 'UPDATED_AT',
+  VideoCount: 'VIDEO_COUNT',
+  Views: 'VIEWS'
+} as const;
 
+export type YouTubeChannelSortField = typeof YouTubeChannelSortField[keyof typeof YouTubeChannelSortField];
 export type YouTubeChannelSortInput = {
   direction?: InputMaybe<YouTubeChannelSortDirection>;
   field?: InputMaybe<YouTubeChannelSortField>;
 };
 
-export enum YouTubeChannelStatus {
-  Archived = 'ARCHIVED',
-  Draft = 'DRAFT',
-  Published = 'PUBLISHED'
-}
+export const YouTubeChannelStatus = {
+  Archived: 'ARCHIVED',
+  Draft: 'DRAFT',
+  Published: 'PUBLISHED'
+} as const;
 
+export type YouTubeChannelStatus = typeof YouTubeChannelStatus[keyof typeof YouTubeChannelStatus];
 export type YouTubeChannelTranslation = {
   __typename?: 'YouTubeChannelTranslation';
   description: Scalars['String']['output'];
@@ -8548,27 +8680,11 @@ export type YouTubeVideo = {
   views: Scalars['Int']['output'];
 };
 
-export enum YouTubeVideoStatus {
-  Archived = 'ARCHIVED',
-  Draft = 'DRAFT',
-  Published = 'PUBLISHED'
-}
+export const YouTubeVideoStatus = {
+  Archived: 'ARCHIVED',
+  Draft: 'DRAFT',
+  Published: 'PUBLISHED'
+} as const;
 
-export class TypedDocumentString<TResult, TVariables>
-  extends String
-  implements DocumentTypeDecoration<TResult, TVariables>
-{
-  __apiType?: NonNullable<DocumentTypeDecoration<TResult, TVariables>['__apiType']>;
-  private value: string;
-  public __meta__?: Record<string, any> | undefined;
-
-  constructor(value: string, __meta__?: Record<string, any> | undefined) {
-    super(value);
-    this.value = value;
-    this.__meta__ = __meta__;
-  }
-
-  override toString(): string & DocumentTypeDecoration<TResult, TVariables> {
-    return this.value;
-  }
-}
+export type YouTubeVideoStatus = typeof YouTubeVideoStatus[keyof typeof YouTubeVideoStatus];
+export { TypedDocumentString } from "@/lib/graphql/document";

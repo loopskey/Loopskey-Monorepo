@@ -1,5 +1,5 @@
 import * as Types from "@/lib/graphql/base";
-import { TypedDocumentString } from "@/lib/graphql/base";
+import { TypedDocumentString } from "@/lib/graphql/document";
 export type YouTubeChannelFieldsFragment = { __typename?: 'YouTubeChannel', id: string, slug: string, views: number, title: string, status: Types.YouTubeChannelStatus, rating: number, provider?: string | null, category: Types.YouTubeCategory, imageUrl?: string | null, updatedAt: string, createdAt: string, deletedAt?: string | null, channelUrl?: string | null, isFeatured: boolean, providerId?: string | null, videoCount: number, ratingCount: number, subscribers: number, description?: string | null };
 
 export type YouTubeVideoFieldsFragment = { __typename?: 'YouTubeVideo', id: string, title: string, views: number, likes: number, status: Types.YouTubeVideoStatus, videoUrl?: string | null, channelId: string, createdAt: string, updatedAt: string, description?: string | null, publishedAt?: string | null, thumbnailUrl?: string | null, durationMinutes?: number | null };

@@ -1,4 +1,5 @@
 import { TLanguage } from "@/types/providers.types";
+import { translatorFor } from "@/lib/i18n/translator";
 
 import en from "@/i18n/en.json";
 
@@ -15,3 +16,6 @@ const loaders: Record<TLanguage, () => Promise<Dictionary>> = {
 
 export const loadDictionary = (language: TLanguage): Promise<Dictionary> =>
   loaders[language]();
+
+export const loadTranslator = async (language: TLanguage) =>
+  translatorFor(await loadDictionary(language));

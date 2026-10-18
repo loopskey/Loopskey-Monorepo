@@ -1,5 +1,5 @@
 import * as Types from "@/lib/graphql/base";
-import { TypedDocumentString } from "@/lib/graphql/base";
+import { TypedDocumentString } from "@/lib/graphql/document";
 export type AssociationSettingsFieldsFragment = { __typename?: 'AssociationSettings', id: string, associationId: string, onTrackThreshold: number, atRiskThreshold: number, welcomeMessages: boolean, suppressAllEmail: boolean, createdAt: string, updatedAt: string };
 
 export type AssociationFieldsFragment = { __typename?: 'Association', id: string, name: string, logoUrl?: string | null, description?: string | null, country?: string | null, website?: string | null, contactEmail?: string | null, ownerEmail?: string | null, ownerFullName?: string | null, ownerStatus: Types.UserStatus, createdAt: string, updatedAt: string, settings?: { __typename?: 'AssociationSettings', id: string, associationId: string, onTrackThreshold: number, atRiskThreshold: number, welcomeMessages: boolean, suppressAllEmail: boolean, createdAt: string, updatedAt: string } | null };

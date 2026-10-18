@@ -9,8 +9,8 @@ as pending.
 
 - [ ] CI is green: lint, types, unit tests, API end-to-end tests, build, the
       generated GraphQL check and the SEO diagnostic self-test.
-- [ ] `npm run bundle-report --workspace front -- --check` reports every public
-      route within its ceiling.
+- [ ] `npm run bundle-report --workspace front -- --check-targets --check-ceilings`
+      reports every public route within its target and its ceiling.
 - [ ] Any Prisma migration was read for stray `DROP INDEX` lines before it was
       applied.
 - [ ] A change to the sitemap, canonical, hreflang, robots or structured data was

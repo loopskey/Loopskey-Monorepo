@@ -2,6 +2,7 @@ import { baseApi } from "@/lib/rtk/baseApi";
 
 import type * as TAPI from "@/lib/graphql/generated";
 import * as API from "@/lib/graphql/operations/auth";
+import * as SessionAPI from "@/lib/graphql/operations/session";
 
 export const authApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
@@ -58,7 +59,7 @@ export const authApi = baseApi.injectEndpoints({
       void
     >({
       query: () => ({
-        document: API.RefreshTokenDocument,
+        document: SessionAPI.RefreshTokenDocument,
       }),
       transformResponse: (response: TAPI.RefreshTokenMutation) =>
         response.refreshToken,
@@ -67,7 +68,7 @@ export const authApi = baseApi.injectEndpoints({
 
     logout: builder.mutation<TAPI.LogoutMutation["logout"], void>({
       query: () => ({
-        document: API.LogoutDocument,
+        document: SessionAPI.LogoutDocument,
       }),
       transformResponse: (response: TAPI.LogoutMutation) => response.logout,
       async onQueryStarted(_arg, { dispatch, queryFulfilled }) {
@@ -208,7 +209,7 @@ export const authApi = baseApi.injectEndpoints({
 
     currentUser: builder.query<TAPI.CurrentUserQuery["currentUser"], void>({
       query: () => ({
-        document: API.CurrentUserDocument,
+        document: SessionAPI.CurrentUserDocument,
       }),
       transformResponse: (response: TAPI.CurrentUserQuery) =>
         response.currentUser,

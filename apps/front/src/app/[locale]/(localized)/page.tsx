@@ -1,7 +1,9 @@
 import { bespokePageMetadata } from "@/utils/static-info-page.utils";
 import { asPublicLocale } from "@/lib/i18n/route-locale";
+import { ClientMessages } from "@elements/client-messages";
 import { loadDictionary } from "@/i18n/dictionaries";
 import { identityGraph } from "@/lib/structured-data/graph";
+import { StoreProvider } from "@/providers/rtk-provider";
 
 import LandingPopularCategories from "@modules/Landing/LandingPopularCategories";
 import LandingRoadmapShowcase from "@modules/Landing/LandingRoadmapShowcase";
@@ -28,16 +30,20 @@ const HomePage = async ({ params }: THomePageProps) => {
       <JsonLd
         nodes={identityGraph({ path: "/", name: title, locale, description })}
       />
-      <LandingHero />
-      <LandingFeatured />
-      <LandingNewFeature />
-      <LandingPopularCategories />
-      <LandingTopicGuides locale={locale} />
-      <LandingServices />
-      <LandingRoadmapShowcase />
-      <LandingOrganization />
-      <LandingProvider />
-      <LandingTestimonials />
+      <ClientMessages scope="landing" locale={locale}>
+        <StoreProvider>
+          <LandingHero />
+          <LandingFeatured />
+          <LandingNewFeature locale={locale} />
+          <LandingPopularCategories />
+          <LandingTopicGuides locale={locale} />
+          <LandingServices locale={locale} />
+          <LandingRoadmapShowcase locale={locale} />
+          <LandingOrganization />
+          <LandingProvider />
+          <LandingTestimonials locale={locale} />
+        </StoreProvider>
+      </ClientMessages>
     </>
   );
 };

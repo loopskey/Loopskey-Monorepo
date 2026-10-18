@@ -1,14 +1,18 @@
-"use client";
-
 import { STATIC_INFO_EMAIL, type PageKey } from "@utils/static-info-outline";
+import { buildStaticInfoOutline } from "@utils/static-info-outline";
+import { EMPTY_STATIC_INFO_PAGE } from "@utils/static-info-outline";
+import { TStaticInfoPageContent } from "@/types/pages.types";
 import { TStaticInfoBodyProps } from "@/types/pages.types";
-import { useStaticInfoPage } from "@hooks/useStaticInfoPage";
+import { StaticInfoNav } from "@templates/StaticInfoNav";
+import { loadTranslator } from "@/i18n/dictionaries";
 import { RevealOnScroll } from "@elements/reveal-scroll";
 import { GlassCard } from "@elements/glass-card";
 import { Button } from "@ui/button";
 import { cn } from "@/lib/utils";
 
 import Link from "@elements/localized-link";
+
+import type { PublicLocale } from "@/lib/i18n/locale";
 
 import * as L from "lucide-react";
 
@@ -62,10 +66,21 @@ const StaticInfoBody = ({ blocks, className }: TStaticInfoBodyProps) => (
   </div>
 );
 
-export const StaticInfoPage = ({ pageKey }: { pageKey: PageKey }) => {
-  const { t, outline, activeSectionId, setActiveSectionId } = useStaticInfoPage(
-    pageKey,
-    true,
+type TStaticInfoPageProps = {
+  pageKey: PageKey;
+  locale: PublicLocale;
+};
+
+export const StaticInfoPage = async ({
+  pageKey,
+  locale,
+}: TStaticInfoPageProps) => {
+  const { t, traw } = await loadTranslator(locale);
+  const outline = buildStaticInfoOutline(
+    traw<TStaticInfoPageContent>(
+      `staticPages.${pageKey}`,
+      EMPTY_STATIC_INFO_PAGE,
+    ),
   );
   const { title, lead, sections, cta } = outline;
   const showNav = sections.length > 1;
@@ -125,7 +140,6 @@ export const StaticInfoPage = ({ pageKey }: { pageKey: PageKey }) => {
 
   return (
     <main className="relative overflow-x-clip">
-
       <section className="px-4 py-10 sm:px-6 md:py-16 lg:px-8">
         <div className="mx-auto max-w-7xl">
           <RevealOnScroll direction="up">{header}</RevealOnScroll>
@@ -152,49 +166,11 @@ export const StaticInfoPage = ({ pageKey }: { pageKey: PageKey }) => {
                   </p>
                 </div>
 
-                <nav
-                  aria-label={t("staticInfoPage.nav.label", { page: title })}
-                >
-                  <ul className="flex flex-wrap gap-2 xl:max-h-[calc(100vh-20rem)] xl:flex-col xl:flex-nowrap xl:overflow-y-auto xl:pr-1">
-                    {sections.map((section, index) => {
-                      const isActive = activeSectionId === section.id;
-
-                      return (
-                        <li key={section.id} className="xl:w-full">
-                          <a
-                            href={`#${section.id}`}
-                            aria-current={isActive ? "location" : undefined}
-                            onClick={() => setActiveSectionId(section.id)}
-                            className={cn(
-                              "group flex items-center gap-2 rounded-full border px-3 py-1.5 text-xs transition-all duration-300",
-                              "xl:w-full xl:gap-3 xl:rounded-md xl:px-4 xl:py-3 xl:text-sm",
-                              FOCUS_RING,
-                              isActive
-                                ? "border-primary/30 bg-primary/10 text-primary shadow-sm"
-                                : "border-border text-muted-foreground hover:border-primary/25 hover:bg-primary/5 hover:text-foreground",
-                            )}
-                          >
-                            <span
-                              aria-hidden="true"
-                              className={cn(
-                                "hidden h-7 w-7 shrink-0 items-center justify-center rounded-xl text-xs font-bold xl:flex",
-                                isActive
-                                  ? "bg-primary text-primary-foreground"
-                                  : "bg-muted text-muted-foreground group-hover:bg-primary/10 group-hover:text-primary",
-                              )}
-                            >
-                              {index + 1}
-                            </span>
-
-                            <span className="xl:line-clamp-1">
-                              {section.title}
-                            </span>
-                          </a>
-                        </li>
-                      );
-                    })}
-                  </ul>
-                </nav>
+                <StaticInfoNav
+                  focusRing={FOCUS_RING}
+                  label={t("staticInfoPage.nav.label", { page: title })}
+                  sections={sections.map(({ id, title }) => ({ id, title }))}
+                />
               </GlassCard>
             </aside>
           )}

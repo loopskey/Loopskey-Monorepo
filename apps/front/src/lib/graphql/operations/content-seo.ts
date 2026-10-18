@@ -1,5 +1,5 @@
 import * as Types from "@/lib/graphql/base";
-import { TypedDocumentString } from "@/lib/graphql/base";
+import { TypedDocumentString } from "@/lib/graphql/document";
 export type ContentSeoSettingsFieldsFragment = { __typename?: 'ContentSeoSettings', excludeFromIndex: boolean, locales: Array<{ __typename?: 'ContentSeoLocale', locale: Types.AppLanguage, version: number, seoTitle?: string | null, seoDescription?: string | null, socialImageId?: string | null, socialImagePath?: string | null, socialImageAlt?: string | null, defaultTitle: string, defaultDescription?: string | null, updatedAt?: string | null }> };
 
 export type CourseSeoQueryVariables = Types.Exact<{

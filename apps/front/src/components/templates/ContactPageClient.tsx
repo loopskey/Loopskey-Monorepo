@@ -1,7 +1,7 @@
 "use client";
 
+import { FloatingNativeSelectField } from "@elements/floating-native-select";
 import { FloatingTextareaField } from "@elements/floating-textarea";
-import { FloatingSelectField } from "@elements/floating-select";
 import { FloatingInputField } from "@elements/floating-input";
 import { RevealOnScroll } from "@elements/reveal-scroll";
 import { useContactPage } from "@hooks/useContact";
@@ -47,7 +47,6 @@ const ContactPage = () => {
   return (
     <main className="overflow-x-clip">
       <section className="relative px-4 py-10">
-
         <div className="mx-auto max-w-7xl">
           <RevealOnScroll direction="up">
             <div className="mx-auto max-w-3xl text-center">
@@ -118,11 +117,15 @@ const ContactPage = () => {
                     leftIcon={<L.Building2 className="h-4 w-4" />}
                   />
 
-                  <FloatingSelectField
+                  <FloatingNativeSelectField
                     name="inquiryType"
                     control={form.control}
                     options={inquiryTypeOptions}
-                    label={t("contactPage.form.inquiryType", {}, "Inquiry type")}
+                    label={t(
+                      "contactPage.form.inquiryType",
+                      {},
+                      "Inquiry type",
+                    )}
                   />
 
                   <FloatingTextareaField

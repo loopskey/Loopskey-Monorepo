@@ -1,5 +1,6 @@
-﻿import { bespokePageMetadata } from "@/utils/static-info-page.utils";
+import { bespokePageMetadata } from "@/utils/static-info-page.utils";
 import { asPublicLocale } from "@/lib/i18n/route-locale";
+import { ClientMessages } from "@elements/client-messages";
 import { loadDictionary } from "@/i18n/dictionaries";
 import { identityGraph } from "@/lib/structured-data/graph";
 
@@ -25,7 +26,9 @@ const AboutPage = async ({ params }: TAboutPageProps) => {
           type: "AboutPage",
         })}
       />
-      <AboutPageClient />
+      <ClientMessages scope="about" locale={locale}>
+        <AboutPageClient />
+      </ClientMessages>
     </>
   );
 };

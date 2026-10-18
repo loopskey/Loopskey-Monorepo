@@ -1,5 +1,5 @@
 import * as Types from "@/lib/graphql/base";
-import { TypedDocumentString } from "@/lib/graphql/base";
+import { TypedDocumentString } from "@/lib/graphql/document";
 export type OrganizationPageInfoFieldsFragment = { __typename?: 'OrganizationPageInfo', nextCursor?: string | null, hasNextPage: boolean };
 
 export type OrganizationOverviewSummaryFieldsFragment = { __typename?: 'OrganizationOverviewSummary', totalPdus: number, totalMembers: number, activeMembers: number, engagementRate: number, averageCompliance: number, activeAssignments: number, nonCompliantMembers: number };

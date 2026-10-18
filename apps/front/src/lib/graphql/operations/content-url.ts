@@ -1,5 +1,5 @@
 import * as Types from "@/lib/graphql/base";
-import { TypedDocumentString } from "@/lib/graphql/base";
+import { TypedDocumentString } from "@/lib/graphql/document";
 export type ContentUrlSettingsFieldsFragment = { __typename?: 'ContentUrlSettings', kind: Types.ContentUrlKind, contentId: string, slug: string, retiredSlugs: Array<string> };
 
 export type ContentUrlQueryVariables = Types.Exact<{

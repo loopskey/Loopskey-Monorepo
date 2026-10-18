@@ -1,5 +1,5 @@
 import * as Types from "@/lib/graphql/base";
-import { TypedDocumentString } from "@/lib/graphql/base";
+import { TypedDocumentString } from "@/lib/graphql/document";
 export type ProviderSettingsFieldsFragment = { __typename?: 'ProviderSettings', id: string, updatedAt: string, createdAt: string, providerId: string, contactEmail?: string | null, organizationName?: string | null, aboutOrganization?: string | null, organizationProfile?: string | null, eventReminderEnabled: boolean, reminderHoursBeforeEvent: number, newRegistrationAlertEnabled: boolean };
 
 export type ProviderStatusBreakdownFieldsFragment = { __typename?: 'ProviderStatusBreakdown', draft: number, archived: number, published: number, cancelled: number };
