@@ -1,9 +1,9 @@
 import { ReactNode } from "react";
 
-import PublicChrome from "@layouts/PublicChrome";
+import AppChrome from "@layouts/AppChrome";
 
 const ChromeLayout = ({ children }: { children: ReactNode }) => (
-  <PublicChrome>{children}</PublicChrome>
+  <AppChrome>{children}</AppChrome>
 );
 
 export default ChromeLayout;

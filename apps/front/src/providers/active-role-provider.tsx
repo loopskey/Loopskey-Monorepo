@@ -2,8 +2,8 @@
 
 import { createContext, ReactNode, useMemo, useState } from "react";
 import { useCallback, useContext, useEffect } from "react";
-import { siteLinks, solutionEntries } from "@utils/constant";
-import { normalizePath } from "@/utils/function-helper";
+import { siteLinks, solutionEntries } from "@/utils/site-navigation";
+import { normalizePath } from "@/utils/path.util";
 import { usePathname } from "next/navigation";
 
 type TActiveRoleContext = {

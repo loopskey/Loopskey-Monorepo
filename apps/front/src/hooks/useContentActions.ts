@@ -1,12 +1,13 @@
 "use client";
 
-import { ContentEnrollmentStatus } from "@/lib/graphql/base";
 import { MyWishlistInput, WishlistSortBy } from "@/lib/graphql/base";
+import { ContentEnrollmentStatus } from "@/lib/graphql/base";
 import { TUseContentActionsArgs } from "@/types/hooks.types";
-import { useCurrentUserQuery } from "@/lib/rtk/endpoints/auth.api";
+import { refreshPublicSession } from "@/lib/session/public-session";
+import { useEffect, useMemo } from "react";
+import { usePublicSession } from "@/hooks/usePublicSession";
 import { useRouter } from "next/navigation";
 import { siteLinks } from "@/utils/constant";
-import { useMemo } from "react";
 import { useI18n } from "@/hooks/useI18n";
 import { notify } from "@/hooks/notify";
 
@@ -53,10 +54,12 @@ export const useContentActions = ({
 }: TUseContentActionsArgs) => {
   const { t } = useI18n();
   const router = useRouter();
-  const { data: currentUserData } = useCurrentUserQuery(undefined, {
-    refetchOnMountOrArgChange: true,
-  });
-  const isAuthenticated = Boolean(currentUserData?.user);
+  const { isAuthenticated } = usePublicSession();
+
+  useEffect(() => {
+    void refreshPublicSession();
+  }, []);
+
   const skip = !contentId;
   const skipAuthQueries = skip || !isAuthenticated;
   const wishlistInput = useMemo<MyWishlistInput>(

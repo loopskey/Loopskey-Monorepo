@@ -8,6 +8,8 @@ import { DetailOpenTracker } from "@elements/detail-open-tracker";
 import { getPublicPodcast } from "@/lib/server/public-content";
 import { contentMetadata } from "@/lib/social-card/metadata";
 import { noindexMetadata } from "@/lib/site/page-metadata";
+import { ClientMessages } from "@elements/client-messages";
+import { StoreProvider } from "@/providers/rtk-provider";
 import { podcastGraph } from "@/lib/structured-data/detail-graphs";
 import { ContentType } from "@/lib/graphql/base";
 import { detailTrail } from "@/lib/structured-data/trail";
@@ -65,33 +67,35 @@ const Page = async ({ params }: TContentDetailPageProps) => {
     locale: publicLocale,
   });
   return (
-    <>
-      <DetailOpenTracker contentType={ContentType.Podcast} />
-      {!podcast.excludeFromIndex && (
-        <JsonLd
-          nodes={podcastGraph({
-            content: podcast,
-            episodes,
-            locale: publicLocale,
-            trail,
-          })}
+    <ClientMessages scope="detail" locale={publicLocale}>
+      <StoreProvider>
+        <DetailOpenTracker contentType={ContentType.Podcast} />
+        {!podcast.excludeFromIndex && (
+          <JsonLd
+            nodes={podcastGraph({
+              content: podcast,
+              episodes,
+              locale: publicLocale,
+              trail,
+            })}
+          />
+        )}
+        <PodcastDetailPage
+          podcast={podcast}
+          episodes={episodes}
+          breadcrumbs={
+            <>
+              <Breadcrumbs trail={trail} locale={publicLocale} />
+              <ContentRelations
+                hubs={hubs}
+                byline={byline}
+                locale={publicLocale}
+              />
+            </>
+          }
         />
-      )}
-      <PodcastDetailPage
-        podcast={podcast}
-        episodes={episodes}
-        breadcrumbs={
-          <>
-            <Breadcrumbs trail={trail} locale={publicLocale} />
-            <ContentRelations
-              hubs={hubs}
-              byline={byline}
-              locale={publicLocale}
-            />
-          </>
-        }
-      />
-    </>
+      </StoreProvider>
+    </ClientMessages>
   );
 };
 

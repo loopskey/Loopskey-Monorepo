@@ -1,5 +1,5 @@
 import * as Types from "@/lib/graphql/base";
-import { TypedDocumentString } from "@/lib/graphql/base";
+import { TypedDocumentString } from "@/lib/graphql/document";
 export type IngestionSourceFieldsFragment = { __typename?: 'IngestionSource', id: string, slug: string, name: string, kind: Types.IngestionContentKind, isActive: boolean, autoPublish: boolean, stalenessWindowDays?: number | null, fieldMap: any, createdAt: string, updatedAt: string };
 
 export type IngestionPageInfoFieldsFragment = { __typename?: 'IngestionPageInfo', hasNextPage: boolean, nextCursor?: string | null };

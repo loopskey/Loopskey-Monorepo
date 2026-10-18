@@ -7,6 +7,8 @@ import { DetailOpenTracker } from "@elements/detail-open-tracker";
 import { contentMetadata } from "@/lib/social-card/metadata";
 import { noindexMetadata } from "@/lib/site/page-metadata";
 import { getPublicEvent } from "@/lib/server/public-content";
+import { ClientMessages } from "@elements/client-messages";
+import { StoreProvider } from "@/providers/rtk-provider";
 import { ContentType } from "@/lib/graphql/base";
 import { detailTrail } from "@/lib/structured-data/trail";
 import { eventGraph } from "@/lib/structured-data/detail-graphs";
@@ -58,27 +60,29 @@ const Page = async ({ params }: TContentDetailPageProps) => {
     locale: publicLocale,
   });
   return (
-    <>
-      <DetailOpenTracker contentType={ContentType.Event} />
-      {!event.excludeFromIndex && (
-        <JsonLd
-          nodes={eventGraph({ content: event, locale: publicLocale, trail })}
+    <ClientMessages scope="detail" locale={publicLocale}>
+      <StoreProvider>
+        <DetailOpenTracker contentType={ContentType.Event} />
+        {!event.excludeFromIndex && (
+          <JsonLd
+            nodes={eventGraph({ content: event, locale: publicLocale, trail })}
+          />
+        )}
+        <EventDetailPage
+          event={event}
+          breadcrumbs={
+            <>
+              <Breadcrumbs trail={trail} locale={publicLocale} />
+              <ContentRelations
+                hubs={hubs}
+                byline={byline}
+                locale={publicLocale}
+              />
+            </>
+          }
         />
-      )}
-      <EventDetailPage
-        event={event}
-        breadcrumbs={
-          <>
-            <Breadcrumbs trail={trail} locale={publicLocale} />
-            <ContentRelations
-              hubs={hubs}
-              byline={byline}
-              locale={publicLocale}
-            />
-          </>
-        }
-      />
-    </>
+      </StoreProvider>
+    </ClientMessages>
   );
 };
 

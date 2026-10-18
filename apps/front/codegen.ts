@@ -7,6 +7,7 @@ const DOMAINS = [
   "course",
   "landing",
   "podcast",
+  "session",
   "support",
   "youtube",
   "cpd-plan",
@@ -37,6 +38,7 @@ const commonConfig = {
   maybeValue: "T | null",
   scalars,
   enumsAsTypes: false,
+  enumsAsConst: true,
 };
 
 const operationOutputs = Object.fromEntries(
@@ -49,7 +51,7 @@ const operationOutputs = Object.fromEntries(
           add: {
             content: [
               `import * as Types from "@/lib/graphql/base";`,
-              `import { TypedDocumentString } from "@/lib/graphql/base";`,
+              `import { TypedDocumentString } from "@/lib/graphql/document";`,
             ].join("\n"),
           },
         },

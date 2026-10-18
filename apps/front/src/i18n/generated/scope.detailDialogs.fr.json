@@ -1,0 +1,384 @@
+{
+  "cpdProgress": {
+    "compliance": {
+      "AT_RISK": "À risque",
+      "EVIDENCE_INCOMPLETE": "Preuves incomplètes",
+      "IN_PROGRESS": "En cours",
+      "NOT_STARTED": "Non commencé",
+      "ON_TRACK": "Sur la bonne voie",
+      "REPORTING_PERIOD_EXPIRED": "Période de déclaration expirée",
+      "REQUIREMENTS_COMPLETED": "Exigences complétées"
+    },
+    "requirements": {
+      "activities": {
+        "reason": "Motif : {{note}}",
+        "state": {
+          "AWAITING_REVIEW": "En attente d’examen",
+          "COUNTED": "Acceptée",
+          "REJECTED": "Refusée"
+        },
+        "status": {
+          "APPROVED": "Approuvée",
+          "PENDING": "En attente",
+          "REJECTED": "Refusée"
+        }
+      },
+      "band": {
+        "AT_RISK": "À risque",
+        "NOT_STARTED": "Non commencé",
+        "ON_TRACK": "En bonne voie",
+        "RENEWAL_READY": "Prêt au renouvellement"
+      },
+      "daysLeft": "{{count}} jours restants",
+      "dueToday": "Échéance aujourd’hui",
+      "evidencePolicy": {
+        "NOT_REQUIRED": "Non requises",
+        "REQUIRED_NEEDS_REVIEW": "Requises et examinées par votre association",
+        "REQUIRED_NO_REVIEW": "Requises"
+      },
+      "noDeadline": "Aucune échéance",
+      "overdue": "{{count}} jours de retard",
+      "source": {
+        "ASSOCIATION": "Association",
+        "PLAN": "Plan personnel"
+      }
+    },
+    "validation": {
+      "categoryName": "Le nom de la catégorie est requis.",
+      "categoryTotalOverTotal": "Les objectifs des catégories dépassent le total des crédits requis.",
+      "completedOverTotal": "Les crédits complétés ne peuvent pas dépasser le total requis.",
+      "duplicateCategory": "Les noms de catégorie doivent être uniques.",
+      "endBeforeStart": "La date de fin ne doit pas précéder la date de début.",
+      "evidenceRequired": "Sélectionnez au moins un type de preuve.",
+      "nonNegative": "La valeur ne peut pas être négative.",
+      "number": "Saisissez un nombre valide.",
+      "positive": "La valeur doit être supérieure à zéro.",
+      "recipientLabelRequired": "Saisissez le nom du destinataire.",
+      "reminderTimingRequired": "Choisissez quand être rappelé.",
+      "required": "Ce champ est requis."
+    }
+  },
+  "professionalDashboard": {
+    "calendar": {
+      "addDialog": {
+        "description": "Créez un événement personnel sur votre calendrier.",
+        "fields": {
+          "duration": "Durée en minutes (facultatif)",
+          "endDate": "Date et heure de fin (facultatif)",
+          "notes": "Notes (facultatif)",
+          "startDate": "Date et heure de début",
+          "title": "Titre",
+          "type": "Type"
+        },
+        "submit": "Ajouter l'événement",
+        "success": "Événement ajouté à votre calendrier.",
+        "title": "Ajouter au calendrier"
+      },
+      "types": {
+        "COURSE": "Cours",
+        "EVENT": "Événement",
+        "MEETING": "Réunion",
+        "OTHER": "Autre",
+        "TRAINING": "Formation",
+        "WEBINAR": "Webinaire"
+      }
+    },
+    "cpdPduTracker": {
+      "actions": {
+        "delete": "Supprimer l’activité",
+        "edit": "Modifier l’activité",
+        "view": "Voir les détails de l’activité"
+      },
+      "activities": {
+        "deleteDescription": "Cette action supprime définitivement l’activité et tous les fichiers de preuve associés.",
+        "deleteSuccess": "Activité supprimée avec succès.",
+        "deleteTitle": "Supprimer cette activité ?",
+        "downloadError": "Impossible de télécharger ce fichier.",
+        "emptyDescription": "Ajoutez votre première activité pour commencer le suivi de votre développement professionnel continu.",
+        "emptyTitle": "Aucune activité d’apprentissage",
+        "errorDescription": "Vérifiez votre connexion et réessayez.",
+        "errorTitle": "Impossible de charger les activités",
+        "noMatchDescription": "Élargissez votre recherche ou effacez les filtres pour voir toutes les activités.",
+        "noMatchTitle": "Aucune activité ne correspond à vos filtres",
+        "subtitle": "Gérez toutes les activités d’apprentissage que vous avez enregistrées.",
+        "title": "Activités"
+      },
+      "activityTypes": {
+        "CERTIFICATION_PROGRAM": "Programme de certification",
+        "CONFERENCE": "Conférence",
+        "COURSE": "Cours",
+        "EVENT": "Événement",
+        "EXAM_ASSESSMENT": "Examen / évaluation",
+        "MEETING": "Réunion",
+        "MENTORSHIP": "Séance de mentorat",
+        "OTHER": "Autre",
+        "PODCAST": "Podcast",
+        "READING_ARTICLE": "Lecture / article",
+        "SELF_STUDY": "Étude autonome",
+        "SEMINAR": "Séminaire",
+        "TEACHING": "Enseignement / présentation",
+        "TRAINING_SESSION": "Session de formation",
+        "VIDEO_LECTURE": "Vidéo / cours enregistré",
+        "VOLUNTEERING": "Bénévolat / service professionnel",
+        "WEBINAR": "Webinaire",
+        "WORKSHOP": "Atelier",
+        "YOUTUBE": "YouTube"
+      },
+      "addActivity": {
+        "addActivity": "Ajouter l’activité",
+        "addAnother": "Ajouter une autre activité",
+        "back": "Retour",
+        "backToRequirements": "Retour aux exigences",
+        "cancelDescription": "Vous avez des modifications non enregistrées. Quitter maintenant les supprimera.",
+        "cancelTitle": "Abandonner cette activité ?",
+        "createSuccess": "Activité ajoutée avec succès.",
+        "discardChanges": "Abandonner les modifications",
+        "editTitle": "Modifier l’activité d’apprentissage",
+        "keepEditing": "Continuer l’édition",
+        "next": "Suivant",
+        "steps": {
+          "1": {
+            "description": "Titre, type, date et fournisseur",
+            "title": "Informations de base"
+          },
+          "2": {
+            "description": "Crédits, catégorie et année",
+            "title": "Détails CPD/PDU"
+          },
+          "3": {
+            "description": "Certificats et notes justificatives",
+            "title": "Preuves et fichiers"
+          },
+          "4": {
+            "description": "Ce que vous avez appris, puis révision",
+            "title": "Acquis d’apprentissage"
+          }
+        },
+        "stepsLabel": "Étapes de l'activité",
+        "subtitle": "Enregistrez une activité d’apprentissage et les crédits obtenus.",
+        "successDescription": "Vos totaux et graphiques CPD/PDU ont été mis à jour.",
+        "title": "Ajouter une activité d’apprentissage",
+        "updateActivity": "Mettre à jour l’activité",
+        "updateSuccess": "Activité mise à jour avec succès.",
+        "viewActivities": "Voir mes activités"
+      },
+      "categories": {
+        "BUSINESS": "Affaires / stratégie",
+        "COMMUNICATION": "Communication",
+        "COMPLIANCE": "Sécurité / conformité",
+        "DIGITAL_AI": "Compétences numériques / IA",
+        "ETHICS": "Éthique",
+        "INDUSTRY_KNOWLEDGE": "Connaissance du secteur",
+        "LEADERSHIP": "Leadership",
+        "OTHER": "Autre",
+        "PROFESSIONAL_PRACTICE": "Pratique professionnelle",
+        "RESEARCH_INNOVATION": "Recherche / innovation",
+        "STRATEGIC": "Stratégique",
+        "TECHNICAL": "Compétences techniques"
+      },
+      "completionStatuses": {
+        "COMPLETED": "Terminée",
+        "INCOMPLETE": "Incomplète"
+      },
+      "creditTypes": {
+        "CEU": "CEU",
+        "CPD": "CPD",
+        "CPE": "CPE",
+        "PDU": "PDU",
+        "TRAINING_HOUR": "Heure de formation"
+      },
+      "cycleProgress": {
+        "ahead": "{{amount}} d’avance sur le rythme",
+        "behind": "{{amount}} de retard sur le rythme",
+        "byCategory": "Par catégorie",
+        "category": "Catégorie",
+        "due": "Échéance",
+        "earned": "Obtenus",
+        "expectedToday": "Attendu à ce jour",
+        "onPace": "Dans les temps",
+        "perMonth": "Nécessaire par mois",
+        "remaining": "Restants",
+        "required": "Requis",
+        "subtitle": "Crédits obtenus par rapport aux crédits requis pour votre plan actuel",
+        "summary": "{{earned}} sur {{total}} {{credit}} obtenus ({{percent}} %).",
+        "title": "Progression du cycle",
+        "total": "Total"
+      },
+      "detail": {
+        "approvalStatus": "Statut d’approbation",
+        "back": "Retour à Mes activités d’apprentissage",
+        "cancel": "Annuler",
+        "createdAt": "Créée le",
+        "downloadFile": "Télécharger {{name}}",
+        "edit": "Modifier l’activité",
+        "errors": {
+          "generic": {
+            "description": "Impossible de charger cette activité. Vérifiez votre connexion et réessayez.",
+            "title": "Une erreur s’est produite"
+          },
+          "not-found": {
+            "description": "Cette activité d’apprentissage n’existe plus ou n’est pas disponible sur votre compte.",
+            "title": "Activité introuvable"
+          },
+          "unauthorized": {
+            "description": "Cette activité d’apprentissage appartient à un autre compte.",
+            "title": "Vous ne pouvez pas voir cette activité"
+          }
+        },
+        "evidenceLink": "Ouvrir le lien de preuve externe",
+        "eyebrow": "Détails de l’activité",
+        "fileUploaded": "Téléversé le {{date}}",
+        "linkedContent": "Contenu associé",
+        "retry": "Réessayer",
+        "sections": {
+          "credits": "Détails CPD / PDU",
+          "evidence": "Preuves et pièces jointes",
+          "noEvidence": "Aucun fichier de preuve n’a été joint à cette activité.",
+          "notes": "Description et notes",
+          "overview": "Aperçu",
+          "record": "Détails de l’enregistrement"
+        },
+        "title": "Détails de l’activité",
+        "updatedAt": "Dernière mise à jour"
+      },
+      "evidence": {
+        "chooseFiles": "Choisir des fichiers",
+        "download": "Télécharger",
+        "dropHint": "PDF, JPG, PNG, DOC ou DOCX. Jusqu’à 20 Mo par fichier.",
+        "dropTitle": "Téléverser un certificat ou une preuve",
+        "existingTitle": "Fichiers joints",
+        "fileTooLarge": "« {{name}} » dépasse 20 Mo.",
+        "fileTypeInvalid": "« {{name}} » n’est pas un type de fichier accepté.",
+        "limitReached": "Vous avez atteint la limite de {{max}} fichiers.",
+        "pendingTitle": "Fichiers à téléverser",
+        "remaining": "Vous pouvez ajouter encore {{count}} fichier(s).",
+        "remove": "Supprimer",
+        "removed": "Fichier supprimé.",
+        "retryUpload": "Réessayer le téléversement",
+        "tooManyFiles": "Vous pouvez joindre au maximum {{max}} fichiers.",
+        "uploadFailed": "L’activité a été enregistrée, mais les fichiers n’ont pas pu être téléversés. Vos fichiers restent sélectionnés — utilisez Réessayer pour terminer."
+      },
+      "eyebrow": "Mes activités d’apprentissage",
+      "fields": {
+        "activityType": "Type d’activité",
+        "category": "Catégorie CPD / PDU",
+        "creditType": "Type de crédit",
+        "creditValue": "Valeur du crédit / heures",
+        "creditValueHint": "Doit être supérieure à 0. Les décimales comme 1,5 sont acceptées.",
+        "dateCompleted": "Date de fin",
+        "description": "Description / notes de l’activité",
+        "descriptionPlaceholder": "Décrivez brièvement l’activité.",
+        "evidenceNote": "Notes sur les fichiers",
+        "evidenceNotePlaceholder": "Notes sur le certificat, la preuve de présence ou les pièces justificatives.",
+        "issuingOrganization": "Organisme émetteur",
+        "learningOutcome": "Acquis d’apprentissage",
+        "learningOutcomeHint": "Qu’avez-vous appris et comment l’appliquerez-vous dans votre travail ?",
+        "learningOutcomePlaceholder": "Décrivez ce que vous avez appris et comment vous l’appliquerez.",
+        "providerOrganizer": "Fournisseur / organisateur",
+        "providerOrganizerPlaceholder": "Qui a dispensé cette activité ?",
+        "relatedCertification": "Certification / licence associée",
+        "reportingYear": "Année de déclaration",
+        "reportingYearHint": "Par défaut, l’année de la date de fin.",
+        "requirement": "Exigence",
+        "requirementHint": "Choisissez l’exigence à laquelle cette activité est rattachée. Laissez vide pour la comptabiliser selon le type de crédit et la date, comme d’habitude.",
+        "requirementPlaceholder": "Aucune exigence précise",
+        "subCategory": "Sous-catégorie",
+        "subCategoryPlaceholder": "Choisissez d’abord une catégorie",
+        "title": "Titre de l’activité",
+        "titlePlaceholder": "ex. Atelier avancé de gestion des risques"
+      },
+      "filters": {
+        "activityType": "Type d’activité",
+        "any": "Tous",
+        "category": "Catégorie",
+        "certificate": "Certificat",
+        "clear": "Effacer les filtres",
+        "creditType": "Type de crédit",
+        "dateFrom": "Terminée à partir du",
+        "dateTo": "Terminée jusqu’au",
+        "hasCertificate": "Avec certificat",
+        "noCertificate": "Sans certificat",
+        "reportingYear": "Année de déclaration",
+        "search": "Rechercher",
+        "searchPlaceholder": "Rechercher un titre ou un fournisseur...",
+        "status": "Statut"
+      },
+      "quickActions": {
+        "addActivity": "Ajouter une activité d’apprentissage"
+      },
+      "review": {
+        "files": "Fichiers de preuve",
+        "subtitle": "Vérifiez les informations ci-dessous, puis ajoutez votre activité.",
+        "title": "Prêt à envoyer"
+      },
+      "statuses": {
+        "APPROVED": "Approuvée",
+        "PENDING": "En attente de revue",
+        "REJECTED": "Rejetée"
+      },
+      "subtitle": "Suivez et gérez votre développement professionnel continu.",
+      "summary": {
+        "completedTitle": "Activités terminées et enregistrées",
+        "evidenceHelper": "{{files}} fichier(s)",
+        "evidenceTitle": "Activités avec preuve"
+      },
+      "table": {
+        "actions": "Actions",
+        "attached": "Voir",
+        "category": "Catégorie",
+        "certificate": "Certificat",
+        "creditType": "Type de crédit",
+        "creditValue": "Valeur du crédit",
+        "dateCompleted": "Date de fin",
+        "noFile": "Aucun fichier",
+        "provider": "Fournisseur / organisateur",
+        "reportingYear": "Année de déclaration",
+        "status": "Statut",
+        "title": "Titre de l’activité",
+        "type": "Type d’activité"
+      },
+      "targetsDialog": {
+        "cancel": "Annuler",
+        "category": "Catégorie",
+        "description": "Définissez un objectif pour une catégorie CPD/PDU et une année. L’enregistrement met à jour l’objectif existant de cette catégorie au lieu d’en créer un doublon.",
+        "existingHint": "Objectif actuel : {{target}} PDU. L’enregistrement le remplacera.",
+        "loadingExisting": "Chargement de votre objectif actuel...",
+        "newHint": "Aucun objectif défini pour cette catégorie.",
+        "save": "Enregistrer l’objectif",
+        "success": "Objectif PDU enregistré avec succès.",
+        "target": "Objectif PDU",
+        "title": "Ajuster les objectifs annuels",
+        "year": "Année applicable"
+      },
+      "title": "Mes activités d’apprentissage"
+    }
+  },
+  "providerDashboard": {
+    "createEvent": {
+      "enums": {
+        "deliveryMode": {
+          "HYBRID": "Hybride",
+          "IN_PERSON": "En présentiel",
+          "LIVE_ONLINE": "En ligne en direct",
+          "RECORDED": "Enregistré"
+        }
+      }
+    },
+    "promotions": {
+      "statuses": {
+        "APPROVED": "Approuvée",
+        "PENDING": "En attente",
+        "REJECTED": "Rejetée"
+      },
+      "types": {
+        "BANNER": "Promotion bannière",
+        "COMBO_PACKAGE": "Pack combiné",
+        "EMAIL_CAMPAIGN": "Campagne email",
+        "FEATURED": "Mise en avant",
+        "FEATURED_LISTING": "Mise en avant",
+        "SOCIAL_BOOST": "Boost social",
+        "SOCIAL_MEDIA_BOOST": "Boost sur les réseaux sociaux"
+      }
+    }
+  }
+}

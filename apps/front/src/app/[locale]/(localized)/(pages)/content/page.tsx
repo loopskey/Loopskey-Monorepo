@@ -8,6 +8,7 @@ import { hasContentFilters } from "@/lib/content-catalog/catalog-href";
 import { noindexMetadata } from "@/lib/site/page-metadata";
 import { loadDictionary } from "@/i18n/dictionaries";
 import { asPublicLocale } from "@/lib/i18n/route-locale";
+import { ClientMessages } from "@elements/client-messages";
 import { firstPageHref } from "@/lib/content-catalog/catalog-href";
 import { localizePath } from "@/lib/i18n/locale";
 import { catalogGraph } from "@/lib/structured-data/catalog-graph";
@@ -39,6 +40,7 @@ type TContentPageProps = {
 
 type TCatalogLayoutProps = {
   tab: TContentTab;
+  locale: PublicLocale;
   children: ReactNode;
   filters?: ReactNode;
   totalCount?: number;
@@ -103,29 +105,32 @@ export const generateMetadata = async ({
 
 const CatalogLayout = ({
   tab,
+  locale,
   filters,
   children,
   totalCount,
 }: TCatalogLayoutProps) => (
-  <main className="py-6">
-    <div className="mx-auto max-w-7xl space-y-6 px-4 sm:px-6 lg:px-8">
-      <div className="space-y-4">
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <ContentSearchHero activeTab={tab} totalCount={totalCount} />
-          <ContentTabs activeTab={tab} />
+  <ClientMessages scope="catalog" locale={locale}>
+    <main className="py-6">
+      <div className="mx-auto max-w-7xl space-y-6 px-4 sm:px-6 lg:px-8">
+        <div className="space-y-4">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <ContentSearchHero activeTab={tab} totalCount={totalCount} />
+            <ContentTabs activeTab={tab} />
+          </div>
+          {filters}
         </div>
-        {filters}
-      </div>
 
-      <section
-        aria-labelledby="catalog-results-heading"
-        className="min-w-0 space-y-6"
-      >
-        <ContentResultsHeading />
-        {children}
-      </section>
-    </div>
-  </main>
+        <section
+          aria-labelledby="catalog-results-heading"
+          className="min-w-0 space-y-6"
+        >
+          <ContentResultsHeading />
+          {children}
+        </section>
+      </div>
+    </main>
+  </ClientMessages>
 );
 
 const paginationLinks = (
@@ -153,7 +158,7 @@ const ContentPage = async ({ params, searchParams }: TContentPageProps) => {
 
   if (parsed.kind === "invalid")
     return (
-      <CatalogLayout tab={parsed.tab}>
+      <CatalogLayout tab={parsed.tab} locale={locale}>
         <CatalogNotice variant="invalid" restartHref={tabHref(parsed.tab)} />
       </CatalogLayout>
     );
@@ -169,7 +174,7 @@ const ContentPage = async ({ params, searchParams }: TContentPageProps) => {
 
   if (read.kind !== "page")
     return (
-      <CatalogLayout tab={query.tab}>
+      <CatalogLayout tab={query.tab} locale={locale}>
         <CatalogNotice
           restartHref={firstPageHref(query)}
           variant={read.kind === "expired-cursor" ? "expired" : "invalid"}
@@ -200,6 +205,7 @@ const ContentPage = async ({ params, searchParams }: TContentPageProps) => {
       )}
       <CatalogLayout
         tab={query.tab}
+        locale={locale}
         totalCount={page.totalCount}
         filters={
           <ContentFilterForm

@@ -1,4 +1,3 @@
-import { ContactInquiryType, Role } from "@lib/graphql/base";
 import { TLandingHeroContentKind } from "@/types/landing-module.types";
 import { TSelectedRange } from "@/types/professional-dashboard.types";
 import { TSelectOption } from "@/types/content-module.types";
@@ -6,166 +5,7 @@ import { TServiceItem } from "@/types/pages.types";
 
 import * as L from "lucide-react";
 
-// ============== Header ==============
-export const siteLinks = {
-  home: "/",
-  login: "/auth/professional",
-  providerAuth: "/auth/provider",
-  organizationAuth: "/auth/organization",
-  associationAuth: "/auth/association",
-
-  content: "/content",
-  about: "/about",
-  contact: "/contact",
-  faq: "/faq",
-  services: "/services",
-  professionals: "/solutions/professionals",
-  associations: "/solutions/associations",
-  organizations: "/solutions/organizations",
-  solutionContentProviders: "/solutions/content-providers",
-  accessibility: "/support/accessibility",
-  securityDataProtection: "/support/security-data-protection",
-  associationPartners: "/company/association-partners",
-  companyContentProviders: "/company/content-providers",
-
-  blog: "/blog",
-  careers: "/careers",
-  beProfessional: "/auth/professional",
-  beProvider: "/auth/provider",
-  beOrganization: "/auth/organization",
-
-  cookiePolicy: "/cookies",
-  termsOfService: "/terms",
-  privacyPolicy: "/privacy-policy",
-
-  adminDashboard: "/dashboard/admin",
-  providerDashboard: "/dashboard/provider",
-  professionalDashboard: "/dashboard/professional",
-  organizationDashboard: "/dashboard/organization",
-  associationDashboard: "/dashboard/association",
-
-  profile: "/dashboard/professional?tab=profile",
-};
-
-export const solutionEntries = [
-  {
-    href: siteLinks.home,
-    footerHref: siteLinks.professionals,
-    authHref: siteLinks.login,
-    labelKey: "footer.links.professionals",
-    roleLabelKey: "common.roles.professional",
-    icon: L.UserRound,
-    role: Role.Professional,
-  },
-  {
-    href: siteLinks.associations,
-    footerHref: siteLinks.associations,
-    authHref: siteLinks.associationAuth,
-    labelKey: "footer.links.associations",
-    roleLabelKey: "common.roles.association",
-    icon: L.Users,
-    role: Role.Association,
-  },
-  {
-    href: siteLinks.organizations,
-    footerHref: siteLinks.organizations,
-    authHref: siteLinks.organizationAuth,
-    labelKey: "footer.links.organizations",
-    roleLabelKey: "common.roles.organization",
-    icon: L.Building2,
-    role: Role.Organization,
-  },
-  {
-    href: siteLinks.solutionContentProviders,
-    footerHref: siteLinks.solutionContentProviders,
-    authHref: siteLinks.providerAuth,
-    labelKey: "footer.links.solutionContentProviders",
-    roleLabelKey: "common.roles.contentProvider",
-    icon: L.LibraryBig,
-    role: Role.Provider,
-  },
-] as const;
-
-export const getAuthHrefForSolutionHref = (href: string) =>
-  solutionEntries.find((entry) => entry.href === href)?.authHref ??
-  siteLinks.login;
-
-export const getSolutionHrefForRole = (role: Role) =>
-  solutionEntries.find((entry) => entry.role === role)?.href;
-
-export const companyEmail = "loopskey.dev@gmail.com";
-
-// ============== Contact Us ==============
-export const contactInquiryTypes = [
-  { value: ContactInquiryType.GeneralQuestion, fallback: "General question" },
-  { value: ContactInquiryType.TechnicalSupport, fallback: "Technical support" },
-  { value: ContactInquiryType.AccountSupport, fallback: "Account support" },
-  {
-    value: ContactInquiryType.CpdPduTracking,
-    fallback: "CPD/PDU tracking question",
-  },
-  {
-    value: ContactInquiryType.AssociationPartnership,
-    fallback: "Association partnership",
-  },
-  {
-    value: ContactInquiryType.OrganizationSolution,
-    fallback: "Organization solution",
-  },
-  {
-    value: ContactInquiryType.ContentProviderInquiry,
-    fallback: "Content provider inquiry",
-  },
-  { value: ContactInquiryType.PrivacyRequest, fallback: "Privacy request" },
-  {
-    value: ContactInquiryType.AccessibilityFeedback,
-    fallback: "Accessibility feedback",
-  },
-  { value: ContactInquiryType.SecurityConcern, fallback: "Security concern" },
-  { value: ContactInquiryType.Other, fallback: "Other" },
-] as const;
-
-export const socialLinks = {
-  linkedin: "https://www.linkedin.com",
-  x: "https://x.com",
-  facebook: "https://www.facebook.com",
-  youtube: "https://www.youtube.com",
-};
-
-// ================= LoginForm =================
-export const getDashboardPath = (role?: Role | null) => {
-  switch (role) {
-    case Role.Admin:
-      return siteLinks.adminDashboard;
-    case Role.Provider:
-      return siteLinks.providerDashboard;
-    case Role.Organization:
-      return siteLinks.organizationDashboard;
-    case Role.Association:
-      return siteLinks.associationDashboard;
-    case Role.Professional:
-      return siteLinks.professionalDashboard;
-    default:
-      return siteLinks.home;
-  }
-};
-
-export const getDashboardProfilePath = (role?: Role | null) => {
-  switch (role) {
-    case Role.Professional:
-      return `${siteLinks.professionalDashboard}?tab=profile`;
-    case Role.Provider:
-      return `${siteLinks.providerDashboard}?tab=profile`;
-    case Role.Organization:
-      return `${siteLinks.organizationDashboard}?tab=profile`;
-    case Role.Association:
-      return `${siteLinks.associationDashboard}?tab=settings`;
-    case Role.Admin:
-      return siteLinks.adminDashboard;
-    default:
-      return siteLinks.login;
-  }
-};
+export * from "@/utils/site-navigation";
 
 export const PASSWORD_STRENGTH_MESSAGE =
   "Password must be at least 8 characters and include both letters and numbers.";
@@ -318,8 +158,6 @@ export const PAGE_SIZE = 10;
 
 export const DASHBOARD_MENU_BUTTON_ID = "dashboard-menu-button";
 
-export const HEADER_CONTAINER_CLASS_NAME =
-  "mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8";
 export const DEFAULT_PAGE = 1;
 export const SEARCH_DEBOUNCE_MS = 350;
 

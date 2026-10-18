@@ -1,5 +1,5 @@
 import * as Types from "@/lib/graphql/base";
-import { TypedDocumentString } from "@/lib/graphql/base";
+import { TypedDocumentString } from "@/lib/graphql/document";
 export type RecordTelemetryMutationVariables = Types.Exact<{
   input: Types.TelemetryBatchInput;
 }>;

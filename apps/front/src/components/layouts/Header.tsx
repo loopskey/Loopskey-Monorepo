@@ -1,25 +1,33 @@
 "use client";
 
-import { getAuthHrefForSolutionHref, solutionEntries } from "@utils/constant";
-import { getSolutionHrefForRole, siteLinks } from "@utils/constant";
-import { HEADER_CONTAINER_CLASS_NAME } from "@utils/constant";
-import { LanguageToggleBtn } from "@elements/language-switcher";
+import { getSolutionHrefForRole, siteLinks } from "@/utils/site-navigation";
+import { HEADER_CONTAINER_CLASS_NAME } from "@/utils/site-navigation";
+import { getAuthHrefForSolutionHref } from "@/utils/site-navigation";
 import { RoleMenuSection } from "@layouts/parts/role-menu-section";
+import { solutionEntries } from "@/utils/site-navigation";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
 import { useActiveRole } from "@/providers/active-role-provider";
 import { RoleStrip } from "@layouts/parts/role-strip";
 import { useHeader } from "@hooks/useHeader";
-import { UserMenu } from "@layouts/parts/user-menu";
 import { Menu, X } from "lucide-react";
 import { Button } from "@ui/button";
 import { Logo } from "@layouts/parts/logo";
 import { cn } from "@lib/utils";
 
+import type { ReactNode } from "react";
+
+import dynamic from "next/dynamic";
 import Link from "@elements/localized-link";
+
+const PublicUserMenu = dynamic(() => import("@layouts/parts/public-user-menu"));
 
 const MOBILE_NAV_STAGGER_MS = 50;
 
-const Header = () => {
+type THeaderProps = {
+  languageControl: ReactNode;
+};
+
+const Header = ({ languageControl }: THeaderProps) => {
   const {
     t,
     navItems,
@@ -90,9 +98,9 @@ const Header = () => {
         </nav>
 
         <div className="hidden items-center gap-2 lg:flex">
-          <LanguageToggleBtn />
+          {languageControl}
           {isAuthenticated ? (
-            <UserMenu />
+            <PublicUserMenu />
           ) : (
             <Button asChild size="lg" radius="full">
               <Link href={joinHref}>{joinLabel}</Link>
@@ -101,7 +109,7 @@ const Header = () => {
         </div>
 
         <div className="flex items-center gap-2 lg:hidden">
-          <LanguageToggleBtn />
+          {languageControl}
           <Button
             size="icon"
             type="button"
@@ -203,7 +211,7 @@ const Header = () => {
               )}
             >
               {isAuthenticated ? (
-                <UserMenu variant="inline" onNavigate={closeMobileMenu} />
+                <PublicUserMenu variant="inline" onNavigate={closeMobileMenu} />
               ) : (
                 <Button
                   asChild

@@ -1,5 +1,5 @@
 import * as Types from "@/lib/graphql/base";
-import { TypedDocumentString } from "@/lib/graphql/base";
+import { TypedDocumentString } from "@/lib/graphql/document";
 export type ProfessionalPageInfoFieldsFragment = { __typename?: 'ProfessionalPageInfo', nextCursor?: string | null, hasNextPage: boolean };
 
 export type ProfessionalSettingsFieldsFragment = { __typename?: 'ProfessionalSettings', id: string, theme: Types.Theme, userId: string, updatedAt: string, createdAt: string, interfaceLanguage: Types.AppLanguage };

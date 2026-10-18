@@ -1,6 +1,6 @@
 "use client";
 
-import { useCurrentUserQuery } from "@/lib/rtk/endpoints/auth.api";
+import { usePublicSession } from "@/hooks/usePublicSession";
 import { useMemo } from "react";
 import { Role } from "@/lib/graphql/base";
 
@@ -10,15 +10,7 @@ const DASHBOARD_PATH_BY_ROLE: Partial<Record<Role, string>> = {
 };
 
 export const useAuthSession = () => {
-  const { data, isLoading, isFetching, isError } = useCurrentUserQuery(
-    undefined,
-    {
-      refetchOnMountOrArgChange: false,
-      refetchOnFocus: false,
-      refetchOnReconnect: false,
-    },
-  );
-  const user = data?.success ? (data.user ?? null) : null;
+  const { user, isAuthenticated, isCheckingSession } = usePublicSession();
   const dashboardHref = useMemo(() => {
     if (!user?.role) return null;
     return DASHBOARD_PATH_BY_ROLE[user.role] ?? "/dashboard";
@@ -26,8 +18,7 @@ export const useAuthSession = () => {
   return {
     user,
     dashboardHref,
-    isAuthError: isError,
-    isAuthenticated: Boolean(user),
-    isCheckingSession: isLoading || isFetching,
+    isAuthenticated,
+    isCheckingSession,
   };
 };

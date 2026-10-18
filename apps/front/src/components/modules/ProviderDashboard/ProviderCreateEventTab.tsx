@@ -5,7 +5,7 @@ import { FloatingTextareaField } from "@elements/floating-textarea";
 import { ProviderEventStepper } from "@modules/ProviderDashboard/parts/provider-event-stepper";
 import { FloatingSelectField } from "@elements/floating-select";
 import { FloatingInputField } from "@elements/floating-input";
-import { isValidImageSrc } from "@utils/function-helper";
+import { isValidImageSrc } from "@utils/image-src.util";
 import { GlassCard } from "@elements/glass-card";
 import { Button } from "@ui/button";
 import { Switch } from "@ui/switch";

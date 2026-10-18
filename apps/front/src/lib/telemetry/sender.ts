@@ -1,6 +1,5 @@
 import { RecordTelemetryDocument } from "@/lib/graphql/operations/telemetry";
 import { TELEMETRY_LIMITS } from "@loopskey/api-contracts/validation";
-import { documentToString } from "@/utils/function-helper";
 import { hasOptedOut } from "@/lib/telemetry/privacy";
 
 import type { TelemetryConversionInput } from "@/lib/graphql/base";
@@ -45,7 +44,7 @@ const post = async (batch: Batch): Promise<number> => {
       keepalive: true,
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        query: documentToString(RecordTelemetryDocument),
+        query: String(RecordTelemetryDocument),
         variables: {
           input: { vitals: batch.vitals, conversions: batch.conversions },
         },

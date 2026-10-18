@@ -13,11 +13,13 @@
  * 2. Mark each `new TypedDocumentString(...)` pure. A bare constructor call is
  *    a side effect as far as the bundler is concerned, so without this every
  *    document in a module is retained even when nothing imports it.
- * 3. Move `TypedDocumentString` into `base.ts` and delete the copy the
+ * 3. Move `TypedDocumentString` into `document.ts` and delete the copy the
  *    `typed-document-node` plugin writes into every operation module. The
  *    class has a private field, so it is nominally typed: fifteen identical
  *    declarations are fifteen incompatible types, and a document from one
- *    module would not be assignable to a signature naming another's.
+ *    module would not be assignable to a signature naming another's. It is
+ *    kept out of `base.ts` because the bundler keeps a module whole, so a
+ *    document import must not load every schema enum; `base.ts` re-exports it.
  */
 
 const fs = require("node:fs");
@@ -27,6 +29,8 @@ const SRC = path.join(__dirname, "..", "src", "lib", "graphql");
 const DOCUMENTS_DIR = path.join(SRC, "documents");
 const OPERATIONS_DIR = path.join(SRC, "operations");
 const BASE_FILE = path.join(SRC, "base.ts");
+const DOCUMENT_FILE = path.join(SRC, "document.ts");
+const BASE_REEXPORT = `export { TypedDocumentString } from "@/lib/graphql/document";`;
 
 const fail = (message) => {
   console.error(`graphql-postprocess: ${message}`);
@@ -79,7 +83,8 @@ const operationFiles = fs
   .filter((file) => file.endsWith(".ts"))
   .map((file) => path.join(OPERATIONS_DIR, file));
 
-if (!operationFiles.length) fail(`no operation modules found in ${OPERATIONS_DIR}`);
+if (!operationFiles.length)
+  fail(`no operation modules found in ${OPERATIONS_DIR}`);
 
 /** The emitted class declaration, captured so `base.ts` can own it. */
 let classSource = null;
@@ -88,7 +93,8 @@ for (const file of operationFiles) {
   let source = fs.readFileSync(file, "utf8");
 
   const start = source.indexOf(CLASS_START);
-  if (start === -1) fail(`${path.basename(file)} has no TypedDocumentString class`);
+  if (start === -1)
+    fail(`${path.basename(file)} has no TypedDocumentString class`);
 
   // The class ends at the first line that is exactly "}" after its start.
   const end = source.indexOf("\n}\n", start);
@@ -111,12 +117,11 @@ for (const file of operationFiles) {
   fs.writeFileSync(file, source);
 }
 
-let base = fs.readFileSync(BASE_FILE, "utf8");
-if (!base.includes(CLASS_START)) {
-  if (!base.includes(DECORATION_IMPORT)) base = `${DECORATION_IMPORT}\n${base}`;
-  base += `\n${classSource}`;
-  fs.writeFileSync(BASE_FILE, base);
-}
+fs.writeFileSync(DOCUMENT_FILE, `${DECORATION_IMPORT}\n\n${classSource}`);
+
+const base = fs.readFileSync(BASE_FILE, "utf8");
+if (!base.includes(BASE_REEXPORT))
+  fs.writeFileSync(BASE_FILE, `${base}\n${BASE_REEXPORT}\n`);
 
 const totalDocuments = operationFiles.reduce(
   (total, file) =>
@@ -126,5 +131,5 @@ const totalDocuments = operationFiles.reduce(
 
 console.log(
   `graphql-postprocess: ${operationFiles.length} operation modules, ` +
-    `${totalDocuments} documents marked pure, class exported from base.ts`,
+    `${totalDocuments} documents marked pure, class exported from document.ts`,
 );

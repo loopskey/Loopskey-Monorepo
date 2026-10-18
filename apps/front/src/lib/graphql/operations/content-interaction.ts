@@ -1,5 +1,5 @@
 import * as Types from "@/lib/graphql/base";
-import { TypedDocumentString } from "@/lib/graphql/base";
+import { TypedDocumentString } from "@/lib/graphql/document";
 export type ContentActionPayloadFieldsFragment = { __typename?: 'ContentActionPayload', success: boolean, code: string, message: string, active?: boolean | null };
 
 export type WishlistContentFieldsFragment = { __typename?: 'WishlistContent', url?: string | null, slug?: string | null, title?: string | null, price?: number | null, isFree: boolean, rating?: number | null, imageUrl?: string | null, category?: string | null, currency?: string | null, description?: string | null, providerName?: string | null };

@@ -1,5 +1,5 @@
 import * as Types from "@/lib/graphql/base";
-import { TypedDocumentString } from "@/lib/graphql/base";
+import { TypedDocumentString } from "@/lib/graphql/document";
 export type CertificationCategoryFieldsFragment = { __typename?: 'CertificationCategory', id: string, name: string, requiredCredits: number, order: number };
 
 export type CertificationFieldsFragment = { __typename?: 'Certification', id: string, name: string, abbreviation: string, organization: string, organizationAbbr?: string | null, association?: string | null, creditType: Types.CreditType, renewalCycleLabel: string, renewalCycleMonths?: number | null, totalRequiredCredits: number, isActive: boolean, categories: Array<{ __typename?: 'CertificationCategory', id: string, name: string, requiredCredits: number, order: number }> };

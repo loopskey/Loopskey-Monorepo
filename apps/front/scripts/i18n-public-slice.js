@@ -76,7 +76,7 @@ const resolveImport = (specifier, fromFile) => {
 };
 
 const IMPORT_PATTERN =
-  /(?:^|\s)(?:import|export)[\s\S]*?from\s*["']([^"']+)["']|import\s*\(\s*["']([^"']+)["']\s*\)|require\(\s*["']([^"']+)["']\s*\)/g;
+  /(?:^|\s)(?:import|export)[\s\S]*?from\s*["']([^"']+)["']|(?<!typeof\s+)import\s*\(\s*["']([^"']+)["']\s*\)|require\(\s*["']([^"']+)["']\s*\)/g;
 
 const TYPE_ONLY_PATTERN = /^\s*(?:import|export)\s+type\b/;
 
@@ -108,25 +108,32 @@ const importsOf = (source, file) => {
 
 const isClientModule = (source) => /^\s*["']use client["']/.test(source);
 
-const collectClientGraph = () => {
-  const roots = PUBLIC_ROOTS.flatMap((root) =>
-    walkFiles(path.join(SRC_DIR, root)),
-  ).filter((file) => EXTENSIONS.some((extension) => file.endsWith(extension)));
-
+const collectGraph = (roots, isBoundary = () => false) => {
   const clientFiles = new Set();
   const seenServer = new Set();
+  const boundaries = new Set();
+  const rootSet = new Set(roots);
   const queue = roots.map((file) => ({ file, isClient: false }));
 
   while (queue.length > 0) {
     const { file, isClient } = queue.pop();
     if (isClient && clientFiles.has(file)) continue;
     if (!isClient && seenServer.has(file)) continue;
-    if (isClient) clientFiles.add(file);
-    else seenServer.add(file);
 
-    if (file.endsWith(".json")) continue;
+    if (file.endsWith(".json")) {
+      if (isClient) clientFiles.add(file);
+      else seenServer.add(file);
+      continue;
+    }
 
     const source = fs.readFileSync(file, "utf8");
+    if (!rootSet.has(file) && isBoundary(source)) {
+      boundaries.add(file);
+      continue;
+    }
+
+    if (isClient) clientFiles.add(file);
+    else seenServer.add(file);
     const nowClient = isClient || isClientModule(source);
     if (nowClient && !isClient) {
       clientFiles.add(file);
@@ -138,8 +145,15 @@ const collectClientGraph = () => {
     }
   }
 
-  return clientFiles;
+  return { clientFiles, serverFiles: seenServer, boundaries };
 };
+
+const collectClientGraph = () =>
+  collectGraph(
+    PUBLIC_ROOTS.flatMap((root) => walkFiles(path.join(SRC_DIR, root))).filter(
+      (file) => EXTENSIONS.some((extension) => file.endsWith(extension)),
+    ),
+  ).clientFiles;
 
 const dictionaryFor = (locale) =>
   JSON.parse(fs.readFileSync(path.join(I18N_DIR, `${locale}.json`), "utf8"));
@@ -156,7 +170,8 @@ const valueAt = (dictionary, keyPath) => {
   return node;
 };
 
-const STRING_LITERAL_PATTERN = /["'`]([a-zA-Z][a-zA-Z0-9_]*(?:\.[a-zA-Z0-9_]+)+)["'`]/g;
+const STRING_LITERAL_PATTERN =
+  /["'`]([a-zA-Z][a-zA-Z0-9_]*(?:\.[a-zA-Z0-9_]+)+)["'`]/g;
 const TEMPLATE_PREFIX_PATTERN =
   /[`]([a-zA-Z][a-zA-Z0-9_]*(?:\.[a-zA-Z0-9_]+)*)\.?\$\{/g;
 
@@ -226,9 +241,168 @@ const reference = dictionaryFor("en");
 const required = collectRequiredPaths(clientFiles, reference);
 const keyPaths = pruneRedundant(required);
 
-const namespaces = [...new Set(keyPaths.map((key) => key.split(".")[0]))].sort();
+const namespaces = [
+  ...new Set(keyPaths.map((key) => key.split(".")[0])),
+].sort();
+
+const SCOPES = JSON.parse(
+  fs.readFileSync(path.join(I18N_DIR, "client-scopes.json"), "utf8"),
+);
+const LAZY_SCOPES = JSON.parse(
+  fs.readFileSync(path.join(I18N_DIR, "lazy-scopes.json"), "utf8"),
+);
+const LAZY_IMPORT_PATTERN = /generated\/scope\.([a-zA-Z]+)\.(?:en|fr)\.json/g;
+const SERVER_ONLY_MESSAGES = path.join(I18N_DIR, "public-messages.ts");
+const LOCALIZED_DIR = path.join(SRC_DIR, "app", "[locale]", "(localized)");
+const ROOT_LAYOUT = path.join(SRC_DIR, "app", "[locale]", "layout.tsx");
+const BOUNDARY_FILES = ["layout.tsx", "not-found.tsx", "error.tsx"];
+const SCOPE_PATTERN = /<ClientMessages\b[^>]*?\bscope="([a-zA-Z]+)"/g;
+
+const isCovered = (prefixes, keyPath) =>
+  prefixes.some(
+    (prefix) => keyPath === prefix || keyPath.startsWith(`${prefix}.`),
+  );
+
+const importsLazyScope = (source) =>
+  /generated\/scope\.[a-zA-Z]+\./.test(source);
+
+const scopesDeclaredIn = (files, pattern) => {
+  const declared = new Set();
+  for (const file of files) {
+    if (file.endsWith(".json")) continue;
+    const source = fs.readFileSync(file, "utf8");
+    for (const match of source.matchAll(pattern)) declared.add(match[1]);
+  }
+  return declared;
+};
+
+const boundaryRootsOf = (pageFile) => {
+  const roots = [ROOT_LAYOUT];
+  let dir = LOCALIZED_DIR;
+  const segments = path.relative(LOCALIZED_DIR, path.dirname(pageFile));
+  const parts = segments ? segments.split(path.sep) : [];
+  for (let index = 0; index <= parts.length; index += 1) {
+    for (const name of BOUNDARY_FILES) {
+      const candidate = path.join(dir, name);
+      if (fs.existsSync(candidate)) roots.push(candidate);
+    }
+    if (index < parts.length) dir = path.join(dir, parts[index]);
+  }
+  return roots;
+};
+
+const coverageProblems = [];
+
+for (const [scope, prefixes] of [
+  ...Object.entries(SCOPES),
+  ...Object.entries(LAZY_SCOPES),
+]) {
+  for (const prefix of prefixes) {
+    if (valueAt(reference, prefix) === undefined) {
+      coverageProblems.push(
+        `scope "${scope}" names ${prefix}, which en.json does not define`,
+      );
+    }
+  }
+}
+
+if (clientFiles.has(SERVER_ONLY_MESSAGES)) {
+  coverageProblems.push(
+    "src/i18n/public-messages.ts is reachable from client code; it must stay on the server",
+  );
+}
+
+for (const pageFile of walkFiles(LOCALIZED_DIR).filter((file) =>
+  file.endsWith(`${path.sep}page.tsx`),
+)) {
+  const page = path.relative(SRC_DIR, pageFile).split(path.sep).join("/");
+  const boundary = collectGraph(boundaryRootsOf(pageFile));
+  const pageGraph = collectGraph([pageFile], importsLazyScope);
+  const declared = scopesDeclaredIn(
+    [...boundary.serverFiles, ...pageGraph.serverFiles],
+    SCOPE_PATTERN,
+  );
+
+  for (const scope of declared) {
+    if (!SCOPES[scope])
+      coverageProblems.push(`${page} uses unknown scope "${scope}"`);
+  }
+
+  const shell = SCOPES.shell ?? [];
+  const provided = [
+    ...shell,
+    ...[...declared].flatMap((scope) => SCOPES[scope] ?? []),
+  ];
+
+  for (const lazyModule of pageGraph.boundaries) {
+    const lazy = scopesDeclaredIn([lazyModule], LAZY_IMPORT_PATTERN);
+    const name = path.relative(SRC_DIR, lazyModule).split(path.sep).join("/");
+    for (const scope of lazy) {
+      if (!LAZY_SCOPES[scope])
+        coverageProblems.push(`${name} imports unknown lazy scope "${scope}"`);
+    }
+    const lazyProvided = [
+      ...provided,
+      ...[...lazy].flatMap((scope) => LAZY_SCOPES[scope] ?? []),
+    ];
+    const missingFromLazy = pruneRedundant(
+      collectRequiredPaths(collectGraph([lazyModule]).clientFiles, reference),
+    ).filter((keyPath) => !isCovered(lazyProvided, keyPath));
+    if (missingFromLazy.length > 0) {
+      coverageProblems.push(
+        `${page} via ${name}: no scope provides ${missingFromLazy.join(", ")}`,
+      );
+    }
+  }
+
+  const missingFromShell = pruneRedundant(
+    collectRequiredPaths(boundary.clientFiles, reference),
+  ).filter((keyPath) => !isCovered(shell, keyPath));
+  const missingFromPage = pruneRedundant(
+    collectRequiredPaths(pageGraph.clientFiles, reference),
+  ).filter((keyPath) => !isCovered(provided, keyPath));
+
+  if (missingFromShell.length > 0) {
+    coverageProblems.push(
+      `${page}: the shell scope does not provide ${missingFromShell.join(", ")}`,
+    );
+  }
+  if (missingFromPage.length > 0) {
+    coverageProblems.push(
+      `${page}: no ClientMessages scope provides ${missingFromPage.join(", ")}`,
+    );
+  }
+}
+
+if (coverageProblems.length > 0) {
+  console.error(
+    `client message scopes do not cover the public client graph:\n  ${coverageProblems.join("\n  ")}`,
+  );
+  process.exitCode = 1;
+}
 
 let hasDrift = false;
+
+const emit = (name, value, fullSize) => {
+  const serialized = `${JSON.stringify(value, null, 2)}\n`;
+  const target = path.join(GENERATED_DIR, name);
+  const current = fs.existsSync(target)
+    ? fs.readFileSync(target, "utf8")
+    : null;
+
+  if (isWrite) {
+    fs.mkdirSync(GENERATED_DIR, { recursive: true });
+    fs.writeFileSync(target, serialized);
+    console.log(
+      `wrote src/i18n/generated/${name} — ${Math.round(serialized.length / 1024)} KiB of ${Math.round(fullSize / 1024)} KiB`,
+    );
+  } else if (current !== serialized) {
+    hasDrift = true;
+    console.error(
+      `src/i18n/generated/${name} is stale. Run \`npm run i18n-slice --workspace front\`.`,
+    );
+  }
+};
 
 for (const locale of LOCALES) {
   const dictionary = dictionaryFor(locale);
@@ -256,22 +430,15 @@ for (const locale of LOCALES) {
     );
     process.exitCode = 1;
   }
-  const serialized = `${JSON.stringify(slice, null, 2)}\n`;
-  const target = path.join(GENERATED_DIR, `public.${locale}.json`);
+  const full = fs.statSync(path.join(I18N_DIR, `${locale}.json`)).size;
+  emit(`public.${locale}.json`, slice, full);
 
-  const current = fs.existsSync(target) ? fs.readFileSync(target, "utf8") : null;
-
-  if (isWrite) {
-    fs.mkdirSync(GENERATED_DIR, { recursive: true });
-    fs.writeFileSync(target, serialized);
-    const full = fs.statSync(path.join(I18N_DIR, `${locale}.json`)).size;
-    console.log(
-      `wrote src/i18n/generated/public.${locale}.json — ${Math.round(serialized.length / 1024)} KiB of ${Math.round(full / 1024)} KiB`,
-    );
-  } else if (current !== serialized) {
-    hasDrift = true;
-    console.error(
-      `src/i18n/generated/public.${locale}.json is stale. Run \`npm run i18n-slice --workspace front\`.`,
+  for (const [scope, prefixes] of Object.entries(LAZY_SCOPES)) {
+    const scoped = present.filter((keyPath) => isCovered(prefixes, keyPath));
+    emit(
+      `scope.${scope}.${locale}.json`,
+      sortedDeep(sliceOf(dictionary, scoped)),
+      full,
     );
   }
 }

@@ -4,24 +4,25 @@ import { useEffect, useRef } from "react";
 import { TSplitTextProps } from "@/types/element.types";
 import { cn } from "@/lib/utils";
 
-const REDUCED_MOTION_QUERY = "(prefers-reduced-motion: reduce)";
+const ANIMATION_QUERY =
+  "(min-width: 1024px) and (prefers-reduced-motion: no-preference)";
 
 export const SplitText = ({
   text,
-  className = "",
+  tag = "p",
   delay = 50,
+  className = "",
   startDelay = 0,
   duration = 1.25,
+  threshold = 0.1,
   ease = "power3.out",
   splitType = "chars",
-  from = { opacity: 0, y: 40 },
-  to = { opacity: 1, y: 0 },
-  threshold = 0.1,
-  rootMargin = "-100px",
-  tag = "p",
   textAlign = "center",
+  rootMargin = "-100px",
   inheritGradient = false,
+  to = { opacity: 1, y: 0 },
   onLetterAnimationComplete,
+  from = { opacity: 0, y: 40 },
 }: TSplitTextProps) => {
   const ref = useRef<HTMLElement>(null);
   const onCompleteRef = useRef(onLetterAnimationComplete);
@@ -36,7 +37,7 @@ export const SplitText = ({
   useEffect(() => {
     const el = ref.current;
     if (!el || !text) return;
-    if (window.matchMedia(REDUCED_MOTION_QUERY).matches) {
+    if (!window.matchMedia(ANIMATION_QUERY).matches) {
       onCompleteRef.current?.();
       return;
     }
@@ -76,14 +77,14 @@ export const SplitText = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     text,
-    delay,
-    startDelay,
-    duration,
     ease,
-    splitType,
-    fromKey,
+    delay,
     toKey,
+    fromKey,
+    duration,
+    splitType,
     threshold,
+    startDelay,
     rootMargin,
     inheritGradient,
   ]);

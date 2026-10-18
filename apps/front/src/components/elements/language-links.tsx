@@ -1,14 +1,12 @@
 "use client";
 
-import { DropdownMenu, DropdownMenuContent } from "@ui/dropdown-menu";
-import { DropdownMenuItem, DropdownMenuTrigger } from "@ui/dropdown-menu";
 import { PUBLIC_LOCALES, switchLocalePath } from "@/lib/i18n/locale";
 import { usePathname, useSearchParams } from "next/navigation";
 import { stripLocalePrefix } from "@/lib/i18n/locale";
+import { LanguageMenu } from "@elements/language-menu";
 import { Languages } from "lucide-react";
 import { Suspense } from "react";
 import { useI18n } from "@/hooks/useI18n";
-import { Button } from "@ui/button";
 import { cn } from "@/lib/utils";
 
 import type { PublicLocale } from "@/lib/i18n/locale";
@@ -42,53 +40,12 @@ const LinkList = ({
 
   if (variant === "menu")
     return (
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button
-            type="button"
-            variant="outline"
-            className={cn("rounded-full", className)}
-            aria-label={t("common.languageSwitcher.label")}
-          >
-            <Languages className="mr-2 h-4 w-4" />
-            {language.toUpperCase()}
-          </Button>
-        </DropdownMenuTrigger>
-
-        <DropdownMenuContent align="end">
-          {PUBLIC_LOCALES.map((locale) => {
-            const isCurrent = locale === language;
-            const isAvailable =
-              !available || isCurrent || available.includes(locale);
-            const name = t(LANGUAGE_NAME_KEY[locale]);
-
-            if (!isAvailable)
-              return (
-                <DropdownMenuItem
-                  disabled
-                  key={locale}
-                  lang={locale}
-                  title={t("common.languageSwitcher.unavailable")}
-                >
-                  {name}
-                </DropdownMenuItem>
-              );
-
-            return (
-              <DropdownMenuItem asChild key={locale} disabled={isCurrent}>
-                <Link
-                  lang={locale}
-                  hrefLang={locale}
-                  aria-current={isCurrent ? "true" : undefined}
-                  href={switchLocalePath(pathname, search, locale)}
-                >
-                  {name}
-                </Link>
-              </DropdownMenuItem>
-            );
-          })}
-        </DropdownMenuContent>
-      </DropdownMenu>
+      <LanguageMenu
+        search={search}
+        available={available}
+        className={className}
+        nameKeys={LANGUAGE_NAME_KEY}
+      />
     );
 
   return (

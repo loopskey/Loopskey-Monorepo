@@ -1,0 +1,44 @@
+query CurrentUser {
+  currentUser {
+    code
+    success
+    message
+    user {
+      id
+      bio
+      role
+      email
+      status
+      fullName
+      avatarUrl
+      emailVerifiedAt
+      forcePasswordChange
+    }
+  }
+}
+
+mutation RefreshToken {
+  refreshToken {
+    code
+    success
+    message
+    user {
+      id
+      role
+      email
+      status
+      fullName
+      avatarUrl
+      emailVerifiedAt
+      forcePasswordChange
+    }
+  }
+}
+
+mutation Logout {
+  logout {
+    code
+    success
+    message
+  }
+}

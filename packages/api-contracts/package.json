@@ -15,6 +15,10 @@
       "types": "./dist/error-codes/index.d.ts",
       "default": "./dist/error-codes/index.js"
     },
+    "./error-codes/*": {
+      "types": "./dist/error-codes/*.d.ts",
+      "default": "./dist/error-codes/*.js"
+    },
     "./upload": {
       "types": "./dist/upload/index.d.ts",
       "default": "./dist/upload/index.js"
@@ -32,6 +36,9 @@
     "*": {
       "error-codes": [
         "./dist/error-codes/index.d.ts"
+      ],
+      "error-codes/*": [
+        "./dist/error-codes/*.d.ts"
       ],
       "upload": [
         "./dist/upload/index.d.ts"

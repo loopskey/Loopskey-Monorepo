@@ -31,7 +31,9 @@ export const useProfessionalSettingsTab = () => {
   const [updateSettings, updateSettingsState] =
     PAPI.useUpdateProfessionalSettingsMutation();
 
-  const [settingsForm, setSettingsForm] = useState({
+  const [settingsForm, setSettingsForm] = useState<{
+    interfaceLanguage: AppLanguage;
+  }>({
     interfaceLanguage: AppLanguage.En,
   });
 

@@ -1,5 +1,9 @@
 import type { Sparkles } from "lucide-react";
 
+export type TLocalePageProps = {
+  params: Promise<{ locale: string }>;
+};
+
 // =========== Details Page =============
 export type TContentDetailPageProps = {
   params: Promise<{
