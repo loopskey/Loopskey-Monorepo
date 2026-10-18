@@ -149,3 +149,4 @@ into this index and do not rewrite previous records.
 - [`seo-14-canonical-host-and-redirect-consistency`](feature-runs/active/seo-14-canonical-host-and-redirect-consistency.md) — PR [#311](https://github.com/loopskey/Loopskey-Monorepo/pull/311)
 - [`seo-15-publication-quality-and-probe-cleanup`](feature-runs/active/seo-15-publication-quality-and-probe-cleanup.md) — PR [#312](https://github.com/loopskey/Loopskey-Monorepo/pull/312)
 - [`seo-16-legacy-url-reconciliation-and-recovery`](feature-runs/active/seo-16-legacy-url-reconciliation-and-recovery.md) — PR [#313](https://github.com/loopskey/Loopskey-Monorepo/pull/313)
+- [`seo-17-mobile-rendering-and-javascript-budgets`](feature-runs/active/seo-17-mobile-rendering-and-javascript-budgets.md) — PR [#314](https://github.com/loopskey/Loopskey-Monorepo/pull/314)

@@ -4,7 +4,7 @@
 - Model: `High reasoning — the public shell's auth state, the server/client locale boundary and visibility-safe delivery must be preserved while restructuring shared rendering`
 - Branch: `feature/seo-17-mobile-performance`
 - Base: `7671090`
-- Status: `Ready` — implementation and every required check pass. Two acceptance items fail on evidence; the user chose to submit with them recorded as an open review decision (see "Open decision")
+- Status: `Submitted` — two acceptance items fail on evidence and are submitted as an open review decision (see "Open decision")
 
 ## Acceptance
 
@@ -33,6 +33,6 @@ TBT ≤ 200 ms cannot be met on this profile and hardware by any page that hydra
 
 ## Submission
 
-- Commit:
-- PR:
-- CI:
+- Commit: 6d89a22
+- PR: https://github.com/loopskey/Loopskey-Monorepo/pull/314
+- CI: pending
