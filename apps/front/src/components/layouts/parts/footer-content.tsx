@@ -104,7 +104,7 @@ export const FooterContent = ({ t }: { t: I18nContextValue["t"] }) => {
       <div className="relative mx-auto max-w-7xl py-14 lg:py-18 px-4 sm:px-6 lg:px-8">
         <div className="grid gap-10 md:grid-cols-2 lg:grid-cols-5">
           <div>
-            <Logo />
+            <Logo label={t("navigation.homeLink")} />
             <p className="mt-5 max-w-sm text-sm leading-7 text-muted-foreground">
               {t("footer.brandDescription")}
             </p>

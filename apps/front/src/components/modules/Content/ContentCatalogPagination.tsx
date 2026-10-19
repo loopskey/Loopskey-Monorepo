@@ -41,8 +41,9 @@ const ContentCatalogPagination = ({
             <LinkPending />
           </Link>
         ) : (
-          <span
-            aria-disabled="true"
+          <button
+            disabled
+            type="button"
             className={cn(
               buttonVariants({ variant: "outline" }),
               DISABLED_CLASS_NAME,
@@ -50,7 +51,7 @@ const ContentCatalogPagination = ({
           >
             <ChevronLeft className="h-4 w-4" aria-hidden />
             {t("content.pagination.previous")}
-          </span>
+          </button>
         )}
 
         {nextHref ? (
@@ -60,13 +61,14 @@ const ContentCatalogPagination = ({
             <LinkPending />
           </Link>
         ) : (
-          <span
-            aria-disabled="true"
+          <button
+            disabled
+            type="button"
             className={cn(buttonVariants(), DISABLED_CLASS_NAME)}
           >
             {t("content.pagination.next")}
             <ChevronRight className="h-4 w-4" aria-hidden />
-          </span>
+          </button>
         )}
       </div>
     </nav>

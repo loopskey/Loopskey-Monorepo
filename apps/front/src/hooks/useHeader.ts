@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { isValidHref, normalizePath } from "@/utils/path.util";
 import { refreshPublicSession } from "@/lib/session/public-session";
 import { stripLocalePrefix } from "@/lib/i18n/locale";
@@ -46,9 +46,14 @@ export const useHeader = () => {
     );
   };
 
-  const openMobileMenu = () => setIsMobileOpen(true);
+  const menuToggle = useRef<HTMLButtonElement>(null);
 
   const closeMobileMenu = () => setIsMobileOpen(false);
+
+  const dismissMobileMenu = useCallback(() => {
+    setIsMobileOpen(false);
+    menuToggle.current?.focus();
+  }, []);
 
   const toggleMobileMenu = () => setIsMobileOpen((prev) => !prev);
 
@@ -71,20 +76,33 @@ export const useHeader = () => {
   }, [isMobileOpen]);
 
   useEffect(() => {
+    if (!isMobileOpen) return;
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key !== "Escape") return;
+      dismissMobileMenu();
+    };
+    document.addEventListener("keydown", onKeyDown);
+    return () => {
+      document.removeEventListener("keydown", onKeyDown);
+    };
+  }, [isMobileOpen, dismissMobileMenu]);
+
+  useEffect(() => {
     closeMobileMenu();
   }, [pathname]);
 
   return {
     t,
     navItems,
+    menuToggle,
     isScrolled,
     isMobileOpen,
     showRoleStrip,
-    openMobileMenu,
     isAuthenticated,
     currentUserRole,
     isActiveNavItem,
     closeMobileMenu,
     toggleMobileMenu,
+    dismissMobileMenu,
   };
 };

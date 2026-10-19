@@ -5,6 +5,7 @@ import { CalendarDays, Headphones, PlayCircle } from "lucide-react";
 import { TLandingContentCarouselProps } from "@/types/landing-module.types";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { TLandingContentItem } from "@/types/landing-module.types";
+import { useMediaQuery } from "@/hooks/useMediaQuery";
 import { useI18n } from "@/hooks/useI18n";
 import { Button } from "@ui/button";
 import { cn } from "@/lib/utils";
@@ -26,6 +27,9 @@ const LandingContentCarousel = ({
   activeItemId,
 }: TLandingContentCarouselProps) => {
   const { t } = useI18n();
+  const prefersReducedMotion = useMediaQuery(
+    "(prefers-reduced-motion: reduce)",
+  );
 
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [scrollSnaps, setScrollSnaps] = useState<number[]>([]);
@@ -76,6 +80,11 @@ const LandingContentCarousel = ({
     emblaApi?.reInit();
   }, [emblaApi, carouselItems.length]);
 
+  useEffect(() => {
+    if (!prefersReducedMotion) return;
+    autoplay.current.stop();
+  }, [prefersReducedMotion, emblaApi]);
+
   const scrollPrev = () => {
     emblaApi?.scrollPrev();
   };
@@ -112,7 +121,7 @@ const LandingContentCarousel = ({
             radius="full"
             variant="outline"
             onClick={scrollPrev}
-            aria-label="Previous slide"
+            aria-label={t("landing.learningHub.previousSlide")}
           >
             <ChevronLeft className="h-4 w-4" />
           </Button>
@@ -123,7 +132,7 @@ const LandingContentCarousel = ({
             radius="full"
             variant="outline"
             onClick={scrollNext}
-            aria-label="Next slide"
+            aria-label={t("landing.learningHub.nextSlide")}
           >
             <ChevronRight className="h-4 w-4" />
           </Button>
@@ -174,15 +183,22 @@ const LandingContentCarousel = ({
             <button
               key={index}
               type="button"
-              aria-label={`Go to slide ${index + 1}`}
+              aria-current={selectedIndex === index ? "true" : undefined}
+              aria-label={t("landing.learningHub.goToSlide", {
+                index: index + 1,
+              })}
               onClick={() => scrollTo(index)}
-              className={cn(
-                "h-2 rounded-full transition-all duration-300",
-                selectedIndex === index
-                  ? "w-8 bg-primary"
-                  : "w-2 bg-muted-foreground/25 hover:bg-primary/45",
-              )}
-            />
+              className="group flex size-6 items-center justify-center rounded-full outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            >
+              <span
+                className={cn(
+                  "block h-2 rounded-full transition-all duration-300 motion-reduce:transition-none",
+                  selectedIndex === index
+                    ? "w-6 bg-primary"
+                    : "w-2 bg-muted-foreground/40 group-hover:bg-primary/45",
+                )}
+              />
+            </button>
           ))}
         </div>
       ) : null}

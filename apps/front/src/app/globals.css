@@ -18,13 +18,13 @@
   --secondary-foreground: oklch(0.3791 0 0);
 
   --muted: oklch(0.955 0.012 271.87);
-  --muted-foreground: oklch(0.551 0.0234 264.36);
+  --muted-foreground: oklch(0.51 0.0234 264.36);
   --accent: oklch(0.925 0.032 271.87);
   --accent-foreground: oklch(0.3351 0.1745 271.87);
 
   --brand-orange: oklch(0.7009 0.1744 52.07);
   --brand-orange-foreground: oklch(0.24 0.05 50);
-  --brand-orange-text: oklch(0.5553 0.1455 49);
+  --brand-orange-text: oklch(0.52 0.1455 49);
   --success: oklch(0.5273 0.1371 150.07);
   --success-foreground: oklch(1 0 0);
 
@@ -41,7 +41,7 @@
   --success-soft-foreground: oklch(0.5273 0.1371 150.07);
 
   --warning-soft: oklch(0.55 0.17 68 / 0.12);
-  --warning-soft-foreground: oklch(0.55 0.17 68);
+  --warning-soft-foreground: oklch(0.5 0.17 68);
 
   --destructive-soft: oklch(0.5771 0.2152 27.33 / 0.12);
   --destructive-soft-foreground: oklch(0.5771 0.2152 27.33);
@@ -536,6 +536,15 @@ input[type="date"]::-webkit-datetime-edit-fields-wrapper {
 }
 
 @media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
   .sidebar-item,
   .sidebar-item * {
     transition: none;

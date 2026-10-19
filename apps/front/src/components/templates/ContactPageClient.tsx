@@ -247,7 +247,7 @@ const ContactPage = () => {
       <section className="px-4 pb-28">
         <div className="mx-auto max-w-7xl">
           <RevealOnScroll direction="up">
-            <div className="relative overflow-hidden rounded-lg border border-primary/20 bg-muted-foreground p-8 text-white shadow-md md:p-10">
+            <div className="relative overflow-hidden rounded-lg border border-primary/20 bg-foreground p-8 text-white shadow-md md:p-10">
               <div className="relative z-10 grid gap-8 lg:grid-cols-[1fr_auto] lg:items-center">
                 <div>
                   <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-4 py-2 text-xs font-semibold uppercase tracking-widest text-white/80">
@@ -257,7 +257,7 @@ const ContactPage = () => {
                   <h2 className="text-3xl font-medium md:text-4xl">
                     {t("contactPage.cta.title")}
                   </h2>
-                  <p className="mt-4 max-w-2xl text-lg leading-relaxed text-muted-foreground">
+                  <p className="mt-4 max-w-2xl text-lg leading-relaxed text-white/80">
                     {t("contactPage.cta.description")}
                   </p>
                 </div>

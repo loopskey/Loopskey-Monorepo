@@ -28,6 +28,7 @@ export const ScrollToTopButton = () => {
       type="button"
       size="icon"
       radius="full"
+      inert={!visible}
       onClick={scrollToTop}
       aria-label={t("footer.scrollToTop")}
       className={cn(

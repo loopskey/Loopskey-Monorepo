@@ -2643,7 +2643,10 @@
     "contact": "Contact",
     "faq": "FAQ",
     "openMenu": "Open menu",
-    "closeMenu": "Close menu"
+    "closeMenu": "Close menu",
+    "primary": "Main",
+    "homeLink": "LoopsKey home",
+    "skipToContent": "Skip to main content"
   },
   "dashboardShell": {
     "navLabel": "Dashboard navigation",
@@ -3233,7 +3236,8 @@
       "endsAt": "Ends {{date}}",
       "speaker": "Speaker",
       "pdu": "PDU",
-      "pduValue": "{{count}} PDU"
+      "pduValue": "{{count}} PDU",
+      "schedule": "Schedule"
     },
     "podcast": {
       "badge": "Podcast",
@@ -3323,7 +3327,10 @@
         "subscribers": "{{count}} subscribers",
         "videos": "{{count}} videos",
         "upcoming": "Upcoming"
-      }
+      },
+      "previousSlide": "Previous slide",
+      "nextSlide": "Next slide",
+      "goToSlide": "Go to slide {{index}}"
     },
     "hero": {
       "badge": "AI-powered professional learning",
@@ -3605,10 +3612,10 @@
     "title": "This page seems to be off the learning path",
     "description": "The page you are looking for may have been moved, renamed, or is no longer available.",
     "backHome": "Back to Home",
-    "goBack": "Go Back",
     "emailTitle": "Need help?",
     "supportTitle": "Contact support",
-    "supportText": "Tell us what you were trying to find."
+    "supportText": "Tell us what you were trying to find.",
+    "browseCatalog": "Browse all content"
   },
   "dashboard": {
     "sidebar": {

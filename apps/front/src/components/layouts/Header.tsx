@@ -27,10 +27,13 @@ type THeaderProps = {
   languageControl: ReactNode;
 };
 
+const MOBILE_NAV_ID = "header-mobile-navigation";
+
 const Header = ({ languageControl }: THeaderProps) => {
   const {
     t,
     navItems,
+    menuToggle,
     isScrolled,
     showRoleStrip,
     isMobileOpen,
@@ -39,6 +42,7 @@ const Header = ({ languageControl }: THeaderProps) => {
     isActiveNavItem,
     closeMobileMenu,
     toggleMobileMenu,
+    dismissMobileMenu,
   } = useHeader();
   const { activeRoleHref } = useActiveRole();
   const activeRole = solutionEntries.find(
@@ -74,8 +78,11 @@ const Header = ({ languageControl }: THeaderProps) => {
       {showRoleStrip && <RoleStrip lockedHref={authenticatedRoleHref} />}
 
       <div className={HEADER_CONTAINER_CLASS_NAME}>
-        <Logo />
-        <nav className="hidden items-center gap-1 lg:flex">
+        <Logo label={t("navigation.homeLink")} />
+        <nav
+          aria-label={t("navigation.primary")}
+          className="hidden items-center gap-1 lg:flex"
+        >
           {navItems.map((item) => {
             const isActive = isActiveNavItem(item.href);
             return (
@@ -115,6 +122,9 @@ const Header = ({ languageControl }: THeaderProps) => {
             type="button"
             radius="full"
             variant="outline"
+            ref={menuToggle}
+            aria-expanded={isMobileOpen}
+            aria-controls={MOBILE_NAV_ID}
             aria-label={
               isMobileOpen
                 ? t("navigation.closeMenu")
@@ -146,7 +156,7 @@ const Header = ({ languageControl }: THeaderProps) => {
             "fixed inset-0 top-16 z-40 bg-foreground/20 transition-opacity duration-300",
             isMobileOpen ? "opacity-100" : "opacity-0",
           )}
-          onClick={closeMobileMenu}
+          onClick={dismissMobileMenu}
         />
 
         <div
@@ -157,7 +167,11 @@ const Header = ({ languageControl }: THeaderProps) => {
               : "-translate-y-3 scale-95 opacity-0",
           )}
         >
-          <nav className="flex flex-col gap-2">
+          <nav
+            id={MOBILE_NAV_ID}
+            aria-label={t("navigation.primary")}
+            className="flex flex-col gap-2"
+          >
             {navItems.map((item, index) => {
               const isActive = isActiveNavItem(item.href);
               return (

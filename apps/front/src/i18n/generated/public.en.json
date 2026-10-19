@@ -488,6 +488,7 @@
       "pdu": "PDU",
       "pduValue": "{{count}} PDU",
       "registerNow": "Register now",
+      "schedule": "Schedule",
       "speaker": "Speaker"
     },
     "goToContent": {
@@ -932,6 +933,7 @@
       "emptyText": "Featured learning content will appear here once providers publish new items.",
       "emptyTitle": "No featured content yet",
       "free": "Free",
+      "goToSlide": "Go to slide {{index}}",
       "info": "Info",
       "meta": {
         "attendees": "{{count}} attendees",
@@ -943,6 +945,8 @@
         "upcoming": "Upcoming",
         "videos": "{{count}} videos"
       },
+      "nextSlide": "Next slide",
+      "previousSlide": "Previous slide",
       "price": "Price",
       "spotlight": "Spotlight",
       "subtitle": "Explore curated courses, live events, podcasts, and expert channels designed for CPD, professional growth, and lifelong learning.",
@@ -1056,15 +1060,18 @@
     "contact": "Contact",
     "content": "Content",
     "faq": "FAQ",
+    "homeLink": "LoopsKey home",
     "openMenu": "Open menu",
-    "services": "Services"
+    "primary": "Main",
+    "services": "Services",
+    "skipToContent": "Skip to main content"
   },
   "notFound": {
     "backHome": "Back to Home",
     "badge": "Page not found",
+    "browseCatalog": "Browse all content",
     "description": "The page you are looking for may have been moved, renamed, or is no longer available.",
     "emailTitle": "Need help?",
-    "goBack": "Go Back",
     "supportText": "Tell us what you were trying to find.",
     "supportTitle": "Contact support",
     "title": "This page seems to be off the learning path"

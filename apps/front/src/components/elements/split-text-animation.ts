@@ -95,6 +95,7 @@ export const animateSplitText = (
   };
 
   const splitInstance = new GSAPSplitText(el, {
+    aria: "none",
     type: splitType,
     smartWrap: true,
     autoSplit: splitType === "lines",

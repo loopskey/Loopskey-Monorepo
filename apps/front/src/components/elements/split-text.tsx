@@ -94,6 +94,7 @@ export const SplitText = ({
   return (
     <Tag
       ref={ref}
+      aria-hidden="true"
       style={{ textAlign, wordWrap: "break-word" }}
       className={cn(
         "split-parent relative inline-block overflow-hidden whitespace-normal",

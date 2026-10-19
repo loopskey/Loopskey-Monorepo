@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowLeft, Home, LifeBuoy, Mail, SearchX } from "lucide-react";
+import { Compass, Home, LifeBuoy, Mail, SearchX } from "lucide-react";
 import { isDetailPath, stripLocalePrefix } from "@/lib/i18n/locale";
 import { useEffect, useState } from "react";
 import { RevealOnScroll } from "@elements/reveal-scroll";
@@ -67,9 +67,9 @@ const NotFoundContent = () => {
           </Button>
 
           <Button asChild variant="outline" radius="xl" size="lg">
-            <Link href={siteLinks.home}>
-              <ArrowLeft className="h-4 w-4" />
-              {t("notFound.goBack")}
+            <Link href={siteLinks.content}>
+              <Compass className="h-4 w-4" />
+              {t("notFound.browseCatalog")}
             </Link>
           </Button>
         </div>

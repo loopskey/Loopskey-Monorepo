@@ -32,16 +32,18 @@ const HomePage = async ({ params }: THomePageProps) => {
       />
       <ClientMessages scope="landing" locale={locale}>
         <StoreProvider>
-          <LandingHero />
-          <LandingFeatured />
-          <LandingNewFeature locale={locale} />
-          <LandingPopularCategories />
-          <LandingTopicGuides locale={locale} />
-          <LandingServices locale={locale} />
-          <LandingRoadmapShowcase locale={locale} />
-          <LandingOrganization />
-          <LandingProvider />
-          <LandingTestimonials locale={locale} />
+          <main>
+            <LandingHero />
+            <LandingFeatured />
+            <LandingNewFeature locale={locale} />
+            <LandingPopularCategories />
+            <LandingTopicGuides locale={locale} />
+            <LandingServices locale={locale} />
+            <LandingRoadmapShowcase locale={locale} />
+            <LandingOrganization />
+            <LandingProvider />
+            <LandingTestimonials locale={locale} />
+          </main>
         </StoreProvider>
       </ClientMessages>
     </>
