@@ -4,7 +4,7 @@
 - Model: `Standard development — bounded semantic, contrast and target-size corrections inside existing public primitives; no auth, locale or data contract changed`
 - Branch: `feature/seo-18-public-accessibility`
 - Base: `571e5fe4`
-- Status: `Ready` — implementation and every required check pass, with one measured bundle note and three accepted deviations recorded below
+- Status: `Submitted` — every required check passes except the bundle budgets, which fail identically on the baseline build; that and three accepted deviations are submitted for review (see "Open decision" and "Accepted deviations")
 
 ## Acceptance
 
@@ -40,6 +40,6 @@
 
 ## Submission
 
-- Commit:
-- PR:
-- CI:
+- Commit: 4276765a
+- PR: https://github.com/loopskey/Loopskey-Monorepo/pull/315
+- CI: pending
