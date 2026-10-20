@@ -5,6 +5,8 @@ import { CourseTranslationEntity } from "@course/entities/course-translation.ent
 import { CourseTranslationService } from "@course/services/course-translation.service";
 import { SaveCourseTranslationInput } from "@course/dtos/save-course-translation.input";
 import { SetCourseTranslationPublicationInput } from "@course/dtos/set-course-translation-publication.input";
+import { SetCourseSourceLanguageInput } from "@course/dtos/set-course-source-language.input";
+import { CourseLanguageEntity } from "@course/entities/course-language.entity";
 import { TCurrentUserPayload } from "@course/types/course-service.type";
 import { CurrentUser } from "@common/decorators/current-user.decorator";
 import { Roles } from "@common/decorators/roles.decorator";
@@ -28,6 +30,28 @@ export class CourseTranslationResolver {
     @Args("courseId") courseId: string,
   ) {
     return this.translations.list(courseId, actorOf(user));
+  }
+
+  @Roles(Role.PROVIDER, Role.ADMIN)
+  @Query(() => CourseLanguageEntity, {
+    name: CourseGqlQueryNames.COURSE_LANGUAGE,
+  })
+  courseLanguage(
+    @CurrentUser() user: TCurrentUserPayload,
+    @Args("courseId") courseId: string,
+  ) {
+    return this.translations.readLanguage(courseId, actorOf(user));
+  }
+
+  @Roles(Role.PROVIDER, Role.ADMIN)
+  @Mutation(() => CourseLanguageEntity, {
+    name: CourseGqlMutationNames.SET_COURSE_SOURCE_LANGUAGE,
+  })
+  setCourseSourceLanguage(
+    @CurrentUser() user: TCurrentUserPayload,
+    @Args("input") input: SetCourseSourceLanguageInput,
+  ) {
+    return this.translations.setSourceLanguage(input, actorOf(user));
   }
 
   @Roles(Role.PROVIDER, Role.ADMIN)

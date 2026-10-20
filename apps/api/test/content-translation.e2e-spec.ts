@@ -746,4 +746,135 @@ describe("Content translations (e2e)", () => {
       expect(AppLanguage.FR).toBe("FR");
     });
   });
+
+  describe("the declared language of a course", () => {
+    const LANGUAGE = `
+      query Language($courseId: String!) {
+        courseLanguage(courseId: $courseId) {
+          courseId sourceLanguage publishedLocales availableLocales
+        }
+      }`;
+    const DECLARE = `
+      mutation Declare($input: SetCourseSourceLanguageInput!) {
+        setCourseSourceLanguage(input: $input) {
+          courseId sourceLanguage publishedLocales availableLocales
+        }
+      }`;
+
+    const readLanguage = (courseId: string, bearer = ownerToken) =>
+      gql(LANGUAGE, { courseId }, bearer);
+    const declare = (
+      courseId: string,
+      sourceLanguage: AppLanguage,
+      bearer = ownerToken,
+    ) => gql(DECLARE, { input: { courseId, sourceLanguage } }, bearer);
+
+    const storedLanguage = async (courseId: string) => {
+      const course = await prisma.course.findUniqueOrThrow({
+        where: { id: courseId },
+        select: { sourceLanguage: true },
+      });
+      return course.sourceLanguage;
+    };
+
+    const publishedLocales = async (courseId: string) => {
+      const rows = await prisma.courseTranslation.findMany({
+        where: { courseId, isPublished: true },
+        select: { locale: true },
+        orderBy: { locale: "asc" },
+      });
+      return rows.map((row) => row.locale);
+    };
+
+    it("rejects anonymous, professional and other-provider callers", async () => {
+      const row = await configs()[0].create(40, ownerId, "en");
+      const anonymous = await readLanguage(row.id, "");
+      const professional = await readLanguage(row.id, professionalToken);
+      const stranger = await declare(row.id, AppLanguage.FR, strangerToken);
+      expect(anonymous.body.errors?.length).toBeGreaterThan(0);
+      expect(errorCode(professional)).toBe("FORBIDDEN");
+      expect(stranger.body.errors?.[0]?.message).toMatch(/ACCESS_DENIED/);
+      expect(await storedLanguage(row.id)).toBe("en");
+    });
+
+    it("reports the declared language and the addresses it makes available", async () => {
+      const subject = configs()[0];
+      const row = await subject.create(41, ownerId, "en");
+      const before = await readLanguage(row.id);
+      expect(before.body.data.courseLanguage).toEqual({
+        courseId: row.id,
+        sourceLanguage: "EN",
+        publishedLocales: [],
+        availableLocales: ["EN"],
+      });
+
+      await save(subject, row.id, {});
+      const draft = await readLanguage(row.id);
+      expect(draft.body.data.courseLanguage).toMatchObject({
+        publishedLocales: [],
+        availableLocales: ["EN"],
+      });
+
+      await publish(subject, row.id, true, 1);
+      const live = await readLanguage(row.id);
+      expect(live.body.data.courseLanguage).toMatchObject({
+        sourceLanguage: "EN",
+        publishedLocales: ["FR"],
+        availableLocales: ["EN", "FR"],
+      });
+    });
+
+    it("advertises no separate address for a French original with no English translation", async () => {
+      const row = await configs()[0].create(42, ownerId, null);
+      const declared = await declare(row.id, AppLanguage.FR, adminToken);
+      expect(declared.body.data.setCourseSourceLanguage).toEqual({
+        courseId: row.id,
+        sourceLanguage: "FR",
+        publishedLocales: [],
+        availableLocales: [],
+      });
+      expect(await storedLanguage(row.id)).toBe("fr");
+    });
+
+    it("refuses a language that already has a published translation", async () => {
+      const subject = configs()[0];
+      const row = await subject.create(43, ownerId, "en");
+      await save(subject, row.id, {});
+      await publish(subject, row.id, true, 1);
+      const refused = await declare(row.id, AppLanguage.FR);
+      expect(errorCode(refused)).toBe(
+        "CONTENT_TRANSLATION_SOURCE_LANGUAGE_IS_TRANSLATED",
+      );
+      expect(await storedLanguage(row.id)).toBe("en");
+    });
+
+    it("refuses to publish a translation in the language declared as the original", async () => {
+      const subject = configs()[0];
+      const row = await subject.create(44, ownerId, "en");
+      await save(subject, row.id, {});
+      await declare(row.id, AppLanguage.FR);
+      const refused = await publish(subject, row.id, true, 1);
+      expect(errorCode(refused)).toBe(
+        "CONTENT_TRANSLATION_SOURCE_LANGUAGE_IS_TRANSLATED",
+      );
+      expect(await publishedLocales(row.id)).toEqual([]);
+    });
+
+    it("never leaves the original language also published as a translation", async () => {
+      const subject = configs()[0];
+      const row = await subject.create(45, ownerId, "en");
+      await save(subject, row.id, {});
+      await runTogether(6, (index) =>
+        index % 2 === 0
+          ? publish(subject, row.id, true, 1)
+          : declare(row.id, AppLanguage.FR),
+      );
+      const [source, locales] = await Promise.all([
+        storedLanguage(row.id),
+        publishedLocales(row.id),
+      ]);
+      if (source === "fr") expect(locales).toEqual([]);
+      else expect(source).toBe("en");
+    });
+  });
 });

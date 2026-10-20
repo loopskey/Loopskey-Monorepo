@@ -10,6 +10,7 @@ export enum ContentTranslationError {
   VERSION_CONFLICT = "CONTENT_TRANSLATION_VERSION_CONFLICT",
   INCOMPLETE = "CONTENT_TRANSLATION_INCOMPLETE",
   NOT_FOUND = "CONTENT_TRANSLATION_NOT_FOUND",
+  SOURCE_LANGUAGE_IS_TRANSLATED = "CONTENT_TRANSLATION_SOURCE_LANGUAGE_IS_TRANSLATED",
 }
 
 export const TRANSLATION_TITLE_MAX_LENGTH = 180;
@@ -44,6 +45,7 @@ export type TranslationParent = TranslationSource & {
   id: string;
   deletedAt: Date | null;
   providerId: string | null;
+  sourceLanguage?: string | null;
 };
 
 export type TranslationActor = { id: string; role: Role };
@@ -198,6 +200,7 @@ export interface TranslationStore<TTx> {
   ): Promise<number>;
   reload(tx: TTx, translationId: string): Promise<TranslationRow>;
   touchParent(tx: TTx, parentId: string): Promise<void>;
+  lockParent(tx: TTx, parentId: string): Promise<void>;
 }
 
 export type TranslationGuards = {
@@ -226,17 +229,25 @@ export const translationMissing = () =>
 export const translationDenied = (message: string) =>
   new ForbiddenException(message);
 
+export const sourceLanguageIsTranslated = () =>
+  new ConflictException({
+    code: ContentTranslationError.SOURCE_LANGUAGE_IS_TRANSLATED,
+    message: ContentTranslationError.SOURCE_LANGUAGE_IS_TRANSLATED,
+  });
+
 const isUniqueViolation = (error: unknown) =>
   error instanceof Prisma.PrismaClientKnownRequestError &&
   error.code === "P2002";
 
-const authorize = async <TTx>(
+export const authorizeTranslationParent = async <TTx>(
   store: TranslationStore<TTx>,
   tx: TTx,
   parentId: string,
   actor: TranslationActor,
   guards: TranslationGuards,
+  lock = false,
 ) => {
+  if (lock) await store.lockParent(tx, parentId);
   const parent = await store.findParent(tx, parentId);
   if (!parent || parent.deletedAt) throw guards.notFound();
   if (actor.role !== Role.ADMIN && parent.providerId !== actor.id)
@@ -259,12 +270,13 @@ export const saveContentTranslation = async <TTx>(
   if (!fields.title || !fields.description) throw translationIncomplete();
 
   return store.transaction(async (tx) => {
-    const parent = await authorize(
+    const parent = await authorizeTranslationParent(
       store,
       tx,
       request.parentId,
       request.actor,
       guards,
+      true,
     );
     const existing = await store.findTranslation(
       tx,
@@ -314,12 +326,13 @@ export const setContentTranslationPublication = async <TTx>(
   },
 ): Promise<TranslationRow> =>
   store.transaction(async (tx) => {
-    const parent = await authorize(
+    const parent = await authorizeTranslationParent(
       store,
       tx,
       request.parentId,
       request.actor,
       guards,
+      true,
     );
     const existing = await store.findTranslation(
       tx,
@@ -332,6 +345,11 @@ export const setContentTranslationPublication = async <TTx>(
     if (existing.isPublished === request.published) return existing;
     if (request.published && !isTranslationComplete(existing, parent))
       throw translationIncomplete();
+    if (
+      request.published &&
+      normalizeSourceLanguage(parent.sourceLanguage) === request.locale
+    )
+      throw sourceLanguageIsTranslated();
 
     const updated = await store.update(tx, existing.id, existing.version, {
       isPublished: request.published,
@@ -350,6 +368,12 @@ export const listContentTranslations = async <TTx>(
   read: (tx: TTx, parentId: string) => Promise<TranslationRow[]>,
 ) =>
   store.transaction(async (tx) => {
-    await authorize(store, tx, request.parentId, request.actor, guards);
+    await authorizeTranslationParent(
+      store,
+      tx,
+      request.parentId,
+      request.actor,
+      guards,
+    );
     return read(tx, request.parentId);
   });

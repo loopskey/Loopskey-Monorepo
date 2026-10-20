@@ -160,3 +160,55 @@ query CourseFilterFacets {
     }
   }
 }
+
+fragment CourseTranslationFields on CourseTranslation {
+  id
+  locale
+  title
+  description
+  learnings
+  requirements
+  isPublished
+  publishedAt
+  version
+  updatedAt
+}
+
+fragment CourseLanguageFields on CourseLanguage {
+  courseId
+  sourceLanguage
+  publishedLocales
+  availableLocales
+}
+
+query CourseTranslations($courseId: String!) {
+  courseTranslations(courseId: $courseId) {
+    ...CourseTranslationFields
+  }
+}
+
+query CourseLanguage($courseId: String!) {
+  courseLanguage(courseId: $courseId) {
+    ...CourseLanguageFields
+  }
+}
+
+mutation SaveCourseTranslation($input: SaveCourseTranslationInput!) {
+  saveCourseTranslation(input: $input) {
+    ...CourseTranslationFields
+  }
+}
+
+mutation SetCourseTranslationPublication(
+  $input: SetCourseTranslationPublicationInput!
+) {
+  setCourseTranslationPublication(input: $input) {
+    ...CourseTranslationFields
+  }
+}
+
+mutation SetCourseSourceLanguage($input: SetCourseSourceLanguageInput!) {
+  setCourseSourceLanguage(input: $input) {
+    ...CourseLanguageFields
+  }
+}

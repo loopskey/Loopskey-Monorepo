@@ -96,6 +96,45 @@ export type CourseFilterFacetsQueryVariables = Types.Exact<{ [key: string]: neve
 
 export type CourseFilterFacetsQuery = { __typename?: 'Query', courseFilterFacets: { __typename?: 'CourseFilterFacets', categories: Array<{ __typename?: 'CourseCategoryFacet', value: Types.CourseCategory, count: number }>, levels: Array<{ __typename?: 'CourseLevelFacet', value: Types.CourseLevel, count: number }>, ratings: Array<{ __typename?: 'CourseRatingFacet', minimum: number, count: number }> } };
 
+export type CourseTranslationFieldsFragment = { __typename?: 'CourseTranslation', id: string, locale: Types.AppLanguage, title: string, description: string, learnings: Array<string>, requirements: Array<string>, isPublished: boolean, publishedAt?: string | null, version: number, updatedAt: string };
+
+export type CourseLanguageFieldsFragment = { __typename?: 'CourseLanguage', courseId: string, sourceLanguage?: Types.AppLanguage | null, publishedLocales: Array<Types.AppLanguage>, availableLocales: Array<Types.AppLanguage> };
+
+export type CourseTranslationsQueryVariables = Types.Exact<{
+  courseId: Types.Scalars['String']['input'];
+}>;
+
+
+export type CourseTranslationsQuery = { __typename?: 'Query', courseTranslations: Array<{ __typename?: 'CourseTranslation', id: string, locale: Types.AppLanguage, title: string, description: string, learnings: Array<string>, requirements: Array<string>, isPublished: boolean, publishedAt?: string | null, version: number, updatedAt: string }> };
+
+export type CourseLanguageQueryVariables = Types.Exact<{
+  courseId: Types.Scalars['String']['input'];
+}>;
+
+
+export type CourseLanguageQuery = { __typename?: 'Query', courseLanguage: { __typename?: 'CourseLanguage', courseId: string, sourceLanguage?: Types.AppLanguage | null, publishedLocales: Array<Types.AppLanguage>, availableLocales: Array<Types.AppLanguage> } };
+
+export type SaveCourseTranslationMutationVariables = Types.Exact<{
+  input: Types.SaveCourseTranslationInput;
+}>;
+
+
+export type SaveCourseTranslationMutation = { __typename?: 'Mutation', saveCourseTranslation: { __typename?: 'CourseTranslation', id: string, locale: Types.AppLanguage, title: string, description: string, learnings: Array<string>, requirements: Array<string>, isPublished: boolean, publishedAt?: string | null, version: number, updatedAt: string } };
+
+export type SetCourseTranslationPublicationMutationVariables = Types.Exact<{
+  input: Types.SetCourseTranslationPublicationInput;
+}>;
+
+
+export type SetCourseTranslationPublicationMutation = { __typename?: 'Mutation', setCourseTranslationPublication: { __typename?: 'CourseTranslation', id: string, locale: Types.AppLanguage, title: string, description: string, learnings: Array<string>, requirements: Array<string>, isPublished: boolean, publishedAt?: string | null, version: number, updatedAt: string } };
+
+export type SetCourseSourceLanguageMutationVariables = Types.Exact<{
+  input: Types.SetCourseSourceLanguageInput;
+}>;
+
+
+export type SetCourseSourceLanguageMutation = { __typename?: 'Mutation', setCourseSourceLanguage: { __typename?: 'CourseLanguage', courseId: string, sourceLanguage?: Types.AppLanguage | null, publishedLocales: Array<Types.AppLanguage>, availableLocales: Array<Types.AppLanguage> } };
+
 export const CourseFieldsFragmentDoc = /*#__PURE__*/ new TypedDocumentString(`
     fragment CourseFields on Course {
   id
@@ -148,6 +187,28 @@ export const CourseLocaleFieldsFragmentDoc = /*#__PURE__*/ new TypedDocumentStri
   availableLocales
 }
     `, {"fragmentName":"CourseLocaleFields"}) as unknown as TypedDocumentString<CourseLocaleFieldsFragment, unknown>;
+export const CourseTranslationFieldsFragmentDoc = /*#__PURE__*/ new TypedDocumentString(`
+    fragment CourseTranslationFields on CourseTranslation {
+  id
+  locale
+  title
+  description
+  learnings
+  requirements
+  isPublished
+  publishedAt
+  version
+  updatedAt
+}
+    `, {"fragmentName":"CourseTranslationFields"}) as unknown as TypedDocumentString<CourseTranslationFieldsFragment, unknown>;
+export const CourseLanguageFieldsFragmentDoc = /*#__PURE__*/ new TypedDocumentString(`
+    fragment CourseLanguageFields on CourseLanguage {
+  courseId
+  sourceLanguage
+  publishedLocales
+  availableLocales
+}
+    `, {"fragmentName":"CourseLanguageFields"}) as unknown as TypedDocumentString<CourseLanguageFieldsFragment, unknown>;
 export const CoursesDocument = /*#__PURE__*/ new TypedDocumentString(`
     query Courses($filter: CourseFilterInput, $pagination: CoursePaginationInput, $sort: CourseSortInput, $locale: AppLanguage) {
   courses(filter: $filter, pagination: $pagination, sort: $sort, locale: $locale) {
@@ -571,3 +632,81 @@ export const CourseFilterFacetsDocument = /*#__PURE__*/ new TypedDocumentString(
   }
 }
     `) as unknown as TypedDocumentString<CourseFilterFacetsQuery, CourseFilterFacetsQueryVariables>;
+export const CourseTranslationsDocument = /*#__PURE__*/ new TypedDocumentString(`
+    query CourseTranslations($courseId: String!) {
+  courseTranslations(courseId: $courseId) {
+    ...CourseTranslationFields
+  }
+}
+    fragment CourseTranslationFields on CourseTranslation {
+  id
+  locale
+  title
+  description
+  learnings
+  requirements
+  isPublished
+  publishedAt
+  version
+  updatedAt
+}`) as unknown as TypedDocumentString<CourseTranslationsQuery, CourseTranslationsQueryVariables>;
+export const CourseLanguageDocument = /*#__PURE__*/ new TypedDocumentString(`
+    query CourseLanguage($courseId: String!) {
+  courseLanguage(courseId: $courseId) {
+    ...CourseLanguageFields
+  }
+}
+    fragment CourseLanguageFields on CourseLanguage {
+  courseId
+  sourceLanguage
+  publishedLocales
+  availableLocales
+}`) as unknown as TypedDocumentString<CourseLanguageQuery, CourseLanguageQueryVariables>;
+export const SaveCourseTranslationDocument = /*#__PURE__*/ new TypedDocumentString(`
+    mutation SaveCourseTranslation($input: SaveCourseTranslationInput!) {
+  saveCourseTranslation(input: $input) {
+    ...CourseTranslationFields
+  }
+}
+    fragment CourseTranslationFields on CourseTranslation {
+  id
+  locale
+  title
+  description
+  learnings
+  requirements
+  isPublished
+  publishedAt
+  version
+  updatedAt
+}`) as unknown as TypedDocumentString<SaveCourseTranslationMutation, SaveCourseTranslationMutationVariables>;
+export const SetCourseTranslationPublicationDocument = /*#__PURE__*/ new TypedDocumentString(`
+    mutation SetCourseTranslationPublication($input: SetCourseTranslationPublicationInput!) {
+  setCourseTranslationPublication(input: $input) {
+    ...CourseTranslationFields
+  }
+}
+    fragment CourseTranslationFields on CourseTranslation {
+  id
+  locale
+  title
+  description
+  learnings
+  requirements
+  isPublished
+  publishedAt
+  version
+  updatedAt
+}`) as unknown as TypedDocumentString<SetCourseTranslationPublicationMutation, SetCourseTranslationPublicationMutationVariables>;
+export const SetCourseSourceLanguageDocument = /*#__PURE__*/ new TypedDocumentString(`
+    mutation SetCourseSourceLanguage($input: SetCourseSourceLanguageInput!) {
+  setCourseSourceLanguage(input: $input) {
+    ...CourseLanguageFields
+  }
+}
+    fragment CourseLanguageFields on CourseLanguage {
+  courseId
+  sourceLanguage
+  publishedLocales
+  availableLocales
+}`) as unknown as TypedDocumentString<SetCourseSourceLanguageMutation, SetCourseSourceLanguageMutationVariables>;

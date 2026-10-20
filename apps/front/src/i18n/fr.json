@@ -8578,5 +8578,51 @@
         "youtube": "Chaîne YouTube"
       }
     }
+  },
+  "contentTranslation": {
+    "open": "Traductions",
+    "title": "Contenu traduit",
+    "description": "Rédigez et publiez la version traduite de {{title}}. Une traduction reste privée jusqu'à sa publication, et la page publique conserve sa langue d'origine jusque-là.",
+    "language": "Langue de la traduction",
+    "unavailable": "Cet onglet ne traduit que les formations. Les événements se traduisent depuis le tableau de bord du fournisseur, et les podcasts et les chaînes n'ont pas encore d'éditeur de traduction.",
+    "fields": {
+      "title": "Titre",
+      "description": "Description",
+      "requirements": "Prérequis",
+      "learnings": "Ce que les apprenants acquièrent"
+    },
+    "listHelp": "Une ligne par élément.",
+    "completeness": "L'original indique des prérequis et des acquis : une traduction publiée doit également les indiquer.",
+    "status": {
+      "none": "Aucune traduction enregistrée dans cette langue.",
+      "draft": "Enregistrée comme brouillon privé, version {{version}}.",
+      "published": "Publiée, version {{version}}."
+    },
+    "save": "Enregistrer le brouillon",
+    "publish": "Publier la traduction",
+    "unpublish": "Dépublier la traduction",
+    "reload": "Abandonner ma version et recharger",
+    "retry": "Réessayer",
+    "loadFailed": "Les traductions n'ont pas pu être chargées.",
+    "sourceLanguage": {
+      "label": "Langue du contenu d'origine",
+      "help": "Déclarer la langue d'origine permet d'annoncer les deux adresses aux moteurs de recherche. Tant qu'elle n'est pas déclarée, seule l'adresse traduite est annoncée.",
+      "undeclared": "Pas encore déclarée.",
+      "declared": "Déclarée comme {{language}}.",
+      "declare": "Déclarer {{language}}",
+      "locales": "Adresses annoncées : {{locales}}",
+      "none": "aucune"
+    },
+    "feedback": {
+      "saved": "Brouillon enregistré.",
+      "published": "Traduction publiée.",
+      "unpublished": "Traduction dépubliée.",
+      "declared": "Langue d'origine déclarée.",
+      "conflict": "Quelqu'un a modifié cette traduction pendant votre saisie. Votre version est conservée ; rechargez pour prendre la sienne.",
+      "incomplete": "Une traduction publiée doit contenir toutes les parties de l'original.",
+      "sourceConflict": "Cette langue a déjà une traduction publiée : elle ne peut pas être aussi la langue d'origine.",
+      "blank": "Un titre et une description sont obligatoires.",
+      "failed": "La modification n'a pas pu être enregistrée."
+    }
   }
 }
