@@ -71,6 +71,7 @@ describe("assertSubstantiveTopicHubCopy", () => {
 describe("cleanTopicHubCategory", () => {
   it("accepts a shared catalog category in any case and clears empties", () => {
     expect(cleanTopicHubCategory("leadership")).toBe("LEADERSHIP");
+    expect(cleanTopicHubCategory("health_safety")).toBe("HEALTH_SAFETY");
     expect(cleanTopicHubCategory("  ")).toBeNull();
     expect(cleanTopicHubCategory(null)).toBeNull();
     expect(cleanTopicHubCategory(undefined)).toBeNull();
@@ -78,6 +79,8 @@ describe("cleanTopicHubCategory", () => {
 
   it("rejects an unknown category", () => {
     expect(() => cleanTopicHubCategory("EVERYTHING")).toThrow();
+    expect(() => cleanTopicHubCategory("CPD")).toThrow();
+    expect(() => cleanTopicHubCategory("OTHER")).toThrow();
   });
 });
 

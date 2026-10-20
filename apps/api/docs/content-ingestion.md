@@ -341,6 +341,19 @@ Notes that apply to every kind:
   `language` fields are carried through for editors and provenance; none affect
   how the item is categorised.
 
+### 8.0 Categories
+
+Every kind shares one category list. The value is stored exactly as sent when it
+is one of:
+
+`ACCOUNTING, AI, BUSINESS, CAREER, CERTIFICATION, CLOUD, COMMUNICATION, COMPLIANCE, CONSTRUCTION, CYBERSECURITY, DATA, DESIGN, EDUCATION, ENGINEERING, FINANCE, GENERAL, HEALTHCARE, HEALTH_SAFETY, HUMAN_RESOURCES, LEADERSHIP, LEGAL, MARKETING, NURSING, PRODUCT_MANAGEMENT, PROJECT_MANAGEMENT, QUALITY, SALES, SOFTWARE_DEVELOPMENT, SUPPLY_CHAIN, SUSTAINABILITY, TECHNOLOGY`
+
+`CPD` and `OTHER` were removed from the list. They are still accepted and are
+stored as `CERTIFICATION` and `GENERAL`, so a crawler that has not been updated
+keeps working. Common synonyms (for example `HR`, `LAW`, `SOFTWARE`,
+`MACHINE LEARNING`, `Health & Safety`) are mapped to their category, and a value
+that matches nothing is stored as `GENERAL`.
+
 ### 8.1 Course — `POST /v1/ingest/course/batches`
 
 | Field | Type | Required | Bounds / notes |
@@ -350,7 +363,7 @@ Notes that apply to every kind:
 | `title` | string | **yes** | 1–500 |
 | `description` | string | **yes** | 1–50000 |
 | `instructor` | string | **yes** | 1–500 |
-| `category` | enum | **yes** | `CPD, OTHER, DESIGN, FINANCE, BUSINESS, EDUCATION, MARKETING, TECHNOLOGY, LEADERSHIP, COMPLIANCE, HEALTHCARE, ENGINEERING` |
+| `category` | enum | **yes** | One of the 31 shared categories (see [§8.0](#80-categories)). `CPD` and `OTHER` are accepted as deprecated aliases |
 | `level` | enum | **yes** | `BEGINNER, INTERMEDIATE, ADVANCED, ALL_LEVELS` |
 | `currency` | string | **yes** | ISO 4217, ≤ 3 chars; defaults to `USD` if absent |
 | `isFree` | boolean | **yes** | if absent, derived from `price` |
@@ -382,7 +395,7 @@ Course has no child arrays.
 | `description` | string | **yes** | 1–50000 |
 | `type` | enum | **yes** | `OTHER, COURSE, WEBINAR, SEMINAR, WORKSHOP, TRAINING, CONFERENCE, NETWORKING` |
 | `deliveryMode` | enum | **yes** | `HYBRID, RECORDED, IN_PERSON, LIVE_ONLINE` |
-| `category` | enum | **yes** | `CPD, OTHER, DESIGN, FINANCE, BUSINESS, EDUCATION, MARKETING, TECHNOLOGY, HEALTHCARE, LEADERSHIP, COMPLIANCE, ENGINEERING` |
+| `category` | enum | **yes** | One of the 31 shared categories (see [§8.0](#80-categories)). `CPD` and `OTHER` are accepted as deprecated aliases |
 | `startDate` | date-time | **yes** | ISO 8601 |
 | `timezone` | string | **yes** | 1–64, IANA name (e.g. `Europe/London`); the crawl must state it — there is no default |
 | `currency` | string | **yes** | ≤ 3; defaults `USD` |
@@ -420,7 +433,7 @@ event regardless of what you send.
 | `title` | string | **yes** | 1–500 |
 | `description` | string | **yes** | 1–50000 |
 | `host` | string | **yes** | 1–500 |
-| `category` | enum | **yes** | `AI, CPD, DATA, OTHER, CAREER, DESIGN, FINANCE, BUSINESS, EDUCATION, MARKETING, TECHNOLOGY, HEALTHCARE, LEADERSHIP, COMPLIANCE, ENGINEERING` |
+| `category` | enum | **yes** | One of the 31 shared categories (see [§8.0](#80-categories)). `CPD` and `OTHER` are accepted as deprecated aliases |
 | `durationMinutes` | integer ≥ 0 | no | typical episode length |
 | `imageCandidateUrl` | string (uri) | no | ≤ 2048 |
 | `sourcePlatform` / `language` | string | no | ≤ 100 / ≤ 8 |
@@ -452,7 +465,7 @@ event regardless of what you send.
 | `canonicalUrl` | string (uri) | **yes** | ≤ 2048 |
 | `channelUrl` | string (uri) | **yes** | ≤ 2048 |
 | `title` | string | **yes** | 1–500 |
-| `category` | enum | **yes** | `AI, CPD, DATA, OTHER, DESIGN, CAREER, FINANCE, BUSINESS, EDUCATION, MARKETING, TECHNOLOGY, HEALTHCARE, LEADERSHIP, COMPLIANCE, ENGINEERING` |
+| `category` | enum | **yes** | One of the 31 shared categories (see [§8.0](#80-categories)). `CPD` and `OTHER` are accepted as deprecated aliases |
 | `description` | string | no | ≤ 50000 |
 | `subscribers` | integer ≥ 0 | no | the channel's own public figure — accepted, not platform-owned |
 | `views` | integer ≥ 0 | no | as above |

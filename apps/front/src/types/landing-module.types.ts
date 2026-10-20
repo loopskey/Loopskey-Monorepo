@@ -15,6 +15,7 @@ export type TLandingContentItem = {
   imageUrl?: string | null;
   currency?: string | null;
   category?: string | null;
+  categoryKey?: string | null;
   kind: TLandingContentKind;
   description?: string | null;
   ratingCount?: number | null;
@@ -25,7 +26,6 @@ export type TLandingContentItem = {
 
 export type TLandingTab = {
   label: string;
-  description: string;
   value: TLandingContentKind;
 };
 
@@ -35,16 +35,27 @@ export type TLearningHubTabsProps = {
   onChange: (tab: TLandingContentKind) => void;
 };
 
-export type TLandingContentCarouselProps = {
+export type TLearningShelfProps = {
+  nextTabLabel: string;
+  onSequenceEnd: () => void;
   items: TLandingContentItem[];
-  activeItemId?: string | null;
-  onItemHover: (item: TLandingContentItem) => void;
 };
 
-export type TLandingSlider = {
-  isActive: boolean;
-  onHover: () => void;
+export type TLearningShelfStageProps = {
+  index: number;
   item: TLandingContentItem;
+};
+
+export type TLearningShelfSpineProps = {
+  index: number;
+  isActive: boolean;
+  onSelect: () => void;
+  item: TLandingContentItem;
+};
+
+export type TLandingEmptyStateProps = {
+  onRetry?: () => void;
+  variant?: "empty" | "error";
 };
 
 // ================= Hero =================

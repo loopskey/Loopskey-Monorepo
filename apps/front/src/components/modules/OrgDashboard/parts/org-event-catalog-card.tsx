@@ -22,6 +22,7 @@ export const OrgEventCatalogCard = ({
             kind="event"
             title={event.title}
             imageUrl={event.imageUrl}
+            category={event.category}
             sizes="(max-width: 768px) 100vw, (max-width: 1280px) 50vw, 33vw"
           />
           <Badge className="absolute left-4 top-4">{event.deliveryMode}</Badge>

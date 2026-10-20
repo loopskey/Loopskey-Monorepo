@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="720" viewBox="0 0 1280 720">
+<title>Compliance — LoopsKey topic cover</title>
+<defs>
+<linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#4e260a"/><stop offset="1" stop-color="#e0711d"/></linearGradient>
+<radialGradient id="glow" cx="0.82" cy="0.18" r="0.55"><stop offset="0" stop-color="#ffffff" stop-opacity="0.28"/><stop offset="1" stop-color="#ffffff" stop-opacity="0"/></radialGradient>
+<linearGradient id="fade" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#000" stop-opacity="0.35"/><stop offset="0.6" stop-color="#000" stop-opacity="0"/></linearGradient>
+<pattern id="p" width="40" height="40" patternUnits="userSpaceOnUse"><path d="M40 0H0V40" fill="none" stroke="#fff" stroke-width="1"/></pattern>
+<linearGradient id="tile" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffffff" stop-opacity="0.24"/><stop offset="1" stop-color="#ffffff" stop-opacity="0.08"/></linearGradient>
+</defs>
+<rect width="1280" height="720" fill="url(#bg)"/>
+<rect width="1280" height="720" fill="url(#p)" opacity="0.13"/>
+<rect width="1280" height="720" fill="url(#glow)"/>
+<rect width="1280" height="720" fill="url(#fade)"/>
+<rect x="710" y="140" width="440" height="440" rx="140" fill="none" stroke="#fff" stroke-opacity="0.08" stroke-width="2"/>
+<rect x="755" y="185" width="350" height="350" rx="100" fill="none" stroke="#fff" stroke-opacity="0.14" stroke-width="2"/>
+<rect x="800" y="230" width="260" height="260" rx="68" fill="url(#tile)" stroke="#fff" stroke-opacity="0.35" stroke-width="2"/>
+<g transform="translate(858 288) scale(6)" fill="none" stroke="#fff" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/><path d="m9 12 2 2 4-4"/></g>
+<circle cx="1054" cy="236" r="54" fill="#ffffff" stroke="#fff" stroke-opacity="0" stroke-width="6"/>
+<g transform="translate(1022.8 204.8) scale(2.6)" fill="none" stroke="#1E1B6B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="8" height="4" x="8" y="2" rx="1" ry="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="m9 14 2 2 4-4"/></g>
+<text x="72" y="96" font-family="Inter, Arial, sans-serif" font-size="22" font-weight="600" letter-spacing="4" fill="#fff" fill-opacity="0.8">LOOPSKEY · TOPIC</text>
+<text x="72" y="610" font-family="Inter, Arial, sans-serif" font-size="60" font-weight="700" letter-spacing="-1" fill="#fff">Compliance</text>
+<rect x="72" y="640" width="64" height="6" rx="3" fill="#ffffff"/>
+</svg>

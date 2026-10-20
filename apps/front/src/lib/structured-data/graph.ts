@@ -8,7 +8,7 @@ import type { PublicLocale } from "@/lib/i18n/locale";
 import type { JsonLdNode } from "@/lib/structured-data/json-ld";
 import type { Trail } from "@/lib/structured-data/trail";
 
-const ORGANIZATION_LOGO_PATH = "/icon.png";
+const ORGANIZATION_LOGO_PATH = "/brand-logo-512.png";
 const ORGANIZATION_LOGO_SIZE = 512;
 
 export const nodeId = (url: string, fragment: string) => `${url}#${fragment}`;

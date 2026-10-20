@@ -14,20 +14,7 @@ import { useRouter } from "next/navigation";
 import { useI18n } from "@hooks/useI18n";
 import { notify } from "@hooks/notify";
 
-export const eventCategories = [
-  EventCategory.Cpd,
-  EventCategory.Other,
-  EventCategory.Design,
-  EventCategory.Finance,
-  EventCategory.Business,
-  EventCategory.Marketing,
-  EventCategory.Education,
-  EventCategory.Technology,
-  EventCategory.Leadership,
-  EventCategory.Compliance,
-  EventCategory.Healthcare,
-  EventCategory.Engineering,
-];
+export const eventCategories = Object.values(EventCategory);
 
 export const eventTypes = [
   EventType.Course,
@@ -161,8 +148,7 @@ export const useProviderCreateEventTab = () => {
   );
 
   const categoryOptions = useMemo(
-    () =>
-      toOptions(eventCategories, "providerDashboard.createEvent.categories", t),
+    () => toOptions(eventCategories, "content.enums.eventCategory", t),
     [t],
   );
 

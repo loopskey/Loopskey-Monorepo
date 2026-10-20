@@ -375,6 +375,20 @@ refresh-token sessions, account status, and role-based access.
   rows in a draft state; it does not own the catalogue models themselves. See
   the Communication Architecture section and `apps/api/docs/content-ingestion.md`.
 
+#### Content categories
+
+Courses, events, podcasts, YouTube channels, roadmaps and topic hubs share one
+list of 31 categories (`ACCOUNTING` … `TECHNOLOGY`). The four Prisma enums
+(`CourseCategory`, `EventCategory`, `PodcastCategory`, `YouTubeCategory`) hold
+identical values and `common/utils/content-category.util.spec.ts` fails if they
+diverge. `CPD` and `OTHER` were renamed to `CERTIFICATION` and `GENERAL` in place
+(migration `20261019120000_unified_content_categories`). The ingestion
+normalizers and the catalogue URL parser still accept the old two names and map
+them, so a crawler that was not updated keeps working and an old
+`?category=CPD` link redirects to the new value. Each category has a cover in
+`apps/front/public/category-art-<slug>.svg`, used by roadmaps and as the
+fallback image of a card that has no picture.
+
 #### Public catalogue navigation
 
 `/content` renders on the server from the URL alone. Its parameters are

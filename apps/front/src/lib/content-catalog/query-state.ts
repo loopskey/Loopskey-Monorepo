@@ -34,6 +34,11 @@ const CATEGORY_VALUES: Record<TContentTab, readonly string[]> = {
   youtube: Object.values(YouTubeCategory),
 };
 
+const LEGACY_CATEGORY_VALUES: Record<string, string> = {
+  CPD: CourseCategory.Certification,
+  OTHER: CourseCategory.General,
+};
+
 const LEVEL_VALUES: readonly string[] = Object.values(CourseLevel);
 const EVENT_TYPE_VALUES: readonly string[] = Object.values(EventType);
 const CURSOR_PATTERN = /^[A-Za-z0-9_-]+$/;
@@ -60,6 +65,11 @@ const parseEnum = (
   return allowed.includes(value)
     ? { ok: true as const, value }
     : { ok: false as const };
+};
+
+const currentCategory = (raw: string | string[] | undefined) => {
+  const value = firstValue(raw)?.trim();
+  return value ? (LEGACY_CATEGORY_VALUES[value] ?? value) : undefined;
 };
 
 const parseRating = (raw: string | string[] | undefined) => {
@@ -89,7 +99,10 @@ export const parseCatalogQuery = (
   )
     return invalid();
 
-  const category = parseEnum(params.category, CATEGORY_VALUES[tab]);
+  const category = parseEnum(
+    currentCategory(params.category),
+    CATEGORY_VALUES[tab],
+  );
   const level = parseEnum(params.level, LEVEL_VALUES);
   const rating = parseRating(params.rating);
   const eventType = parseEnum(params.eventType, EVENT_TYPE_VALUES);

@@ -137,7 +137,7 @@ const courseTemplates: CourseTemplate[] = [
   },
   {
     title: "PMP Exam Preparation",
-    category: CourseCategory.CPD,
+    category: CourseCategory.CERTIFICATION,
     level: CourseLevel.ADVANCED,
     description:
       "A structured preparation course for professionals planning to take the PMP exam.",
