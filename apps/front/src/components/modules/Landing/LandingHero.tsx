@@ -61,9 +61,9 @@ const LandingHero = () => {
               tag="span"
               text={titleLine1}
               textAlign="left"
-              className="block"
               delay={HERO_SPLIT_STAGGER_MS}
               duration={HERO_SPLIT_DURATION_S}
+              className="block text-brand-orange-large-text"
             />
             <SplitText
               tag="span"
@@ -71,14 +71,14 @@ const LandingHero = () => {
               text={titleLine2}
               startDelay={line2StartDelay}
               delay={HERO_SPLIT_STAGGER_MS}
-              className="block text-primary"
+              className="block text-brand-navy"
               duration={HERO_SPLIT_DURATION_S}
             />
             <SplitText
               tag="span"
               text={titleLine3}
               textAlign="left"
-              className="block"
+              className="block text-brand-sky-large-text"
               startDelay={line3StartDelay}
               delay={HERO_SPLIT_STAGGER_MS}
               duration={HERO_SPLIT_DURATION_S}

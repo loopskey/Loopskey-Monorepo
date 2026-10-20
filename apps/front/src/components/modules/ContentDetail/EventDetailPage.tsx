@@ -81,6 +81,7 @@ const EventDetailPage = ({ event, breadcrumbs }: TEventDetailPageProps) => {
           kind="event"
           title={event.title}
           imageUrl={event.imageUrl}
+          category={event.category}
           summary={
             <DetailSummary
               items={[

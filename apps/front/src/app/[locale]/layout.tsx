@@ -6,7 +6,7 @@ import { RouteLocaleProvider } from "@/providers/route-locale-provider";
 import { SITE_METADATA_BASE } from "@/lib/site/site-url";
 import { AppToaster } from "@elements/app-toaster";
 import { ReactNode } from "react";
-import { Metadata } from "next";
+import { Metadata, Viewport } from "next";
 import { notFound } from "next/navigation";
 
 import "../globals.css";
@@ -16,7 +16,11 @@ type TRootLayoutProps = {
   params: Promise<{ locale: string }>;
 };
 
+const THEME_COLOR = "#010080";
+
 export const dynamicParams = false;
+
+export const viewport: Viewport = { themeColor: THEME_COLOR };
 
 export const generateStaticParams = () =>
   PUBLIC_LOCALES.map((locale) => ({ locale }));

@@ -32,7 +32,7 @@ describe("Organization assignments across tenants (security e2e)", () => {
         title: `Security ${label}`,
         instructor: "Instructor",
         description: "Description",
-        category: CourseCategory.OTHER,
+        category: CourseCategory.GENERAL,
         status,
       },
     });

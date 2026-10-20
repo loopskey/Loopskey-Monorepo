@@ -25,7 +25,7 @@ const event = (id: string, overrides: Record<string, unknown> = {}) => ({
   description: "An event about Kubernetes.",
   isFree: true,
   pdu: 3,
-  category: "CPD",
+  category: "CERTIFICATION",
   topic: null,
   specificTopic: null,
   averageRating: 4,

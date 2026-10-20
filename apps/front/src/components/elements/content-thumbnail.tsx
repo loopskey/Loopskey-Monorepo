@@ -1,5 +1,6 @@
 "use client";
 
+import { getContentCategoryArtSrc } from "@utils/content-category-art.constant";
 import { isValidImageSrc } from "@utils/image-src.util";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
@@ -34,6 +35,7 @@ export const ContentThumbnail = ({
   sizes,
   imageUrl,
   priority,
+  category,
   className,
   variant = "default",
 }: TContentThumbnailProps) => {
@@ -52,6 +54,21 @@ export const ContentThumbnail = ({
         priority={priority}
         onError={() => setFailedSrc(src)}
         className={cn("object-cover", className)}
+      />
+    );
+
+  const categoryArtSrc =
+    variant === "default" ? getContentCategoryArtSrc(category) : null;
+
+  if (categoryArtSrc)
+    return (
+      <div
+        aria-hidden
+        style={{ backgroundImage: `url(${categoryArtSrc})` }}
+        className={cn(
+          "absolute inset-0 bg-cover bg-[position:85%_center]",
+          className,
+        )}
       />
     );
 

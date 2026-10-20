@@ -13,6 +13,7 @@ const DetailSidebar = ({
   summary,
   actions,
   imageUrl,
+  category,
 }: TDetailSidebarProps) => {
   const visibleFacts = facts.filter(
     (fact) => fact.value !== undefined && fact.value !== null && fact.value !== "",
@@ -26,6 +27,7 @@ const DetailSidebar = ({
           kind={kind}
           title={title}
           imageUrl={imageUrl}
+          category={category}
           sizes="(max-width: 1024px) 100vw, 360px"
         />
       </div>

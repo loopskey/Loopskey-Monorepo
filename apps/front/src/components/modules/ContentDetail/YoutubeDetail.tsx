@@ -59,6 +59,7 @@ const YouTubeDetailPage = ({
           kind="youtube"
           title={channel.title}
           imageUrl={channel.imageUrl}
+          category={channel.category}
           actions={
             <DetailSidebarActions
               contentType={ContentType.Youtube}

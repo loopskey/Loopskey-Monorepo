@@ -150,3 +150,4 @@ into this index and do not rewrite previous records.
 - [`seo-15-publication-quality-and-probe-cleanup`](feature-runs/active/seo-15-publication-quality-and-probe-cleanup.md) — PR [#312](https://github.com/loopskey/Loopskey-Monorepo/pull/312)
 - [`seo-16-legacy-url-reconciliation-and-recovery`](feature-runs/active/seo-16-legacy-url-reconciliation-and-recovery.md) — PR [#313](https://github.com/loopskey/Loopskey-Monorepo/pull/313)
 - [`seo-17-mobile-rendering-and-javascript-budgets`](feature-runs/active/seo-17-mobile-rendering-and-javascript-budgets.md) — PR [#314](https://github.com/loopskey/Loopskey-Monorepo/pull/314)
+- [`landing-learning-shelf`](feature-runs/active/landing-learning-shelf.md) — PR [#316](https://github.com/loopskey/Loopskey-Monorepo/pull/316)

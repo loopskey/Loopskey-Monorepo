@@ -58,6 +58,7 @@ const PodcastDetailPage = ({
           kind="podcast"
           title={podcast.title}
           imageUrl={podcast.imageUrl}
+          category={podcast.category}
           actions={
             <DetailSidebarActions
               contentType={ContentType.Podcast}

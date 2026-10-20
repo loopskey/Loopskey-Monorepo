@@ -270,6 +270,7 @@ export type TContentThumbnailProps = {
   priority?: boolean;
   className?: string;
   imageUrl?: string | null;
+  category?: string | null;
   kind: TContentThumbnailKind;
   variant?: TContentThumbnailVariant;
 };

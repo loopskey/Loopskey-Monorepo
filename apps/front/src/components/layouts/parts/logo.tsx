@@ -14,10 +14,10 @@ export const Logo = ({ variant = "default", className }: LogoProps) => {
   return (
     <Link href="/" className={cn("flex flex-shrink-0 items-center", className)}>
       <Image
-        width={205}
-        height={54}
+        width={567}
+        height={193}
         alt="Loopskey-logo"
-        className="h-8 w-auto"
+        className="h-10 w-auto md:h-11"
         src={isOnPrimary ? "/Loopskey.svg" : "/Loopskey-light.svg"}
       />
     </Link>
