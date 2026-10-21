@@ -3,6 +3,7 @@
 import { useProfessionalContentCompletionQuery } from "@/lib/rtk/endpoints/professional.api";
 import { AssignedContentDetailDialog } from "@modules/ProfessionalDashboard/parts/assigned-content-detail-dialog";
 import { activityTypeForContentType } from "@/utils/professional-requirement.helper";
+import { ContentCompletionStatus } from "@modules/ProfessionalDashboard/parts/content-completion-status";
 import { MarkAsCompletedDialog } from "@modules/ContentDetail/parts/MarkAsCompletedDialog";
 import { getContentTypeStyle } from "@/utils/content-type-style";
 import { contentHref } from "@/utils/professional-requirement.helper";
@@ -10,7 +11,6 @@ import { GlassCard } from "@elements/glass-card";
 import { useState } from "react";
 import { Skeleton } from "@ui/skeleton";
 import { Button } from "@ui/button";
-import { Badge } from "@ui/badge";
 
 import type { TAssociationContentSectionProps } from "@/types/professional-requirement.types";
 import type { TAssociationLearningContentItem } from "@/types/professional-requirement.types";
@@ -68,12 +68,8 @@ const ContentRow = ({
             <p className="truncate text-sm font-medium" title={content.title}>
               {content.title || "—"}
             </p>
-            {content.isCompleted ? (
-              <Badge className="border-transparent bg-success-soft px-1.5 py-0 text-[10px] text-success-soft-foreground">
-                {t(`${KEY}.completed`)}
-              </Badge>
-            ) : null}
           </div>
+          <ContentCompletionStatus content={content} />
           <p className="truncate text-xs text-muted-foreground">
             {detailLine(t, content)}
           </p>

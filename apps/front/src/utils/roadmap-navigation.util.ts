@@ -20,3 +20,8 @@ export const roadmapContentHref = (
     ? `${route}/${encodeURIComponent(contentSlug)}`
     : null;
 };
+
+export const buildRoadmapEditHref = (draftId: string) =>
+  `${ROADMAP_CHAT_HREF}?draftId=${encodeURIComponent(draftId)}&focus=preferences`;
+
+export const ROADMAP_NEXT_STEP_ELEMENT_ID = "roadmap-next-step";

@@ -32,7 +32,7 @@ export interface ProfessionalCatalogApi {
   createGeneratedRoadmap(
     input: GeneratedRoadmapInput,
     unitOfWork: UnitOfWork,
-  ): Promise<{ id: string }>;
+  ): Promise<CreatedGeneratedRoadmap>;
 }
 
 export type RoadmapContentRef = {
@@ -62,6 +62,17 @@ export type GeneratedRoadmapPhaseInput = {
   readonly description: string;
   readonly estimatedWeeks: number;
   readonly steps: readonly GeneratedRoadmapStepInput[];
+};
+
+export type CreatedRoadmapStep = {
+  readonly id: string;
+  readonly contentId: string | null;
+  readonly contentType: "EVENT" | "COURSE" | "PODCAST" | "YOUTUBE" | null;
+};
+
+export type CreatedGeneratedRoadmap = {
+  readonly id: string;
+  readonly steps: readonly CreatedRoadmapStep[];
 };
 
 export type GeneratedRoadmapInput = {

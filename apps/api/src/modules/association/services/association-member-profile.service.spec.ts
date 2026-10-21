@@ -77,12 +77,24 @@ const detailRow = (overrides: Record<string, unknown> = {}) => ({
   creditType: CreditType.CPD,
   credits: 10,
   date: new Date("2026-05-01T00:00:00.000Z"),
+  submittedAt: new Date("2026-05-03T08:00:00.000Z"),
   status: "APPROVED",
   hasEvidence: true,
   evidenceNote: null,
   evidenceUrl: null,
   reviewNote: null,
   files: [],
+  ...overrides,
+});
+
+const completionRow = (overrides: Record<string, unknown> = {}) => ({
+  userId: "user-1",
+  credits: 2,
+  status: "APPROVED",
+  activityId: "act-1",
+  learningContentId: "content-1",
+  completedAt: new Date("2026-05-01T00:00:00.000Z"),
+  submittedAt: new Date("2026-05-03T08:00:00.000Z"),
   ...overrides,
 });
 
@@ -145,7 +157,7 @@ const setup = ({
   const port = {
     certificatesForOwners: jest.fn().mockResolvedValue(certificates),
     activityDetailsForOwners: jest.fn().mockResolvedValue(details),
-    activitiesForMembers: jest.fn().mockResolvedValue(loggedActivities),
+    contentCompletions: jest.fn().mockResolvedValue(loggedActivities),
   };
 
   const catalog = {
@@ -531,14 +543,10 @@ describe("AssociationMemberProfileService", () => {
           },
         ],
         loggedActivities: [
-          {
-            id: "act-1",
-            associationLearningContentId: "content-1",
-            date: new Date("2026-05-01T00:00:00.000Z"),
-            credits: 2,
-            contentType: null,
-            contentId: null,
-          },
+          completionRow({
+            activityId: "act-1",
+            learningContentId: "content-1",
+          }),
         ],
       });
 
@@ -557,6 +565,93 @@ describe("AssociationMemberProfileService", () => {
           activityId: "act-1",
         }),
       ]);
+    });
+
+    it("carries the completion date, the submission date and what the requirement counted", async () => {
+      const { service, attributionFindMany } = setup({
+        content: [
+          {
+            id: "content-1",
+            contentType: null,
+            contentId: null,
+            externalTitle: "Ethics Webinar",
+            externalProvider: "Provider Co",
+            indicativeCredits: 2,
+          },
+        ],
+        loggedActivities: [
+          completionRow({
+            activityId: "act-1",
+            learningContentId: "content-1",
+          }),
+        ],
+        attributions: [
+          attributionRow({
+            activityId: "act-1",
+            isLate: true,
+            creditedAmount: 2,
+            state: AssociationAttributionState.AWAITING_REVIEW,
+          }),
+        ],
+      });
+
+      const result = await service.requirementEvidence(
+        owner,
+        "member-1",
+        "req-1",
+      );
+
+      expect(result.contentCompletions).toEqual([
+        expect.objectContaining({
+          isLate: true,
+          creditedAmount: 2,
+          completionState: AssociationAttributionState.AWAITING_REVIEW,
+          activityDate: new Date("2026-05-01T00:00:00.000Z"),
+          submittedAt: new Date("2026-05-03T08:00:00.000Z"),
+        }),
+      ]);
+      expect(attributionFindMany).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: {
+            activityId: { in: ["act-1"] },
+            assignment: { memberId: "member-1", requirementId: "req-1" },
+          },
+        }),
+      );
+    });
+
+    it("reports a rejected completion as rejected without a requirement attribution", async () => {
+      const { service } = setup({
+        content: [
+          {
+            id: "content-1",
+            contentType: null,
+            contentId: null,
+            externalTitle: "Ethics Webinar",
+            externalProvider: "Provider Co",
+            indicativeCredits: 2,
+          },
+        ],
+        attributions: [],
+        loggedActivities: [
+          completionRow({
+            status: "REJECTED",
+            activityId: "act-1",
+            learningContentId: "content-1",
+          }),
+        ],
+      });
+
+      const result = await service.requirementEvidence(
+        owner,
+        "member-1",
+        "req-1",
+      );
+
+      expect(result.contentCompletions[0]).toMatchObject({
+        creditedAmount: null,
+        completionState: AssociationAttributionState.REJECTED,
+      });
     });
 
     it("treats evidence files or a certification source as certificate evidence", async () => {
@@ -602,21 +697,22 @@ describe("AssociationMemberProfileService", () => {
           },
         ],
         loggedActivities: [
-          {
-            id: "act-9",
-            associationLearningContentId: "content-1",
-            date: new Date("2026-04-01T00:00:00.000Z"),
-            credits: 1,
-            contentType: null,
-            contentId: null,
-          },
+          completionRow({
+            activityId: "act-9",
+            learningContentId: "content-1",
+          }),
         ],
       });
 
       const profile = await service.profile(owner, "member-1");
 
       expect(profile.unlinkedLearningContent).toEqual([
-        expect.objectContaining({ id: "content-1", activityId: "act-9" }),
+        expect.objectContaining({
+          id: "content-1",
+          activityId: "act-9",
+          creditedAmount: null,
+          completionState: null,
+        }),
       ]);
     });
 

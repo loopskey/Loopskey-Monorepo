@@ -402,7 +402,11 @@ export const RoadmapBrief = ({
               ? t(`${KEY}.generating`)
               : draft.status === RoadmapDraftStatus.Failed
                 ? t(`${KEY}.retryGenerate`)
-                : t(`${KEY}.generate`)}
+                : t(
+                    draft.replacesRoadmapId
+                      ? `${KEY}.regenerate`
+                      : `${KEY}.generate`,
+                  )}
           </Button>
 
           {isBusy ? null : draft.canGenerate ? (

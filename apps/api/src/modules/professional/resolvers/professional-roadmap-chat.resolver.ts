@@ -2,6 +2,7 @@ import { ProfessionalRoadmapGenerationService } from "@professional/services/pro
 import { Args, ID, Mutation, Query, Resolver } from "@nestjs/graphql";
 import { ProfessionalRoadmapGenerationEntity } from "@professional/entities/professional-roadmap-draft.entity";
 import { ProfessionalRoadmapChatService } from "@professional/services/professional-roadmap-chat.service";
+import { ProfessionalRoadmapEditService } from "@professional/services/professional-roadmap-edit.service";
 import { ProfessionalRoadmapDraftEntity } from "@professional/entities/professional-roadmap-draft.entity";
 import { RoadmapSuggestionOptionsInput } from "@professional/dtos/roadmap-suggestion-options.input";
 import { ProfessionalGqlMutationNames } from "@professional/enums/gql-names.enum";
@@ -21,6 +22,7 @@ import { Role } from "@prisma/client";
 export class ProfessionalRoadmapChatResolver {
   constructor(
     private readonly chatService: ProfessionalRoadmapChatService,
+    private readonly editService: ProfessionalRoadmapEditService,
     private readonly generationService: ProfessionalRoadmapGenerationService,
   ) {}
 
@@ -56,6 +58,26 @@ export class ProfessionalRoadmapChatResolver {
   })
   startRoadmapDraft(@CurrentUser() user: TResolverUser) {
     return this.chatService.startDraft(this.getUser(user));
+  }
+
+  @Mutation(() => ProfessionalRoadmapDraftEntity, {
+    name: ProfessionalGqlMutationNames.START_ROADMAP_EDIT,
+  })
+  startRoadmapEdit(
+    @CurrentUser() user: TResolverUser,
+    @Args("roadmapId", { type: () => ID }) roadmapId: string,
+  ) {
+    return this.editService.startEdit(this.getUser(user), roadmapId);
+  }
+
+  @Mutation(() => Boolean, {
+    name: ProfessionalGqlMutationNames.DISCARD_ROADMAP_EDIT,
+  })
+  discardRoadmapEdit(
+    @CurrentUser() user: TResolverUser,
+    @Args("draftId", { type: () => ID }) draftId: string,
+  ) {
+    return this.editService.discardEdit(this.getUser(user), draftId);
   }
 
   @Mutation(() => ProfessionalRoadmapDraftEntity, {

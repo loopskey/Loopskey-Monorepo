@@ -314,6 +314,120 @@ describe("AssociationRequirementService immutability after publish", () => {
   });
 });
 
+describe("AssociationRequirementService reporting rules after publish", () => {
+  const published = { status: AssociationRequirementStatus.PUBLISHED };
+  const day = (iso: string) => new Date(`${iso}T00:00:00.000Z`);
+
+  it("refuses to move the reporting start of a published requirement", async () => {
+    const { service, prisma } = setup({
+      current: { ...published, reportingStart: day("2026-01-01") },
+    });
+
+    await expect(
+      service.updateReportingRules(owner, {
+        requirementId: "req-1",
+        reportingStart: day("2026-03-01"),
+      }),
+    ).rejects.toMatchObject({
+      response: {
+        code: AssociationMessageCode.REQUIREMENT_IMMUTABLE_FIELD,
+        fields: ["reportingStart"],
+      },
+    });
+    expect(prisma.associationRequirement.update).not.toHaveBeenCalled();
+  });
+
+  it("refuses to give a published requirement a reporting start it never had", async () => {
+    const { service } = setup({ current: published });
+
+    await expect(
+      service.updateReportingRules(owner, {
+        requirementId: "req-1",
+        reportingStart: day("2026-03-01"),
+      }),
+    ).rejects.toMatchObject({
+      response: { code: AssociationMessageCode.REQUIREMENT_IMMUTABLE_FIELD },
+    });
+  });
+
+  it("refuses to clear the reporting start of a published requirement", async () => {
+    const { service } = setup({
+      current: { ...published, reportingStart: day("2026-01-01") },
+    });
+
+    await expect(
+      service.updateReportingRules(owner, {
+        requirementId: "req-1",
+        reportingStart: null as never,
+      }),
+    ).rejects.toMatchObject({
+      response: { code: AssociationMessageCode.REQUIREMENT_IMMUTABLE_FIELD },
+    });
+  });
+
+  it("accepts the same reporting start sent back by an unchanged form", async () => {
+    const { service, prisma } = setup({
+      current: { ...published, reportingStart: day("2026-01-01") },
+    });
+
+    await service.updateReportingRules(owner, {
+      requirementId: "req-1",
+      reportingStart: new Date("2026-01-01T00:00:00.000Z"),
+    });
+
+    expect(prisma.associationRequirement.update).toHaveBeenCalled();
+  });
+
+  it("leaves a draft free to move its reporting start", async () => {
+    const { service, prisma, compliance } = setup({
+      current: { reportingStart: day("2026-01-01") },
+    });
+
+    await service.updateReportingRules(owner, {
+      requirementId: "req-1",
+      reportingStart: day("2026-03-01"),
+    });
+
+    expect(prisma.associationRequirement.update).toHaveBeenCalled();
+    expect(compliance.recomputeRequirement).not.toHaveBeenCalled();
+  });
+
+  it.each([
+    ["the reporting end", { reportingEnd: day("2026-11-30") }],
+    ["the grace period", { gracePeriodDays: 14 }],
+    ["the late submission policy", { lateSubmissionPolicy: "NOT_ACCEPTED" }],
+  ])(
+    "recomputes every assignment when %s changes on a published requirement",
+    async (_label, change) => {
+      const { service, prisma, compliance } = setup({ current: published });
+      prisma.associationRequirement.update.mockResolvedValue(
+        requirementRow({ ...published, ...change }),
+      );
+
+      await service.updateReportingRules(owner, {
+        requirementId: "req-1",
+        ...change,
+      } as never);
+
+      expect(compliance.recomputeRequirement).toHaveBeenCalledWith("req-1");
+    },
+  );
+
+  it("does not recompute for a rule that attribution never reads", async () => {
+    const { service, prisma, compliance } = setup({ current: published });
+    prisma.associationRequirement.update.mockResolvedValue(
+      requirementRow({ ...published, submissionWindow: "LAST_90_DAYS" }),
+    );
+
+    await service.updateReportingRules(owner, {
+      requirementId: "req-1",
+      submissionWindow: "LAST_90_DAYS" as never,
+    });
+
+    expect(compliance.recomputeRequirement).not.toHaveBeenCalled();
+  });
+});
+
 describe("AssociationRequirementService cycle rules", () => {
   it("refuses a multi-year cycle with no length", async () => {
     const { service } = setup();

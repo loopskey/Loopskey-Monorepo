@@ -1,11 +1,10 @@
-import { AssociationLearningContentStatus, Prisma } from "@prisma/client";
+import { AssociationLearningContentStatus, PDUStatus } from "@prisma/client";
 import { LEARNING_CONTENT_AUDIENCE_CHANGED_EVENT } from "@association/services/association-learning-content-recipient.service";
+import { PROFESSIONAL_REQUIREMENT_DIRECTORY_API } from "@professional/public/professional-requirement-directory-api";
 import { BadRequestException, ConflictException } from "@nestjs/common";
 import { AssociationAudienceKind, ContentType } from "@prisma/client";
-import { type ProfessionalComplianceApi } from "@professional/public/professional-compliance-api";
 import { AssociationRequirementStatus } from "@prisma/client";
 import { PROFESSIONAL_COMPLIANCE_API } from "@professional/public/professional-compliance-api";
-import { type CatalogEndorsementApi } from "@landing/public/catalog-endorsement-api";
 import { AssociationPaginationInput } from "@association/dtos/association-pagination.input";
 import { Inject, Injectable, Logger } from "@nestjs/common";
 import { AssociationAccessService } from "@association/services/association-access.service";
@@ -17,6 +16,11 @@ import { NotFoundException } from "@nestjs/common";
 import { TAssociationUser } from "@association/types/association-service.types";
 import { OutboxService } from "@infrastructure/outbox/outbox.service";
 import { PrismaService } from "@prisma/prisma.service";
+import { Prisma } from "@prisma/client";
+
+import { type ProfessionalRequirementDirectoryApi } from "@professional/public/professional-requirement-directory-api";
+import { type ProfessionalComplianceApi } from "@professional/public/professional-compliance-api";
+import { type CatalogEndorsementApi } from "@landing/public/catalog-endorsement-api";
 
 import * as DTO from "@association/dtos/association-learning-content.input";
 
@@ -95,6 +99,8 @@ export class AssociationLearningContentService {
     private readonly catalog: CatalogEndorsementApi,
     @Inject(PROFESSIONAL_COMPLIANCE_API)
     private readonly activities: ProfessionalComplianceApi,
+    @Inject(PROFESSIONAL_REQUIREMENT_DIRECTORY_API)
+    private readonly directory: ProfessionalRequirementDirectoryApi,
   ) {}
 
   async searchCatalog(
@@ -238,22 +244,41 @@ export class AssociationLearningContentService {
     associationId: string,
     row: ContentRecord,
   ): Promise<LearningContentEngagement | null> {
-    const reference = catalogRefOf(row);
-    if (!reference) return null;
+    const recipients =
+      await this.prisma.associationLearningContentRecipient.findMany({
+        where: {
+          learningContentId: row.id,
+          isTargeted: true,
+          member: {
+            associationId,
+            status: { not: AssociationMemberStatus.INACTIVE },
+          },
+        },
+        select: { member: { select: { userId: true } } },
+      });
 
-    const members = await this.prisma.associationMember.findMany({
-      where: { associationId },
-      select: { userId: true },
+    const completions = await this.activities.contentCompletions({
+      userIds: recipients.map((recipient) => recipient.member.userId),
+      items: [
+        {
+          learningContentId: row.id,
+          contentId: row.contentId,
+          contentType: row.contentType,
+        },
+      ],
     });
 
-    const [projection] = await this.activities.contentEngagement({
-      userIds: members.map((member) => member.userId),
-      references: [reference],
-    });
+    const counted = completions.filter(
+      (completion) => completion.status !== PDUStatus.REJECTED,
+    );
 
-    return projection
-      ? { memberCount: projection.memberCount, credits: projection.credits }
-      : { memberCount: 0, credits: 0 };
+    return {
+      memberCount: new Set(counted.map((completion) => completion.userId)).size,
+      credits: counted.reduce(
+        (total, completion) => total + completion.credits,
+        0,
+      ),
+    };
   }
 
   private async resolveCatalog(rows: ContentRecord[]) {
@@ -406,6 +431,20 @@ export class AssociationLearningContentService {
           associationId,
           shape.requirementId,
         );
+
+      if (requirementChanged) {
+        const isReassigned = await this.directory.reassignContentRequirement(
+          learningContentId,
+          shape.requirementId,
+          tx,
+        );
+        if (!isReassigned)
+          throw new ConflictException({
+            code: AssociationMessageCode.LEARNING_CONTENT_REQUIREMENT_LOCKED,
+            message:
+              "Members have already completed this item, so it cannot move to another requirement.",
+          });
+      }
 
       return tx.associationLearningContent.update({
         where: { id: learningContentId },
@@ -663,16 +702,23 @@ export class AssociationLearningContentService {
     const association = await this.access.requireOwned(user);
     await this.require(association.id, id);
 
-    const claimed = await this.prisma.associationLearningContent.updateMany({
-      where: {
-        id,
-        associationId: association.id,
-        status: AssociationLearningContentStatus.PUBLISHED,
-      },
-      data: {
-        status: AssociationLearningContentStatus.WITHDRAWN,
-        withdrawnAt: new Date(),
-      },
+    const claimed = await this.prisma.$transaction(async (tx) => {
+      const transition = await tx.associationLearningContent.updateMany({
+        where: {
+          id,
+          associationId: association.id,
+          status: AssociationLearningContentStatus.PUBLISHED,
+        },
+        data: {
+          status: AssociationLearningContentStatus.WITHDRAWN,
+          withdrawnAt: new Date(),
+        },
+      });
+
+      if (transition.count === 1)
+        await this.directory.removeContentLinks(id, tx);
+
+      return transition;
     });
 
     if (claimed.count !== 1)

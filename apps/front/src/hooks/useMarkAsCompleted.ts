@@ -6,7 +6,10 @@ import { AssociationEvidencePolicy } from "@/lib/graphql/base";
 import { orUndefined, toDateInput } from "@/utils/function-helper";
 import { TMarkCompletedPrefill } from "@/types/content-module.types";
 import { usePduEvidenceUpload } from "@/hooks/usePduEvidenceUpload";
+import { pduActivityErrorKey } from "@/utils/pdu-activity-error.util";
 import { PDU_ACTIVITY_TYPES } from "@/utils/pdu.constant";
+import { getAuthErrorCode } from "@/utils/graphql-error.util";
+import { reportingYearOf } from "@/utils/completion-date.util";
 import { useSearchParams } from "next/navigation";
 import { TPduActivity } from "@/types/professional-dashboard.types";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -278,7 +281,7 @@ export const useMarkAsCompleted = (
         source: values.activityType,
         category: values.category,
         creditType: values.creditType,
-        reportingYear: new Date(values.dateCompleted).getFullYear(),
+        reportingYear: reportingYearOf(values.dateCompleted),
         providerOrganizer: values.providerOrganizer,
         subCategory: orUndefined(values.subCategory),
         issuingOrganization: orUndefined(values.issuingOrganization),
@@ -301,8 +304,8 @@ export const useMarkAsCompleted = (
         }),
       );
       onClose();
-    } catch {
-      notify.error(t("authPages.common.genericError"));
+    } catch (error: unknown) {
+      notify.error(t(pduActivityErrorKey(getAuthErrorCode(error))));
     }
   });
 

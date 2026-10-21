@@ -11,14 +11,15 @@ import { AssociationEvidencePolicy } from "@prisma/client";
 import { AssociationAccessService } from "@association/services/association-access.service";
 import { CATALOG_ENDORSEMENT_API } from "@landing/public/catalog-endorsement-api";
 import { AssociationMessageCode } from "@association/enums/association-message-code.enum";
-import { MemberActivityFilter } from "@association/types/association-member-profile.types";
 import { PROFILE_MEMBER_SELECT } from "@association/types/association-member-profile.types";
+import { MemberActivityFilter } from "@association/types/association-member-profile.types";
 import { MemberActivityScope } from "@association/types/association-member-profile.types";
 import { ProfileMemberRecord } from "@association/types/association-member-profile.types";
 import { TAssociationUser } from "@association/types/association-service.types";
 import { daysRemaining } from "@association/utils/compliance-attribution.util";
 import { PrismaService } from "@prisma/prisma.service";
 import { overallFor } from "@association/utils/compliance-attribution.util";
+import { PDUStatus } from "@prisma/client";
 import { paceFor } from "@association/utils/compliance-attribution.util";
 
 import { type ProfessionalComplianceApi } from "@professional/public/professional-compliance-api";
@@ -40,6 +41,13 @@ const MEMBER_CONTENT_SELECT = {
 type MemberContentRow = Prisma.AssociationLearningContentGetPayload<{
   select: typeof MEMBER_CONTENT_SELECT;
 }>;
+
+type CompletionAttribution = {
+  isLate: boolean;
+  activityId: string;
+  creditedAmount: number;
+  state: AssociationAttributionState;
+};
 
 type CatalogRef = { contentType: ContentType; contentId: string };
 
@@ -341,6 +349,7 @@ export class AssociationMemberProfileService {
           creditType: detail.creditType,
           credits: detail.credits,
           date: detail.date,
+          submittedAt: detail.submittedAt,
           state: activity.state,
           isLate: activity.isLate,
           hasEvidence: detail.hasEvidence,
@@ -498,23 +507,33 @@ export class AssociationMemberProfileService {
 
     const [resolved, logged] = await Promise.all([
       this.resolveCatalog(rows),
-      this.professional.activitiesForMembers({ userIds: [member.userId] }),
+      this.professional.contentCompletions({
+        userIds: [member.userId],
+        items: rows.map((row) => ({
+          learningContentId: row.id,
+          contentId: row.contentId,
+          contentType: row.contentType,
+        })),
+      }),
     ]);
+
+    const attributions = await this.completionAttributions(
+      member.id,
+      filter.requirementId,
+      logged.map((completion) => completion.activityId),
+    );
 
     return rows.flatMap((row) => {
       const reference = catalogRefOf(row);
       const match = logged.find(
-        (activity) =>
-          activity.associationLearningContentId === row.id ||
-          (reference !== null &&
-            activity.contentType === reference.contentType &&
-            activity.contentId === reference.contentId),
+        (completion) => completion.learningContentId === row.id,
       );
       if (!match) return [];
 
       const catalog = reference
         ? (resolved?.get(catalogKey(reference)) ?? null)
         : null;
+      const attribution = attributions.get(match.activityId);
 
       return [
         {
@@ -523,13 +542,46 @@ export class AssociationMemberProfileService {
           isExternal: reference === null,
           provider: catalog?.provider ?? row.externalProvider,
           contentType: row.contentType,
-          activityId: match.id,
-          activityDate: match.date,
+          activityId: match.activityId,
+          activityDate: match.completedAt,
+          submittedAt: match.submittedAt,
           credits: match.credits,
           indicativeCredits: row.indicativeCredits,
+          isLate: attribution?.isLate ?? false,
+          creditedAmount: attribution?.creditedAmount ?? null,
+          completionState:
+            attribution?.state ??
+            (match.status === PDUStatus.REJECTED
+              ? AssociationAttributionState.REJECTED
+              : null),
         },
       ];
     });
+  }
+
+  private async completionAttributions(
+    memberId: string,
+    requirementId: string | null,
+    activityIds: string[],
+  ) {
+    if (!requirementId || !activityIds.length)
+      return new Map<string, CompletionAttribution>();
+
+    const rows = await this.prisma.associationCreditAttribution.findMany({
+      where: {
+        activityId: { in: activityIds },
+        assignment: { memberId, requirementId },
+      },
+      orderBy: { assignment: { cycleStart: "asc" } },
+      select: {
+        state: true,
+        isLate: true,
+        activityId: true,
+        creditedAmount: true,
+      },
+    });
+
+    return new Map(rows.map((row) => [row.activityId, row]));
   }
 
   private async resolveCatalog(rows: MemberContentRow[]) {

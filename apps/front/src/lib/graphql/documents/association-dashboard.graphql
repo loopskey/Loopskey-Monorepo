@@ -292,6 +292,7 @@ fragment AssociationMemberActivityFields on AssociationMemberActivity {
   creditType
   credits
   date
+  submittedAt
   state
   isLate
   canReview
@@ -366,7 +367,11 @@ fragment AssociationMemberContentCompletionFields on AssociationMemberContentCom
   provider
   activityId
   activityDate
+  submittedAt
   credits
+  isLate
+  creditedAmount
+  completionState
   indicativeCredits
 }
 

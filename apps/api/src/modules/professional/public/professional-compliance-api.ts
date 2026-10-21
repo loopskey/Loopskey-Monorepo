@@ -13,8 +13,8 @@ export type ComplianceActivity = {
   creditType: string;
   hasEvidence: boolean;
   cpdPlanId: string | null;
-  contentType: string | null;
   contentId: string | null;
+  contentType: string | null;
   associationRequirementId: string | null;
   associationLearningContentId: string | null;
 };
@@ -34,6 +34,7 @@ export type ComplianceFileDescriptor = {
 
 export type ComplianceActivityDetail = ComplianceActivity & {
   source: string;
+  submittedAt: Date;
   provider: string | null;
   reviewNote: string | null;
   evidenceUrl: string | null;
@@ -60,19 +61,25 @@ export type ComplianceStoredFile = {
   file: ComplianceFileDescriptor;
 };
 
-export type ContentEngagementQuery = {
-  readonly userIds: readonly string[];
-  readonly references: readonly {
-    readonly contentType: string;
-    readonly contentId: string;
-  }[];
+export type ContentItemReference = {
+  readonly contentId: string | null;
+  readonly learningContentId: string;
+  readonly contentType: string | null;
 };
 
-export type ContentEngagementProjection = {
-  readonly contentType: string;
-  readonly contentId: string;
-  readonly memberCount: number;
+export type ContentCompletionQuery = {
+  readonly userIds: readonly string[];
+  readonly items: readonly ContentItemReference[];
+};
+
+export type ContentCompletion = {
+  readonly userId: string;
+  readonly status: string;
   readonly credits: number;
+  readonly completedAt: Date;
+  readonly submittedAt: Date;
+  readonly activityId: string;
+  readonly learningContentId: string;
 };
 
 export type SettleReviewCommand = {
@@ -120,9 +127,9 @@ export interface ProfessionalComplianceApi {
     ownerUserIds: string[],
   ): Promise<ComplianceStoredFile | null>;
 
-  contentEngagement(
-    query: ContentEngagementQuery,
-  ): Promise<ContentEngagementProjection[]>;
+  contentCompletions(
+    query: ContentCompletionQuery,
+  ): Promise<ContentCompletion[]>;
 
   settleReview(command: SettleReviewCommand): Promise<boolean>;
 }

@@ -1,8 +1,8 @@
 import { Inject, Injectable, Logger, NotFoundException } from "@nestjs/common";
+import { AssociationAttributionState, PDUStatus } from "@prisma/client";
 import { AssociationLearningContentStatus } from "@prisma/client";
 import { AssociationRequirementStatus } from "@prisma/client";
 import { PROFESSIONAL_COMPLIANCE_API } from "@professional/public/professional-compliance-api";
-import { AssociationAttributionState } from "@prisma/client";
 import { AssociationMemberStatus } from "@prisma/client";
 import { AssociationAudienceKind } from "@prisma/client";
 import { CATALOG_ENDORSEMENT_API } from "@landing/public/catalog-endorsement-api";
@@ -73,6 +73,13 @@ type ContentRow = Prisma.AssociationLearningContentGetPayload<{
   select: typeof CONTENT_SELECT;
 }>;
 
+type ContentAttribution = {
+  isLate: boolean;
+  activityId: string;
+  creditedAmount: number;
+  state: AssociationAttributionState;
+};
+
 type CatalogRef = { contentType: ContentType; contentId: string };
 
 const catalogRefOf = (row: ContentRow): CatalogRef | null =>
@@ -138,7 +145,6 @@ export class AssociationMyRequirementsService {
   async list(userId: string) {
     const assignments = await this.currentAssignments(userId);
     const now = new Date();
-
     return assignments.map((row) => project(row, now)).sort(byDeadline);
   }
 
@@ -146,13 +152,11 @@ export class AssociationMyRequirementsService {
     const [assignment] = await this.currentAssignments(userId, {
       requirementId,
     });
-
     if (!assignment)
       throw new NotFoundException({
         code: AssociationMessageCode.REQUIREMENT_NOT_FOUND,
         message: "That requirement is not assigned to you.",
       });
-
     const [categories, activities, learningContents] = await Promise.all([
       this.categories(assignment),
       this.loggedActivities(userId, assignment.id),
@@ -177,7 +181,6 @@ export class AssociationMyRequirementsService {
       select: { id: true, groupId: true, associationId: true },
     });
     if (!memberships.length) return null;
-
     const contents = await this.prisma.associationLearningContent.findMany({
       where: {
         contentType,
@@ -211,7 +214,6 @@ export class AssociationMyRequirementsService {
       );
       if (resolved) return resolved;
     }
-
     return null;
   }
 
@@ -362,6 +364,7 @@ export class AssociationMyRequirementsService {
           activityId: detail.id,
           title: detail.title,
           date: detail.date,
+          submittedAt: detail.submittedAt,
           category: detail.category,
           credits: detail.credits,
           creditedAmount: attribution.creditedAmount,
@@ -398,6 +401,7 @@ export class AssociationMyRequirementsService {
     });
 
     return this.projectContent(userId, rows, {
+      assignmentId: assignment.id,
       requirementId: assignment.requirement.id,
       associationId: assignment.requirement.association.id,
       associationName: assignment.requirement.association.name,
@@ -435,6 +439,7 @@ export class AssociationMyRequirementsService {
     const projected = await Promise.all(
       memberships.map((member, index) =>
         this.projectContent(userId, perAssociation[index], {
+          assignmentId: null,
           requirementId: null,
           associationId: member.associationId,
           associationName: member.association.name,
@@ -467,6 +472,7 @@ export class AssociationMyRequirementsService {
     userId: string,
     rows: ContentRow[],
     context: {
+      assignmentId: string | null;
       requirementId: string | null;
       associationId: string;
       associationName: string;
@@ -476,8 +482,20 @@ export class AssociationMyRequirementsService {
 
     const [resolved, logged] = await Promise.all([
       this.resolveCatalog(rows),
-      this.activities.activitiesForMembers({ userIds: [userId] }),
+      this.activities.contentCompletions({
+        userIds: [userId],
+        items: rows.map((row) => ({
+          learningContentId: row.id,
+          contentId: row.contentId,
+          contentType: row.contentType,
+        })),
+      }),
     ]);
+
+    const attributions = await this.attributionsFor(
+      context.assignmentId,
+      logged.map((completion) => completion.activityId),
+    );
 
     return rows.map((row) => {
       const reference = catalogRefOf(row);
@@ -485,18 +503,26 @@ export class AssociationMyRequirementsService {
         ? (resolved?.get(catalogKey(reference)) ?? null)
         : null;
 
-      const isCompleted = logged.some(
-        (activity) =>
-          activity.associationLearningContentId === row.id ||
-          (reference !== null &&
-            activity.contentType === reference.contentType &&
-            activity.contentId === reference.contentId),
+      const completion = logged.find(
+        (candidate) => candidate.learningContentId === row.id,
       );
+      const attribution = completion
+        ? attributions.get(completion.activityId)
+        : undefined;
 
       return {
         id: row.id,
         isExternal: reference === null,
-        isCompleted,
+        isCompleted: Boolean(completion),
+        completedAt: completion?.completedAt ?? null,
+        submittedAt: completion?.submittedAt ?? null,
+        creditedAmount: attribution?.creditedAmount ?? null,
+        isLate: attribution?.isLate ?? false,
+        completionState:
+          attribution?.state ??
+          (completion?.status === PDUStatus.REJECTED
+            ? AssociationAttributionState.REJECTED
+            : null),
         title: catalog?.title ?? row.externalTitle ?? "",
         provider: catalog?.provider ?? row.externalProvider,
         slug: catalog?.slug ?? null,
@@ -517,6 +543,25 @@ export class AssociationMyRequirementsService {
         associationName: context.associationName,
       };
     });
+  }
+
+  private async attributionsFor(
+    assignmentId: string | null,
+    activityIds: string[],
+  ): Promise<Map<string, ContentAttribution>> {
+    if (!assignmentId || !activityIds.length) return new Map();
+
+    const rows = await this.prisma.associationCreditAttribution.findMany({
+      where: { assignmentId, activityId: { in: activityIds } },
+      select: {
+        state: true,
+        isLate: true,
+        activityId: true,
+        creditedAmount: true,
+      },
+    });
+
+    return new Map(rows.map((row) => [row.activityId, row]));
   }
 
   private async resolveCatalog(rows: ContentRow[]) {

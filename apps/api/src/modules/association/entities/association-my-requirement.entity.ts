@@ -36,6 +36,7 @@ export class AssociationMyRequirementActivityEntity {
   @Field() title: string;
   @Field() isLate: boolean;
   @Field() category: string;
+  @Field() submittedAt: Date;
   @Field() hasEvidence: boolean;
   @Field(() => ID) activityId: string;
   @Field(() => Float) credits: number;
@@ -48,6 +49,7 @@ export class AssociationMyRequirementActivityEntity {
 @ObjectType(AssociationGqlObjectNames.ASSOCIATION_MY_REQUIREMENT_CONTENT)
 export class AssociationMyRequirementContentEntity {
   @Field() title: string;
+  @Field() isLate: boolean;
   @Field(() => ID) id: string;
   @Field() isExternal: boolean;
   @Field() isAvailable: boolean;
@@ -57,13 +59,18 @@ export class AssociationMyRequirementContentEntity {
   @Field() isLinkedToRequirement: boolean;
   @Field(() => String, { nullable: true }) slug: string | null;
   @Field(() => ID, { nullable: true }) contentId: string | null;
+  @Field(() => Date, { nullable: true }) submittedAt: Date | null;
+  @Field(() => Date, { nullable: true }) completedAt: Date | null;
   @Field(() => String, { nullable: true }) provider: string | null;
   @Field(() => String, { nullable: true }) imageUrl: string | null;
   @Field(() => String, { nullable: true }) externalUrl: string | null;
   @Field(() => String, { nullable: true }) description: string | null;
+  @Field(() => Float, { nullable: true }) creditedAmount: number | null;
   @Field(() => Float, { nullable: true }) indicativeCredits: number | null;
   @Field(() => PDUCategory, { nullable: true }) category: PDUCategory | null;
   @Field(() => ContentType, { nullable: true }) contentType: ContentType | null;
+  @Field(() => AssociationAttributionState, { nullable: true })
+  completionState: AssociationAttributionState | null;
 }
 
 @ObjectType(AssociationGqlObjectNames.ASSOCIATION_MY_REQUIREMENT_DETAIL)

@@ -5,6 +5,7 @@ import { TMarkAsCompletedDialogProps } from "@/types/content-module.types";
 import { ActivityEvidenceUpload } from "@modules/ProfessionalDashboard/parts/activity-evidence-upload";
 import { RequirementSelectField } from "@modules/ContentDetail/parts/requirement-select-field";
 import { CheckCircle2, Loader2 } from "lucide-react";
+import { latestCompletionDate } from "@/utils/completion-date.util";
 import { FloatingSelectField } from "@elements/floating-select";
 import { FloatingInputField } from "@elements/floating-input";
 import { useMarkAsCompleted } from "@/hooks/useMarkAsCompleted";
@@ -32,19 +33,19 @@ export const MarkAsCompletedDialog = ({
     files,
     onSubmit,
     isSaving,
-    handleFilesChange,
-    activityTypeOptions,
-    isAlreadyCompleted,
-    requirementOptions,
-    hasRequirementOptions,
-    isRequirementOptionsLoading,
-    selectedAssociation,
-    allowedCategories,
+    evidenceError,
     evidencePolicy,
     evidenceRequired,
-    evidenceError,
-    handleRequirementChange,
+    handleFilesChange,
+    allowedCategories,
+    requirementOptions,
+    isAlreadyCompleted,
+    selectedAssociation,
     inferredRequirement,
+    activityTypeOptions,
+    hasRequirementOptions,
+    handleRequirementChange,
+    isRequirementOptionsLoading,
   } = useMarkAsCompleted(prefill, existing, () => onOpenChange(false));
 
   const durationLabel = prefill.durationMinutes
@@ -74,7 +75,8 @@ export const MarkAsCompletedDialog = ({
 
   const requirementValue = form.watch("requirement");
   const showInferredHint =
-    Boolean(inferredRequirement) && inferredRequirement?.key === requirementValue;
+    Boolean(inferredRequirement) &&
+    inferredRequirement?.key === requirementValue;
 
   return (
     <D.Dialog open={open} onOpenChange={onOpenChange}>
@@ -113,7 +115,9 @@ export const MarkAsCompletedDialog = ({
                       inferredRequirement?.isDefault
                         ? `${MODAL}.requirementHint.default`
                         : `${MODAL}.requirementHint.suggested`,
-                      { association: inferredRequirement?.associationName ?? "" },
+                      {
+                        association: inferredRequirement?.associationName ?? "",
+                      },
                     )}
                   </p>
                 )}
@@ -131,7 +135,10 @@ export const MarkAsCompletedDialog = ({
             ) : (
               <div className="rounded-md border border-dashed border-border p-4 text-sm text-muted-foreground">
                 {t(`${MODAL}.noRequirements.hint`)}{" "}
-                <Link href={REQUIREMENTS_HREF} className="font-medium text-primary underline">
+                <Link
+                  href={REQUIREMENTS_HREF}
+                  className="font-medium text-primary underline"
+                >
                   {t(`${MODAL}.noRequirements.link`)}
                 </Link>
               </div>
@@ -161,6 +168,7 @@ export const MarkAsCompletedDialog = ({
               <FloatingInputField
                 type="date"
                 name="dateCompleted"
+                max={latestCompletionDate()}
                 control={form.control}
                 label={t(`${MODAL}.fields.dateCompleted`)}
               />
@@ -255,11 +263,7 @@ export const MarkAsCompletedDialog = ({
                 {t("common.cancel")}
               </Button>
 
-              <Button
-                radius="xl"
-                type="submit"
-                disabled={isSaving}
-              >
+              <Button radius="xl" type="submit" disabled={isSaving}>
                 {isSaving && <Loader2 className="h-4 w-4 animate-spin" />}
                 {t(`${MODAL}.save`)}
               </Button>

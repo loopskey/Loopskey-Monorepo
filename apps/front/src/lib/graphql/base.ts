@@ -875,6 +875,7 @@ export type AssociationMemberActivity = {
   reviewNote?: Maybe<Scalars['String']['output']>;
   source: PduSource;
   state: AssociationAttributionState;
+  submittedAt: Scalars['DateTime']['output'];
   title: Scalars['String']['output'];
 };
 
@@ -908,12 +909,16 @@ export type AssociationMemberContentCompletion = {
   __typename?: 'AssociationMemberContentCompletion';
   activityDate: Scalars['DateTime']['output'];
   activityId: Scalars['ID']['output'];
+  completionState?: Maybe<AssociationAttributionState>;
   contentType?: Maybe<ContentType>;
+  creditedAmount?: Maybe<Scalars['Float']['output']>;
   credits: Scalars['Float']['output'];
   id: Scalars['ID']['output'];
   indicativeCredits?: Maybe<Scalars['Float']['output']>;
   isExternal: Scalars['Boolean']['output'];
+  isLate: Scalars['Boolean']['output'];
   provider?: Maybe<Scalars['String']['output']>;
+  submittedAt: Scalars['DateTime']['output'];
   title: Scalars['String']['output'];
 };
 
@@ -1180,6 +1185,7 @@ export type AssociationMyRequirementActivity = {
   isLate: Scalars['Boolean']['output'];
   reviewNote?: Maybe<Scalars['String']['output']>;
   state: AssociationAttributionState;
+  submittedAt: Scalars['DateTime']['output'];
   title: Scalars['String']['output'];
 };
 
@@ -1188,8 +1194,11 @@ export type AssociationMyRequirementContent = {
   associationId: Scalars['ID']['output'];
   associationName: Scalars['String']['output'];
   category?: Maybe<PduCategory>;
+  completedAt?: Maybe<Scalars['DateTime']['output']>;
+  completionState?: Maybe<AssociationAttributionState>;
   contentId?: Maybe<Scalars['ID']['output']>;
   contentType?: Maybe<ContentType>;
+  creditedAmount?: Maybe<Scalars['Float']['output']>;
   description?: Maybe<Scalars['String']['output']>;
   externalUrl?: Maybe<Scalars['String']['output']>;
   id: Scalars['ID']['output'];
@@ -1198,9 +1207,11 @@ export type AssociationMyRequirementContent = {
   isAvailable: Scalars['Boolean']['output'];
   isCompleted: Scalars['Boolean']['output'];
   isExternal: Scalars['Boolean']['output'];
+  isLate: Scalars['Boolean']['output'];
   isLinkedToRequirement: Scalars['Boolean']['output'];
   provider?: Maybe<Scalars['String']['output']>;
   slug?: Maybe<Scalars['String']['output']>;
+  submittedAt?: Maybe<Scalars['DateTime']['output']>;
   title: Scalars['String']['output'];
 };
 
@@ -3173,6 +3184,7 @@ export type Mutation = {
   deleteUser: User;
   deleteYouTubeChannel: YouTubeChannel;
   deleteYouTubeVideo: YouTubeVideo;
+  discardRoadmapEdit: Scalars['Boolean']['output'];
   dismissProfessionalOnboarding: ProfessionalDashboardProfile;
   enrollContent: ContentActionPayload;
   forgotPassword: AuthPayload;
@@ -3248,6 +3260,7 @@ export type Mutation = {
   setYouTubeChannelTranslationPublication: YouTubeChannelTranslation;
   startProfessionalOnboarding: ProfessionalDashboardProfile;
   startRoadmapDraft: ProfessionalRoadmapDraft;
+  startRoadmapEdit: ProfessionalRoadmapDraft;
   startRoadmapStep: RoadmapStepProgress;
   submitAssociationAccessRequest: AssociationActionResponse;
   submitContactInquiry: SubmitContactInquiryPayload;
@@ -3645,6 +3658,11 @@ export type MutationDeleteYouTubeVideoArgs = {
 };
 
 
+export type MutationDiscardRoadmapEditArgs = {
+  draftId: Scalars['ID']['input'];
+};
+
+
 export type MutationEnrollContentArgs = {
   input: ContentActionInput;
 };
@@ -3987,6 +4005,11 @@ export type MutationSetYouTubeChannelIndexExclusionArgs = {
 
 export type MutationSetYouTubeChannelTranslationPublicationArgs = {
   input: SetYouTubeChannelTranslationPublicationInput;
+};
+
+
+export type MutationStartRoadmapEditArgs = {
+  roadmapId: Scalars['ID']['input'];
 };
 
 
@@ -5766,6 +5789,8 @@ export type ProfessionalRoadmapDraft = {
   preferredDeliveryFormats: Array<DeliveryFormat>;
   preferredFormats: Array<LearningFormat>;
   remainingFields: Array<RoadmapDraftStep>;
+  replacesRoadmapId?: Maybe<Scalars['ID']['output']>;
+  replacesRoadmapTitle?: Maybe<Scalars['String']['output']>;
   requiredCredits?: Maybe<Scalars['Float']['output']>;
   requiredFieldCount: Scalars['Int']['output'];
   skillLevel?: Maybe<SkillLevel>;
@@ -5786,6 +5811,7 @@ export type ProfessionalRoadmapGeneration = {
   failure?: Maybe<RoadmapGenerationFailure>;
   goal?: Maybe<Scalars['String']['output']>;
   id: Scalars['ID']['output'];
+  replacesRoadmapId?: Maybe<Scalars['ID']['output']>;
   status: RoadmapDraftStatus;
   updatedAt: Scalars['DateTime']['output'];
 };

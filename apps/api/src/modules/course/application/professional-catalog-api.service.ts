@@ -9,6 +9,7 @@ import { roadmapContentKey } from "@course/public/professional-catalog-api";
 import { PrismaService } from "@prisma/prisma.service";
 import { Injectable } from "@nestjs/common";
 
+import { type CreatedGeneratedRoadmap } from "@course/public/professional-catalog-api";
 import { type GeneratedRoadmapInput } from "@course/public/professional-catalog-api";
 import { type UnitOfWork } from "@course/public/professional-catalog-api";
 
@@ -368,9 +369,9 @@ export class ProfessionalCatalogApiService implements ProfessionalCatalogApi {
   async createGeneratedRoadmap(
     input: GeneratedRoadmapInput,
     unitOfWork: UnitOfWork,
-  ) {
+  ): Promise<CreatedGeneratedRoadmap> {
     const writer = unitOfWork as Prisma.TransactionClient;
-    return writer.roadmap.create({
+    const created = await writer.roadmap.create({
       data: {
         slug: input.slug,
         title: input.title,
@@ -402,7 +403,22 @@ export class ProfessionalCatalogApiService implements ProfessionalCatalogApi {
           })),
         },
       },
-      select: { id: true },
+      select: {
+        id: true,
+        phases: {
+          orderBy: { order: "asc" },
+          select: {
+            steps: {
+              orderBy: { order: "asc" },
+              select: { id: true, contentId: true, contentType: true },
+            },
+          },
+        },
+      },
     });
+    return {
+      id: created.id,
+      steps: created.phases.flatMap((phase) => phase.steps),
+    };
   }
 }

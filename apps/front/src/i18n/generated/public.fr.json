@@ -170,6 +170,7 @@
     "all": "Tous",
     "appName": "LoopsKey",
     "cancel": "Annuler",
+    "completionDateInFuture": "La date d'achèvement ne peut pas être dans le futur.",
     "confirm": "Confirmer",
     "contentTypes": {
       "COURSE": "Cours",
@@ -569,6 +570,10 @@
       "button": "Marquer comme terminé",
       "completedButton": "Terminé",
       "description": "Vérifiez les détails et enregistrez cette activité d'apprentissage comme terminée.",
+      "errors": {
+        "contentNotAvailable": "Ce contenu ne vous est plus proposé par votre association : il ne peut pas être marqué comme terminé.",
+        "requirementMismatch": "Ce contenu compte pour une autre exigence. Choisissez l'exigence à laquelle il est lié."
+      },
       "evidenceRequired": "Joignez un fichier de certificat ou un lien avant d'enregistrer — cette exigence nécessite une preuve.",
       "fields": {
         "activityType": "Type d'activité",

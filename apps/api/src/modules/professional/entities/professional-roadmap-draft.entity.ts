@@ -67,6 +67,8 @@ export class ProfessionalRoadmapDraftEntity {
   @Field(() => [String]) subjects: string[];
   @Field(() => RoadmapDraftStatus) status: RoadmapDraftStatus;
   @Field(() => RoadmapDraftStep) currentStep: RoadmapDraftStep;
+  @Field(() => ID, { nullable: true }) replacesRoadmapId?: string | null;
+  @Field(() => String, { nullable: true }) replacesRoadmapTitle?: string | null;
   @Field(() => String, { nullable: true }) goal?: string | null;
   @Field(() => Date, { nullable: true }) targetDate?: Date | null;
   @Field(() => String, { nullable: true }) context?: string | null;
@@ -117,10 +119,11 @@ export class ProfessionalRoadmapDraftEntity {
 
 @ObjectType(ProfessionalGqlObjectNames.PROFESSIONAL_ROADMAP_GENERATION)
 export class ProfessionalRoadmapGenerationEntity {
-  @Field(() => ID) id: string;
   @Field() updatedAt: Date;
+  @Field(() => ID) id: string;
   @Field(() => RoadmapDraftStatus) status: RoadmapDraftStatus;
   @Field(() => String, { nullable: true }) goal?: string | null;
+  @Field(() => ID, { nullable: true }) replacesRoadmapId?: string | null;
   @Field(() => RoadmapGenerationFailureEntity, { nullable: true })
   failure?: RoadmapGenerationFailureEntity | null;
 }

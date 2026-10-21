@@ -299,7 +299,17 @@
         "unavailable": "N’est plus disponible",
         "showAll": "Tout afficher ({{count}} de plus)",
         "recommendedBy": "Recommandé par {{association}}",
-        "countsToward": "Compte pour cette exigence"
+        "countsToward": "Compte pour cette exigence",
+        "status": {
+          "counted": "Comptabilisé",
+          "awaitingReview": "En attente de révision",
+          "rejected": "Refusé",
+          "completed": "Terminé",
+          "late": "En retard",
+          "completedOn": "Terminé le {{date}}",
+          "submittedOn": "Soumis le {{date}}",
+          "credited": "{{credits}} crédits comptabilisés"
+        }
       },
       "activities": {
         "title": "Activités enregistrées",
@@ -437,7 +447,8 @@
       "YOUTUBE": "YouTube",
       "GENERAL": "Général"
     },
-    "required": "obligatoire"
+    "required": "obligatoire",
+    "completionDateInFuture": "La date d'achèvement ne peut pas être dans le futur."
   },
   "servicesPage": {
     "meta": {
@@ -3272,6 +3283,10 @@
         "requirement": "Compte pour",
         "requirementNone": "Aucune",
         "evidencePolicy": "Preuve : {{policy}}"
+      },
+      "errors": {
+        "contentNotAvailable": "Ce contenu ne vous est plus proposé par votre association : il ne peut pas être marqué comme terminé.",
+        "requirementMismatch": "Ce contenu compte pour une autre exigence. Choisissez l'exigence à laquelle il est lié."
       }
     },
     "messages": {
@@ -4726,6 +4741,22 @@
       "loadError": {
         "title": "Impossible de charger vos feuilles de route",
         "description": "Vérifiez votre connexion et réessayez."
+      },
+      "actions": {
+        "continue": "Continuer",
+        "review": "Revoir",
+        "edit": "Modifier",
+        "continueLabel": "Continuer {{title}}",
+        "reviewLabel": "Revoir {{title}}",
+        "editLabel": "Modifier {{title}}"
+      },
+      "edit": {
+        "startFailed": "Impossible d’ouvrir cette feuille de route pour la modifier. Veuillez réessayer.",
+        "notEditable": "Seules les feuilles de route que vous avez créées avec le coach peuvent être modifiées.",
+        "briefUnavailable": "Les réponses à l’origine de cette feuille de route ne sont plus enregistrées ; elle ne peut donc pas être modifiée.",
+        "generatingTitle": "Mise à jour de votre feuille de route",
+        "generatingStep": "Reconstruction de la feuille de route à partir de vos réponses mises à jour. La progression sur les contenus conservés est gardée.",
+        "unchanged": "Votre feuille de route actuelle n’a pas été modifiée."
       }
     },
     "calendar": {
@@ -6093,7 +6124,11 @@
           "emptyContent": "Ce membre n'a pas terminé de contenu lié à cette exigence.",
           "credits": "{{credits}} crédits",
           "certificateTitle": "Preuves de certification",
-          "emptyCertificates": "Aucun fichier de preuve ni activité de type certification n'est attribué à cette exigence."
+          "emptyCertificates": "Aucun fichier de preuve ni activité de type certification n'est attribué à cette exigence.",
+          "completedOn": "Terminé le {{date}}",
+          "submittedOn": "Soumis le {{date}}",
+          "late": "En retard",
+          "notCounted": "Non comptabilisé"
         },
         "unlinked": {
           "title": "Non lié à une exigence",
@@ -8044,6 +8079,7 @@
       "no": "Non",
       "notSet": "Pas encore répondu",
       "generate": "Générer mon parcours",
+      "regenerate": "Régénérer la feuille de route",
       "generating": "Démarrage de la génération...",
       "generateFailed": "Impossible de démarrer la génération de votre parcours. Veuillez réessayer.",
       "retryGenerate": "Réessayer la génération",
@@ -8103,7 +8139,17 @@
       }
     },
     "stagesLabel": "Progression",
-    "stageOf": "Étape {{current}} sur {{total}}"
+    "stageOf": "Étape {{current}} sur {{total}}",
+    "edit": {
+      "title": "Modifier la feuille de route",
+      "editing": "Modification de « {{title}} »",
+      "editingUntitled": "Modification de votre feuille de route",
+      "explanation": "Votre feuille de route actuelle reste inchangée jusqu’à ce que la nouvelle soit prête. La progression sur les contenus conservés est gardée.",
+      "discard": "Annuler les modifications",
+      "discardConfirmTitle": "Annuler ces modifications ?",
+      "discardConfirmDescription": "Votre feuille de route actuelle reste inchangée. Les réponses modifiées ici seront perdues.",
+      "discardFailed": "Impossible d’annuler les modifications. Veuillez réessayer."
+    }
   },
   "topicHub": {
     "badge": "Guide thématique",
