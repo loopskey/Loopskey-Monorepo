@@ -4,7 +4,7 @@
 - Model: `High reasoning — editing regenerates a roadmap through the draft state machine and replaces an enrollment while carrying step progress, so concurrency, a partial unique index, a schema migration and two published module ports are involved`
 - Branch: `feature/roadmap-edit-regenerate`
 - Base: `1d1384c`
-- Status: `Ready`
+- Status: `Submitted`
 
 ## Acceptance
 
@@ -57,6 +57,6 @@ Not run:
 
 ## Submission
 
-- Commit:
-- PR:
-- CI:
+- Commit: `43131d47`
+- PR: [#317](https://github.com/loopskey/Loopskey-Monorepo/pull/317)
+- CI: pending
