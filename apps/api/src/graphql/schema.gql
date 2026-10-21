@@ -5419,11 +5419,20 @@ input SaveYouTubeChannelTranslationInput {
   title: String!
 }
 
+type SearchHealthCollection {
+  apiEnabled: Boolean!
+  dedupWindowHours: Int!
+  notices: [SearchHealthNotice!]!
+  retentionDays: Int!
+  vitalsSampleRate: Float!
+}
+
 type SearchHealthConversionRow {
   attribution: TelemetryAttribution!
   contentKind: TelemetryContentKind!
   count: Int!
   event: TelemetryConversionEvent!
+  locale: TelemetryLocale!
   role: TelemetryRegistrationRole!
 }
 
@@ -5433,7 +5442,19 @@ type SearchHealthIntakeRow {
   outcome: TelemetryIntakeOutcome!
 }
 
+enum SearchHealthNotice {
+  AGGREGATES_AVAILABLE
+  COLLECTION_DISABLED
+  DELIVERY_FAILURES
+  INSUFFICIENT_SAMPLES
+  NO_DATA
+  PARTIAL_COVERAGE
+  RATE_LIMITED
+  SAMPLED
+}
+
 type SearchHealthReport {
+  collection: SearchHealthCollection!
   conversions: [SearchHealthConversionRow!]!
   days: Int!
   daysWithData: Int!

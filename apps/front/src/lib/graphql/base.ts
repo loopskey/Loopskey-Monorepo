@@ -7674,12 +7674,22 @@ export type SaveYouTubeChannelTranslationInput = {
   title: Scalars['String']['input'];
 };
 
+export type SearchHealthCollection = {
+  __typename?: 'SearchHealthCollection';
+  apiEnabled: Scalars['Boolean']['output'];
+  dedupWindowHours: Scalars['Int']['output'];
+  notices: Array<SearchHealthNotice>;
+  retentionDays: Scalars['Int']['output'];
+  vitalsSampleRate: Scalars['Float']['output'];
+};
+
 export type SearchHealthConversionRow = {
   __typename?: 'SearchHealthConversionRow';
   attribution: TelemetryAttribution;
   contentKind: TelemetryContentKind;
   count: Scalars['Int']['output'];
   event: TelemetryConversionEvent;
+  locale: TelemetryLocale;
   role: TelemetryRegistrationRole;
 };
 
@@ -7690,8 +7700,21 @@ export type SearchHealthIntakeRow = {
   outcome: TelemetryIntakeOutcome;
 };
 
+export const SearchHealthNotice = {
+  AggregatesAvailable: 'AGGREGATES_AVAILABLE',
+  CollectionDisabled: 'COLLECTION_DISABLED',
+  DeliveryFailures: 'DELIVERY_FAILURES',
+  InsufficientSamples: 'INSUFFICIENT_SAMPLES',
+  NoData: 'NO_DATA',
+  PartialCoverage: 'PARTIAL_COVERAGE',
+  RateLimited: 'RATE_LIMITED',
+  Sampled: 'SAMPLED'
+} as const;
+
+export type SearchHealthNotice = typeof SearchHealthNotice[keyof typeof SearchHealthNotice];
 export type SearchHealthReport = {
   __typename?: 'SearchHealthReport';
+  collection: SearchHealthCollection;
   conversions: Array<SearchHealthConversionRow>;
   days: Scalars['Int']['output'];
   daysWithData: Scalars['Int']['output'];
