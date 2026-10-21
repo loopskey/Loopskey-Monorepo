@@ -4,7 +4,7 @@
 - Model: `High reasoning — privacy decisions, public telemetry limits, registration truth and aggregate reporting cross trust boundaries, and the sink must not starve the business database pool`
 - Branch: `feature/seo-20-search-measurement-and-ownership`
 - Base: `2ae03f9`
-- Status: `Ready`
+- Status: `Submitted`
 
 ## Acceptance
 
@@ -40,6 +40,6 @@ Not run:
 
 ## Submission
 
-- Commit:
-- PR:
-- CI:
+- Commit: `b65360e5`
+- PR: [#318](https://github.com/loopskey/Loopskey-Monorepo/pull/318)
+- CI: pending
