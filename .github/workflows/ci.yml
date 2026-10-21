@@ -119,7 +119,9 @@ jobs:
           node scripts/seed-sitemap-fixture.cjs --self-test
 
       - name: SEO diagnostic self-test
-        run: node scripts/seo-audit.mjs --self-test
+        run: |
+          node scripts/seo-audit.mjs --self-test
+          node scripts/search-console-review.mjs --self-test
 
       - name: Performance lab self-test
         run: |

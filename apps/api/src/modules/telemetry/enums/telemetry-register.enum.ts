@@ -1,27 +1,38 @@
-import { registerEnumType } from "@nestjs/graphql";
 import { TelemetryGqlEnumNames } from "@telemetry/enums/gql-names.enum";
+import { registerEnumType } from "@nestjs/graphql";
 
 import * as P from "@prisma/client";
 
 export enum TelemetryNavigationType {
-  NAVIGATE = "NAVIGATE",
   RELOAD = "RELOAD",
-  BACK_FORWARD = "BACK_FORWARD",
   RESTORE = "RESTORE",
+  NAVIGATE = "NAVIGATE",
   PRERENDER = "PRERENDER",
+  BACK_FORWARD = "BACK_FORWARD",
 }
 
 export enum TelemetryRating {
+  POOR = "POOR",
   GOOD = "GOOD",
   NEEDS_IMPROVEMENT = "NEEDS_IMPROVEMENT",
-  POOR = "POOR",
 }
 
 export enum SearchHealthVitalStatus {
   GOOD = "GOOD",
-  NEEDS_IMPROVEMENT = "NEEDS_IMPROVEMENT",
   POOR = "POOR",
+  NEEDS_IMPROVEMENT = "NEEDS_IMPROVEMENT",
   INSUFFICIENT_DATA = "INSUFFICIENT_DATA",
+}
+
+export enum SearchHealthNotice {
+  NO_DATA = "NO_DATA",
+  SAMPLED = "SAMPLED",
+  RATE_LIMITED = "RATE_LIMITED",
+  PARTIAL_COVERAGE = "PARTIAL_COVERAGE",
+  DELIVERY_FAILURES = "DELIVERY_FAILURES",
+  COLLECTION_DISABLED = "COLLECTION_DISABLED",
+  INSUFFICIENT_SAMPLES = "INSUFFICIENT_SAMPLES",
+  AGGREGATES_AVAILABLE = "AGGREGATES_AVAILABLE",
 }
 
 registerEnumType(P.TelemetryMetric, { name: TelemetryGqlEnumNames.METRIC });
@@ -55,3 +66,4 @@ registerEnumType(TelemetryRating, { name: TelemetryGqlEnumNames.RATING });
 registerEnumType(SearchHealthVitalStatus, {
   name: TelemetryGqlEnumNames.VITAL_STATUS,
 });
+registerEnumType(SearchHealthNotice, { name: TelemetryGqlEnumNames.NOTICE });

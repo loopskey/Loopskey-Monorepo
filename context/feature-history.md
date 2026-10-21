@@ -152,3 +152,4 @@ into this index and do not rewrite previous records.
 - [`seo-17-mobile-rendering-and-javascript-budgets`](feature-runs/active/seo-17-mobile-rendering-and-javascript-budgets.md) — PR [#314](https://github.com/loopskey/Loopskey-Monorepo/pull/314)
 - [`landing-learning-shelf`](feature-runs/active/landing-learning-shelf.md) — PR [#316](https://github.com/loopskey/Loopskey-Monorepo/pull/316)
 - [`roadmap-edit-regenerate`](feature-runs/active/roadmap-edit-regenerate.md) — PR [#317](https://github.com/loopskey/Loopskey-Monorepo/pull/317)
+- [`seo-20-operational-search-measurement-and-ownership`](feature-runs/active/seo-20-operational-search-measurement-and-ownership.md) — PR [#318](https://github.com/loopskey/Loopskey-Monorepo/pull/318)

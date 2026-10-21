@@ -1,6 +1,7 @@
 import { Field, Float, Int, ObjectType } from "@nestjs/graphql";
 import { SearchHealthVitalStatus } from "@telemetry/enums/telemetry-register.enum";
 import { TelemetryGqlObjectNames } from "@telemetry/enums/gql-names.enum";
+import { SearchHealthNotice } from "@telemetry/enums/telemetry-register.enum";
 
 import * as P from "@prisma/client";
 
@@ -8,11 +9,8 @@ import "@telemetry/enums/telemetry-register.enum";
 
 @ObjectType(TelemetryGqlObjectNames.ACK)
 export class TelemetryAckEntity {
-  @Field(() => Int)
-  accepted: number;
-
-  @Field(() => Int)
-  dropped: number;
+  @Field(() => Int) dropped: number;
+  @Field(() => Int) accepted: number;
 }
 
 @ObjectType(TelemetryGqlObjectNames.VITAL_SEGMENT)
@@ -53,6 +51,9 @@ export class SearchHealthConversionRowEntity {
   @Field(() => P.TelemetryAttribution)
   attribution: P.TelemetryAttribution;
 
+  @Field(() => P.TelemetryLocale)
+  locale: P.TelemetryLocale;
+
   @Field(() => Int)
   count: number;
 }
@@ -69,32 +70,30 @@ export class SearchHealthIntakeRowEntity {
   count: number;
 }
 
+@ObjectType(TelemetryGqlObjectNames.COLLECTION)
+export class SearchHealthCollectionEntity {
+  @Field() apiEnabled: boolean;
+  @Field(() => Int) retentionDays: number;
+  @Field(() => Int) dedupWindowHours: number;
+  @Field(() => Float) vitalsSampleRate: number;
+  @Field(() => [SearchHealthNotice])
+  notices: SearchHealthNotice[];
+}
+
 @ObjectType(TelemetryGqlObjectNames.REPORT)
 export class SearchHealthReportEntity {
-  @Field()
-  from: Date;
-
-  @Field()
-  to: Date;
-
-  @Field(() => Int)
-  days: number;
-
-  @Field(() => Int)
-  daysWithData: number;
-
-  @Field(() => Int)
-  minimumSamples: number;
-
-  @Field()
-  isCollecting: boolean;
-
+  @Field() to: Date;
+  @Field() from: Date;
+  @Field(() => Int) days: number;
+  @Field() isCollecting: boolean;
+  @Field(() => Int) daysWithData: number;
+  @Field(() => Int) minimumSamples: number;
+  @Field(() => SearchHealthCollectionEntity)
+  collection: SearchHealthCollectionEntity;
   @Field(() => [SearchHealthVitalSegmentEntity])
   vitals: SearchHealthVitalSegmentEntity[];
-
   @Field(() => [SearchHealthConversionRowEntity])
   conversions: SearchHealthConversionRowEntity[];
-
   @Field(() => [SearchHealthIntakeRowEntity])
   intake: SearchHealthIntakeRowEntity[];
 }

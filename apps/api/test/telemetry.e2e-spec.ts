@@ -6,6 +6,8 @@ import { RegistrationCompletedHandler } from "@telemetry/handlers/registration-c
 import { TelemetryAggregateRepository } from "@telemetry/services/telemetry-aggregate.repository";
 import { TelemetryRetentionService } from "@telemetry/services/telemetry-retention.service";
 import { AuthRegistrationService } from "@auth/services/auth-registration.service";
+import { AuthOAuthProvisioningService } from "@auth/services/auth-oauth-provisioning.service";
+import { TelemetryIntakeService } from "@telemetry/services/telemetry-intake.service";
 import { REGISTRATION_COMPLETED_EVENT } from "@telemetry/public/telemetry-events";
 import { TELEMETRY_LIMITS } from "@loopskey/api-contracts/validation";
 import { outboxIdempotencyKey } from "@infrastructure/outbox/outbox-processor.service";
@@ -25,8 +27,9 @@ const RECORD = `mutation($input: TelemetryBatchInput!) {
 const REPORT = `query($input: SearchHealthReportInput!) {
   searchHealthReport(input: $input) {
     days daysWithData minimumSamples isCollecting
+    collection { apiEnabled vitalsSampleRate retentionDays dedupWindowHours notices }
     vitals { metric device template locale samples p75 status }
-    conversions { event contentKind role attribution count }
+    conversions { event contentKind role attribution locale count }
     intake { kind outcome count }
   }
 }`;
@@ -551,6 +554,59 @@ describe("Search telemetry (e2e)", () => {
       expect(JSON.stringify(rows)).not.toContain(userId);
     });
 
+    it("records an OAuth sign-up once from the same backend-confirmed event", async () => {
+      const handler = ctx.app.get(RegistrationCompletedHandler);
+      const provisioning = ctx.app.get(AuthOAuthProvisioningService);
+      const created = await provisioning.createUser({
+        role: Role.PROVIDER,
+        email: scope.email("oauth"),
+        fullName: "OAuth Candidate",
+      });
+      const event = await outboxFor(created.id);
+      expect(event.payload).toEqual({ role: "PROVIDER" });
+      expect(JSON.stringify(event.payload)).not.toContain(created.id);
+
+      const context = {
+        id: event.id,
+        eventName: event.eventName,
+        attemptCount: 1,
+        idempotencyKey: outboxIdempotencyKey(event.id),
+        correlationId: null,
+        renewLease: async () => undefined,
+      };
+      await handler.handle(event.payload, context);
+      await handler.handle(event.payload, context);
+
+      const rows = await completionRows("PROVIDER");
+      expect(rows).toHaveLength(1);
+      expect(rows[0]).toMatchObject({
+        role: "PROVIDER",
+        attribution: "UNATTRIBUTED",
+        count: 1,
+      });
+      expect(JSON.stringify(rows)).not.toContain(created.id);
+    });
+
+    it("never counts a start event as a completed registration", async () => {
+      await record(
+        [],
+        [
+          conversion({
+            event: "REGISTRATION_START",
+            role: "PROFESSIONAL",
+            contentKind: "NONE",
+          }),
+        ],
+      );
+      expect(await completionRows()).toHaveLength(0);
+      const forged = await record(
+        [],
+        [conversion({ event: "REGISTRATION_COMPLETED", contentKind: "NONE" })],
+      );
+      expect(forged.body.errors?.length).toBeGreaterThan(0);
+      expect(await completionRows()).toHaveLength(0);
+    });
+
     it("does not record a completion for a wrong code that creates nothing", async () => {
       const email = await seedPending(Role.PROVIDER);
       const registration = ctx.app.get(AuthRegistrationService);
@@ -721,6 +777,105 @@ describe("Search telemetry (e2e)", () => {
       );
     });
 
+    it("exposes only sanitized collection status to an administrator", async () => {
+      setEnv("TELEMETRY_VITALS_SAMPLE_RATE", "0.5");
+      const response = await graphql(
+        ctx.app,
+        REPORT,
+        { input: { days: 7 } },
+        adminCookies,
+      );
+      const { collection } = response.body.data.searchHealthReport;
+      expect(Object.keys(collection).sort()).toEqual([
+        "apiEnabled",
+        "dedupWindowHours",
+        "notices",
+        "retentionDays",
+        "vitalsSampleRate",
+      ]);
+      expect(collection).toMatchObject({
+        apiEnabled: true,
+        vitalsSampleRate: 0.5,
+        retentionDays: TELEMETRY_LIMITS.aggregateRetentionDays,
+        dedupWindowHours: TELEMETRY_LIMITS.dedupWindowHours,
+      });
+    });
+
+    it("tells a disabled collector from an enabled one with nothing yet", async () => {
+      const query = async () =>
+        (await graphql(ctx.app, REPORT, { input: { days: 7 } }, adminCookies))
+          .body.data.searchHealthReport.collection;
+
+      setEnv("TELEMETRY_ENABLED", "false");
+      const disabled = await query();
+      expect(disabled.apiEnabled).toBe(false);
+      expect(disabled.notices).toEqual(["COLLECTION_DISABLED"]);
+
+      setEnv("TELEMETRY_ENABLED", "true");
+      const waiting = await query();
+      expect(waiting.apiEnabled).toBe(true);
+      expect(waiting.notices).toEqual(["NO_DATA"]);
+    });
+
+    it("reports sampling, partial coverage and the sample floor as separate notices", async () => {
+      setEnv("TELEMETRY_VITALS_SAMPLE_RATE", "1");
+      await seedVitals("HOME", "MOBILE", 20, 1200, "GOOD");
+      setEnv("TELEMETRY_VITALS_SAMPLE_RATE", "0.5");
+      const response = await graphql(
+        ctx.app,
+        REPORT,
+        { input: { days: 7 } },
+        adminCookies,
+      );
+      expect(response.body.data.searchHealthReport.collection.notices).toEqual([
+        "SAMPLED",
+        "PARTIAL_COVERAGE",
+        "INSUFFICIENT_SAMPLES",
+        "AGGREGATES_AVAILABLE",
+      ]);
+    });
+
+    it("stops calling a window insufficient once a segment reaches the floor", async () => {
+      await seedVitals(
+        "HOME",
+        "MOBILE",
+        TELEMETRY_LIMITS.minimumSamples,
+        1200,
+        "GOOD",
+      );
+      const response = await graphql(
+        ctx.app,
+        REPORT,
+        { input: { days: 1 } },
+        adminCookies,
+      );
+      expect(response.body.data.searchHealthReport.collection.notices).toEqual([
+        "AGGREGATES_AVAILABLE",
+      ]);
+    });
+
+    it("surfaces a storage failure to the operator without touching the visitor", async () => {
+      const repository = ctx.app.get(TelemetryAggregateRepository);
+      const spy = jest
+        .spyOn(repository, "record")
+        .mockRejectedValueOnce(new Error("sink unavailable"));
+      try {
+        const visitor = await record([vital()]);
+        expect(visitor.body.errors).toBeUndefined();
+      } finally {
+        spy.mockRestore();
+      }
+      const response = await graphql(
+        ctx.app,
+        REPORT,
+        { input: { days: 7 } },
+        adminCookies,
+      );
+      const { collection } = response.body.data.searchHealthReport;
+      expect(collection.notices).toContain("DELIVERY_FAILURES");
+      expect(collection.notices).toContain("NO_DATA");
+    });
+
     it("is available to administrators only", async () => {
       const anonymous = await graphql(ctx.app, REPORT, { input: { days: 7 } });
       expect(anonymous.body.errors?.length).toBeGreaterThan(0);
@@ -750,6 +905,79 @@ describe("Search telemetry (e2e)", () => {
         expect(response.body.errors?.length).toBeGreaterThan(0);
       }
     });
+  });
+
+  describe("sink isolation", () => {
+    const SHED_BATCHES = 30;
+    const BLOCK_MS = 4500;
+
+    const holdVitalTableLocked = () => {
+      let release!: () => void;
+      const held = new Promise<void>((resolve) => {
+        release = resolve;
+      });
+      let locked!: () => void;
+      const ready = new Promise<void>((resolve) => {
+        locked = resolve;
+      });
+      const transaction = ctx.prisma.$transaction(
+        async (tx) => {
+          await tx.$executeRaw`LOCK TABLE "TelemetryVitalBucket" IN ACCESS EXCLUSIVE MODE`;
+          locked();
+          await held;
+        },
+        { timeout: BLOCK_MS * 3, maxWait: 5000 },
+      );
+      return { ready, release, transaction };
+    };
+
+    it("drops bounded telemetry while the sink is blocked and leaves business reads untouched", async () => {
+      const intake = ctx.app.get(TelemetryIntakeService);
+      const blocker = holdVitalTableLocked();
+      await blocker.ready;
+      try {
+        const startedAt = Date.now();
+        const sends = Array.from({ length: SHED_BATCHES }, () =>
+          intake.record({ vitals: [vital()], conversions: [] } as never),
+        );
+        await new Promise((resolve) => setTimeout(resolve, 300));
+        const probeStartedAt = Date.now();
+        await ctx.prisma.user.count();
+        await ctx.prisma.outboxEvent.count();
+        const probeMs = Date.now() - probeStartedAt;
+
+        const results = await Promise.all(sends);
+        const totalMs = Date.now() - startedAt;
+
+        expect(probeMs).toBeLessThan(1000);
+        expect(totalMs).toBeLessThan(BLOCK_MS);
+        expect(results.every((result) => result.accepted === 0)).toBe(true);
+        expect(results.every((result) => result.dropped === 1)).toBe(true);
+        expect(await intakeCount("VITAL", "SINK_FAILED")).toBe(SHED_BATCHES);
+        expect(await ctx.prisma.telemetryDedupKey.count()).toBe(0);
+      } finally {
+        blocker.release();
+        await blocker.transaction;
+      }
+    }, 30_000);
+
+    it("recovers on its own once the sink answers again", async () => {
+      const blocker = holdVitalTableLocked();
+      await blocker.ready;
+      const blocked = await record([vital()]);
+      expect(blocked.body.data.recordTelemetry).toEqual({
+        accepted: 0,
+        dropped: 1,
+      });
+      blocker.release();
+      await blocker.transaction;
+
+      const recovered = await record([vital()]);
+      expect(recovered.body.data.recordTelemetry).toEqual({
+        accepted: 1,
+        dropped: 0,
+      });
+    }, 30_000);
   });
 
   describe("retention", () => {

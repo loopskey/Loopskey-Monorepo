@@ -8395,8 +8395,6 @@
     "loading": "Loading the report",
     "loadFailed": "We could not load the search health report.",
     "retry": "Try again",
-    "collectionOff": "Collection is off in this environment",
-    "collectionOffHint": "Nothing is being measured here, so the tables below stay empty. Turn collection on only after the decision recorded in the release checklist.",
     "coverage": "{{withData}} of {{days}} days in this window have page speed data.",
     "accepted": "{{accepted}} of {{received}} received events were counted.",
     "sampleFloor": "A segment needs at least {{count}} page loads before it is rated. Below that it reads Not enough data, never a pass.",
@@ -8492,6 +8490,60 @@
       "SAMPLED_OUT": "Sampled out",
       "DISABLED": "Collection off",
       "SINK_FAILED": "Storage failed"
+    },
+    "collectionHeading": "Collection status",
+    "notice": {
+      "COLLECTION_DISABLED": {
+        "title": "The API is not collecting",
+        "hint": "The API flag is off, so every batch is acknowledged as dropped and the tables below only show what was stored earlier. Turn collection on only after the decision recorded in the operator manifest."
+      },
+      "SAMPLED": {
+        "title": "Page speed is sampled",
+        "hint": "Only part of the page loads are kept, so sample counts are lower than real traffic. Conversions are not sampled."
+      },
+      "NO_DATA": {
+        "title": "Collection is on but nothing was stored in this window",
+        "hint": "This is missing data, not zero traffic. It can mean the site build sends nothing, no visitor has been measured yet, or every batch failed. Check the collection health below."
+      },
+      "PARTIAL_COVERAGE": {
+        "title": "Some days in this window have no page speed data",
+        "hint": "Collection may have started or stopped inside the window. Compare only windows with similar coverage."
+      },
+      "INSUFFICIENT_SAMPLES": {
+        "title": "No segment has enough page loads to be rated",
+        "hint": "Every segment is below the sample floor, so none is reported as passing or failing."
+      },
+      "DELIVERY_FAILURES": {
+        "title": "Some events could not be stored",
+        "hint": "Storage failed or was saturated and the affected batches were dropped. Visitors are not affected. Counts here are a lower bound."
+      },
+      "RATE_LIMITED": {
+        "title": "Some batches were rate limited",
+        "hint": "The intake limits turned some batches away, so counts are a lower bound for that period."
+      },
+      "AGGREGATES_AVAILABLE": {
+        "title": "Aggregates are available for this window",
+        "hint": "Read them together with the coverage, sampling and sample floor shown on this page."
+      }
+    },
+    "build": {
+      "apiOffTitle": "The website build sends events, but the API is off",
+      "apiOffHint": "Browsers are sending batches that the API drops. Switch the API on only after the recorded decision, or rebuild the website with the flag off.",
+      "siteOffTitle": "The API is on, but this website build sends nothing",
+      "siteOffHint": "The frontend flag was off when this build was made, so no browser reports. Rebuild with the flag on only after the recorded decision."
+    },
+    "facts": {
+      "windowLabel": "Window",
+      "window": "{{from}} to {{to}} (UTC days)",
+      "buildLabel": "Website build",
+      "buildOn": "Browsers report events",
+      "buildOff": "Browsers send nothing",
+      "samplingLabel": "Page speed sampling",
+      "sampling": "{{percent}}% of page loads",
+      "retentionLabel": "Retention",
+      "retention": "Daily aggregates for {{days}} days; retry keys for {{hours}} hours. No raw events or visitor identifiers.",
+      "privacy": "Visitors who send Global Privacy Control or Do Not Track are never measured, and dashboards and sign-in pages are excluded, so these counts are a lower bound of real traffic.",
+      "provenance": "These are first-party counts for this site only. Lab runs and Search Console field data are separate evidence and are never used to fill a gap here."
     }
   },
   "contentSeo": {

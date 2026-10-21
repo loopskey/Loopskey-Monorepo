@@ -1,9 +1,11 @@
 import { daysBefore, utcDay } from "@telemetry/utils/telemetry-day.util";
 import { TELEMETRY_LIMITS } from "@loopskey/api-contracts/validation";
 import { p75Of, statusOf } from "@telemetry/utils/telemetry-metric.util";
+import { sampleRateOf } from "@telemetry/utils/telemetry-sampling.util";
 import { ConfigService } from "@nestjs/config";
 import { PrismaService } from "@prisma/prisma.service";
 import { Injectable } from "@nestjs/common";
+import { noticesOf } from "@telemetry/utils/telemetry-notice.util";
 
 import type { SearchHealthReportEntity } from "@telemetry/entities/search-health-report.entity";
 
@@ -36,7 +38,7 @@ export class TelemetryReportService {
         _sum: { count: true },
       }),
       this.prisma.telemetryConversionDaily.groupBy({
-        by: ["event", "contentKind", "role", "attribution"],
+        by: ["event", "contentKind", "role", "attribution", "locale"],
         where: window,
         _sum: { count: true },
       }),
@@ -82,21 +84,53 @@ export class TelemetryReportService {
       })
       .sort((left, right) => (segmentKey(left) < segmentKey(right) ? -1 : 1));
 
+    const conversionRows = conversions.map((row) => ({
+      event: row.event,
+      contentKind: row.contentKind,
+      role: row.role,
+      attribution: row.attribution,
+      locale: row.locale,
+      count: row._sum.count ?? 0,
+    }));
+    const isCollecting =
+      this.config.get<string>("TELEMETRY_ENABLED") === "true";
+    const sampleRate = sampleRateOf(
+      this.config.get<string>("TELEMETRY_VITALS_SAMPLE_RATE"),
+    );
+    const intakeTotal = (outcome: string) =>
+      intake
+        .filter((row) => row.outcome === outcome)
+        .reduce((sum, row) => sum + (row._sum.count ?? 0), 0);
+
     return {
       from,
       to,
       days,
       daysWithData: dataDays.length,
       minimumSamples: TELEMETRY_LIMITS.minimumSamples,
-      isCollecting: this.config.get<string>("TELEMETRY_ENABLED") === "true",
+      isCollecting,
+      collection: {
+        apiEnabled: isCollecting,
+        vitalsSampleRate: sampleRate,
+        retentionDays: TELEMETRY_LIMITS.aggregateRetentionDays,
+        dedupWindowHours: TELEMETRY_LIMITS.dedupWindowHours,
+        notices: noticesOf({
+          days,
+          isCollecting,
+          sampleRate,
+          daysWithData: dataDays.length,
+          minimumSamples: TELEMETRY_LIMITS.minimumSamples,
+          failedEvents: intakeTotal("SINK_FAILED"),
+          rateLimitedEvents: intakeTotal("RATE_LIMITED"),
+          vitalSegmentSamples: vitals.map((segment) => segment.samples),
+          conversionEvents: conversionRows.reduce(
+            (sum, row) => sum + row.count,
+            0,
+          ),
+        }),
+      },
       vitals,
-      conversions: conversions.map((row) => ({
-        event: row.event,
-        contentKind: row.contentKind,
-        role: row.role,
-        attribution: row.attribution,
-        count: row._sum.count ?? 0,
-      })),
+      conversions: conversionRows,
       intake: intake.map((row) => ({
         kind: row.kind,
         outcome: row.outcome,
