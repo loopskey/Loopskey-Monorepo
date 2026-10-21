@@ -58,6 +58,8 @@ fragment RoadmapGenerationFailureFields on RoadmapGenerationFailure {
 fragment ProfessionalRoadmapDraftFields on ProfessionalRoadmapDraft {
   id
   status
+  replacesRoadmapId
+  replacesRoadmapTitle
   currentStep
   isComplete
   canGenerate
@@ -137,11 +139,16 @@ query ProfessionalRoadmapGeneration($draftId: ID) {
     id
     goal
     status
+    replacesRoadmapId
     updatedAt
     failure {
       ...RoadmapGenerationFailureFields
     }
   }
+}
+
+mutation DiscardRoadmapEdit($draftId: ID!) {
+  discardRoadmapEdit(draftId: $draftId)
 }
 
 mutation SendRoadmapChatTurn($input: RoadmapChatTurnInput!) {

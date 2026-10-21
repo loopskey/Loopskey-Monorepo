@@ -22,6 +22,7 @@ const CAPABILITIES = {
   roadmap: [
     "professional-roadmap.service.ts",
     "professional-roadmap-chat.service.ts",
+    "professional-roadmap-edit.service.ts",
     "professional-roadmap-draft.service.ts",
     "professional-roadmap-candidate.service.ts",
     "professional-roadmap-progress.service.ts",
@@ -57,6 +58,12 @@ const ALLOWED_INTERNAL_EDGES: Readonly<Record<string, readonly string[]>> = {
     "professional-profile.service.ts",
     "professional-roadmap-draft.service.ts",
     "professional-taxonomy.service.ts",
+  ],
+  // An edit copies the saved brief into a new draft through the draft service
+  // and returns the same draft view the coach already renders.
+  "professional-roadmap-edit.service.ts": [
+    "professional-roadmap-chat.service.ts",
+    "professional-roadmap-draft.service.ts",
   ],
   // Generation assembles its candidate set through the candidate service and
   // owns nothing else inside the module.

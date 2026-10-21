@@ -5,6 +5,7 @@ import { useMemo, useRef, useState } from "react";
 import { RoadmapChatTranscript } from "./RoadmapChatTranscript";
 import { RoadmapChatComposer } from "./RoadmapChatComposer";
 import { RoadmapChatStages } from "./RoadmapChatStages";
+import { RoadmapEditBanner } from "./RoadmapEditBanner";
 import { RoadmapBriefRing } from "./RoadmapBriefRing";
 import { ROADMAP_TAB_HREF } from "@/utils/roadmap-navigation.util";
 import { useSearchParams } from "next/navigation";
@@ -131,7 +132,11 @@ export const ProfessionalRoadmapChatPage = () => {
 
         <div className="flex min-w-0 flex-1 items-center gap-2.5">
           <h1 className="truncate text-base font-semibold tracking-tight sm:text-lg">
-            {t("professionalRoadmapChat.title")}
+            {t(
+              chat.draft?.replacesRoadmapId
+                ? "professionalRoadmapChat.edit.title"
+                : "professionalRoadmapChat.title",
+            )}
           </h1>
 
           {saveState ? (
@@ -221,6 +226,14 @@ export const ProfessionalRoadmapChatPage = () => {
         ) : null}
       </header>
 
+      {chat.draft?.replacesRoadmapId ? (
+        <RoadmapEditBanner
+          onDiscard={chat.discardEdit}
+          isDiscarding={chat.isDiscarding}
+          title={chat.draft.replacesRoadmapTitle}
+        />
+      ) : null}
+
       <div className="grid min-h-0 flex-1 lg:grid-cols-[minmax(0,1fr)_22rem]">
         <section
           aria-label={t("professionalRoadmapChat.transcriptLabel")}
@@ -234,10 +247,10 @@ export const ProfessionalRoadmapChatPage = () => {
               onRetry={chat.retry}
               pending={chat.pending}
               messages={chat.messages}
-              onAnswer={chat.answerWidget}
               isSending={chat.isSending}
               isLoading={chat.isLoading}
               retryAfter={chat.retryAfter}
+              onAnswer={chat.answerWidget}
               draftId={chat.draft?.id ?? ""}
             />
           </div>

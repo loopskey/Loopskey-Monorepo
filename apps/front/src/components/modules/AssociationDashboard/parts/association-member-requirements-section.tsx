@@ -3,11 +3,11 @@
 import { TAssociationMemberRequirementsSection } from "@/types/association-dashboard.types";
 import { AssociationMemberRequirementEvidence } from "@modules/AssociationDashboard/parts/association-member-requirement-evidence";
 import { AssociationComplianceBand } from "@/lib/graphql/base";
-import { ChartFrame } from "@elements/charts/chart-frame";
-import { BarList } from "@elements/charts/bar-list";
 import { CHART_COLOR } from "@/utils/chart.util";
+import { ChartFrame } from "@elements/charts/chart-frame";
 import { GlassCard } from "@elements/glass-card";
 import { Progress } from "@ui/progress";
+import { BarList } from "@elements/charts/bar-list";
 import { Badge } from "@ui/badge";
 
 import * as A from "@ui/accordion";
@@ -215,7 +215,17 @@ export const AssociationMemberRequirementsSection = ({
                           {item.title}
                         </p>
                         <p className="mt-1 text-xs text-muted-foreground">
-                          {[item.provider, date(item.activityDate as string)]
+                          {[
+                            item.provider,
+                            t(
+                              "associationDashboard.memberDetail.requirements.evidence.completedOn",
+                              { date: date(item.activityDate as string) },
+                            ),
+                            t(
+                              "associationDashboard.memberDetail.requirements.evidence.submittedOn",
+                              { date: date(item.submittedAt as string) },
+                            ),
+                          ]
                             .filter(Boolean)
                             .join(" · ")}
                         </p>
@@ -233,7 +243,9 @@ export const AssociationMemberRequirementsSection = ({
 
             <ChartFrame
               className="mt-8"
-              title={t("associationDashboard.memberDetail.requirements.chartTitle")}
+              title={t(
+                "associationDashboard.memberDetail.requirements.chartTitle",
+              )}
               isEmpty={categoryRows.length === 0}
               emptyLabel={t(
                 "associationDashboard.memberDetail.requirements.chartEmptyBody",
@@ -244,7 +256,11 @@ export const AssociationMemberRequirementsSection = ({
                   label: label("categoryCompleted"),
                   color: CHART_COLOR.series1,
                 },
-                { id: "required", kind: "marker", label: label("categoryRequired") },
+                {
+                  id: "required",
+                  kind: "marker",
+                  label: label("categoryRequired"),
+                },
               ]}
               table={{
                 caption: label("categoryChartLabel"),

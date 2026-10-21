@@ -89,6 +89,8 @@ export const useRoadmapChat = () => {
     API.usePatchRoadmapCpdSetupMutation();
   const [requestGeneration, { isLoading: isGenerating }] =
     API.useRequestRoadmapGenerationMutation();
+  const [discardEditMutation, { isLoading: isDiscarding }] =
+    API.useDiscardRoadmapEditMutation();
 
   const writeDraft = useCallback(
     (next: T.TRoadmapDraft) => {
@@ -288,7 +290,8 @@ export const useRoadmapChat = () => {
       const next = await resetDraft(draft?.id).unwrap();
       writeDraftEverywhere(next);
       setResetCount((count) => count + 1);
-      if (requestedDraftId) router.replace(ROADMAP_CHAT_HREF);
+      if (requestedDraftId && !draft?.replacesRoadmapId)
+        router.replace(ROADMAP_CHAT_HREF);
       return true;
     } catch (error: unknown) {
       setTurnError(readChatError(error));
@@ -297,6 +300,7 @@ export const useRoadmapChat = () => {
     }
   }, [
     draft?.id,
+    draft?.replacesRoadmapId,
     requestedDraftId,
     resetDraft,
     router,
@@ -314,6 +318,18 @@ export const useRoadmapChat = () => {
       notify.error(t("professionalRoadmapChat.review.generateFailed"));
     }
   }, [draft, requestGeneration, router, t, writeDraft]);
+
+  const discardEdit = useCallback(async () => {
+    if (!draft?.replacesRoadmapId) return false;
+    try {
+      await discardEditMutation(draft.id).unwrap();
+      router.push(ROADMAP_TAB_HREF);
+      return true;
+    } catch {
+      notify.error(t("professionalRoadmapChat.edit.discardFailed"));
+      return false;
+    }
+  }, [discardEditMutation, draft?.id, draft?.replacesRoadmapId, router, t]);
 
   return {
     send,
@@ -335,6 +351,8 @@ export const useRoadmapChat = () => {
     refetchDraft,
     isDraftError,
     isGenerating,
+    isDiscarding,
+    discardEdit,
     answerWidget,
     patchCpdSetup,
     dismissPending,

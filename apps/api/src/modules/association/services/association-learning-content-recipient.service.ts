@@ -1,43 +1,23 @@
 import { AssociationLearningContentStatus, Prisma } from "@prisma/client";
+import { PROFESSIONAL_REQUIREMENT_DIRECTORY_API } from "@professional/public/professional-requirement-directory-api";
 import { AssociationNotificationService } from "@association/services/association-notification.service";
+import { Inject, Injectable, Logger } from "@nestjs/common";
 import { AssociationAudienceKind } from "@prisma/client";
 import { AssociationMemberStatus } from "@prisma/client";
-import { occurrenceKeys } from "@association/enums/association-notification.enum";
 import { AssociationMessageType } from "@prisma/client";
-import { Injectable, Logger } from "@nestjs/common";
+import { TRecipientSyncOutcome } from "@association/types/association-learning-content";
+import { TLearningContentScope } from "@association/types/association-learning-content";
+import { TClaimedRecipient } from "@association/types/association-learning-content";
+import { TContentAudience } from "@association/types/association-learning-content";
+import { occurrenceKeys } from "@association/enums/association-notification.enum";
 import { PrismaService } from "@prisma/prisma.service";
 
-import { type AnnouncementScope } from "@association/services/association-requirement-assignment.service";
+import { type ProfessionalRequirementDirectoryApi } from "@professional/public/professional-requirement-directory-api";
 
 const BATCH_SIZE = 200;
 
 export const LEARNING_CONTENT_AUDIENCE_CHANGED_EVENT =
   "association.learning-content.audience-changed.v1";
-
-type LearningContentScope = Omit<AnnouncementScope, "requirementId"> & {
-  learningContentId?: string;
-};
-
-type ClaimedRecipient = {
-  id: string;
-  learningContentId: string;
-  memberId: string;
-  userId: string;
-  associationId: string;
-};
-
-type ContentAudience = {
-  id: string;
-  associationId: string;
-  audienceKind: AssociationAudienceKind;
-  targets: { groupId: string | null; memberId: string | null }[];
-};
-
-export type RecipientSyncOutcome = {
-  targeted: number;
-  untargeted: number;
-  announced: number;
-};
 
 @Injectable()
 export class AssociationLearningContentRecipientService {
@@ -48,13 +28,48 @@ export class AssociationLearningContentRecipientService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly notifications: AssociationNotificationService,
+    @Inject(PROFESSIONAL_REQUIREMENT_DIRECTORY_API)
+    private readonly directory: ProfessionalRequirementDirectoryApi,
   ) {}
+
+  async syncContentLinks(learningContentId: string) {
+    await this.prisma.$transaction(async (tx) => {
+      const [content] = await tx.$queryRaw<
+        { status: string; requirementId: string | null }[]
+      >`SELECT "status", "requirementId" FROM "AssociationLearningContent"
+        WHERE "id" = ${learningContentId}
+        FOR SHARE`;
+
+      if (content?.status !== AssociationLearningContentStatus.PUBLISHED) {
+        await this.directory.removeContentLinks(learningContentId, tx);
+        return;
+      }
+
+      const recipients = await tx.associationLearningContentRecipient.findMany({
+        where: {
+          learningContentId,
+          isTargeted: true,
+          member: { status: { not: AssociationMemberStatus.INACTIVE } },
+        },
+        select: { member: { select: { userId: true } } },
+      });
+
+      await this.directory.replaceContentRecipients(
+        {
+          learningContentId,
+          requirementId: content.requirementId,
+          userIds: recipients.map((recipient) => recipient.member.userId),
+        },
+        tx,
+      );
+    });
+  }
 
   async syncContent(
     learningContentId: string,
     onBatch?: () => Promise<void>,
-  ): Promise<RecipientSyncOutcome> {
-    const outcome: RecipientSyncOutcome = {
+  ): Promise<TRecipientSyncOutcome> {
+    const outcome: TRecipientSyncOutcome = {
       targeted: 0,
       untargeted: 0,
       announced: 0,
@@ -71,8 +86,10 @@ export class AssociationLearningContentRecipientService {
       },
     });
 
-    if (content?.status !== AssociationLearningContentStatus.PUBLISHED)
+    if (content?.status !== AssociationLearningContentStatus.PUBLISHED) {
+      await this.syncContentLinks(learningContentId);
       return outcome;
+    }
 
     const covered = await this.audienceMemberIds(content);
     const coveredSet = new Set(covered);
@@ -109,6 +126,8 @@ export class AssociationLearningContentRecipientService {
       outcome.untargeted += untargeted.count;
     }
 
+    await this.syncContentLinks(content.id);
+
     this.logger.log("Association learning content recipients synchronised", {
       learningContentId: content.id,
       audienceKind: content.audienceKind,
@@ -121,7 +140,13 @@ export class AssociationLearningContentRecipientService {
   async syncMember(memberId: string) {
     const member = await this.prisma.associationMember.findUnique({
       where: { id: memberId },
-      select: { id: true, associationId: true, groupId: true, status: true },
+      select: {
+        id: true,
+        userId: true,
+        associationId: true,
+        groupId: true,
+        status: true,
+      },
     });
     if (!member) return 0;
 
@@ -159,8 +184,44 @@ export class AssociationLearningContentRecipientService {
         data: { isTargeted: false, announcedAt: null },
       });
 
+      await this.syncMemberLinks(tx, {
+        userId: member.userId,
+        coveredIds,
+        scopeContentIds: contents.map((content) => content.id),
+      });
+
       return this.announce(tx, { memberIds: [member.id] });
     });
+  }
+
+  private async syncMemberLinks(
+    tx: Prisma.TransactionClient,
+    scope: {
+      userId: string;
+      coveredIds: string[];
+      scopeContentIds: string[];
+    },
+  ) {
+    const published = scope.coveredIds.length
+      ? await tx.$queryRaw<{ id: string; requirementId: string | null }[]>`
+          SELECT "id", "requirementId" FROM "AssociationLearningContent"
+          WHERE "id" IN (${Prisma.join(scope.coveredIds)})
+            AND "status" = ${AssociationLearningContentStatus.PUBLISHED}::"AssociationLearningContentStatus"
+          ORDER BY "id"
+          FOR SHARE`
+      : [];
+
+    await this.directory.replaceMemberContent(
+      {
+        userId: scope.userId,
+        scopeContentIds: scope.scopeContentIds,
+        items: published.map((content) => ({
+          learningContentId: content.id,
+          requirementId: content.requirementId,
+        })),
+      },
+      tx,
+    );
   }
 
   async syncAssociation(associationId: string) {
@@ -177,7 +238,7 @@ export class AssociationLearningContentRecipientService {
 
   async announce(
     tx: Prisma.TransactionClient,
-    scope: LearningContentScope,
+    scope: TLearningContentScope,
     now = new Date(),
   ) {
     if (scope.memberIds && !scope.memberIds.length) return 0;
@@ -198,7 +259,7 @@ export class AssociationLearningContentRecipientService {
         Prisma.sql`recipient."memberId" IN (${Prisma.join(scope.memberIds)})`,
       );
 
-    const claimed = await tx.$queryRaw<ClaimedRecipient[]>`
+    const claimed = await tx.$queryRaw<TClaimedRecipient[]>`
       WITH candidate AS (
         SELECT recipient."id", member."userId", member."associationId"
         FROM "AssociationLearningContentRecipient" AS recipient
@@ -258,15 +319,13 @@ export class AssociationLearningContentRecipientService {
     });
   }
 
-  private async audienceMemberIds(content: ContentAudience) {
+  private async audienceMemberIds(content: TContentAudience) {
     const base = {
       associationId: content.associationId,
       status: { not: AssociationMemberStatus.INACTIVE },
     } satisfies Prisma.AssociationMemberWhereInput;
-
     if (content.audienceKind === AssociationAudienceKind.ALL_MEMBERS)
       return this.memberIds(base);
-
     if (content.audienceKind === AssociationAudienceKind.GROUP) {
       const groupIds = content.targets
         .map((target) => target.groupId)

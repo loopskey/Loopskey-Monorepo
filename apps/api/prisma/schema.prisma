@@ -1940,6 +1940,7 @@ model PDUTarget {
   @@index([category])
 }
 
+/// Unmanaged partial unique indexes: PDUActivity_user_content_key (userId, contentType, contentId) WHERE contentType IS NOT NULL AND contentId IS NOT NULL, and PDUActivity_user_learning_content_key (userId, associationLearningContentId) WHERE associationLearningContentId IS NOT NULL AND (contentType IS NULL OR contentId IS NULL).
 model PDUActivity {
   id String @id @default(cuid())
 
@@ -2025,6 +2026,19 @@ model ProfessionalAssociationRequirementLink {
 
   @@id([userId, associationRequirementId])
   @@index([userId])
+}
+
+model ProfessionalAssociationContentLink {
+  userId            String
+  learningContentId String
+  requirementId     String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@id([userId, learningContentId])
+  @@index([learningContentId])
+  @@index([requirementId])
 }
 
 // ================ CPD / PDU Plans ==================
@@ -2343,6 +2357,7 @@ model Roadmap {
 
   phases      RoadmapPhase[]
   enrollments RoadmapEnrollment[]
+  editDrafts  RoadmapDraft[]      @relation("RoadmapEditDrafts")
 
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
@@ -2455,11 +2470,15 @@ model RoadmapStepProgress {
   @@index([enrollmentId, status])
 }
 
+/// Unmanaged partial unique index: RoadmapDraft_open_edit_key on (replacesRoadmapId) WHERE replacesRoadmapId IS NOT NULL AND status IN (COLLECTING, READY, GENERATING, FAILED).
 model RoadmapDraft {
   id String @id @default(cuid())
 
   userId String
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  replacesRoadmapId String?
+  replacesRoadmap   Roadmap? @relation("RoadmapEditDrafts", fields: [replacesRoadmapId], references: [id], onDelete: SetNull)
 
   status      RoadmapDraftStatus @default(COLLECTING)
   currentStep RoadmapDraftStep   @default(GOAL)
@@ -2509,6 +2528,7 @@ model RoadmapDraft {
   @@index([userId, status])
   @@index([certificationId])
   @@index([cpdPlanId])
+  @@index([replacesRoadmapId])
 }
 
 model RoadmapChatMessage {

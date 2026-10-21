@@ -692,6 +692,19 @@ export const professionalApi = baseApi.injectEndpoints({
       invalidatesTags: ["ProfessionalRoadmaps"],
     }),
 
+    startRoadmapEdit: builder.mutation<
+      TAPI.StartRoadmapEditMutation["startRoadmapEdit"],
+      TAPI.StartRoadmapEditMutationVariables["roadmapId"]
+    >({
+      query: (roadmapId) => ({
+        document: API.StartRoadmapEditDocument,
+        variables: { roadmapId },
+      }),
+      transformResponse: (response: TAPI.StartRoadmapEditMutation) =>
+        response.startRoadmapEdit,
+      invalidatesTags: ["ProfessionalRoadmaps", "ProfessionalRoadmapDraft"],
+    }),
+
     retryRoadmapGeneration: builder.mutation<
       TAPI.RetryRoadmapGenerationMutation["requestRoadmapGeneration"],
       TAPI.RetryRoadmapGenerationMutationVariables["draftId"]
@@ -771,6 +784,7 @@ export const {
   useStartRoadmapStepMutation,
   useCompleteRoadmapStepMutation,
   useUnenrollRoadmapMutation,
+  useStartRoadmapEditMutation,
   useRetryRoadmapGenerationMutation,
   useProfessionalRoadmapRecommendationsQuery,
   useProfessionalRoadmapGenerationStatusQuery,

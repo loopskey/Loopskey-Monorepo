@@ -168,6 +168,7 @@ fragment AssociationMyRequirementDetailFields on AssociationMyRequirementDetail 
     activityId
     title
     date
+    submittedAt
     category
     credits
     creditedAmount
@@ -186,6 +187,11 @@ fragment AssociationMyRequirementDetailFields on AssociationMyRequirementDetail 
     isAvailable
     isCompleted
     isLinkedToRequirement
+    isLate
+    completedAt
+    submittedAt
+    creditedAmount
+    completionState
     contentType
     contentId
     slug
@@ -205,6 +211,11 @@ fragment AssociationMyLearningContentFields on AssociationMyRequirementContent {
   isAvailable
   isCompleted
   isLinkedToRequirement
+  isLate
+  completedAt
+  submittedAt
+  creditedAmount
+  completionState
   associationId
   associationName
   contentType

@@ -1,23 +1,24 @@
 import { ContentType, PDUCompletionStatus } from "@prisma/client";
 import { LEARNING_ACTIVITY_CHANGED_EVENT } from "@professional/public/professional-compliance-api.events";
 import { ProfessionalLanguageProjection } from "@professional/public/professional-compliance-api";
-import { ContentEngagementProjection } from "@professional/public/professional-compliance-api";
 import { LearningActivityChangeKind } from "@professional/public/professional-compliance-api.events";
 import { ProfessionalComplianceApi } from "@professional/public/professional-compliance-api";
 import { ComplianceActivityDetail } from "@professional/public/professional-compliance-api";
 import { ComplianceFileDescriptor } from "@professional/public/professional-compliance-api";
-import { type EvidenceStoragePort } from "@professional/storage/evidence-storage.port";
 import { ComplianceActivityQuery } from "@professional/public/professional-compliance-api";
-import { ContentEngagementQuery } from "@professional/public/professional-compliance-api";
+import { ContentCompletionQuery } from "@professional/public/professional-compliance-api";
 import { ComplianceCertificate } from "@professional/public/professional-compliance-api";
 import { ComplianceStoredFile } from "@professional/public/professional-compliance-api";
 import { SettleReviewCommand } from "@professional/public/professional-compliance-api";
 import { ComplianceActivity } from "@professional/public/professional-compliance-api";
 import { Inject, Injectable } from "@nestjs/common";
+import { ContentCompletion } from "@professional/public/professional-compliance-api";
 import { PDUStatus, Prisma } from "@prisma/client";
 import { EVIDENCE_STORAGE } from "@professional/storage/evidence-storage.port";
 import { OutboxService } from "@infrastructure/outbox/outbox.service";
 import { PrismaService } from "@prisma/prisma.service";
+
+import { type EvidenceStoragePort } from "@professional/storage/evidence-storage.port";
 
 const ACTIVITY_SELECT = {
   id: true,
@@ -54,6 +55,7 @@ const ACTIVITY_DETAIL_SELECT = {
   providerOrganizer: true,
   evidenceNote: true,
   reviewNote: true,
+  createdAt: true,
   evidenceFiles: { select: FILE_SELECT, orderBy: { createdAt: "asc" } },
 } satisfies Prisma.PDUActivitySelect;
 
@@ -153,6 +155,7 @@ export class ProfessionalComplianceApiService
     return activities.map((activity) => ({
       ...project(activity),
       source: activity.source,
+      submittedAt: activity.createdAt,
       provider: activity.providerOrganizer,
       evidenceNote: activity.evidenceNote,
       evidenceUrl: activity.evidenceUrl,
@@ -254,36 +257,65 @@ export class ProfessionalComplianceApiService
     }
   }
 
-  async contentEngagement(
-    query: ContentEngagementQuery,
-  ): Promise<ContentEngagementProjection[]> {
-    if (!query.userIds.length || !query.references.length) return [];
+  async contentCompletions(
+    query: ContentCompletionQuery,
+  ): Promise<ContentCompletion[]> {
+    if (!query.userIds.length || !query.items.length) return [];
+
+    const catalogItems = query.items.filter(
+      (item) => item.contentType && item.contentId,
+    );
 
     const activities = await this.prisma.pDUActivity.findMany({
       where: {
         userId: { in: [...query.userIds] },
-        OR: query.references.map((reference) => ({
-          contentType: reference.contentType as ContentType,
-          contentId: reference.contentId,
-        })),
+        completionStatus: PDUCompletionStatus.COMPLETED,
+        OR: [
+          {
+            associationLearningContentId: {
+              in: query.items.map((item) => item.learningContentId),
+            },
+          },
+          ...catalogItems.map((item) => ({
+            contentType: item.contentType as ContentType,
+            contentId: item.contentId,
+          })),
+        ],
       },
-      select: { userId: true, pdus: true, contentType: true, contentId: true },
+      select: {
+        id: true,
+        pdus: true,
+        date: true,
+        userId: true,
+        status: true,
+        createdAt: true,
+        contentType: true,
+        contentId: true,
+        associationLearningContentId: true,
+      },
+      orderBy: [{ date: "desc" }, { id: "desc" }],
     });
 
-    return query.references.map((reference) => {
-      const matching = activities.filter(
-        (activity) =>
-          activity.contentType === reference.contentType &&
-          activity.contentId === reference.contentId,
-      );
-
-      return {
-        contentType: reference.contentType,
-        contentId: reference.contentId,
-        memberCount: new Set(matching.map((activity) => activity.userId)).size,
-        credits: matching.reduce((total, activity) => total + activity.pdus, 0),
-      };
-    });
+    return query.items.flatMap((item) =>
+      activities
+        .filter(
+          (activity) =>
+            activity.associationLearningContentId === item.learningContentId ||
+            (item.contentType !== null &&
+              item.contentId !== null &&
+              activity.contentType === item.contentType &&
+              activity.contentId === item.contentId),
+        )
+        .map((activity) => ({
+          userId: activity.userId,
+          status: activity.status,
+          credits: activity.pdus,
+          activityId: activity.id,
+          completedAt: activity.date,
+          submittedAt: activity.createdAt,
+          learningContentId: item.learningContentId,
+        })),
+    );
   }
 
   async settleReview(command: SettleReviewCommand): Promise<boolean> {

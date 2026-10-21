@@ -33,7 +33,10 @@ export const AssociationMemberRequirementEvidence = ({
 
   const date = (value: string) => new Date(value).toLocaleDateString(locale);
 
-  if (isRequirementEvidenceLoading || requirementEvidence?.requirementId !== requirementId) {
+  if (
+    isRequirementEvidenceLoading ||
+    requirementEvidence?.requirementId !== requirementId
+  ) {
     return (
       <div className="mt-6 space-y-3" aria-busy="true">
         <Skeleton className="h-10 w-full rounded-md" />
@@ -73,7 +76,9 @@ export const AssociationMemberRequirementEvidence = ({
 
                 <div className="flex shrink-0 items-center gap-2">
                   <Badge variant={STATE_VARIANTS[activity.state]}>
-                    {t(`associationDashboard.memberDetail.state.${activity.state}`)}
+                    {t(
+                      `associationDashboard.memberDetail.state.${activity.state}`,
+                    )}
                   </Badge>
 
                   <Button
@@ -144,14 +149,42 @@ export const AssociationMemberRequirementEvidence = ({
                 <div className="min-w-0">
                   <p className="truncate text-sm font-medium">{item.title}</p>
                   <p className="mt-1 text-xs text-muted-foreground">
-                    {[item.provider, date(item.activityDate as string)]
+                    {[
+                      item.provider,
+                      t(`${KEY}.completedOn`, {
+                        date: date(item.activityDate as string),
+                      }),
+                      t(`${KEY}.submittedOn`, {
+                        date: date(item.submittedAt as string),
+                      }),
+                    ]
                       .filter(Boolean)
                       .join(" · ")}
                   </p>
                 </div>
-                <Badge variant="secondary">
-                  {t(`${KEY}.credits`, { credits: item.credits })}
-                </Badge>
+                <div className="flex shrink-0 flex-wrap items-center gap-2">
+                  {item.completionState ? (
+                    <Badge variant={STATE_VARIANTS[item.completionState]}>
+                      {t(
+                        `associationDashboard.memberDetail.state.${item.completionState}`,
+                      )}
+                    </Badge>
+                  ) : (
+                    <Badge variant="secondary">{t(`${KEY}.notCounted`)}</Badge>
+                  )}
+                  {item.isLate ? (
+                    <Badge variant="orange">{t(`${KEY}.late`)}</Badge>
+                  ) : null}
+                  <Badge variant="secondary">
+                    {t(`${KEY}.credits`, {
+                      credits:
+                        item.completionState ===
+                        AssociationAttributionState.Counted
+                          ? (item.creditedAmount ?? item.credits)
+                          : item.credits,
+                    })}
+                  </Badge>
+                </div>
               </li>
             ))}
           </ul>
@@ -172,9 +205,7 @@ export const AssociationMemberRequirementEvidence = ({
                 key={activity.id}
                 className="flex flex-wrap items-center justify-between gap-3 rounded-md border p-3"
               >
-                <p className="truncate text-sm font-medium">
-                  {activity.title}
-                </p>
+                <p className="truncate text-sm font-medium">{activity.title}</p>
                 <Button
                   size="sm"
                   radius="xl"
@@ -183,7 +214,9 @@ export const AssociationMemberRequirementEvidence = ({
                   onClick={() => openEvidence(activity.id)}
                 >
                   <L.FileSearch className="h-4 w-4" />
-                  {t("associationDashboard.memberDetail.activities.viewEvidence")}
+                  {t(
+                    "associationDashboard.memberDetail.activities.viewEvidence",
+                  )}
                 </Button>
               </li>
             ))}

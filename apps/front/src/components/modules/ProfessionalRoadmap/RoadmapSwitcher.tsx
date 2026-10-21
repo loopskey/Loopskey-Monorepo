@@ -1,13 +1,14 @@
 "use client";
 
 import { RoadmapEnrollmentStatus } from "@/lib/graphql/base";
+import { RoadmapActionButtons } from "@modules/ProfessionalRoadmap/RoadmapActionButtons";
 import { buildRoadmapTabHref } from "@/utils/roadmap-navigation.util";
 import { RoadmapArt } from "@elements/roadmap-art";
 import { useI18n } from "@/hooks/useI18n";
 import { Input } from "@ui/input";
 import { cn } from "@/lib/utils";
 
-import type { RoadmapSwitcherProps } from "@/types/professional-roadmap-chat.types";
+import type { TRoadmapSwitcherProps } from "@/types/professional-roadmap-chat.types";
 
 import Link from "next/link";
 
@@ -19,12 +20,15 @@ const clampPercent = (value: number) => Math.min(Math.max(value, 0), 100);
 
 export const RoadmapSwitcher = ({
   search,
+  onEdit,
   roadmaps,
   showSearch,
   isFetching,
+  onContinue,
   onSearchChange,
   activeRoadmapId,
-}: RoadmapSwitcherProps) => {
+  editingRoadmapId,
+}: TRoadmapSwitcherProps) => {
   const { t } = useI18n();
 
   return (
@@ -69,47 +73,60 @@ export const RoadmapSwitcher = ({
                 key={roadmap.id}
                 className="min-w-0 shrink-0 basis-[min(15.5rem,78%)] snap-start sm:basis-auto"
               >
-                <Link
-                  scroll={false}
-                  href={buildRoadmapTabHref(roadmap.id)}
-                  aria-current={isActive ? "true" : undefined}
+                <div
                   className={cn(
-                    "grid grid-cols-[2.5rem_minmax(0,1fr)] items-center gap-x-3 gap-y-0.5 rounded-xl border p-3 outline-none transition-colors",
-                    "hover:border-primary/40 focus-visible:ring-2 focus-visible:ring-ring",
-                    isActive &&
-                      "border-primary bg-primary/5 ring-1 ring-primary",
+                    "flex h-full flex-col gap-3 rounded-xl border p-3 transition-colors",
+                    isActive
+                      ? "border-primary bg-primary/5 ring-1 ring-primary"
+                      : "hover:border-primary/40",
                   )}
                 >
-                  <RoadmapArt
-                    sizes="40px"
-                    className="row-span-2 size-10"
-                    category={roadmap.category}
-                    imageUrl={roadmap.imageUrl}
-                  />
-                  <span className="truncate text-sm font-medium">
-                    {roadmap.title}
-                  </span>
-                  <span className="truncate text-xs tabular-nums text-muted-foreground">
-                    {isCompleted
-                      ? t(`${KEY}.completed`)
-                      : t(`${KEY}.ofSteps`, {
-                          completed: roadmap.completedSteps,
-                          total: roadmap.totalSteps,
-                        })}
-                  </span>
-                  <span
-                    aria-hidden
-                    className="col-span-2 mt-2 block h-1 overflow-hidden rounded-full bg-muted"
+                  <Link
+                    scroll={false}
+                    href={buildRoadmapTabHref(roadmap.id)}
+                    aria-current={isActive ? "true" : undefined}
+                    className="grid grid-cols-[2.5rem_minmax(0,1fr)] items-center gap-x-3 gap-y-0.5 rounded-lg outline-none focus-visible:ring-2 focus-visible:ring-ring"
                   >
-                    <span
-                      style={{ width: `${progress}%` }}
-                      className={cn(
-                        "block h-full rounded-full",
-                        isCompleted ? "bg-success" : "bg-primary",
-                      )}
+                    <RoadmapArt
+                      sizes="40px"
+                      className="row-span-2 size-10"
+                      category={roadmap.category}
+                      imageUrl={roadmap.imageUrl}
                     />
-                  </span>
-                </Link>
+                    <span className="truncate text-sm font-medium">
+                      {roadmap.title}
+                    </span>
+                    <span className="truncate text-xs tabular-nums text-muted-foreground">
+                      {isCompleted
+                        ? t(`${KEY}.completed`)
+                        : t(`${KEY}.ofSteps`, {
+                            completed: roadmap.completedSteps,
+                            total: roadmap.totalSteps,
+                          })}
+                    </span>
+                    <span
+                      aria-hidden
+                      className="col-span-2 mt-2 block h-1 overflow-hidden rounded-full bg-muted"
+                    >
+                      <span
+                        style={{ width: `${progress}%` }}
+                        className={cn(
+                          "block h-full rounded-full",
+                          isCompleted ? "bg-success" : "bg-primary",
+                        )}
+                      />
+                    </span>
+                  </Link>
+
+                  <RoadmapActionButtons
+                    size="sm"
+                    onEdit={onEdit}
+                    roadmap={roadmap}
+                    className="mt-auto"
+                    onContinue={onContinue}
+                    editingRoadmapId={editingRoadmapId}
+                  />
+                </div>
               </li>
             );
           })}

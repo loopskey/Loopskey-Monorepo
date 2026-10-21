@@ -170,6 +170,7 @@
     "all": "All",
     "appName": "LoopsKey",
     "cancel": "Cancel",
+    "completionDateInFuture": "The completion date cannot be in the future.",
     "confirm": "Confirm",
     "contentTypes": {
       "COURSE": "Course",
@@ -569,6 +570,10 @@
       "button": "Mark as Completed",
       "completedButton": "Completed",
       "description": "Review the details and save this as a completed learning activity.",
+      "errors": {
+        "contentNotAvailable": "This content is no longer offered to you by your association, so it cannot be marked complete.",
+        "requirementMismatch": "This content counts toward a different requirement. Choose the requirement it is linked to."
+      },
       "evidenceRequired": "Attach a certificate file or link before saving — this requirement needs evidence.",
       "fields": {
         "activityType": "Activity type",

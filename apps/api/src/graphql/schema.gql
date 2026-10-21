@@ -802,6 +802,7 @@ type AssociationMemberActivity {
   reviewNote: String
   source: PDUSource!
   state: AssociationAttributionState!
+  submittedAt: DateTime!
   title: String!
 }
 
@@ -832,12 +833,16 @@ type AssociationMemberCompliance {
 type AssociationMemberContentCompletion {
   activityDate: DateTime!
   activityId: ID!
+  completionState: AssociationAttributionState
   contentType: ContentType
+  creditedAmount: Float
   credits: Float!
   id: ID!
   indicativeCredits: Float
   isExternal: Boolean!
+  isLate: Boolean!
   provider: String
+  submittedAt: DateTime!
   title: String!
 }
 
@@ -1082,6 +1087,7 @@ type AssociationMyRequirementActivity {
   isLate: Boolean!
   reviewNote: String
   state: AssociationAttributionState!
+  submittedAt: DateTime!
   title: String!
 }
 
@@ -1089,8 +1095,11 @@ type AssociationMyRequirementContent {
   associationId: ID!
   associationName: String!
   category: PDUCategory
+  completedAt: DateTime
+  completionState: AssociationAttributionState
   contentId: ID
   contentType: ContentType
+  creditedAmount: Float
   description: String
   externalUrl: String
   id: ID!
@@ -1099,9 +1108,11 @@ type AssociationMyRequirementContent {
   isAvailable: Boolean!
   isCompleted: Boolean!
   isExternal: Boolean!
+  isLate: Boolean!
   isLinkedToRequirement: Boolean!
   provider: String
   slug: String
+  submittedAt: DateTime
   title: String!
 }
 
@@ -2966,6 +2977,7 @@ type Mutation {
   deleteUser(userId: String!): User!
   deleteYouTubeChannel(channelId: String!): YouTubeChannel!
   deleteYouTubeVideo(videoId: String!): YouTubeVideo!
+  discardRoadmapEdit(draftId: ID!): Boolean!
   dismissProfessionalOnboarding: ProfessionalDashboardProfile!
   enrollContent(input: ContentActionInput!): ContentActionPayload!
   forgotPassword(input: ForgotPasswordInput!): AuthPayload!
@@ -3041,6 +3053,7 @@ type Mutation {
   setYouTubeChannelTranslationPublication(input: SetYouTubeChannelTranslationPublicationInput!): YouTubeChannelTranslation!
   startProfessionalOnboarding: ProfessionalDashboardProfile!
   startRoadmapDraft: ProfessionalRoadmapDraft!
+  startRoadmapEdit(roadmapId: ID!): ProfessionalRoadmapDraft!
   startRoadmapStep(enrollmentId: ID!, stepId: ID!): RoadmapStepProgress!
   submitAssociationAccessRequest(input: SubmitAssociationAccessRequestInput!): AssociationActionResponse!
   submitContactInquiry(input: SubmitContactInquiryInput!): SubmitContactInquiryPayload!
@@ -4468,6 +4481,8 @@ type ProfessionalRoadmapDraft {
   preferredDeliveryFormats: [DeliveryFormat!]!
   preferredFormats: [LearningFormat!]!
   remainingFields: [RoadmapDraftStep!]!
+  replacesRoadmapId: ID
+  replacesRoadmapTitle: String
   requiredCredits: Float
   requiredFieldCount: Int!
   skillLevel: SkillLevel
@@ -4487,6 +4502,7 @@ type ProfessionalRoadmapGeneration {
   failure: RoadmapGenerationFailure
   goal: String
   id: ID!
+  replacesRoadmapId: ID
   status: RoadmapDraftStatus!
   updatedAt: DateTime!
 }

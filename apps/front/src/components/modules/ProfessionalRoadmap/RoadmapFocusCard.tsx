@@ -1,5 +1,6 @@
 "use client";
 
+import { ROADMAP_NEXT_STEP_ELEMENT_ID } from "@/utils/roadmap-navigation.util";
 import { RoadmapStepProgressStatus } from "@/lib/graphql/base";
 import { findNextActionableStep } from "@/utils/roadmap-journey.util";
 import { roadmapContentHref } from "@/utils/roadmap-navigation.util";
@@ -8,7 +9,7 @@ import { useI18n } from "@/hooks/useI18n";
 import { Button } from "@ui/button";
 import { cn } from "@/lib/utils";
 
-import type { RoadmapFocusCardProps } from "@/types/professional-roadmap-chat.types";
+import type { TRoadmapFocusCardProps } from "@/types/professional-roadmap-chat.types";
 
 import Link from "next/link";
 
@@ -22,10 +23,11 @@ export const RoadmapFocusCard = ({
   roadmap,
   pending,
   onStart,
+  focusRef,
   onExplore,
   onComplete,
   failedStepId,
-}: RoadmapFocusCardProps) => {
+}: TRoadmapFocusCardProps) => {
   const { t, language } = useI18n();
 
   const next = findNextActionableStep(roadmap.phases);
@@ -37,7 +39,12 @@ export const RoadmapFocusCard = ({
 
   if (!phase || !step)
     return (
-      <section className="flex flex-col gap-4 rounded-xl border border-success/20 bg-success-soft p-5 sm:flex-row sm:items-center sm:justify-between">
+      <section
+        tabIndex={-1}
+        ref={focusRef}
+        id={ROADMAP_NEXT_STEP_ELEMENT_ID}
+        className="flex flex-col gap-4 rounded-xl border border-success/20 bg-success-soft p-5 outline-none scroll-mt-24 sm:flex-row sm:items-center sm:justify-between"
+      >
         <div className="min-w-0 space-y-1">
           <p className={cn(EYEBROW_CLASS_NAME, "text-success-soft-foreground")}>
             {t(`${KEY}.focus.completedTitle`)}
@@ -69,7 +76,12 @@ export const RoadmapFocusCard = ({
   const contentHref = roadmapContentHref(step.contentType, step.contentSlug);
 
   return (
-    <section className="flex flex-col gap-4 rounded-xl border border-primary/15 bg-primary/5 p-5 sm:flex-row sm:items-center sm:justify-between">
+    <section
+      tabIndex={-1}
+      ref={focusRef}
+      id={ROADMAP_NEXT_STEP_ELEMENT_ID}
+      className="flex flex-col gap-4 rounded-xl border border-primary/15 bg-primary/5 p-5 outline-none scroll-mt-24 focus-visible:ring-2 focus-visible:ring-ring sm:flex-row sm:items-center sm:justify-between"
+    >
       <div className="min-w-0 space-y-1.5">
         <p className={cn(EYEBROW_CLASS_NAME, "text-primary")}>
           {t(

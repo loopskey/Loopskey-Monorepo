@@ -442,6 +442,7 @@ const setup = (
     cpdPlans,
     certifications,
     prisma,
+    { roadmaps: async () => [] } as never,
   );
 
   return {

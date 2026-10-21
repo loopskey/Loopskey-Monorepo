@@ -299,7 +299,17 @@
         "unavailable": "No longer available",
         "showAll": "Show all ({{count}} more)",
         "recommendedBy": "Recommended by {{association}}",
-        "countsToward": "Counts toward this requirement"
+        "countsToward": "Counts toward this requirement",
+        "status": {
+          "counted": "Counted",
+          "awaitingReview": "Awaiting review",
+          "rejected": "Rejected",
+          "completed": "Completed",
+          "late": "Late",
+          "completedOn": "Completed {{date}}",
+          "submittedOn": "Submitted {{date}}",
+          "credited": "{{credits}} credits counted"
+        }
       },
       "activities": {
         "title": "Logged activities",
@@ -437,7 +447,8 @@
       "YOUTUBE": "YouTube",
       "GENERAL": "General"
     },
-    "required": "required"
+    "required": "required",
+    "completionDateInFuture": "The completion date cannot be in the future."
   },
   "servicesPage": {
     "meta": {
@@ -3270,6 +3281,10 @@
         "requirement": "Counts toward",
         "requirementNone": "None",
         "evidencePolicy": "Evidence: {{policy}}"
+      },
+      "errors": {
+        "contentNotAvailable": "This content is no longer offered to you by your association, so it cannot be marked complete.",
+        "requirementMismatch": "This content counts toward a different requirement. Choose the requirement it is linked to."
       }
     },
     "messages": {
@@ -4725,6 +4740,22 @@
       "loadError": {
         "title": "We could not load your roadmaps",
         "description": "Check your connection and try again."
+      },
+      "actions": {
+        "continue": "Continue",
+        "review": "Review",
+        "edit": "Edit",
+        "continueLabel": "Continue {{title}}",
+        "reviewLabel": "Review {{title}}",
+        "editLabel": "Edit {{title}}"
+      },
+      "edit": {
+        "startFailed": "We couldn’t open this roadmap for editing. Please try again.",
+        "notEditable": "Only roadmaps you created with the roadmap coach can be edited.",
+        "briefUnavailable": "The answers behind this roadmap are no longer saved, so it can’t be edited.",
+        "generatingTitle": "Updating your roadmap",
+        "generatingStep": "Rebuilding the roadmap from your updated answers. Progress on content that stays is kept.",
+        "unchanged": "Your current roadmap has not been changed."
       }
     },
     "calendar": {
@@ -6092,7 +6123,11 @@
           "emptyContent": "This member has not completed content linked to this requirement.",
           "credits": "{{credits}} credits",
           "certificateTitle": "Certificate evidence",
-          "emptyCertificates": "No evidence files or certification-type activities are attributed to this requirement."
+          "emptyCertificates": "No evidence files or certification-type activities are attributed to this requirement.",
+          "completedOn": "Completed {{date}}",
+          "submittedOn": "Submitted {{date}}",
+          "late": "Late",
+          "notCounted": "Not counted"
         },
         "unlinked": {
           "title": "Not linked to a requirement",
@@ -8044,6 +8079,7 @@
       "no": "No",
       "notSet": "Not answered yet",
       "generate": "Generate my roadmap",
+      "regenerate": "Regenerate roadmap",
       "generating": "Starting generation...",
       "generateFailed": "We could not start generating your roadmap. Please try again.",
       "retryGenerate": "Try generating again",
@@ -8103,7 +8139,17 @@
       }
     },
     "stagesLabel": "Progress",
-    "stageOf": "Step {{current}} of {{total}}"
+    "stageOf": "Step {{current}} of {{total}}",
+    "edit": {
+      "title": "Edit roadmap",
+      "editing": "Editing “{{title}}”",
+      "editingUntitled": "Editing your roadmap",
+      "explanation": "Your current roadmap stays as it is until the new one is ready. Progress on content that remains is kept.",
+      "discard": "Discard changes",
+      "discardConfirmTitle": "Discard these changes?",
+      "discardConfirmDescription": "Your current roadmap stays as it is. The answers you changed here will be lost.",
+      "discardFailed": "We couldn’t discard the changes. Please try again."
+    }
   },
   "topicHub": {
     "badge": "Topic guide",

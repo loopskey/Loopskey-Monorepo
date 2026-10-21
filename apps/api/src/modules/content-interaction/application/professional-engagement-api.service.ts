@@ -5,6 +5,7 @@ import { ProfessionalEngagementApi } from "@contentAction/public/professional-en
 import { PrismaService } from "@prisma/prisma.service";
 import { Injectable } from "@nestjs/common";
 
+import type { RoadmapEnrollmentReplacement } from "@contentAction/public/professional-engagement-api";
 import type { RoadmapEnrollmentInput } from "@contentAction/public/professional-engagement-api";
 import type { UnitOfWork } from "@contentAction/public/professional-engagement-api";
 
@@ -295,7 +296,7 @@ export class ProfessionalEngagementApiService
     unitOfWork: UnitOfWork,
   ) {
     const writer = unitOfWork as Prisma.TransactionClient;
-    await writer.roadmapEnrollment.create({
+    const created = await writer.roadmapEnrollment.create({
       data: {
         userId: input.userId,
         draftId: input.draftId,
@@ -303,7 +304,91 @@ export class ProfessionalEngagementApiService
         targetDate: input.targetDate,
         status: RoadmapEnrollmentStatus.ACTIVE,
       },
+      select: { id: true },
     });
+    if (input.replaces)
+      await this.carryOverProgress(
+        writer,
+        { userId: input.userId, enrollmentId: created.id },
+        input.replaces,
+      );
+  }
+
+  private async carryOverProgress(
+    writer: Prisma.TransactionClient,
+    target: { userId: string; enrollmentId: string },
+    replaces: RoadmapEnrollmentReplacement,
+  ) {
+    const previous = await writer.roadmapEnrollment.findFirst({
+      where: {
+        userId: target.userId,
+        roadmapId: replaces.roadmapId,
+        status: { not: RoadmapEnrollmentStatus.UNENROLLED },
+      },
+      select: { id: true },
+    });
+    if (!previous) return;
+
+    const retired = await writer.roadmapEnrollment.updateMany({
+      where: {
+        id: previous.id,
+        status: { not: RoadmapEnrollmentStatus.UNENROLLED },
+      },
+      data: { status: RoadmapEnrollmentStatus.UNENROLLED },
+    });
+    if (retired.count !== 1) return;
+
+    const targetByStep = new Map(
+      replaces.carriedSteps.map((step) => [step.fromStepId, step.toStepId]),
+    );
+    if (targetByStep.size === 0) return;
+
+    const records = await writer.roadmapStepProgress.findMany({
+      where: {
+        enrollmentId: previous.id,
+        stepId: { in: [...targetByStep.keys()] },
+      },
+      select: {
+        stepId: true,
+        status: true,
+        startedAt: true,
+        completedAt: true,
+      },
+    });
+
+    const carried = new Map<string, (typeof records)[number]>();
+    for (const record of records) {
+      const toStepId = targetByStep.get(record.stepId);
+      if (!toStepId) continue;
+      const kept = carried.get(toStepId);
+      const outranks =
+        record.status === RoadmapStepProgressStatus.COMPLETED &&
+        kept?.status !== RoadmapStepProgressStatus.COMPLETED;
+      if (!kept || outranks) carried.set(toStepId, record);
+    }
+    if (carried.size === 0) return;
+
+    await writer.roadmapStepProgress.createMany({
+      data: [...carried].map(([stepId, record]) => ({
+        stepId,
+        enrollmentId: target.enrollmentId,
+        status: record.status,
+        startedAt: record.startedAt,
+        completedAt: record.completedAt,
+      })),
+    });
+
+    const completed = [...carried.values()].filter(
+      (record) => record.status === RoadmapStepProgressStatus.COMPLETED,
+    ).length;
+    if (replaces.stepCount > 0 && completed >= replaces.stepCount)
+      await writer.roadmapEnrollment.update({
+        where: { id: target.enrollmentId },
+        data: {
+          status: RoadmapEnrollmentStatus.COMPLETED,
+          completedAt: new Date(),
+        },
+      });
   }
 
   async unenrollRoadmap(input: { userId: string; enrollmentId: string }) {

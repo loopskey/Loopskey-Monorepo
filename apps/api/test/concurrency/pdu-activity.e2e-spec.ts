@@ -32,12 +32,12 @@ describe("PDU activities (concurrency e2e)", () => {
 
   const activityInput = (overrides: Record<string, unknown> = {}) => ({
     title: "Concurrency PDU",
-    date: new Date("2030-02-01T10:00:00.000Z").toISOString(),
+    date: new Date("2025-02-01T10:00:00.000Z").toISOString(),
     pdus: 2,
     source: PDUSource.OTHER,
     category: PDUCategory.TECHNICAL,
     creditType: CreditType.PDU,
-    reportingYear: 2030,
+    reportingYear: 2025,
     providerOrganizer: "Loopskey",
     contentType: ContentType.COURSE,
     contentId: CONTENT_ID,
@@ -150,7 +150,7 @@ describe("PDU activities (concurrency e2e)", () => {
         data: {
           userId: user.id,
           title: "Bypassing the service",
-          date: new Date("2030-02-01T10:00:00.000Z"),
+          date: new Date("2025-02-01T10:00:00.000Z"),
           pdus: 1,
           source: PDUSource.OTHER,
           category: PDUCategory.TECHNICAL,

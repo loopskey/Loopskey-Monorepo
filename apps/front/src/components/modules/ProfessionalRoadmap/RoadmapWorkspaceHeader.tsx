@@ -1,6 +1,7 @@
 "use client";
 
 import { translateWithFallback } from "@/utils/function-helper";
+import { RoadmapActionButtons } from "@modules/ProfessionalRoadmap/RoadmapActionButtons";
 import { ROADMAP_CHAT_HREF } from "@/utils/roadmap-navigation.util";
 import { humanizeEnumValue } from "@/utils/function-helper";
 import { RoadmapMatchTier } from "@/lib/graphql/base";
@@ -11,7 +12,7 @@ import { useI18n } from "@/hooks/useI18n";
 import { Button } from "@ui/button";
 import { cn } from "@/lib/utils";
 
-import type { RoadmapWorkspaceHeaderProps } from "@/types/professional-roadmap-chat.types";
+import type { TRoadmapWorkspaceHeaderProps } from "@/types/professional-roadmap-chat.types";
 
 import Link from "next/link";
 
@@ -24,11 +25,14 @@ const KEY = "professionalDashboard.roadmap";
 const DESCRIPTION_CLAMP_MIN_LENGTH = 160;
 
 export const RoadmapWorkspaceHeader = ({
+  onEdit,
   roadmap,
   onUnenroll,
   headingRef,
+  onContinue,
   isUnenrolling,
-}: RoadmapWorkspaceHeaderProps) => {
+  editingRoadmapId,
+}: TRoadmapWorkspaceHeaderProps) => {
   const { t } = useI18n();
   const [isDescriptionOpen, setIsDescriptionOpen] = useState(false);
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
@@ -119,6 +123,14 @@ export const RoadmapWorkspaceHeader = ({
           </ul>
         </div>
       </div>
+
+      <RoadmapActionButtons
+        roadmap={roadmap}
+        onEdit={onEdit}
+        onContinue={onContinue}
+        editingRoadmapId={editingRoadmapId}
+        className="max-w-sm sm:max-w-md"
+      />
 
       {roadmap.description ? (
         <div>

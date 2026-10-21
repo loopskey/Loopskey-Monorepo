@@ -16,6 +16,7 @@ import { BadRequestException } from "@nestjs/common";
 import { SERVICE_AI_LIMITS } from "@infrastructure/service-ai/service-ai.port";
 import { SERVICE_AI_PORT } from "@infrastructure/service-ai/service-ai.port";
 import { subjectLabelsOf } from "@professional/utils/roadmap-draft-merge.util";
+import { mapCarriedSteps } from "@professional/utils/roadmap-carry-over.util";
 import { requestContext } from "@infrastructure/observability/request-context";
 import { OutboxDeferral } from "@infrastructure/outbox/outbox-handler.port";
 import { OutboxService } from "@infrastructure/outbox/outbox.service";
@@ -167,6 +168,7 @@ export class ProfessionalRoadmapGenerationService {
 
   private toGenerationStatus(draft: {
     id: string;
+    replacesRoadmapId: string | null;
     goal: string | null;
     status: RoadmapDraftStatus;
     updatedAt: Date;
@@ -177,6 +179,7 @@ export class ProfessionalRoadmapGenerationService {
       goal: draft.goal,
       status: draft.status,
       updatedAt: draft.updatedAt,
+      replacesRoadmapId: draft.replacesRoadmapId,
       failure: mapGenerationFailure(draft.failureReason),
     };
   }
@@ -406,6 +409,9 @@ export class ProfessionalRoadmapGenerationService {
       .map((step) => tierFor(step.contentId, step.contentType))
       .filter((tier): tier is RankableCandidate["matchTier"] => Boolean(tier));
     const matchTier = worstTier(usedTiers);
+    const previousSteps = draft.replacesRoadmapId
+      ? await this.stepsOf(draft.replacesRoadmapId)
+      : [];
     return this.commitGenerated(draft.id, async (tx) => {
       const roadmap = await this.catalog.createGeneratedRoadmap(
         {
@@ -443,10 +449,30 @@ export class ProfessionalRoadmapGenerationService {
           userId: draft.userId,
           roadmapId: roadmap.id,
           targetDate: draft.targetDate,
+          replaces: draft.replacesRoadmapId
+            ? {
+                roadmapId: draft.replacesRoadmapId,
+                stepCount: roadmap.steps.length,
+                carriedSteps: mapCarriedSteps(previousSteps, roadmap.steps),
+              }
+            : undefined,
         },
         tx,
       );
     });
+  }
+
+  private async stepsOf(roadmapId: string) {
+    const [roadmap] = (await this.catalog.roadmaps([roadmapId])) as unknown as {
+      phases: {
+        steps: {
+          id: string;
+          contentId: string | null;
+          contentType: string | null;
+        }[];
+      }[];
+    }[];
+    return roadmap?.phases.flatMap((phase) => phase.steps) ?? [];
   }
 
   private async commitGenerated(
