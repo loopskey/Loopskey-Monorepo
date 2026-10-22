@@ -64,6 +64,27 @@ export type TRequirementLearningContentProps = {
   contents: TAssociationRequirementContent[];
 };
 
+export type TContentRow = {
+  t: I18nContextValue["t"];
+  requirementKeyValue: string;
+  associationName: string | null;
+  content: TAssociationRequirementContent;
+  onMarkComplete: (content: TAssociationRequirementContent) => void;
+  onViewExternal: (content: TAssociationRequirementContent) => void;
+};
+
+export type TContentCompletionStatusProps = {
+  content: Pick<
+    TAssociationLearningContentItem,
+    | "isLate"
+    | "isCompleted"
+    | "completedAt"
+    | "submittedAt"
+    | "creditedAmount"
+    | "completionState"
+  >;
+};
+
 export type TAssociationContentSectionProps = {
   isLoading: boolean;
   t: I18nContextValue["t"];

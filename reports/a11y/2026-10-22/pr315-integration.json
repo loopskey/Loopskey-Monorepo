@@ -1,0 +1,149 @@
+{
+  "date": "2026-10-22",
+  "base": "66ce868e69c6b9e421ea69bd521da2ce329b0a80",
+  "runner": "Playwright with axe-core 4.10.3; reduced-motion emulation; local Next 16.4.0 Webpack build",
+  "states": [
+    {
+      "locale": "en",
+      "width": 360,
+      "path": "/",
+      "status": 200,
+      "main": 1,
+      "h1": 1,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "locale": "en",
+      "width": 360,
+      "path": "/",
+      "menu": true,
+      "status": 200,
+      "main": 1,
+      "h1": 1,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "locale": "en",
+      "width": 360,
+      "path": "/content",
+      "status": 200,
+      "main": 1,
+      "h1": 1,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "locale": "en",
+      "width": 360,
+      "path": "/no-such-page-a11y-probe",
+      "status": 404,
+      "main": 1,
+      "h1": 1,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "locale": "fr",
+      "width": 360,
+      "path": "/fr",
+      "status": 200,
+      "main": 1,
+      "h1": 1,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "locale": "fr",
+      "width": 360,
+      "path": "/fr",
+      "menu": true,
+      "status": 200,
+      "main": 1,
+      "h1": 1,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "locale": "fr",
+      "width": 360,
+      "path": "/fr/content",
+      "status": 200,
+      "main": 1,
+      "h1": 1,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "locale": "fr",
+      "width": 360,
+      "path": "/fr/no-such-page-a11y-probe",
+      "status": 404,
+      "main": 1,
+      "h1": 1,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "locale": "en",
+      "width": 1350,
+      "path": "/",
+      "status": 200,
+      "main": 1,
+      "h1": 1,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "locale": "en",
+      "width": 1350,
+      "path": "/content",
+      "status": 200,
+      "main": 1,
+      "h1": 1,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "locale": "en",
+      "width": 1350,
+      "path": "/no-such-page-a11y-probe",
+      "status": 404,
+      "main": 1,
+      "h1": 1,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "locale": "fr",
+      "width": 1350,
+      "path": "/fr",
+      "status": 200,
+      "main": 1,
+      "h1": 1,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "locale": "fr",
+      "width": 1350,
+      "path": "/fr/content",
+      "status": 200,
+      "main": 1,
+      "h1": 1,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "locale": "fr",
+      "width": 1350,
+      "path": "/fr/no-such-page-a11y-probe",
+      "status": 404,
+      "main": 1,
+      "h1": 1,
+      "overflow": false,
+      "violations": []
+    }
+  ]
+}

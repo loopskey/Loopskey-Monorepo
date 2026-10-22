@@ -875,6 +875,7 @@ export type AssociationMemberActivity = {
   reviewNote?: Maybe<Scalars['String']['output']>;
   source: PduSource;
   state: AssociationAttributionState;
+  submittedAt: Scalars['DateTime']['output'];
   title: Scalars['String']['output'];
 };
 
@@ -908,12 +909,16 @@ export type AssociationMemberContentCompletion = {
   __typename?: 'AssociationMemberContentCompletion';
   activityDate: Scalars['DateTime']['output'];
   activityId: Scalars['ID']['output'];
+  completionState?: Maybe<AssociationAttributionState>;
   contentType?: Maybe<ContentType>;
+  creditedAmount?: Maybe<Scalars['Float']['output']>;
   credits: Scalars['Float']['output'];
   id: Scalars['ID']['output'];
   indicativeCredits?: Maybe<Scalars['Float']['output']>;
   isExternal: Scalars['Boolean']['output'];
+  isLate: Scalars['Boolean']['output'];
   provider?: Maybe<Scalars['String']['output']>;
+  submittedAt: Scalars['DateTime']['output'];
   title: Scalars['String']['output'];
 };
 
@@ -1180,6 +1185,7 @@ export type AssociationMyRequirementActivity = {
   isLate: Scalars['Boolean']['output'];
   reviewNote?: Maybe<Scalars['String']['output']>;
   state: AssociationAttributionState;
+  submittedAt: Scalars['DateTime']['output'];
   title: Scalars['String']['output'];
 };
 
@@ -1188,8 +1194,11 @@ export type AssociationMyRequirementContent = {
   associationId: Scalars['ID']['output'];
   associationName: Scalars['String']['output'];
   category?: Maybe<PduCategory>;
+  completedAt?: Maybe<Scalars['DateTime']['output']>;
+  completionState?: Maybe<AssociationAttributionState>;
   contentId?: Maybe<Scalars['ID']['output']>;
   contentType?: Maybe<ContentType>;
+  creditedAmount?: Maybe<Scalars['Float']['output']>;
   description?: Maybe<Scalars['String']['output']>;
   externalUrl?: Maybe<Scalars['String']['output']>;
   id: Scalars['ID']['output'];
@@ -1198,9 +1207,11 @@ export type AssociationMyRequirementContent = {
   isAvailable: Scalars['Boolean']['output'];
   isCompleted: Scalars['Boolean']['output'];
   isExternal: Scalars['Boolean']['output'];
+  isLate: Scalars['Boolean']['output'];
   isLinkedToRequirement: Scalars['Boolean']['output'];
   provider?: Maybe<Scalars['String']['output']>;
   slug?: Maybe<Scalars['String']['output']>;
+  submittedAt?: Maybe<Scalars['DateTime']['output']>;
   title: Scalars['String']['output'];
 };
 
@@ -1955,17 +1966,36 @@ export type Course = {
 };
 
 export const CourseCategory = {
+  Accounting: 'ACCOUNTING',
+  Ai: 'AI',
   Business: 'BUSINESS',
+  Career: 'CAREER',
+  Certification: 'CERTIFICATION',
+  Cloud: 'CLOUD',
+  Communication: 'COMMUNICATION',
   Compliance: 'COMPLIANCE',
-  Cpd: 'CPD',
+  Construction: 'CONSTRUCTION',
+  Cybersecurity: 'CYBERSECURITY',
+  Data: 'DATA',
   Design: 'DESIGN',
   Education: 'EDUCATION',
   Engineering: 'ENGINEERING',
   Finance: 'FINANCE',
+  General: 'GENERAL',
   Healthcare: 'HEALTHCARE',
+  HealthSafety: 'HEALTH_SAFETY',
+  HumanResources: 'HUMAN_RESOURCES',
   Leadership: 'LEADERSHIP',
+  Legal: 'LEGAL',
   Marketing: 'MARKETING',
-  Other: 'OTHER',
+  Nursing: 'NURSING',
+  ProductManagement: 'PRODUCT_MANAGEMENT',
+  ProjectManagement: 'PROJECT_MANAGEMENT',
+  Quality: 'QUALITY',
+  Sales: 'SALES',
+  SoftwareDevelopment: 'SOFTWARE_DEVELOPMENT',
+  SupplyChain: 'SUPPLY_CHAIN',
+  Sustainability: 'SUSTAINABILITY',
   Technology: 'TECHNOLOGY'
 } as const;
 
@@ -2561,17 +2591,36 @@ export type EventCatalogFilterInput = {
 };
 
 export const EventCategory = {
+  Accounting: 'ACCOUNTING',
+  Ai: 'AI',
   Business: 'BUSINESS',
+  Career: 'CAREER',
+  Certification: 'CERTIFICATION',
+  Cloud: 'CLOUD',
+  Communication: 'COMMUNICATION',
   Compliance: 'COMPLIANCE',
-  Cpd: 'CPD',
+  Construction: 'CONSTRUCTION',
+  Cybersecurity: 'CYBERSECURITY',
+  Data: 'DATA',
   Design: 'DESIGN',
   Education: 'EDUCATION',
   Engineering: 'ENGINEERING',
   Finance: 'FINANCE',
+  General: 'GENERAL',
   Healthcare: 'HEALTHCARE',
+  HealthSafety: 'HEALTH_SAFETY',
+  HumanResources: 'HUMAN_RESOURCES',
   Leadership: 'LEADERSHIP',
+  Legal: 'LEGAL',
   Marketing: 'MARKETING',
-  Other: 'OTHER',
+  Nursing: 'NURSING',
+  ProductManagement: 'PRODUCT_MANAGEMENT',
+  ProjectManagement: 'PROJECT_MANAGEMENT',
+  Quality: 'QUALITY',
+  Sales: 'SALES',
+  SoftwareDevelopment: 'SOFTWARE_DEVELOPMENT',
+  SupplyChain: 'SUPPLY_CHAIN',
+  Sustainability: 'SUSTAINABILITY',
   Technology: 'TECHNOLOGY'
 } as const;
 
@@ -3135,6 +3184,7 @@ export type Mutation = {
   deleteUser: User;
   deleteYouTubeChannel: YouTubeChannel;
   deleteYouTubeVideo: YouTubeVideo;
+  discardRoadmapEdit: Scalars['Boolean']['output'];
   dismissProfessionalOnboarding: ProfessionalDashboardProfile;
   enrollContent: ContentActionPayload;
   forgotPassword: AuthPayload;
@@ -3210,6 +3260,7 @@ export type Mutation = {
   setYouTubeChannelTranslationPublication: YouTubeChannelTranslation;
   startProfessionalOnboarding: ProfessionalDashboardProfile;
   startRoadmapDraft: ProfessionalRoadmapDraft;
+  startRoadmapEdit: ProfessionalRoadmapDraft;
   startRoadmapStep: RoadmapStepProgress;
   submitAssociationAccessRequest: AssociationActionResponse;
   submitContactInquiry: SubmitContactInquiryPayload;
@@ -3607,6 +3658,11 @@ export type MutationDeleteYouTubeVideoArgs = {
 };
 
 
+export type MutationDiscardRoadmapEditArgs = {
+  draftId: Scalars['ID']['input'];
+};
+
+
 export type MutationEnrollContentArgs = {
   input: ContentActionInput;
 };
@@ -3949,6 +4005,11 @@ export type MutationSetYouTubeChannelIndexExclusionArgs = {
 
 export type MutationSetYouTubeChannelTranslationPublicationArgs = {
   input: SetYouTubeChannelTranslationPublicationInput;
+};
+
+
+export type MutationStartRoadmapEditArgs = {
+  roadmapId: Scalars['ID']['input'];
 };
 
 
@@ -5126,20 +5187,36 @@ export type Podcast = {
 };
 
 export const PodcastCategory = {
+  Accounting: 'ACCOUNTING',
   Ai: 'AI',
   Business: 'BUSINESS',
   Career: 'CAREER',
+  Certification: 'CERTIFICATION',
+  Cloud: 'CLOUD',
+  Communication: 'COMMUNICATION',
   Compliance: 'COMPLIANCE',
-  Cpd: 'CPD',
+  Construction: 'CONSTRUCTION',
+  Cybersecurity: 'CYBERSECURITY',
   Data: 'DATA',
   Design: 'DESIGN',
   Education: 'EDUCATION',
   Engineering: 'ENGINEERING',
   Finance: 'FINANCE',
+  General: 'GENERAL',
   Healthcare: 'HEALTHCARE',
+  HealthSafety: 'HEALTH_SAFETY',
+  HumanResources: 'HUMAN_RESOURCES',
   Leadership: 'LEADERSHIP',
+  Legal: 'LEGAL',
   Marketing: 'MARKETING',
-  Other: 'OTHER',
+  Nursing: 'NURSING',
+  ProductManagement: 'PRODUCT_MANAGEMENT',
+  ProjectManagement: 'PROJECT_MANAGEMENT',
+  Quality: 'QUALITY',
+  Sales: 'SALES',
+  SoftwareDevelopment: 'SOFTWARE_DEVELOPMENT',
+  SupplyChain: 'SUPPLY_CHAIN',
+  Sustainability: 'SUSTAINABILITY',
   Technology: 'TECHNOLOGY'
 } as const;
 
@@ -5712,6 +5789,8 @@ export type ProfessionalRoadmapDraft = {
   preferredDeliveryFormats: Array<DeliveryFormat>;
   preferredFormats: Array<LearningFormat>;
   remainingFields: Array<RoadmapDraftStep>;
+  replacesRoadmapId?: Maybe<Scalars['ID']['output']>;
+  replacesRoadmapTitle?: Maybe<Scalars['String']['output']>;
   requiredCredits?: Maybe<Scalars['Float']['output']>;
   requiredFieldCount: Scalars['Int']['output'];
   skillLevel?: Maybe<SkillLevel>;
@@ -5732,6 +5811,7 @@ export type ProfessionalRoadmapGeneration = {
   failure?: Maybe<RoadmapGenerationFailure>;
   goal?: Maybe<Scalars['String']['output']>;
   id: Scalars['ID']['output'];
+  replacesRoadmapId?: Maybe<Scalars['ID']['output']>;
   status: RoadmapDraftStatus;
   updatedAt: Scalars['DateTime']['output'];
 };
@@ -7594,12 +7674,22 @@ export type SaveYouTubeChannelTranslationInput = {
   title: Scalars['String']['input'];
 };
 
+export type SearchHealthCollection = {
+  __typename?: 'SearchHealthCollection';
+  apiEnabled: Scalars['Boolean']['output'];
+  dedupWindowHours: Scalars['Int']['output'];
+  notices: Array<SearchHealthNotice>;
+  retentionDays: Scalars['Int']['output'];
+  vitalsSampleRate: Scalars['Float']['output'];
+};
+
 export type SearchHealthConversionRow = {
   __typename?: 'SearchHealthConversionRow';
   attribution: TelemetryAttribution;
   contentKind: TelemetryContentKind;
   count: Scalars['Int']['output'];
   event: TelemetryConversionEvent;
+  locale: TelemetryLocale;
   role: TelemetryRegistrationRole;
 };
 
@@ -7610,8 +7700,21 @@ export type SearchHealthIntakeRow = {
   outcome: TelemetryIntakeOutcome;
 };
 
+export const SearchHealthNotice = {
+  AggregatesAvailable: 'AGGREGATES_AVAILABLE',
+  CollectionDisabled: 'COLLECTION_DISABLED',
+  DeliveryFailures: 'DELIVERY_FAILURES',
+  InsufficientSamples: 'INSUFFICIENT_SAMPLES',
+  NoData: 'NO_DATA',
+  PartialCoverage: 'PARTIAL_COVERAGE',
+  RateLimited: 'RATE_LIMITED',
+  Sampled: 'SAMPLED'
+} as const;
+
+export type SearchHealthNotice = typeof SearchHealthNotice[keyof typeof SearchHealthNotice];
 export type SearchHealthReport = {
   __typename?: 'SearchHealthReport';
+  collection: SearchHealthCollection;
   conversions: Array<SearchHealthConversionRow>;
   days: Scalars['Int']['output'];
   daysWithData: Scalars['Int']['output'];
@@ -8543,20 +8646,36 @@ export const WishlistSortBy = {
 
 export type WishlistSortBy = typeof WishlistSortBy[keyof typeof WishlistSortBy];
 export const YouTubeCategory = {
+  Accounting: 'ACCOUNTING',
   Ai: 'AI',
   Business: 'BUSINESS',
   Career: 'CAREER',
+  Certification: 'CERTIFICATION',
+  Cloud: 'CLOUD',
+  Communication: 'COMMUNICATION',
   Compliance: 'COMPLIANCE',
-  Cpd: 'CPD',
+  Construction: 'CONSTRUCTION',
+  Cybersecurity: 'CYBERSECURITY',
   Data: 'DATA',
   Design: 'DESIGN',
   Education: 'EDUCATION',
   Engineering: 'ENGINEERING',
   Finance: 'FINANCE',
+  General: 'GENERAL',
   Healthcare: 'HEALTHCARE',
+  HealthSafety: 'HEALTH_SAFETY',
+  HumanResources: 'HUMAN_RESOURCES',
   Leadership: 'LEADERSHIP',
+  Legal: 'LEGAL',
   Marketing: 'MARKETING',
-  Other: 'OTHER',
+  Nursing: 'NURSING',
+  ProductManagement: 'PRODUCT_MANAGEMENT',
+  ProjectManagement: 'PROJECT_MANAGEMENT',
+  Quality: 'QUALITY',
+  Sales: 'SALES',
+  SoftwareDevelopment: 'SOFTWARE_DEVELOPMENT',
+  SupplyChain: 'SUPPLY_CHAIN',
+  Sustainability: 'SUSTAINABILITY',
   Technology: 'TECHNOLOGY'
 } as const;
 

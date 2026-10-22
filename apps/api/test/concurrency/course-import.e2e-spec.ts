@@ -149,7 +149,7 @@ describe("Course import identity (concurrency e2e)", () => {
         title: "Squatting on the generated slug",
         instructor: "Squatter",
         description: "Holds the slug the import would generate.",
-        category: "OTHER",
+        category: "GENERAL",
       },
     });
 

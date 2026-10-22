@@ -1,4 +1,5 @@
 import { CourseCategory, CourseLevel } from "@prisma/client";
+import { normalizeContentCategory } from "@utils/content-category.util";
 
 import sanitizeHtml from "sanitize-html";
 
@@ -21,38 +22,7 @@ export const cleanCourseDescription = (value?: string | null) =>
 
 export const normalizeCourseCategory = (
   value?: string | null,
-): CourseCategory => {
-  const normalized = value
-    ?.trim()
-    .toUpperCase()
-    .replace(/[\s-]+/g, "_");
-  if (!normalized) return CourseCategory.OTHER;
-  const categoryMap: Record<string, CourseCategory> = {
-    AI: CourseCategory.TECHNOLOGY,
-    DATA: CourseCategory.TECHNOLOGY,
-    TECH: CourseCategory.TECHNOLOGY,
-    TECHNOLOGY: CourseCategory.TECHNOLOGY,
-    COMPUTER_SCIENCE: CourseCategory.TECHNOLOGY,
-    SOFTWARE: CourseCategory.TECHNOLOGY,
-    PROGRAMMING: CourseCategory.TECHNOLOGY,
-    BUSINESS: CourseCategory.BUSINESS,
-    MANAGEMENT: CourseCategory.BUSINESS,
-    ENTREPRENEURSHIP: CourseCategory.BUSINESS,
-    FINANCE: CourseCategory.FINANCE,
-    ACCOUNTING: CourseCategory.FINANCE,
-    MARKETING: CourseCategory.MARKETING,
-    SALES: CourseCategory.MARKETING,
-    ENGINEERING: CourseCategory.ENGINEERING,
-    DESIGN: CourseCategory.DESIGN,
-    EDUCATION: CourseCategory.EDUCATION,
-    HEALTHCARE: CourseCategory.HEALTHCARE,
-    LEADERSHIP: CourseCategory.LEADERSHIP,
-    COMPLIANCE: CourseCategory.COMPLIANCE,
-    CPD: CourseCategory.CPD,
-  };
-  if (normalized in CourseCategory) return normalized as CourseCategory;
-  return categoryMap[normalized] ?? CourseCategory.OTHER;
-};
+): CourseCategory => normalizeContentCategory(value);
 
 export const normalizeCourseLevel = (value?: string | null): CourseLevel => {
   const normalized = value

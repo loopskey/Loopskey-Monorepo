@@ -75,7 +75,9 @@ const conversionKey = (dimensions: ConversionDimensions) =>
     dimensions.locale,
   ].join("|");
 
-const TRANSACTION_OPTIONS = { maxWait: 10_000, timeout: 15_000 };
+const TRANSACTION_OPTIONS = { maxWait: 1_000, timeout: 3_000 };
+const LOCK_TIMEOUT_MS = 1_000;
+const STATEMENT_TIMEOUT_MS = 2_000;
 
 @Injectable()
 export class TelemetryAggregateRepository {
@@ -83,6 +85,7 @@ export class TelemetryAggregateRepository {
 
   async record(input: RecordInput): Promise<RecordOutcome> {
     return this.prisma.$transaction(async (tx) => {
+      await this.boundSession(tx);
       const fresh = await this.claimFreshKeys(tx, [
         ...input.vitals.map((event) => event.dedupKey),
         ...input.conversions.map((event) => event.dedupKey),
@@ -112,6 +115,13 @@ export class TelemetryAggregateRepository {
   ) {
     if (count <= 0) return;
     await this.upsertIntake(this.prisma, day, [{ kind, outcome, count }]);
+  }
+
+  private async boundSession(tx: Prisma.TransactionClient) {
+    await tx.$queryRaw(Prisma.sql`
+      SELECT set_config('lock_timeout', ${String(LOCK_TIMEOUT_MS)}, true),
+             set_config('statement_timeout', ${String(STATEMENT_TIMEOUT_MS)}, true)
+    `);
   }
 
   private async claimFreshKeys(tx: Prisma.TransactionClient, keys: string[]) {

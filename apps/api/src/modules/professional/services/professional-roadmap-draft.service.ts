@@ -5,6 +5,24 @@ import { Injectable } from "@nestjs/common";
 
 const DEFAULT_TRANSCRIPT_PAGE = 30;
 
+const OPEN_EDIT_STATUSES: RoadmapDraftStatus[] = [
+  RoadmapDraftStatus.COLLECTING,
+  RoadmapDraftStatus.READY,
+  RoadmapDraftStatus.GENERATING,
+  RoadmapDraftStatus.FAILED,
+];
+
+const DISCARDABLE_EDIT_STATUSES: RoadmapDraftStatus[] = [
+  RoadmapDraftStatus.COLLECTING,
+  RoadmapDraftStatus.READY,
+  RoadmapDraftStatus.FAILED,
+];
+
+export type OpenEditDraftResult = {
+  draft: Prisma.RoadmapDraftGetPayload<object>;
+  created: boolean;
+};
+
 const RESETTABLE_STATUSES: RoadmapDraftStatus[] = [
   RoadmapDraftStatus.COLLECTING,
   RoadmapDraftStatus.READY,
@@ -87,10 +105,78 @@ export class ProfessionalRoadmapDraftService {
     return this.prismaService.roadmapDraft.findFirst({
       where: {
         userId,
+        replacesRoadmapId: null,
         status: { in: ProfessionalRoadmapDraftService.EDITABLE },
       },
       orderBy: { updatedAt: "desc" },
     });
+  }
+
+  async findOpenEditDraft(userId: string, roadmapId: string) {
+    return this.prismaService.roadmapDraft.findFirst({
+      where: {
+        userId,
+        replacesRoadmapId: roadmapId,
+        status: { in: OPEN_EDIT_STATUSES },
+      },
+    });
+  }
+
+  async openEditDraft(
+    userId: string,
+    roadmapId: string,
+    source: Prisma.RoadmapDraftGetPayload<object>,
+  ): Promise<OpenEditDraftResult> {
+    const data = {
+      userId,
+      goal: source.goal,
+      context: source.context,
+      subjects: source.subjects,
+      targetRole: source.targetRole,
+      goalReason: source.goalReason,
+      targetDate: source.targetDate,
+      skillLevel: source.skillLevel,
+      cpdPlanId: source.cpdPlanId,
+      cpdEnabled: source.cpdEnabled,
+      cpdAnswered: source.cpdAnswered,
+      timeCommitment: source.timeCommitment,
+      requiredCredits: source.requiredCredits,
+      certificationId: source.certificationId,
+      budgetPreference: source.budgetPreference,
+      completedCredits: source.completedCredits,
+      preferredFormats: source.preferredFormats,
+      certificationName: source.certificationName,
+      preferredContentTypes: source.preferredContentTypes,
+      preferredDeliveryFormats: source.preferredDeliveryFormats,
+      replacesRoadmapId: roadmapId,
+      status: RoadmapDraftStatus.READY,
+      currentStep: RoadmapDraftStep.REVIEW,
+    } satisfies Prisma.RoadmapDraftUncheckedCreateInput;
+    try {
+      const draft = await this.prismaService.roadmapDraft.create({ data });
+      return { draft, created: true };
+    } catch (error) {
+      if (
+        !(error instanceof Prisma.PrismaClientKnownRequestError) ||
+        error.code !== "P2002"
+      )
+        throw error;
+      const winner = await this.findOpenEditDraft(userId, roadmapId);
+      if (!winner) throw error;
+      return { draft: winner, created: false };
+    }
+  }
+
+  async discardEditDraft(userId: string, draftId: string) {
+    const result = await this.prismaService.roadmapDraft.deleteMany({
+      where: {
+        id: draftId,
+        userId,
+        replacesRoadmapId: { not: null },
+        status: { in: DISCARDABLE_EDIT_STATUSES },
+      },
+    });
+    return result.count > 0;
   }
 
   async findActiveGeneration(userId: string) {

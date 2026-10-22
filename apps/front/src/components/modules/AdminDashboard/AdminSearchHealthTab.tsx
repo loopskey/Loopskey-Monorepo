@@ -8,6 +8,7 @@ import { METRIC_ORDER, vitalsOf } from "@/utils/search-health";
 import { TelemetryIntakeOutcome } from "@/lib/graphql/base";
 import { TelemetryContentKind } from "@/lib/graphql/base";
 import { Gauge, LoaderCircle } from "lucide-react";
+import { SearchHealthNotices } from "@modules/AdminDashboard/parts/search-health-notices";
 import { formatMetricValue } from "@/utils/search-health";
 import { DataTable } from "@elements/data-table/data-table";
 import { GlassCard } from "@elements/glass-card";
@@ -45,14 +46,7 @@ const SearchHealthReportView = ({ report }: { report: SearchHealthReport }) => {
 
   return (
     <div className="space-y-6">
-      {report.isCollecting ? null : (
-        <div role="status" className="rounded-lg border border-dashed p-4">
-          <p className="font-medium">{t("searchHealth.collectionOff")}</p>
-          <p className="text-sm text-muted-foreground">
-            {t("searchHealth.collectionOffHint")}
-          </p>
-        </div>
-      )}
+      <SearchHealthNotices report={report} />
 
       <GlassCard className="space-y-1 p-4">
         <p className="text-sm">
@@ -144,7 +138,7 @@ const SearchHealthReportView = ({ report }: { report: SearchHealthReport }) => {
           caption={t("searchHealth.conversionsHeading")}
           empty={{ icon: Gauge, title: t("searchHealth.noConversions") }}
           rowKey={(row) =>
-            `${row.event}-${row.contentKind}-${row.role}-${row.attribution}`
+            `${row.event}-${row.contentKind}-${row.role}-${row.attribution}-${row.locale}`
           }
           columns={[
             {
@@ -162,6 +156,11 @@ const SearchHealthReportView = ({ report }: { report: SearchHealthReport }) => {
               id: "source",
               header: t("searchHealth.column.source"),
               cell: (row) => t(`searchHealth.attribution.${row.attribution}`),
+            },
+            {
+              id: "locale",
+              header: t("searchHealth.column.locale"),
+              cell: (row) => t(`searchHealth.locale.${row.locale}`),
             },
             {
               id: "count",

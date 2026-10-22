@@ -43,6 +43,23 @@ export const roadmapChatApi = baseApi.injectEndpoints({
       invalidatesTags: ["ProfessionalRoadmapDraft", "Professional"],
     }),
 
+    discardRoadmapEdit: builder.mutation<
+      TAPI.DiscardRoadmapEditMutation["discardRoadmapEdit"],
+      TAPI.DiscardRoadmapEditMutationVariables["draftId"]
+    >({
+      query: (draftId) => ({
+        document: API.DiscardRoadmapEditDocument,
+        variables: { draftId },
+      }),
+      transformResponse: (response: TAPI.DiscardRoadmapEditMutation) =>
+        response.discardRoadmapEdit,
+      invalidatesTags: [
+        "ProfessionalRoadmapDraft",
+        "ProfessionalRoadmaps",
+        "Professional",
+      ],
+    }),
+
     sendRoadmapChatTurn: builder.mutation<
       TAPI.SendRoadmapChatTurnMutation["sendRoadmapChatTurn"],
       TAPI.SendRoadmapChatTurnMutationVariables["input"]
@@ -114,6 +131,7 @@ export const {
   usePatchRoadmapDraftMutation,
   useStartRoadmapDraftMutation,
   useResetRoadmapDraftMutation,
+  useDiscardRoadmapEditMutation,
   useSendRoadmapChatTurnMutation,
   usePatchRoadmapCpdSetupMutation,
   useProfessionalRoadmapDraftQuery,

@@ -775,6 +775,14 @@ mutation UnenrollRoadmap($enrollmentId: ID!) {
   unenrollRoadmap(enrollmentId: $enrollmentId)
 }
 
+# The roadmap tab starts an edit and then hands the draft id to the coach page,
+# which loads the full draft itself, so only the id is selected here.
+mutation StartRoadmapEdit($roadmapId: ID!) {
+  startRoadmapEdit(roadmapId: $roadmapId) {
+    id
+  }
+}
+
 # A lean retry of the same generation, declared here for the same bundling
 # reason as the status query below: the dashboard's generic-failure card
 # retries in place without importing the chat page's operations module.
@@ -793,6 +801,7 @@ query ProfessionalRoadmapGenerationStatus($draftId: ID) {
     id
     goal
     status
+    replacesRoadmapId
     updatedAt
     failure {
       code

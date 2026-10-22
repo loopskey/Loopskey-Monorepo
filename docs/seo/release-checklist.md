@@ -38,7 +38,10 @@ as pending.
 - [ ] Production smoke includes a checked eligible course detail; missing
       fixtures and incomplete sitemap-shard coverage must fail the check.
 - [ ] The telemetry decision in `docs/seo/telemetry-and-privacy.md` is recorded
-      (approver and date), or both telemetry flags are `false`.
+      in `docs/seo/operator-manifest.md` (approver and date), or both telemetry
+      flags are `false`.
+- [ ] Admin, Search health, on this deployment, shows the website build and the
+      API in the state the manifest says. A mismatch is a defect, not a result.
 
 ## 3. Staging (must be unindexable)
 
@@ -77,7 +80,8 @@ node scripts/seo-audit.mjs --base-url https://<production-origin> --environment 
 
 ## 5. Search Console and monitoring (operator)
 
-Follow `docs/seo/search-console-runbook.md`. These stay unticked until done.
+Follow `docs/seo/search-console-runbook.md` and record the results in
+`docs/seo/operator-manifest.md`. These stay unticked until done.
 
 - [ ] Domain property verified.
 - [ ] Sitemap submitted.
@@ -103,9 +107,11 @@ attribute every change to search work.
 | When   | Compare                                                                               | Source               | Owner       |
 | ------ | ------------------------------------------------------------------------------------- | -------------------- | ----------- |
 | Day 7  | Impressions, clicks, CTR, indexed canonical pages, sitemap discovered count           | Search Console       | to be named |
+| Day 7  | The same measures for queries, pages, countries and devices, as one artifact          | `scripts/search-console-review.mjs` | to be named |
 | Day 7  | Organic registration starts and completions, content page opens, external link clicks | Admin, Search health | to be named |
 | Day 7  | 75th percentile and sample size for LCP, INP, CLS by device and template              | Admin, Search health | to be named |
 | Day 28 | The same measures against the previous 28 days                                        | Same sources         | to be named |
+| Day 28 | The same artifact with `windowDays` 28                                                | `scripts/search-console-review.mjs` | to be named |
 | Day 28 | Core Web Vitals report and any indexing issue trend                                   | Search Console       | to be named |
 
 Thresholds for action:

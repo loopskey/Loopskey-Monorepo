@@ -43,3 +43,15 @@
 - Commit: 4276765a
 - PR: https://github.com/loopskey/Loopskey-Monorepo/pull/315
 - CI: pending
+
+## Develop integration — 2026-10-22
+
+- Model tier: Standard development; bounded conflict resolution in existing public UI and generated translations, without an API or data change.
+- Integration base: `origin/develop` at `66ce868e69c6b9e421ea69bd521da2ce329b0a80`.
+- Merged develop into the PR branch without rewriting its existing commits.
+- Kept the updated logo asset dimensions and responsive sizing from develop, together with the localized accessible name from this PR.
+- Kept the new navy, sky and large-text brand tokens alongside the corrected orange small-text contrast.
+- Accepted removal of the superseded `LandingContentCarousel`; the replacement Learning Shelf already has localized controls and larger targets. Regenerated the public dictionaries from the merged import graph.
+- Preserved all four feature-history entries for PRs #315–#318.
+- Fresh checks: frontend lint, TypeScript, public dictionary drift, `next build --webpack` and the accessibility/performance/fixture harness self-tests pass. Playwright/axe checked 14 reduced-motion states with zero violations; keyboard and responsive checks passed in both locales at 360, 640 and 1350px. Evidence and local build limitations: `reports/a11y/2026-10-22/README.md`.
+- The measurements under `reports/a11y/2026-10-19/` remain historical evidence against `571e5fe4`; they are not measurements of this integration revision.

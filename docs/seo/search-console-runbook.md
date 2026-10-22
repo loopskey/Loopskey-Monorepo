@@ -16,6 +16,10 @@ step in the log at the bottom only when it has actually been done.
 Name real people and a shared mailbox in the log before the first release. A
 property with a single owner is lost when that person leaves.
 
+The named owners, the property, the DNS method and the review calendar are kept
+in `docs/seo/operator-manifest.md`. Every item there reads pending until the
+action has really been done and can be evidenced.
+
 ## 1. Verify the domain
 
 Use a **Domain property** for the canonical domain, for example `example.com`.
@@ -92,6 +96,79 @@ appears once Google has seen enough pages of that type.
 3. Break down by Queries, Pages, Countries and Devices. Compare the same
    length of period; do not compare a weekend to a weekday.
 4. Export the data for the review schedule in the release checklist.
+
+### Producing the 7 and 28 day review
+
+The review is made from the exports an authorised owner downloads. No Search
+Console API connection is needed, and none should be added for this.
+
+1. Export the current window and the equal-length window before it. Use
+   complete days only: the last day must be at least two days old. Each export
+   is a folder with `Queries.csv`, `Pages.csv`, `Countries.csv` and
+   `Devices.csv`. Keep the folders under `reports/seo/<review date>/` on the
+   owner's machine; they are not committed.
+2. Write a manifest beside them. Every field is required except `evidence`:
+
+   ```json
+   {
+     "property": "sc-domain:<registrable domain>",
+     "owner": "<named review owner>",
+     "windowDays": 7,
+     "releaseDate": "YYYY-MM-DD",
+     "reviewedOn": "YYYY-MM-DD",
+     "dataLagDays": 2,
+     "current": {
+       "directory": "current",
+       "start": "YYYY-MM-DD",
+       "end": "YYYY-MM-DD",
+       "exportedBy": "<person who exported>",
+       "exportedOn": "YYYY-MM-DD"
+     },
+     "previous": {
+       "directory": "previous",
+       "start": "YYYY-MM-DD",
+       "end": "YYYY-MM-DD",
+       "exportedBy": "<person who exported>",
+       "exportedOn": "YYYY-MM-DD"
+     },
+     "evidence": [
+       {
+         "kind": "first-party-field",
+         "status": "insufficient",
+         "label": "LCP, home, mobile",
+         "sampleSize": 40
+       }
+     ]
+   }
+   ```
+
+3. Run it:
+
+   ```
+   node scripts/search-console-review.mjs --manifest <manifest.json> --out review.json --markdown review.md
+   ```
+
+   `windowDays` is 7 or 28. `evidence` is for speed results and each entry is
+   `lab`, `first-party-field` or `search-console-core-web-vitals`, with a status
+   of `available`, `insufficient`, `pending` or `unavailable`. First-party field
+   data under 100 measured page loads cannot be recorded as available, and a lab
+   result must say how it was run.
+
+What the artifact guarantees:
+
+- A missing export file is **unavailable**, an export with no rows is **empty**,
+  and neither is ever shown as zero.
+- Change figures appear only when the two windows have the same length, do not
+  overlap and end outside the data lag. Otherwise the artifact says why and
+  shows none.
+- The release date is stated against both windows, so a window that straddles
+  it is not presented as a clean baseline.
+- Lab results, first-party field data and the Search Console Core Web Vitals
+  report sit under separate headings and never fill each other's gaps.
+- The artifact carries `"claim": "none"`. It does not say growth or uplift.
+
+Attach the generated `review.json` and `review.md` to the release record. The
+raw exports stay with the owner unless they approve sharing them.
 
 Search Console data lags by about two days. Annotate the release date next to
 every comparison.

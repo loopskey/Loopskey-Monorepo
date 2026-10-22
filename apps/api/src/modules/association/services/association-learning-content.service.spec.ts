@@ -1,6 +1,7 @@
 import { AssociationLearningContentService } from "@association/services/association-learning-content.service";
 import { LEARNING_CONTENT_PUBLISHED_EVENT } from "@association/services/association-learning-content.service";
 import { LEARNING_CONTENT_AUDIENCE_CHANGED_EVENT } from "@association/services/association-learning-content-recipient.service";
+import { type ProfessionalRequirementDirectoryApi } from "@professional/public/professional-requirement-directory-api";
 import { type ProfessionalComplianceApi } from "@professional/public/professional-compliance-api";
 import { type CatalogEndorsementApi } from "@landing/public/catalog-endorsement-api";
 import { AssociationAccessService } from "@association/services/association-access.service";
@@ -10,6 +11,7 @@ import { AssociationRequirementStatus } from "@prisma/client";
 import { AssociationMemberStatus } from "@prisma/client";
 import { AssociationAudienceKind } from "@prisma/client";
 import { ContentType, PDUCategory, Prisma, Role } from "@prisma/client";
+import { PDUStatus } from "@prisma/client";
 import { AssociationLearningExternalType } from "@prisma/client";
 import { OutboxService } from "@infrastructure/outbox/outbox.service";
 import { PrismaService } from "@prisma/prisma.service";
@@ -65,14 +67,12 @@ const setup = ({
   createResult = contentRow(),
   createError = null,
   winner = { id: "item-1" },
-  engagement = [
-    {
-      contentType: ContentType.COURSE,
-      contentId: "course-1",
-      memberCount: 3,
-      credits: 12,
-    },
+  completions = [
+    { userId: "user-1", status: PDUStatus.PENDING, credits: 7 },
+    { userId: "user-2", status: PDUStatus.APPROVED, credits: 5 },
+    { userId: "user-3", status: PDUStatus.REJECTED, credits: 9 },
   ],
+  isReassigned = true,
   resolveThrows = false,
   updateManyCount = 1,
   deleteManyCount = 1,
@@ -87,7 +87,8 @@ const setup = ({
   createResult?: ReturnType<typeof contentRow>;
   createError?: unknown;
   winner?: { id: string } | null;
-  engagement?: Record<string, unknown>[];
+  completions?: { userId: string; status: PDUStatus; credits: number }[];
+  isReassigned?: boolean;
   resolveThrows?: boolean;
   updateManyCount?: number;
   deleteManyCount?: number;
@@ -148,6 +149,15 @@ const setup = ({
     },
     associationGroup: { findMany: groupFindMany },
     associationMember: { findMany: memberFindMany },
+    associationLearningContentRecipient: {
+      findMany: jest
+        .fn()
+        .mockResolvedValue([
+          { member: { userId: "user-1" } },
+          { member: { userId: "user-2" } },
+          { member: { userId: "user-3" } },
+        ]),
+    },
     $queryRaw: queryRaw,
   };
   (prisma as Record<string, unknown>).$transaction = jest.fn(
@@ -165,7 +175,12 @@ const setup = ({
   };
 
   const activities = {
-    contentEngagement: jest.fn().mockResolvedValue(engagement),
+    contentCompletions: jest.fn().mockResolvedValue(completions),
+  };
+
+  const directory = {
+    removeContentLinks: jest.fn().mockResolvedValue(0),
+    reassignContentRequirement: jest.fn().mockResolvedValue(isReassigned),
   };
 
   const outbox = { append: outboxAppend };
@@ -177,6 +192,8 @@ const setup = ({
     updateMany,
     deleteMany,
     activities,
+    directory,
+    prisma,
     outboxAppend,
     groupFindMany,
     memberFindMany,
@@ -190,6 +207,7 @@ const setup = ({
       access as unknown as AssociationAccessService,
       catalog as unknown as CatalogEndorsementApi,
       activities as unknown as ProfessionalComplianceApi,
+      directory as unknown as ProfessionalRequirementDirectoryApi,
     ),
   };
 };
@@ -469,6 +487,68 @@ describe("AssociationLearningContentService", () => {
       );
     });
 
+    it("moves the directory links with the requirement in the same transaction", async () => {
+      const { service, directory, prisma } = setup({
+        rows: [contentRow({ requirementId: "req-old" })],
+        requirements: [
+          { id: "req-new", status: AssociationRequirementStatus.PUBLISHED },
+        ],
+      });
+
+      await service.update(owner, {
+        learningContentId: "item-1",
+        contentType: ContentType.COURSE,
+        contentId: "course-1",
+        requirementId: "req-new",
+      });
+
+      expect(directory.reassignContentRequirement).toHaveBeenCalledWith(
+        "item-1",
+        "req-new",
+        prisma,
+      );
+    });
+
+    it("refuses to move an item members have already completed, leaving the requirement untouched", async () => {
+      const { service, update } = setup({
+        isReassigned: false,
+        rows: [contentRow({ requirementId: "req-old" })],
+        requirements: [
+          { id: "req-new", status: AssociationRequirementStatus.PUBLISHED },
+        ],
+      });
+
+      await expect(
+        service.update(owner, {
+          learningContentId: "item-1",
+          contentType: ContentType.COURSE,
+          contentId: "course-1",
+          requirementId: "req-new",
+        }),
+      ).rejects.toMatchObject({
+        response: {
+          code: AssociationMessageCode.LEARNING_CONTENT_REQUIREMENT_LOCKED,
+        },
+      });
+      expect(update).not.toHaveBeenCalled();
+    });
+
+    it("does not touch the directory for an edit that keeps the requirement", async () => {
+      const { service, directory } = setup({
+        rows: [contentRow({ requirementId: "req-1" })],
+      });
+
+      await service.update(owner, {
+        learningContentId: "item-1",
+        contentType: ContentType.COURSE,
+        contentId: "course-1",
+        requirementId: "req-1",
+        category: PDUCategory.ETHICS,
+      });
+
+      expect(directory.reassignContentRequirement).not.toHaveBeenCalled();
+    });
+
     it("refuses replacing a link with an archived requirement, leaving the stored link untouched", async () => {
       const { service, update } = setup({
         rows: [contentRow({ requirementId: "req-old" })],
@@ -734,6 +814,28 @@ describe("AssociationLearningContentService", () => {
         }),
       );
     });
+
+    it("removes the directory links in the same transaction as the withdrawal", async () => {
+      const { service, directory, prisma } = setup();
+
+      await service.withdraw(owner, "item-1");
+
+      expect(directory.removeContentLinks).toHaveBeenCalledWith(
+        "item-1",
+        prisma,
+      );
+    });
+
+    it("keeps the directory links when the withdrawal loses the race", async () => {
+      const { service, directory } = setup({ updateManyCount: 0 });
+
+      await expect(service.withdraw(owner, "item-1")).rejects.toMatchObject({
+        response: {
+          code: AssociationMessageCode.LEARNING_CONTENT_STATUS_CONFLICT,
+        },
+      });
+      expect(directory.removeContentLinks).not.toHaveBeenCalled();
+    });
   });
 
   describe("deletion", () => {
@@ -765,21 +867,25 @@ describe("AssociationLearningContentService", () => {
   });
 
   describe("engagement", () => {
-    it("counts the members who recorded activities against the item", async () => {
+    it("counts the audience members whose completion was not rejected", async () => {
       const { service, activities } = setup();
 
       const item = await service.one(owner, "item-1");
 
-      expect(item.engagement).toEqual({ memberCount: 3, credits: 12 });
-      expect(activities.contentEngagement).toHaveBeenCalledWith({
-        userIds: ["user-1"],
-        references: [
-          { contentType: ContentType.COURSE, contentId: "course-1" },
+      expect(item.engagement).toEqual({ memberCount: 2, credits: 12 });
+      expect(activities.contentCompletions).toHaveBeenCalledWith({
+        userIds: ["user-1", "user-2", "user-3"],
+        items: [
+          {
+            learningContentId: "item-1",
+            contentType: ContentType.COURSE,
+            contentId: "course-1",
+          },
         ],
       });
     });
 
-    it("has no engagement for an external resource", async () => {
+    it("measures an external resource through its own id", async () => {
       const { service, activities } = setup({
         rows: [
           contentRow({
@@ -793,8 +899,34 @@ describe("AssociationLearningContentService", () => {
 
       const item = await service.one(owner, "item-1");
 
-      expect(item.engagement).toBe(null);
-      expect(activities.contentEngagement).not.toHaveBeenCalled();
+      expect(item.engagement).toEqual({ memberCount: 2, credits: 12 });
+      expect(activities.contentCompletions).toHaveBeenCalledWith(
+        expect.objectContaining({
+          items: [
+            { learningContentId: "item-1", contentType: null, contentId: null },
+          ],
+        }),
+      );
+    });
+
+    it("leaves out members who are no longer in the audience", async () => {
+      const { service, prisma } = setup();
+
+      await service.one(owner, "item-1");
+
+      expect(
+        prisma.associationLearningContentRecipient.findMany,
+      ).toHaveBeenCalledWith({
+        where: {
+          learningContentId: "item-1",
+          isTargeted: true,
+          member: {
+            associationId: "assoc-1",
+            status: { not: AssociationMemberStatus.INACTIVE },
+          },
+        },
+        select: { member: { select: { userId: true } } },
+      });
     });
   });
 

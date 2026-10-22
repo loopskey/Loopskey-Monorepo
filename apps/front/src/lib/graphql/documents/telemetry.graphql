@@ -13,6 +13,13 @@ query SearchHealthReport($input: SearchHealthReportInput!) {
     daysWithData
     minimumSamples
     isCollecting
+    collection {
+      apiEnabled
+      vitalsSampleRate
+      retentionDays
+      dedupWindowHours
+      notices
+    }
     vitals {
       metric
       device
@@ -27,6 +34,7 @@ query SearchHealthReport($input: SearchHealthReportInput!) {
       contentKind
       role
       attribution
+      locale
       count
     }
     intake {

@@ -20,8 +20,19 @@ const setup = () => {
     associationLearningContentRecipient: {
       createMany: jest.fn().mockResolvedValue({ count: 0 }),
       updateMany: jest.fn().mockResolvedValue({ count: 0 }),
+      findMany: jest
+        .fn()
+        .mockResolvedValue([
+          { member: { userId: "u-1" } },
+          { member: { userId: "u-2" } },
+        ]),
     },
     $queryRaw: jest.fn().mockResolvedValue([]),
+  };
+  const directory = {
+    replaceContentRecipients: jest.fn().mockResolvedValue(undefined),
+    replaceMemberContent: jest.fn().mockResolvedValue(undefined),
+    removeContentLinks: jest.fn().mockResolvedValue(0),
   };
   const prisma = {
     associationLearningContent: {
@@ -32,6 +43,7 @@ const setup = () => {
       findMany: jest.fn().mockResolvedValue([{ id: "m-1" }, { id: "m-2" }]),
       findUnique: jest.fn().mockResolvedValue({
         id: "m-1",
+        userId: "u-1",
         associationId: "assoc-1",
         groupId: "group-1",
         status: AssociationMemberStatus.ACTIVE,
@@ -54,10 +66,12 @@ const setup = () => {
   return {
     tx,
     prisma,
+    directory,
     notifications,
     service: new AssociationLearningContentRecipientService(
       prisma as unknown as PrismaService,
       notifications as never,
+      directory as never,
     ),
   };
 };
@@ -87,7 +101,38 @@ describe("AssociationLearningContentRecipientService syncContent", () => {
       },
       data: { isTargeted: true, announcedAt: null },
     });
-    expect(tx.$queryRaw).toHaveBeenCalledTimes(1);
+    expect(tx.$queryRaw).toHaveBeenCalledTimes(2);
+  });
+
+  it("publishes the directory links of the item's current recipients with the requirement it counts toward", async () => {
+    const { service, tx, directory } = setup();
+    tx.$queryRaw.mockResolvedValueOnce([]).mockResolvedValueOnce([
+      {
+        status: AssociationLearningContentStatus.PUBLISHED,
+        requirementId: "req-1",
+      },
+    ]);
+
+    await service.syncContent("lc-1");
+
+    expect(directory.replaceContentRecipients).toHaveBeenCalledWith(
+      {
+        learningContentId: "lc-1",
+        requirementId: "req-1",
+        userIds: ["u-1", "u-2"],
+      },
+      tx,
+    );
+    expect(
+      tx.associationLearningContentRecipient.findMany,
+    ).toHaveBeenCalledWith({
+      where: {
+        learningContentId: "lc-1",
+        isTargeted: true,
+        member: { status: { not: AssociationMemberStatus.INACTIVE } },
+      },
+      select: { member: { select: { userId: true } } },
+    });
   });
 
   it("untargets members the audience no longer covers so a real re-add announces again", async () => {
@@ -130,19 +175,28 @@ describe("AssociationLearningContentRecipientService syncContent", () => {
     );
   });
 
-  it("leaves an unpublished item alone", async () => {
-    const { service, prisma, tx } = setup();
+  it("targets nobody for an unpublished item and removes its directory links", async () => {
+    const { service, prisma, tx, directory } = setup();
     prisma.associationLearningContent.findUnique.mockResolvedValue(
       content({ status: AssociationLearningContentStatus.WITHDRAWN }),
     );
+    tx.$queryRaw.mockResolvedValue([
+      {
+        status: AssociationLearningContentStatus.WITHDRAWN,
+        requirementId: null,
+      },
+    ]);
 
     await expect(service.syncContent("lc-1")).resolves.toEqual({
       targeted: 0,
       untargeted: 0,
       announced: 0,
     });
-    expect(prisma.$transaction).not.toHaveBeenCalled();
-    expect(tx.$queryRaw).not.toHaveBeenCalled();
+    expect(
+      tx.associationLearningContentRecipient.createMany,
+    ).not.toHaveBeenCalled();
+    expect(directory.removeContentLinks).toHaveBeenCalledWith("lc-1", tx);
+    expect(directory.replaceContentRecipients).not.toHaveBeenCalled();
   });
 
   it("renews the outbox lease after every batch", async () => {
@@ -157,7 +211,13 @@ describe("AssociationLearningContentRecipientService syncContent", () => {
 
 describe("AssociationLearningContentRecipientService syncMember", () => {
   it("targets the member for every published item that covers them and untargets the rest", async () => {
-    const { service, prisma, tx } = setup();
+    const { service, prisma, tx, directory } = setup();
+    tx.$queryRaw
+      .mockResolvedValueOnce([
+        { id: "lc-all", requirementId: "req-1" },
+        { id: "lc-direct", requirementId: null },
+      ])
+      .mockResolvedValueOnce([]);
     prisma.associationLearningContent.findMany.mockResolvedValue([
       content({ id: "lc-all" }),
       content({
@@ -191,13 +251,25 @@ describe("AssociationLearningContentRecipientService syncMember", () => {
       },
       data: { isTargeted: false, announcedAt: null },
     });
-    expect(tx.$queryRaw).toHaveBeenCalledTimes(1);
+    expect(directory.replaceMemberContent).toHaveBeenCalledWith(
+      {
+        userId: "u-1",
+        scopeContentIds: ["lc-all", "lc-other-group", "lc-direct"],
+        items: [
+          { learningContentId: "lc-all", requirementId: "req-1" },
+          { learningContentId: "lc-direct", requirementId: null },
+        ],
+      },
+      tx,
+    );
+    expect(tx.$queryRaw).toHaveBeenCalledTimes(2);
   });
 
   it("untargets everything for a deactivated member", async () => {
-    const { service, prisma, tx } = setup();
+    const { service, prisma, tx, directory } = setup();
     prisma.associationMember.findUnique.mockResolvedValue({
       id: "m-1",
+      userId: "u-1",
       associationId: "assoc-1",
       groupId: null,
       status: AssociationMemberStatus.INACTIVE,
@@ -215,6 +287,10 @@ describe("AssociationLearningContentRecipientService syncMember", () => {
       expect.objectContaining({
         where: expect.objectContaining({ learningContentId: { notIn: [] } }),
       }),
+    );
+    expect(directory.replaceMemberContent).toHaveBeenCalledWith(
+      { userId: "u-1", scopeContentIds: ["lc-1"], items: [] },
+      tx,
     );
   });
 });

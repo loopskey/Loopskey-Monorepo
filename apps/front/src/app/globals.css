@@ -25,6 +25,10 @@
   --brand-orange: oklch(0.7009 0.1744 52.07);
   --brand-orange-foreground: oklch(0.24 0.05 50);
   --brand-orange-text: oklch(0.52 0.1455 49);
+  --brand-orange-large-text: oklch(0.684 0.176 51.4);
+  --brand-navy: oklch(0.272 0.188 264.4);
+  --brand-sky: oklch(0.764 0.14 229.4);
+  --brand-sky-large-text: oklch(0.658 0.14 229.4);
   --success: oklch(0.5273 0.1371 150.07);
   --success-foreground: oklch(1 0 0);
 
@@ -118,6 +122,10 @@
   --color-brand-orange: var(--brand-orange);
   --color-brand-orange-foreground: var(--brand-orange-foreground);
   --color-brand-orange-text: var(--brand-orange-text);
+  --color-brand-orange-large-text: var(--brand-orange-large-text);
+  --color-brand-navy: var(--brand-navy);
+  --color-brand-sky: var(--brand-sky);
+  --color-brand-sky-large-text: var(--brand-sky-large-text);
 
   --color-success: var(--success);
   --color-success-foreground: var(--success-foreground);
@@ -206,31 +214,22 @@ body {
   color: var(--foreground);
 }
 
-/* ================= Landing Embla Carousel ================= */
-.landing-carousel-fade-left,
-.landing-carousel-fade-right {
-  top: 0;
-  bottom: 0;
-  width: 5rem;
-  z-index: 10;
-  position: absolute;
-  pointer-events: none;
+.landing-shelf-progress {
+  transform-origin: left;
+  animation: landing-shelf-progress 6s linear forwards;
 }
 
-.landing-carousel-fade-left {
-  left: 0;
-  background: linear-gradient(to right, var(--background), transparent);
+.landing-shelf-progress[data-paused="true"] {
+  animation-play-state: paused;
 }
 
-.landing-carousel-fade-right {
-  right: 0;
-  background: linear-gradient(to left, var(--background), transparent);
-}
+@keyframes landing-shelf-progress {
+  from {
+    transform: scaleX(0);
+  }
 
-@media (max-width: 767px) {
-  .landing-carousel-fade-left,
-  .landing-carousel-fade-right {
-    display: none;
+  to {
+    transform: scaleX(1);
   }
 }
 

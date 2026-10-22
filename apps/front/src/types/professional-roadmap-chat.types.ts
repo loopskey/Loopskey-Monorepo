@@ -4,7 +4,7 @@ import { PatchRoadmapDraftInput } from "@/lib/graphql/base";
 import { RoadmapDraftStatus } from "@/lib/graphql/base";
 import { StepPending } from "@/hooks/useRoadmapStepProgress";
 
-import type { ChangeEvent, ReactNode, RefObject } from "react";
+import type { ChangeEvent, ReactNode, Ref, RefObject } from "react";
 import type { RoadmapGenerationRecoveryAction } from "@/lib/graphql/base";
 import type { RoadmapGenerationFailureCode } from "@/lib/graphql/base";
 import type { TProfessionalExploreRoadmap } from "@/types/professional-dashboard.types";
@@ -50,6 +50,7 @@ export type TRoadmapGenerationFailure = {
 
 export type TRoadmapStatusProps = {
   draftId: string;
+  isEdit?: boolean;
   onRetry: () => void;
   isRetrying: boolean;
   goal?: string | null;
@@ -172,7 +173,19 @@ export type TRoadmapSuggestionExpansion = {
 
 export type RoadmapSection = "path" | "recommended" | "explore";
 
-export type RoadmapSwitcherProps = {
+export type TRoadmapActionHandlers = {
+  onEdit: (roadmapId: string) => void;
+  onContinue: (roadmapId: string) => void;
+  editingRoadmapId?: string | null;
+};
+
+export type TRoadmapActionButtonsProps = TRoadmapActionHandlers & {
+  className?: string;
+  size?: "default" | "sm";
+  roadmap: TProfessionalRoadmap;
+};
+
+export type TRoadmapSwitcherProps = TRoadmapActionHandlers & {
   search: string;
   showSearch: boolean;
   isFetching: boolean;
@@ -181,18 +194,19 @@ export type RoadmapSwitcherProps = {
   onSearchChange: (event: ChangeEvent<HTMLInputElement>) => void;
 };
 
-export type RoadmapWorkspaceHeaderProps = {
+export type TRoadmapWorkspaceHeaderProps = TRoadmapActionHandlers & {
   isUnenrolling: boolean;
   roadmap: TProfessionalRoadmap;
   onUnenroll: (enrollmentId: string) => void;
   headingRef: RefObject<HTMLHeadingElement | null>;
 };
 
-export type RoadmapFocusCardProps = {
+export type TRoadmapFocusCardProps = {
   onExplore: () => void;
-  roadmap: TProfessionalRoadmap;
+  focusRef: Ref<HTMLElement>;
   pending: StepPending | null;
   failedStepId: string | null;
+  roadmap: TProfessionalRoadmap;
   onStart: (enrollmentId: string, stepId: string) => void;
   onComplete: (enrollmentId: string, stepId: string) => void;
 };

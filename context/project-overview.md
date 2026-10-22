@@ -92,7 +92,7 @@ Four subpath entry points, plus the package root:
 
 | Entry point    | Contents                                                          | Why it cannot live in the schema                                         |
 | -------------- | ----------------------------------------------------------------- | ------------------------------------------------------------------------ |
-| `/error-codes` | 174 keys across 9 domain enums                                    | Codes are an error vocabulary, not a data type                           |
+| `/error-codes` | 180 keys across 9 domain enums                                    | Codes are an error vocabulary, not a data type                           |
 | `/upload`      | MIME allowlist, extension map, file/byte caps, REST path builders | Upload is multipart REST, not GraphQL                                    |
 | `/auth`        | Access/refresh cookie name defaults, `PLATFORM_ROLES`             | Cookie names are transport config; the proxy reads them before any query |
 | `/validation`  | Certificate field bounds, `isExpiryOnOrAfterIssue`                | Bounds live in decorators and Zod, neither of which the schema carries   |
@@ -104,7 +104,7 @@ service, resolver or React component imports the package itself, which is what
 keeps the blast radius of a contract change small; preserve that when adding a
 consumer.
 
-_Message codes_ (174 keys, 172 distinct values — a few names recur across
+_Message codes_ (180 keys, 178 distinct values — a few names recur across
 domains). Each backend module's `enums/message-code.enum.ts` is now a
 one-line re-export, so existing `@auth/enums/message-code.enum` imports are
 unchanged:
@@ -367,13 +367,31 @@ refresh-token sessions, account status, and role-based access.
 - Events with schedules and registrations
 - Podcasts with episodes
 - YouTube channels and videos
-- Roadmaps with phases, steps, and enrollments
+- Roadmaps with phases, steps, and enrollments. A generated roadmap can be
+  edited: `startRoadmapEdit` copies the brief behind its enrollment into an edit
+  draft (`RoadmapDraft.replacesRoadmapId`) for the roadmap coach, and
+  regenerating replaces the enrollment while keeping step progress on content
+  that survives into the new roadmap
 - Certifications and certification categories
 - `ingestion`: the crawler-facing REST intake for all four content kinds
   (`IngestionSource`, `IngestionApiKey`, `IngestionBatch`, `IngestionItem`),
   its mapping pipeline, review queue, and admin console. It writes catalogue
   rows in a draft state; it does not own the catalogue models themselves. See
   the Communication Architecture section and `apps/api/docs/content-ingestion.md`.
+
+#### Content categories
+
+Courses, events, podcasts, YouTube channels, roadmaps and topic hubs share one
+list of 31 categories (`ACCOUNTING` … `TECHNOLOGY`). The four Prisma enums
+(`CourseCategory`, `EventCategory`, `PodcastCategory`, `YouTubeCategory`) hold
+identical values and `common/utils/content-category.util.spec.ts` fails if they
+diverge. `CPD` and `OTHER` were renamed to `CERTIFICATION` and `GENERAL` in place
+(migration `20261019120000_unified_content_categories`). The ingestion
+normalizers and the catalogue URL parser still accept the old two names and map
+them, so a crawler that was not updated keeps working and an old
+`?category=CPD` link redirects to the new value. Each category has a cover in
+`apps/front/public/category-art-<slug>.svg`, used by roadmaps and as the
+fallback image of a card that has no picture.
 
 #### Public catalogue navigation
 

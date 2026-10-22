@@ -299,7 +299,17 @@
         "unavailable": "No longer available",
         "showAll": "Show all ({{count}} more)",
         "recommendedBy": "Recommended by {{association}}",
-        "countsToward": "Counts toward this requirement"
+        "countsToward": "Counts toward this requirement",
+        "status": {
+          "counted": "Counted",
+          "awaitingReview": "Awaiting review",
+          "rejected": "Rejected",
+          "completed": "Completed",
+          "late": "Late",
+          "completedOn": "Completed {{date}}",
+          "submittedOn": "Submitted {{date}}",
+          "credited": "{{credits}} credits counted"
+        }
       },
       "activities": {
         "title": "Logged activities",
@@ -437,7 +447,8 @@
       "YOUTUBE": "YouTube",
       "GENERAL": "General"
     },
-    "required": "required"
+    "required": "required",
+    "completionDateInFuture": "The completion date cannot be in the future."
   },
   "servicesPage": {
     "meta": {
@@ -3060,21 +3071,37 @@
     },
     "enums": {
       "courseCategory": {
-        "TECHNOLOGY": "Technology",
+        "ACCOUNTING": "Accounting",
+        "AI": "AI & Machine Learning",
         "BUSINESS": "Business",
-        "ENGINEERING": "Engineering",
-        "HEALTHCARE": "Healthcare",
-        "FINANCE": "Finance",
-        "EDUCATION": "Education",
-        "DESIGN": "Design",
-        "MARKETING": "Marketing",
-        "LEADERSHIP": "Leadership",
+        "CAREER": "Career Development",
+        "CERTIFICATION": "CPD & Certification",
+        "CLOUD": "Cloud Computing",
+        "COMMUNICATION": "Communication",
         "COMPLIANCE": "Compliance",
-        "CPD": "CPD",
-        "AI": "AI",
-        "DATA": "Data",
-        "CAREER": "Career",
-        "OTHER": "Other"
+        "CONSTRUCTION": "Civil & Construction",
+        "CYBERSECURITY": "Cybersecurity",
+        "DATA": "Data & Analytics",
+        "DESIGN": "Design",
+        "EDUCATION": "Education",
+        "ENGINEERING": "Engineering",
+        "FINANCE": "Finance",
+        "GENERAL": "General",
+        "HEALTHCARE": "Healthcare",
+        "HEALTH_SAFETY": "Health & Safety",
+        "HUMAN_RESOURCES": "Human Resources",
+        "LEADERSHIP": "Leadership",
+        "LEGAL": "Legal",
+        "MARKETING": "Marketing",
+        "NURSING": "Nursing & Care",
+        "PRODUCT_MANAGEMENT": "Product Management",
+        "PROJECT_MANAGEMENT": "Project Management",
+        "QUALITY": "Quality Management",
+        "SALES": "Sales",
+        "SOFTWARE_DEVELOPMENT": "Software Development",
+        "SUPPLY_CHAIN": "Supply Chain",
+        "SUSTAINABILITY": "Sustainability",
+        "TECHNOLOGY": "Technology"
       },
       "courseLevel": {
         "BEGINNER": "Beginner",
@@ -3083,18 +3110,37 @@
         "ALL_LEVELS": "All levels"
       },
       "eventCategory": {
-        "TECHNOLOGY": "Technology",
+        "ACCOUNTING": "Accounting",
+        "AI": "AI & Machine Learning",
         "BUSINESS": "Business",
-        "ENGINEERING": "Engineering",
-        "HEALTHCARE": "Healthcare",
-        "FINANCE": "Finance",
-        "EDUCATION": "Education",
-        "DESIGN": "Design",
-        "MARKETING": "Marketing",
-        "LEADERSHIP": "Leadership",
+        "CAREER": "Career Development",
+        "CERTIFICATION": "CPD & Certification",
+        "CLOUD": "Cloud Computing",
+        "COMMUNICATION": "Communication",
         "COMPLIANCE": "Compliance",
-        "CPD": "CPD",
-        "OTHER": "Other"
+        "CONSTRUCTION": "Civil & Construction",
+        "CYBERSECURITY": "Cybersecurity",
+        "DATA": "Data & Analytics",
+        "DESIGN": "Design",
+        "EDUCATION": "Education",
+        "ENGINEERING": "Engineering",
+        "FINANCE": "Finance",
+        "GENERAL": "General",
+        "HEALTHCARE": "Healthcare",
+        "HEALTH_SAFETY": "Health & Safety",
+        "HUMAN_RESOURCES": "Human Resources",
+        "LEADERSHIP": "Leadership",
+        "LEGAL": "Legal",
+        "MARKETING": "Marketing",
+        "NURSING": "Nursing & Care",
+        "PRODUCT_MANAGEMENT": "Product Management",
+        "PROJECT_MANAGEMENT": "Project Management",
+        "QUALITY": "Quality Management",
+        "SALES": "Sales",
+        "SOFTWARE_DEVELOPMENT": "Software Development",
+        "SUPPLY_CHAIN": "Supply Chain",
+        "SUSTAINABILITY": "Sustainability",
+        "TECHNOLOGY": "Technology"
       },
       "eventType": {
         "WEBINAR": "Webinar",
@@ -3107,38 +3153,70 @@
         "OTHER": "Other"
       },
       "podcastCategory": {
-        "TECHNOLOGY": "Technology",
+        "ACCOUNTING": "Accounting",
+        "AI": "AI & Machine Learning",
         "BUSINESS": "Business",
-        "ENGINEERING": "Engineering",
-        "HEALTHCARE": "Healthcare",
-        "FINANCE": "Finance",
-        "EDUCATION": "Education",
-        "DESIGN": "Design",
-        "MARKETING": "Marketing",
-        "LEADERSHIP": "Leadership",
+        "CAREER": "Career Development",
+        "CERTIFICATION": "CPD & Certification",
+        "CLOUD": "Cloud Computing",
+        "COMMUNICATION": "Communication",
         "COMPLIANCE": "Compliance",
-        "CPD": "CPD",
-        "AI": "AI",
-        "DATA": "Data",
-        "CAREER": "Career",
-        "OTHER": "Other"
+        "CONSTRUCTION": "Civil & Construction",
+        "CYBERSECURITY": "Cybersecurity",
+        "DATA": "Data & Analytics",
+        "DESIGN": "Design",
+        "EDUCATION": "Education",
+        "ENGINEERING": "Engineering",
+        "FINANCE": "Finance",
+        "GENERAL": "General",
+        "HEALTHCARE": "Healthcare",
+        "HEALTH_SAFETY": "Health & Safety",
+        "HUMAN_RESOURCES": "Human Resources",
+        "LEADERSHIP": "Leadership",
+        "LEGAL": "Legal",
+        "MARKETING": "Marketing",
+        "NURSING": "Nursing & Care",
+        "PRODUCT_MANAGEMENT": "Product Management",
+        "PROJECT_MANAGEMENT": "Project Management",
+        "QUALITY": "Quality Management",
+        "SALES": "Sales",
+        "SOFTWARE_DEVELOPMENT": "Software Development",
+        "SUPPLY_CHAIN": "Supply Chain",
+        "SUSTAINABILITY": "Sustainability",
+        "TECHNOLOGY": "Technology"
       },
       "youtubeCategory": {
-        "TECHNOLOGY": "Technology",
+        "ACCOUNTING": "Accounting",
+        "AI": "AI & Machine Learning",
         "BUSINESS": "Business",
-        "ENGINEERING": "Engineering",
-        "HEALTHCARE": "Healthcare",
-        "FINANCE": "Finance",
-        "EDUCATION": "Education",
-        "DESIGN": "Design",
-        "MARKETING": "Marketing",
-        "LEADERSHIP": "Leadership",
+        "CAREER": "Career Development",
+        "CERTIFICATION": "CPD & Certification",
+        "CLOUD": "Cloud Computing",
+        "COMMUNICATION": "Communication",
         "COMPLIANCE": "Compliance",
-        "CPD": "CPD",
-        "AI": "AI",
-        "DATA": "Data",
-        "CAREER": "Career",
-        "OTHER": "Other"
+        "CONSTRUCTION": "Civil & Construction",
+        "CYBERSECURITY": "Cybersecurity",
+        "DATA": "Data & Analytics",
+        "DESIGN": "Design",
+        "EDUCATION": "Education",
+        "ENGINEERING": "Engineering",
+        "FINANCE": "Finance",
+        "GENERAL": "General",
+        "HEALTHCARE": "Healthcare",
+        "HEALTH_SAFETY": "Health & Safety",
+        "HUMAN_RESOURCES": "Human Resources",
+        "LEADERSHIP": "Leadership",
+        "LEGAL": "Legal",
+        "MARKETING": "Marketing",
+        "NURSING": "Nursing & Care",
+        "PRODUCT_MANAGEMENT": "Product Management",
+        "PROJECT_MANAGEMENT": "Project Management",
+        "QUALITY": "Quality Management",
+        "SALES": "Sales",
+        "SOFTWARE_DEVELOPMENT": "Software Development",
+        "SUPPLY_CHAIN": "Supply Chain",
+        "SUSTAINABILITY": "Sustainability",
+        "TECHNOLOGY": "Technology"
       }
     }
   },
@@ -3206,6 +3284,10 @@
         "requirement": "Counts toward",
         "requirementNone": "None",
         "evidencePolicy": "Evidence: {{policy}}"
+      },
+      "errors": {
+        "contentNotAvailable": "This content is no longer offered to you by your association, so it cannot be marked complete.",
+        "requirementMismatch": "This content counts toward a different requirement. Choose the requirement it is linked to."
       }
     },
     "messages": {
@@ -3302,21 +3384,39 @@
       "subtitle": "Explore curated courses, live events, podcasts, and expert channels designed for CPD, professional growth, and lifelong learning.",
       "viewAll": "View all content",
       "viewDetails": "View details",
-      "spotlight": "Spotlight",
       "free": "Free",
       "info": "Info",
       "price": "Price",
+      "details": "Details",
+      "totalAvailable": "{{count}} items available",
+      "tabsLabel": "Content type",
       "emptyTitle": "No featured content yet",
       "emptyText": "Featured learning content will appear here once providers publish new items.",
+      "errorTitle": "We couldn’t load this content",
+      "errorText": "Check your connection and try again.",
+      "retry": "Try again",
       "tabs": {
         "courses": "Courses",
-        "coursesDescription": "Structured learning",
         "events": "Events",
-        "eventsDescription": "Live and upcoming",
         "podcasts": "Podcasts",
-        "podcastsDescription": "Listen and grow",
-        "youtube": "YouTube",
-        "youtubeDescription": "Expert channels"
+        "youtube": "YouTube"
+      },
+      "kind": {
+        "course": "Course",
+        "event": "Event",
+        "podcast": "Podcast",
+        "youtube": "YouTube"
+      },
+      "shelf": {
+        "label": "Suggested content",
+        "slide": "Item {{current}} of {{total}}",
+        "show": "Show {{title}}",
+        "rated": "Rated {{rating}} out of 5",
+        "upNext": "Up next",
+        "pause": "Pause autoplay",
+        "play": "Resume autoplay",
+        "previous": "Previous item",
+        "next": "Next item"
       },
       "meta": {
         "professionals": "{{count}} professionals",
@@ -3362,7 +3462,7 @@
         "technologyCourses": "Technology courses",
         "businessCourses": "Business courses",
         "leadershipCourses": "Leadership courses",
-        "cpdEvents": "CPD events",
+        "certificationEvents": "Certification events",
         "complianceEvents": "Compliance events",
         "aiPodcasts": "AI podcasts",
         "careerPodcasts": "Career podcasts",
@@ -4647,6 +4747,22 @@
       "loadError": {
         "title": "We could not load your roadmaps",
         "description": "Check your connection and try again."
+      },
+      "actions": {
+        "continue": "Continue",
+        "review": "Review",
+        "edit": "Edit",
+        "continueLabel": "Continue {{title}}",
+        "reviewLabel": "Review {{title}}",
+        "editLabel": "Edit {{title}}"
+      },
+      "edit": {
+        "startFailed": "We couldn’t open this roadmap for editing. Please try again.",
+        "notEditable": "Only roadmaps you created with the roadmap coach can be edited.",
+        "briefUnavailable": "The answers behind this roadmap are no longer saved, so it can’t be edited.",
+        "generatingTitle": "Updating your roadmap",
+        "generatingStep": "Rebuilding the roadmap from your updated answers. Progress on content that stays is kept.",
+        "unchanged": "Your current roadmap has not been changed."
       }
     },
     "calendar": {
@@ -6014,7 +6130,11 @@
           "emptyContent": "This member has not completed content linked to this requirement.",
           "credits": "{{credits}} credits",
           "certificateTitle": "Certificate evidence",
-          "emptyCertificates": "No evidence files or certification-type activities are attributed to this requirement."
+          "emptyCertificates": "No evidence files or certification-type activities are attributed to this requirement.",
+          "completedOn": "Completed {{date}}",
+          "submittedOn": "Submitted {{date}}",
+          "late": "Late",
+          "notCounted": "Not counted"
         },
         "unlinked": {
           "title": "Not linked to a requirement",
@@ -7746,9 +7866,6 @@
       }
     }
   },
-  "totalAvailable": "{{count}} items available in this category",
-  "carouselCount": "{{count}} featured picks",
-  "carouselHint": "Hover a card to preview it in the spotlight.",
   "professionalTaxonomy": {
     "categories": "Browse by category",
     "searchHint": "Search the whole list, or open a category below.",
@@ -7969,6 +8086,7 @@
       "no": "No",
       "notSet": "Not answered yet",
       "generate": "Generate my roadmap",
+      "regenerate": "Regenerate roadmap",
       "generating": "Starting generation...",
       "generateFailed": "We could not start generating your roadmap. Please try again.",
       "retryGenerate": "Try generating again",
@@ -8028,7 +8146,17 @@
       }
     },
     "stagesLabel": "Progress",
-    "stageOf": "Step {{current}} of {{total}}"
+    "stageOf": "Step {{current}} of {{total}}",
+    "edit": {
+      "title": "Edit roadmap",
+      "editing": "Editing “{{title}}”",
+      "editingUntitled": "Editing your roadmap",
+      "explanation": "Your current roadmap stays as it is until the new one is ready. Progress on content that remains is kept.",
+      "discard": "Discard changes",
+      "discardConfirmTitle": "Discard these changes?",
+      "discardConfirmDescription": "Your current roadmap stays as it is. The answers you changed here will be lost.",
+      "discardFailed": "We couldn’t discard the changes. Please try again."
+    }
   },
   "topicHub": {
     "badge": "Topic guide",
@@ -8274,8 +8402,6 @@
     "loading": "Loading the report",
     "loadFailed": "We could not load the search health report.",
     "retry": "Try again",
-    "collectionOff": "Collection is off in this environment",
-    "collectionOffHint": "Nothing is being measured here, so the tables below stay empty. Turn collection on only after the decision recorded in the release checklist.",
     "coverage": "{{withData}} of {{days}} days in this window have page speed data.",
     "accepted": "{{accepted}} of {{received}} received events were counted.",
     "sampleFloor": "A segment needs at least {{count}} page loads before it is rated. Below that it reads Not enough data, never a pass.",
@@ -8371,6 +8497,60 @@
       "SAMPLED_OUT": "Sampled out",
       "DISABLED": "Collection off",
       "SINK_FAILED": "Storage failed"
+    },
+    "collectionHeading": "Collection status",
+    "notice": {
+      "COLLECTION_DISABLED": {
+        "title": "The API is not collecting",
+        "hint": "The API flag is off, so every batch is acknowledged as dropped and the tables below only show what was stored earlier. Turn collection on only after the decision recorded in the operator manifest."
+      },
+      "SAMPLED": {
+        "title": "Page speed is sampled",
+        "hint": "Only part of the page loads are kept, so sample counts are lower than real traffic. Conversions are not sampled."
+      },
+      "NO_DATA": {
+        "title": "Collection is on but nothing was stored in this window",
+        "hint": "This is missing data, not zero traffic. It can mean the site build sends nothing, no visitor has been measured yet, or every batch failed. Check the collection health below."
+      },
+      "PARTIAL_COVERAGE": {
+        "title": "Some days in this window have no page speed data",
+        "hint": "Collection may have started or stopped inside the window. Compare only windows with similar coverage."
+      },
+      "INSUFFICIENT_SAMPLES": {
+        "title": "No segment has enough page loads to be rated",
+        "hint": "Every segment is below the sample floor, so none is reported as passing or failing."
+      },
+      "DELIVERY_FAILURES": {
+        "title": "Some events could not be stored",
+        "hint": "Storage failed or was saturated and the affected batches were dropped. Visitors are not affected. Counts here are a lower bound."
+      },
+      "RATE_LIMITED": {
+        "title": "Some batches were rate limited",
+        "hint": "The intake limits turned some batches away, so counts are a lower bound for that period."
+      },
+      "AGGREGATES_AVAILABLE": {
+        "title": "Aggregates are available for this window",
+        "hint": "Read them together with the coverage, sampling and sample floor shown on this page."
+      }
+    },
+    "build": {
+      "apiOffTitle": "The website build sends events, but the API is off",
+      "apiOffHint": "Browsers are sending batches that the API drops. Switch the API on only after the recorded decision, or rebuild the website with the flag off.",
+      "siteOffTitle": "The API is on, but this website build sends nothing",
+      "siteOffHint": "The frontend flag was off when this build was made, so no browser reports. Rebuild with the flag on only after the recorded decision."
+    },
+    "facts": {
+      "windowLabel": "Window",
+      "window": "{{from}} to {{to}} (UTC days)",
+      "buildLabel": "Website build",
+      "buildOn": "Browsers report events",
+      "buildOff": "Browsers send nothing",
+      "samplingLabel": "Page speed sampling",
+      "sampling": "{{percent}}% of page loads",
+      "retentionLabel": "Retention",
+      "retention": "Daily aggregates for {{days}} days; retry keys for {{hours}} hours. No raw events or visitor identifiers.",
+      "privacy": "Visitors who send Global Privacy Control or Do Not Track are never measured, and dashboards and sign-in pages are excluded, so these counts are a lower bound of real traffic.",
+      "provenance": "These are first-party counts for this site only. Lab runs and Search Console field data are separate evidence and are never used to fill a gap here."
     }
   },
   "contentSeo": {

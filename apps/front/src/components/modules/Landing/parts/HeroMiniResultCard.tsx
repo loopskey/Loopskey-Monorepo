@@ -33,6 +33,7 @@ const HeroMiniResultCard = ({ item }: { item: TLandingHeroResultItem }) => {
             kind={item.kind}
             title={item.title}
             imageUrl={item.imageUrl}
+            category={item.category}
             className="transition duration-500 group-hover:scale-110"
           />
         </div>

@@ -168,6 +168,8 @@ export enum ProfessionalGqlMutationNames {
   COMPLETE_PROFESSIONAL_ONBOARDING = "completeProfessionalOnboarding",
   DISMISS_PROFESSIONAL_ONBOARDING = "dismissProfessionalOnboarding",
   START_ROADMAP_DRAFT = "startRoadmapDraft",
+  START_ROADMAP_EDIT = "startRoadmapEdit",
+  DISCARD_ROADMAP_EDIT = "discardRoadmapEdit",
   RESET_ROADMAP_DRAFT = "resetRoadmapDraft",
   SEND_ROADMAP_CHAT_TURN = "sendRoadmapChatTurn",
   PATCH_ROADMAP_DRAFT = "patchRoadmapDraft",

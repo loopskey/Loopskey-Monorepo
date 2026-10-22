@@ -80,10 +80,10 @@ export const useLandingHeroSearch = () => {
         label: t("landing.hero.categories.leadershipCourses"),
       },
       {
-        id: "event-cpd",
+        id: "event-certification",
         kind: "event",
-        value: EventCategory.Cpd,
-        label: t("landing.hero.categories.cpdEvents"),
+        value: EventCategory.Certification,
+        label: t("landing.hero.categories.certificationEvents"),
       },
       {
         id: "event-compliance",

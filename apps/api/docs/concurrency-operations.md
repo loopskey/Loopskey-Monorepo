@@ -50,6 +50,9 @@ exist only so a user gets a readable message instead of a constraint violation.
 | A member is told about a group only when they actually move into it                                      | `updateMany` on `AssociationMember` where the group differs, `count === 1`, in the same transaction as the group-added delivery                                                                                                                      |
 | An automatic welcome and a manual welcome never both go out                                              | The automatic welcome takes the current weekly `cooldownBucket`, so it and a concurrent manual welcome collide on the cooldown constraint; afterwards any `WELCOME` row removes the member from the new-joiners list                                 |
 | Concurrent directory syncs for one professional converge                                                 | `ProfessionalAssociationRequirementLink` is written with `createMany … skipDuplicates`, not a find-then-create upsert                                                                                                                                |
+| A member completes an association item only if it was offered to them | `ProfessionalAssociationContentLink` is pushed by the association module whenever an item's audience, status or requirement changes; the activity write takes `FOR SHARE` on the member's link row inside the same transaction, so a withdrawal that races a completion either lands first and the completion is refused, or lands after and finds the activity |
+| An item with completions cannot move to another requirement | `reassignContentRequirement` takes `FOR UPDATE` on the item's link rows, then counts activities for the item inside the same transaction; a completion that races it holds `FOR SHARE` on its own link row, so one of the two waits for the other and the move is refused or the completion sees the new requirement |
+| One external-content activity per member per item | Partial unique index `PDUActivity_user_learning_content_key` on `(userId, associationLearningContentId)` where the activity has no catalogue reference; the second concurrent create hits `P2002`, reads the winner and updates it, which also returns a reviewed activity to `PENDING` |
 | Publish and permanent delete cannot both win for one requirement                                         | The delete transaction takes `FOR UPDATE` on the association-scoped requirement row and then conditionally deletes only `DRAFT`; publish conditionally updates only `DRAFT`, so PostgreSQL serialises the two transitions and exactly one can commit |
 | A requirement only ever targets its own association's active members                                     | `updateAudience` takes `FOR SHARE … ORDER BY id` on the selected `AssociationMember` or `AssociationGroup` rows, filtered by `associationId`, inside the transaction that replaces the targets; a deactivation racing the save either waits behind the lock or is seen by it, and a refusal rolls the `deleteMany` back so no partial audience survives |
 | A SEO override is never silently overwritten | `updateMany` on `CourseSeo`/`EventSeo`/`PodcastSeo`/`YouTubeChannelSeo` naming the `version` the editor read, `count === 1`; the unique `(content, locale)` index arbitrates two first saves and is recovered as the same conflict |
@@ -63,9 +66,13 @@ exist only so a user gets a readable message instead of a constraint violation.
 | A provider's public text changes only on explicit approval | The approval is an `updateMany` on `ProviderPublicProfile` naming `reviewState = SUBMITTED` and the draft version that was submitted; it then snapshots the locked row into `ProviderPublicRevision` and moves `publishedRevision` in the same transaction. Any edit increments `draftVersion` and returns the state to `DRAFT`, so a stale approval matches no row. The public page reads only the revision named by `publishedRevision` |
 | A telemetry event is counted once however often it is sent | `INSERT … ON CONFLICT DO NOTHING RETURNING` on `TelemetryDedupKey` inside the same transaction as the counter increments; only the keys the statement returned are counted, so twenty identical requests at the same instant add one. A failed write rolls the claim back with it, so the retry counts |
 | Telemetry counters never lose an increment or deadlock | One multi-row `INSERT … ON CONFLICT DO UPDATE SET count = count + EXCLUDED.count` per table, rows pre-summed and sorted by the same key in every request, tables always written in the order dedup, vitals, conversions, intake |
+| A blocked or slow telemetry sink cannot hold the shared database pool | Each instance runs at most 2 sink transactions at a time (`SinkGate`), queues up to 100 more for at most 1.5 seconds and sheds the rest as `SINK_FAILED`; inside the transaction `lock_timeout` is 1 second and `statement_timeout` 2 seconds, set with `set_config(…, true)` so they end with the transaction; the Prisma transaction itself allows 1 second to start and 3 seconds to finish. An `ACCESS EXCLUSIVE` lock on `TelemetryVitalBucket` therefore costs dropped batches, not a stalled pool |
 | Telemetry intake is bounded across instances | `RateLimitService.spendAll` against the shared `RateLimitBucket` table, per client address and globally, spent before any aggregate is written; two API processes on one database accept exactly the limit |
 | A registration is counted only when the account exists, and once | An outbox event appended in the transaction that creates the user; the handler claims a dedup key derived from the outbox idempotency key before incrementing, so a redelivery adds nothing and a rolled-back registration leaves no event |
 | A withdrawal cannot be undone by a pending approval | Withdrawal conditionally moves `PUBLISHED` to `WITHDRAWN` and, in the same transaction, cancels a pending submission; an approval that was already waiting re-evaluates its predicate against the new row and matches nothing. `ProviderPublicProfile_published_check` requires a revision for a live profile |
+| A roadmap has at most one open edit | Partial unique index `RoadmapDraft_open_edit_key` on `replacesRoadmapId` where the draft is `COLLECTING`, `READY`, `GENERATING` or `FAILED`; a second `startRoadmapEdit` that races the first hits the violation (`P2002`), reads the winning draft and answers with it |
+| An edit draft never becomes the new-roadmap coach's draft | `findEditableDraft` filters `replacesRoadmapId: null`, and every other lookup of a draft by user alone goes through it |
+| A regenerated roadmap replaces the old enrollment once, and carries progress once | In the transaction that creates the new enrollment, `updateMany` moves the old enrollment from "not `UNENROLLED`" to `UNENROLLED` and the step records are copied only when `count === 1`; an enrollment the professional already unenrolled is left alone and the new one starts empty |
 
 ## Decisions
 
@@ -234,6 +241,18 @@ What is stored, the limits and the privacy decision are in
   counted by outcome in `TelemetryIntakeDaily` on a best-effort basis, so under
   heavy load the counters can undercount; the accepted counts and the
   aggregates are exact, and nothing is counted while collection is disabled.
+- A saturated or blocked sink sheds work instead of queueing it without limit:
+  the batch is acknowledged as dropped and counted as `SINK_FAILED`, and the
+  log carries `Telemetry sink is saturated, dropping batches` at most once every
+  30 seconds with the in-flight and queued counts. The registration count is
+  written from a business outbox handler in the bulk lane through the same
+  bounded transaction; when it fails it retries like any other handler and never
+  delays the realtime lane.
+- `searchHealthReport.collection` is the ADMIN-only status projection: the API
+  flag, the sampling rate, the retention figures and a list of notices derived
+  from the window (disabled, sampled, no data, partial coverage, insufficient
+  samples, delivery failures, rate limiting, aggregates available). It never
+  returns environment values.
 - Retention runs inside each API instance every hour: dedup keys after 24 hours,
   daily aggregates after 395 days, 5000 rows per delete and at most twenty
   batches per table per sweep. Two instances sweeping at once are harmless.
@@ -284,6 +303,32 @@ over fails its renewal, its delivery throws, and its failure write matches no
 row, so it cannot disturb the new holder's lease. A handler may also call
 `context.renewLease()` to check ownership before an expensive side effect;
 roadmap generation does so before every AI call.
+
+Association learning content reaches a professional through two read models the
+professional module owns: `ProfessionalAssociationRequirementLink` (which
+requirements a member holds) and `ProfessionalAssociationContentLink` (which
+items a member was offered, and the requirement each counts toward). The
+association module pushes both through `PROFESSIONAL_REQUIREMENT_DIRECTORY_API`
+in the transaction that changes the audience, status or requirement. The
+backfill in `20261020120000_association_content_sync` seeds the content links
+from the existing recipients. Both sides read completion back through
+`contentCompletions`, which returns the completion date, the submission date
+(`PDUActivity.createdAt`), the credits and the review status; the credited
+amount and the late flag come from the assignment's `AssociationCreditAttribution`.
+The reporting start of a published requirement is immutable, and a change to the
+reporting end, grace period or late policy recomputes every assignment. The
+partial index above is unmanaged for the same reason as the others.
+
+Editing a roadmap starts a second draft (`replacesRoadmapId` set) that copies the
+saved brief from the draft behind the current enrollment. Generation of that
+draft is the same job as any other; the only difference is inside the persist
+transaction, where the new enrollment retires the old one and copies the step
+progress of every step whose content (type and id) survived into the new
+roadmap. If generation fails the old roadmap and enrollment are untouched. Step
+writes that land on the old enrollment after the commit are not carried, and
+the old enrollment keeps accepting them because the step mutations check
+ownership, not status. The partial index is unmanaged — Prisma cannot express
+it — and `prisma migrate dev` will report it as drift; do not accept the drop.
 
 Roadmap generation is idempotent on `RoadmapDraft.status`. The handler does
 nothing unless the draft is `GENERATING`, and does not call the AI service when
@@ -433,6 +478,7 @@ correlation ID and non-sensitive identifiers only.
 | `Provider profile reviewed` | An administrator approved or rejected a submitted draft |
 | `Provider profile edit lost a version race` | A provider saved from a draft version that was no longer current |
 | `Telemetry sink write failed` | A telemetry batch could not be stored and was dropped; the line carries the correlation ID, the error name and the event count, never an event id or a dimension |
+| `Telemetry sink is saturated, dropping batches` | The bounded sink had no room and shed batches as storage failures; logged at most every 30 seconds with the in-flight and queued counts, never an event id |
 | `Telemetry sink was slow` | A batch took longer than 750 ms to store; an early sign the aggregate tables or the database need attention |
 | `Telemetry retention sweep finished` | The hourly sweep removed expired dedup keys or aggregates; the line carries the two counts |
 | `Telemetry retention sweep failed` | The sweep threw; expired rows stay until the next hour and nothing else is affected |

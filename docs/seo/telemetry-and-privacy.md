@@ -2,7 +2,9 @@
 
 This page is the inventory behind the SEO-12 telemetry. Collection is **off by
 default** in both applications and stays off until an operator records the
-decision in the release checklist.
+decision in `docs/seo/operator-manifest.md`. That manifest also holds the
+owners, the Search Console state and the review calendar, with every item that
+has not happened yet marked pending.
 
 ## Switches
 
@@ -75,6 +77,41 @@ how many rows it removed.
 - A failed write returns a "dropped" answer, never an error, and the batch can
   be retried because its dedup claim rolled back with it. The browser retries a
   failed batch once after 5 seconds and then drops it.
+- The sink cannot hold the shared database pool. Each API instance writes at
+  most 2 batches at a time, queues up to 100 more for at most 1.5 seconds, and
+  drops the rest as a storage failure. A write that waits on a lock gives up
+  after 1 second and one that runs longer is cancelled after 2 seconds, so a
+  blocked or slow table costs bounded, dropped telemetry and nothing else. The
+  registration count is written from the business outbox in its own lane and
+  retries normally. The dropped batches are counted, never kept.
+
+## What an operator sees
+
+Admin, Search health shows a Collection status block above the tables. Each
+state is a separate notice, so they can appear together:
+
+| State | Meaning | Not to be read as |
+| --- | --- | --- |
+| The API is not collecting | The API flag is off. Older aggregates in the window are still listed. | Zero traffic |
+| Page speed is sampled | Only part of the page loads are kept. Conversions are not sampled. | Real traffic volume |
+| Collection is on but nothing was stored in this window | Missing data: the build sends nothing, no visitor was measured yet, or every batch failed. | Zero traffic |
+| Some days in this window have no page speed data | Collection started or stopped inside the window. | A complete window |
+| No segment has enough page loads to be rated | Every segment is under 100 page loads. | A passing result |
+| Some events could not be stored | Storage failed or was saturated and batches were dropped. | A complete count |
+| Some batches were rate limited | The intake limits turned batches away. | A complete count |
+| Aggregates are available for this window | At least one aggregate row exists. | That coverage is complete |
+
+The block also shows the window in UTC days, whether this website build sends
+events (the frontend flag is baked into the build, so the page that reports it
+is the same build that visitors receive), the sampling rate and the retention.
+If the API flag and the build flag disagree, a separate notice says which side
+is silent. The page never shows environment values, raw events or sessions, and
+there is no public reporting endpoint.
+
+Visitors who send Global Privacy Control or Do Not Track are never measured and
+the browser cannot tell the API that it chose not to send, so a privacy
+opt-out cannot be counted. The page states that its figures are a lower bound
+of real traffic for that reason.
 
 ## Consent inventory
 
@@ -84,7 +121,9 @@ Findings from reading the repository, recorded before enabling anything:
    consent state.
 2. The privacy policy copy (`privacyPage.sections[8]`) says users can control
    cookies "via our cookie banner". No such banner exists in the code. Someone
-   needs to reconcile the text with reality before relying on it.
+   needs to reconcile the text with reality before relying on it. It is
+   recorded as an open policy item in `docs/seo/operator-manifest.md` and is not
+   edited until the privacy decision is made.
 3. The Cookie Statement lists analytics cookies as a category and tells users to
    manage cookies in their browser.
 4. Today the product sets only session cookies for sign-in and keeps the chosen
@@ -117,6 +156,40 @@ Dashboards, sign-in and onboarding routes are never measured: the reporter is
 mounted only in the public layout, and the route classifier returns nothing for
 any private path. A signed-in provider or administrator opening a public page
 does not count as acquisition.
+
+## Verified in an isolated environment
+
+On 2026-10-21 the lifecycle was exercised against a real API and a scratch
+PostgreSQL database, with a frontend built with collection on. No production
+system and no real account was involved, and the registration request was
+answered by a stand-in so no email was sent.
+
+- A signed-out English desktop view and a French mobile view each sent only
+  allowlisted fields, with the right template, locale and device. A sentinel
+  cookie set for the host did not travel with the telemetry request, while the
+  same page's ordinary API calls did carry it.
+- A content page opened from a search referrer recorded one open and kept the
+  `ORGANIC_SEARCH` category without storing the referrer. An external link
+  clicked just before leaving the page was still delivered when the page was
+  hidden.
+- The registration form recorded a start only after its request succeeded, with
+  the role and nothing else. No browser batch ever contained a completed
+  registration, and the API rejects one if forged. A completed registration was
+  recorded once for both the email and the OAuth path, from the outbox event.
+- Global Privacy Control and Do Not Track visitors triggered no telemetry
+  request. Offline, nothing was sent and the page raised no error; after
+  reconnecting, only the new action was delivered.
+- A refused first attempt was retried once with the same event ids and counted
+  once; replaying the delivered body was recognised as already counted.
+- A signed-in administrator opening a content page was not counted as
+  acquisition.
+- With a table locked, 30 simultaneous batches were dropped within the bound,
+  business reads on the same database stayed fast, and the next batch after the
+  lock cleared was counted.
+
+The admin Search health block was checked with data present, with the API flag
+off while the build was on, and with the report request failing then retried,
+on desktop and at 390 px, in English and French.
 
 ## Rolling back
 

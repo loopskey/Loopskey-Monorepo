@@ -50,7 +50,17 @@ const input = (
 });
 
 const setup = () => {
-  const create = jest.fn().mockResolvedValue({ id: "roadmap-1" });
+  const create = jest.fn().mockResolvedValue({
+    id: "roadmap-1",
+    phases: [
+      {
+        steps: [
+          { id: "step-1", contentId: "course-1", contentType: "COURSE" },
+          { id: "step-2", contentId: null, contentType: null },
+        ],
+      },
+    ],
+  });
   const service = new ProfessionalCatalogApiService({} as PrismaService);
   const tx = { roadmap: { create } };
   return { service, tx, create };
@@ -77,6 +87,18 @@ describe("ProfessionalCatalogApiService.createGeneratedRoadmap", () => {
       ownerId: "user-1",
       source: RoadmapSource.GENERATED,
       coverageNote: "Limited catalogue.",
+    });
+  });
+
+  it("returns the new roadmap id with the id and content of every step", async () => {
+    const { service, tx } = setup();
+
+    await expect(service.createGeneratedRoadmap(input(), tx)).resolves.toEqual({
+      id: "roadmap-1",
+      steps: [
+        { id: "step-1", contentId: "course-1", contentType: "COURSE" },
+        { id: "step-2", contentId: null, contentType: null },
+      ],
     });
   });
 

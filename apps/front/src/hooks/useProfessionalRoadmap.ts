@@ -7,6 +7,8 @@ import { RoadmapDraftStatus, RoadmapSource } from "@/lib/graphql/base";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useMemo, useRef, useState } from "react";
 import { useRoadmapStepProgress } from "@/hooks/useRoadmapStepProgress";
+import { buildRoadmapTabHref } from "@/utils/roadmap-navigation.util";
+import { useRoadmapEdit } from "@/hooks/useRoadmapEdit";
 import { useDispatch } from "react-redux";
 import { PAGE_SIZE } from "@/utils/constant";
 import { useI18n } from "@/hooks/useI18n";
@@ -151,6 +153,40 @@ export const useProfessionalRoadmaps = () => {
 
   const stepProgress = useRoadmapStepProgress(myRoadmapsVariables);
 
+  const { edit: handleEdit, editingRoadmapId } = useRoadmapEdit();
+
+  const nextStepRef = useRef<HTMLElement | null>(null);
+  const [pendingContinueId, setPendingContinueId] = useState<string | null>(
+    null,
+  );
+  const activeRoadmapId = activeRoadmap?.id;
+
+  const handleContinue = useCallback(
+    (roadmapId: string) => {
+      setPendingContinueId(roadmapId);
+      if (roadmapId !== activeRoadmapId)
+        router.replace(buildRoadmapTabHref(roadmapId), { scroll: false });
+    },
+    [activeRoadmapId, router],
+  );
+
+  useEffect(() => {
+    if (!pendingContinueId || activeRoadmapId !== pendingContinueId) return;
+    const frame = window.requestAnimationFrame(() => {
+      const target = nextStepRef.current;
+      const reduceMotion = window.matchMedia(
+        "(prefers-reduced-motion: reduce)",
+      ).matches;
+      target?.scrollIntoView({
+        block: "center",
+        behavior: reduceMotion ? "auto" : "smooth",
+      });
+      target?.focus({ preventScroll: true });
+      setPendingContinueId(null);
+    });
+    return () => window.cancelAnimationFrame(frame);
+  }, [pendingContinueId, activeRoadmapId]);
+
   const [unenrollRoadmap] = API.useUnenrollRoadmapMutation();
   const [unenrollingId, setUnenrollingId] = useState<string | null>(null);
 
@@ -250,7 +286,11 @@ export const useProfessionalRoadmaps = () => {
     unenrollingId,
     justCompleted,
     activeRoadmap,
+    handleEdit,
+    nextStepRef,
     handleUnenroll,
+    handleContinue,
+    editingRoadmapId,
     exploreSearch,
     myRoadmapsData,
     handlePrevious,

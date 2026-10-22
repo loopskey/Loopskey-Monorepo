@@ -299,7 +299,17 @@
         "unavailable": "N’est plus disponible",
         "showAll": "Tout afficher ({{count}} de plus)",
         "recommendedBy": "Recommandé par {{association}}",
-        "countsToward": "Compte pour cette exigence"
+        "countsToward": "Compte pour cette exigence",
+        "status": {
+          "counted": "Comptabilisé",
+          "awaitingReview": "En attente de révision",
+          "rejected": "Refusé",
+          "completed": "Terminé",
+          "late": "En retard",
+          "completedOn": "Terminé le {{date}}",
+          "submittedOn": "Soumis le {{date}}",
+          "credited": "{{credits}} crédits comptabilisés"
+        }
       },
       "activities": {
         "title": "Activités enregistrées",
@@ -437,7 +447,8 @@
       "YOUTUBE": "YouTube",
       "GENERAL": "Général"
     },
-    "required": "obligatoire"
+    "required": "obligatoire",
+    "completionDateInFuture": "La date d'achèvement ne peut pas être dans le futur."
   },
   "servicesPage": {
     "meta": {
@@ -3062,21 +3073,37 @@
     },
     "enums": {
       "courseCategory": {
-        "TECHNOLOGY": "Technologie",
+        "ACCOUNTING": "Comptabilité",
+        "AI": "IA et apprentissage automatique",
         "BUSINESS": "Affaires",
-        "ENGINEERING": "Ingénierie",
-        "HEALTHCARE": "Santé",
-        "FINANCE": "Finance",
-        "EDUCATION": "Éducation",
-        "DESIGN": "Design",
-        "MARKETING": "Marketing",
-        "LEADERSHIP": "Leadership",
+        "CAREER": "Développement de carrière",
+        "CERTIFICATION": "CPD et certification",
+        "CLOUD": "Informatique en nuage",
+        "COMMUNICATION": "Communication",
         "COMPLIANCE": "Conformité",
-        "CPD": "CPD",
-        "AI": "IA",
-        "DATA": "Données",
-        "CAREER": "Carrière",
-        "OTHER": "Autre"
+        "CONSTRUCTION": "Génie civil et construction",
+        "CYBERSECURITY": "Cybersécurité",
+        "DATA": "Données et analytique",
+        "DESIGN": "Design",
+        "EDUCATION": "Éducation",
+        "ENGINEERING": "Ingénierie",
+        "FINANCE": "Finance",
+        "GENERAL": "Général",
+        "HEALTHCARE": "Santé",
+        "HEALTH_SAFETY": "Santé et sécurité",
+        "HUMAN_RESOURCES": "Ressources humaines",
+        "LEADERSHIP": "Leadership",
+        "LEGAL": "Juridique",
+        "MARKETING": "Marketing",
+        "NURSING": "Soins infirmiers",
+        "PRODUCT_MANAGEMENT": "Gestion de produit",
+        "PROJECT_MANAGEMENT": "Gestion de projet",
+        "QUALITY": "Gestion de la qualité",
+        "SALES": "Ventes",
+        "SOFTWARE_DEVELOPMENT": "Développement logiciel",
+        "SUPPLY_CHAIN": "Chaîne d’approvisionnement",
+        "SUSTAINABILITY": "Durabilité",
+        "TECHNOLOGY": "Technologie"
       },
       "courseLevel": {
         "BEGINNER": "Débutant",
@@ -3085,18 +3112,37 @@
         "ALL_LEVELS": "Tous les niveaux"
       },
       "eventCategory": {
-        "TECHNOLOGY": "Technologie",
+        "ACCOUNTING": "Comptabilité",
+        "AI": "IA et apprentissage automatique",
         "BUSINESS": "Affaires",
-        "ENGINEERING": "Ingénierie",
-        "HEALTHCARE": "Santé",
-        "FINANCE": "Finance",
-        "EDUCATION": "Éducation",
-        "DESIGN": "Design",
-        "MARKETING": "Marketing",
-        "LEADERSHIP": "Leadership",
+        "CAREER": "Développement de carrière",
+        "CERTIFICATION": "CPD et certification",
+        "CLOUD": "Informatique en nuage",
+        "COMMUNICATION": "Communication",
         "COMPLIANCE": "Conformité",
-        "CPD": "CPD",
-        "OTHER": "Autre"
+        "CONSTRUCTION": "Génie civil et construction",
+        "CYBERSECURITY": "Cybersécurité",
+        "DATA": "Données et analytique",
+        "DESIGN": "Design",
+        "EDUCATION": "Éducation",
+        "ENGINEERING": "Ingénierie",
+        "FINANCE": "Finance",
+        "GENERAL": "Général",
+        "HEALTHCARE": "Santé",
+        "HEALTH_SAFETY": "Santé et sécurité",
+        "HUMAN_RESOURCES": "Ressources humaines",
+        "LEADERSHIP": "Leadership",
+        "LEGAL": "Juridique",
+        "MARKETING": "Marketing",
+        "NURSING": "Soins infirmiers",
+        "PRODUCT_MANAGEMENT": "Gestion de produit",
+        "PROJECT_MANAGEMENT": "Gestion de projet",
+        "QUALITY": "Gestion de la qualité",
+        "SALES": "Ventes",
+        "SOFTWARE_DEVELOPMENT": "Développement logiciel",
+        "SUPPLY_CHAIN": "Chaîne d’approvisionnement",
+        "SUSTAINABILITY": "Durabilité",
+        "TECHNOLOGY": "Technologie"
       },
       "eventType": {
         "WEBINAR": "Webinaire",
@@ -3109,38 +3155,70 @@
         "OTHER": "Autre"
       },
       "podcastCategory": {
-        "TECHNOLOGY": "Technologie",
+        "ACCOUNTING": "Comptabilité",
+        "AI": "IA et apprentissage automatique",
         "BUSINESS": "Affaires",
-        "ENGINEERING": "Ingénierie",
-        "HEALTHCARE": "Santé",
-        "FINANCE": "Finance",
-        "EDUCATION": "Éducation",
-        "DESIGN": "Design",
-        "MARKETING": "Marketing",
-        "LEADERSHIP": "Leadership",
+        "CAREER": "Développement de carrière",
+        "CERTIFICATION": "CPD et certification",
+        "CLOUD": "Informatique en nuage",
+        "COMMUNICATION": "Communication",
         "COMPLIANCE": "Conformité",
-        "CPD": "CPD",
-        "AI": "IA",
-        "DATA": "Données",
-        "CAREER": "Carrière",
-        "OTHER": "Autre"
+        "CONSTRUCTION": "Génie civil et construction",
+        "CYBERSECURITY": "Cybersécurité",
+        "DATA": "Données et analytique",
+        "DESIGN": "Design",
+        "EDUCATION": "Éducation",
+        "ENGINEERING": "Ingénierie",
+        "FINANCE": "Finance",
+        "GENERAL": "Général",
+        "HEALTHCARE": "Santé",
+        "HEALTH_SAFETY": "Santé et sécurité",
+        "HUMAN_RESOURCES": "Ressources humaines",
+        "LEADERSHIP": "Leadership",
+        "LEGAL": "Juridique",
+        "MARKETING": "Marketing",
+        "NURSING": "Soins infirmiers",
+        "PRODUCT_MANAGEMENT": "Gestion de produit",
+        "PROJECT_MANAGEMENT": "Gestion de projet",
+        "QUALITY": "Gestion de la qualité",
+        "SALES": "Ventes",
+        "SOFTWARE_DEVELOPMENT": "Développement logiciel",
+        "SUPPLY_CHAIN": "Chaîne d’approvisionnement",
+        "SUSTAINABILITY": "Durabilité",
+        "TECHNOLOGY": "Technologie"
       },
       "youtubeCategory": {
-        "TECHNOLOGY": "Technologie",
+        "ACCOUNTING": "Comptabilité",
+        "AI": "IA et apprentissage automatique",
         "BUSINESS": "Affaires",
-        "ENGINEERING": "Ingénierie",
-        "HEALTHCARE": "Santé",
-        "FINANCE": "Finance",
-        "EDUCATION": "Éducation",
-        "DESIGN": "Design",
-        "MARKETING": "Marketing",
-        "LEADERSHIP": "Leadership",
+        "CAREER": "Développement de carrière",
+        "CERTIFICATION": "CPD et certification",
+        "CLOUD": "Informatique en nuage",
+        "COMMUNICATION": "Communication",
         "COMPLIANCE": "Conformité",
-        "CPD": "CPD",
-        "AI": "IA",
-        "DATA": "Données",
-        "CAREER": "Carrière",
-        "OTHER": "Autre"
+        "CONSTRUCTION": "Génie civil et construction",
+        "CYBERSECURITY": "Cybersécurité",
+        "DATA": "Données et analytique",
+        "DESIGN": "Design",
+        "EDUCATION": "Éducation",
+        "ENGINEERING": "Ingénierie",
+        "FINANCE": "Finance",
+        "GENERAL": "Général",
+        "HEALTHCARE": "Santé",
+        "HEALTH_SAFETY": "Santé et sécurité",
+        "HUMAN_RESOURCES": "Ressources humaines",
+        "LEADERSHIP": "Leadership",
+        "LEGAL": "Juridique",
+        "MARKETING": "Marketing",
+        "NURSING": "Soins infirmiers",
+        "PRODUCT_MANAGEMENT": "Gestion de produit",
+        "PROJECT_MANAGEMENT": "Gestion de projet",
+        "QUALITY": "Gestion de la qualité",
+        "SALES": "Ventes",
+        "SOFTWARE_DEVELOPMENT": "Développement logiciel",
+        "SUPPLY_CHAIN": "Chaîne d’approvisionnement",
+        "SUSTAINABILITY": "Durabilité",
+        "TECHNOLOGY": "Technologie"
       }
     }
   },
@@ -3208,6 +3286,10 @@
         "requirement": "Compte pour",
         "requirementNone": "Aucune",
         "evidencePolicy": "Preuve : {{policy}}"
+      },
+      "errors": {
+        "contentNotAvailable": "Ce contenu ne vous est plus proposé par votre association : il ne peut pas être marqué comme terminé.",
+        "requirementMismatch": "Ce contenu compte pour une autre exigence. Choisissez l'exigence à laquelle il est lié."
       }
     },
     "messages": {
@@ -3304,21 +3386,39 @@
       "subtitle": "Explorez des cours, événements en direct, podcasts et chaînes d’experts conçus pour le CPD, la croissance professionnelle et l’apprentissage continu.",
       "viewAll": "Voir tout le contenu",
       "viewDetails": "Voir les détails",
-      "spotlight": "À la une",
       "free": "Gratuit",
       "info": "Info",
       "price": "Prix",
+      "details": "Détails",
+      "totalAvailable": "{{count}} contenus disponibles",
+      "tabsLabel": "Type de contenu",
       "emptyTitle": "Aucun contenu mis en avant pour le moment",
       "emptyText": "Les contenus d’apprentissage mis en avant apparaîtront ici lorsque les fournisseurs publieront de nouveaux éléments.",
+      "errorTitle": "Impossible de charger ce contenu",
+      "errorText": "Vérifiez votre connexion et réessayez.",
+      "retry": "Réessayer",
       "tabs": {
         "courses": "Cours",
-        "coursesDescription": "Apprentissage structuré",
         "events": "Événements",
-        "eventsDescription": "En direct et à venir",
         "podcasts": "Podcasts",
-        "podcastsDescription": "Écouter et progresser",
-        "youtube": "YouTube",
-        "youtubeDescription": "Chaînes d’experts"
+        "youtube": "YouTube"
+      },
+      "kind": {
+        "course": "Cours",
+        "event": "Événement",
+        "podcast": "Podcast",
+        "youtube": "YouTube"
+      },
+      "shelf": {
+        "label": "Contenus suggérés",
+        "slide": "Élément {{current}} sur {{total}}",
+        "show": "Afficher {{title}}",
+        "rated": "Noté {{rating}} sur 5",
+        "upNext": "À suivre",
+        "pause": "Mettre en pause la lecture automatique",
+        "play": "Reprendre la lecture automatique",
+        "previous": "Élément précédent",
+        "next": "Élément suivant"
       },
       "meta": {
         "professionals": "{{count}} professionnels",
@@ -3364,7 +3464,7 @@
         "technologyCourses": "Cours de technologie",
         "businessCourses": "Cours de business",
         "leadershipCourses": "Cours de leadership",
-        "cpdEvents": "Événements CPD",
+        "certificationEvents": "Événements de certification",
         "complianceEvents": "Événements conformité",
         "aiPodcasts": "Podcasts IA",
         "careerPodcasts": "Podcasts carrière",
@@ -4648,6 +4748,22 @@
       "loadError": {
         "title": "Impossible de charger vos feuilles de route",
         "description": "Vérifiez votre connexion et réessayez."
+      },
+      "actions": {
+        "continue": "Continuer",
+        "review": "Revoir",
+        "edit": "Modifier",
+        "continueLabel": "Continuer {{title}}",
+        "reviewLabel": "Revoir {{title}}",
+        "editLabel": "Modifier {{title}}"
+      },
+      "edit": {
+        "startFailed": "Impossible d’ouvrir cette feuille de route pour la modifier. Veuillez réessayer.",
+        "notEditable": "Seules les feuilles de route que vous avez créées avec le coach peuvent être modifiées.",
+        "briefUnavailable": "Les réponses à l’origine de cette feuille de route ne sont plus enregistrées ; elle ne peut donc pas être modifiée.",
+        "generatingTitle": "Mise à jour de votre feuille de route",
+        "generatingStep": "Reconstruction de la feuille de route à partir de vos réponses mises à jour. La progression sur les contenus conservés est gardée.",
+        "unchanged": "Votre feuille de route actuelle n’a pas été modifiée."
       }
     },
     "calendar": {
@@ -6015,7 +6131,11 @@
           "emptyContent": "Ce membre n'a pas terminé de contenu lié à cette exigence.",
           "credits": "{{credits}} crédits",
           "certificateTitle": "Preuves de certification",
-          "emptyCertificates": "Aucun fichier de preuve ni activité de type certification n'est attribué à cette exigence."
+          "emptyCertificates": "Aucun fichier de preuve ni activité de type certification n'est attribué à cette exigence.",
+          "completedOn": "Terminé le {{date}}",
+          "submittedOn": "Soumis le {{date}}",
+          "late": "En retard",
+          "notCounted": "Non comptabilisé"
         },
         "unlinked": {
           "title": "Non lié à une exigence",
@@ -7746,9 +7866,6 @@
       }
     }
   },
-  "totalAvailable": "{{count}} éléments disponibles dans cette catégorie",
-  "carouselCount": "{{count}} sélections mises en avant",
-  "carouselHint": "Survolez une carte pour l’afficher dans la zone principale.",
   "professionalTaxonomy": {
     "categories": "Parcourir par catégorie",
     "searchHint": "Recherchez dans toute la liste ou ouvrez une catégorie ci-dessous.",
@@ -7969,6 +8086,7 @@
       "no": "Non",
       "notSet": "Pas encore répondu",
       "generate": "Générer mon parcours",
+      "regenerate": "Régénérer la feuille de route",
       "generating": "Démarrage de la génération...",
       "generateFailed": "Impossible de démarrer la génération de votre parcours. Veuillez réessayer.",
       "retryGenerate": "Réessayer la génération",
@@ -8028,7 +8146,17 @@
       }
     },
     "stagesLabel": "Progression",
-    "stageOf": "Étape {{current}} sur {{total}}"
+    "stageOf": "Étape {{current}} sur {{total}}",
+    "edit": {
+      "title": "Modifier la feuille de route",
+      "editing": "Modification de « {{title}} »",
+      "editingUntitled": "Modification de votre feuille de route",
+      "explanation": "Votre feuille de route actuelle reste inchangée jusqu’à ce que la nouvelle soit prête. La progression sur les contenus conservés est gardée.",
+      "discard": "Annuler les modifications",
+      "discardConfirmTitle": "Annuler ces modifications ?",
+      "discardConfirmDescription": "Votre feuille de route actuelle reste inchangée. Les réponses modifiées ici seront perdues.",
+      "discardFailed": "Impossible d’annuler les modifications. Veuillez réessayer."
+    }
   },
   "topicHub": {
     "badge": "Guide thématique",
@@ -8274,8 +8402,6 @@
     "loading": "Chargement du rapport",
     "loadFailed": "Impossible de charger le rapport de santé de la recherche.",
     "retry": "Réessayer",
-    "collectionOff": "La collecte est désactivée dans cet environnement",
-    "collectionOffHint": "Rien n’est mesuré ici, les tableaux ci-dessous restent donc vides. N’activez la collecte qu’après la décision consignée dans la liste de contrôle de mise en production.",
     "coverage": "{{withData}} jours sur {{days}} de cette période contiennent des données de vitesse.",
     "accepted": "{{accepted}} événements reçus sur {{received}} ont été comptés.",
     "sampleFloor": "Un segment doit atteindre au moins {{count}} chargements de page avant d’être évalué. En dessous, il affiche Données insuffisantes, jamais une réussite.",
@@ -8371,6 +8497,60 @@
       "SAMPLED_OUT": "Écarté par l’échantillonnage",
       "DISABLED": "Collecte désactivée",
       "SINK_FAILED": "Échec du stockage"
+    },
+    "collectionHeading": "État de la collecte",
+    "notice": {
+      "COLLECTION_DISABLED": {
+        "title": "L'API ne collecte pas",
+        "hint": "Le drapeau de l'API est désactivé : chaque lot est acquitté comme abandonné et les tableaux ci-dessous ne montrent que ce qui a été stocké auparavant. N'activez la collecte qu'après la décision consignée dans le manifeste opérateur."
+      },
+      "SAMPLED": {
+        "title": "La vitesse des pages est échantillonnée",
+        "hint": "Seule une partie des chargements est conservée : les effectifs sont inférieurs au trafic réel. Les conversions ne sont pas échantillonnées."
+      },
+      "NO_DATA": {
+        "title": "La collecte est active mais rien n'a été stocké sur cette période",
+        "hint": "Il s'agit de données manquantes, pas d'un trafic nul. Le site ne transmet peut-être rien, aucun visiteur n'a encore été mesuré ou tous les lots ont échoué. Consultez la santé de la collecte ci-dessous."
+      },
+      "PARTIAL_COVERAGE": {
+        "title": "Certains jours de cette période n'ont pas de données de vitesse",
+        "hint": "La collecte a pu démarrer ou s'arrêter pendant la période. Ne comparez que des périodes de couverture similaire."
+      },
+      "INSUFFICIENT_SAMPLES": {
+        "title": "Aucun segment n'a assez de chargements pour être évalué",
+        "hint": "Tous les segments sont sous le seuil d'échantillons : aucun n'est déclaré conforme ou non conforme."
+      },
+      "DELIVERY_FAILURES": {
+        "title": "Certains événements n'ont pas pu être stockés",
+        "hint": "Le stockage a échoué ou était saturé et les lots concernés ont été abandonnés. Les visiteurs ne sont pas touchés. Ces chiffres sont un minimum."
+      },
+      "RATE_LIMITED": {
+        "title": "Certains lots ont été limités",
+        "hint": "Les limites de réception ont refusé certains lots : les chiffres de cette période sont un minimum."
+      },
+      "AGGREGATES_AVAILABLE": {
+        "title": "Des agrégats sont disponibles pour cette période",
+        "hint": "Lisez-les avec la couverture, l'échantillonnage et le seuil d'échantillons indiqués sur cette page."
+      }
+    },
+    "build": {
+      "apiOffTitle": "Le build du site envoie des événements, mais l'API est désactivée",
+      "apiOffHint": "Les navigateurs envoient des lots que l'API abandonne. N'activez l'API qu'après la décision consignée, ou reconstruisez le site avec le drapeau désactivé.",
+      "siteOffTitle": "L'API est active, mais ce build du site n'envoie rien",
+      "siteOffHint": "Le drapeau du frontend était désactivé lors de ce build : aucun navigateur ne transmet. Reconstruisez avec le drapeau activé seulement après la décision consignée."
+    },
+    "facts": {
+      "windowLabel": "Période",
+      "window": "Du {{from}} au {{to}} (jours UTC)",
+      "buildLabel": "Build du site",
+      "buildOn": "Les navigateurs transmettent des événements",
+      "buildOff": "Les navigateurs n'envoient rien",
+      "samplingLabel": "Échantillonnage de la vitesse",
+      "sampling": "{{percent}} % des chargements de page",
+      "retentionLabel": "Conservation",
+      "retention": "Agrégats journaliers pendant {{days}} jours ; clés de reprise pendant {{hours}} heures. Aucun événement brut ni identifiant de visiteur.",
+      "privacy": "Les visiteurs qui envoient Global Privacy Control ou Do Not Track ne sont jamais mesurés, et les tableaux de bord et pages de connexion sont exclus : ces chiffres sont un minimum du trafic réel.",
+      "provenance": "Ce sont des comptages propres à ce site. Les mesures de laboratoire et les données terrain de Search Console sont des preuves distinctes et ne servent jamais à combler un manque ici."
     }
   },
   "contentSeo": {

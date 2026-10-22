@@ -71,11 +71,23 @@ export interface ProfessionalEngagementApi {
 
 export type UnitOfWork = object;
 
+export type RoadmapStepCarryOver = {
+  readonly fromStepId: string;
+  readonly toStepId: string;
+};
+
+export type RoadmapEnrollmentReplacement = {
+  readonly roadmapId: string;
+  readonly stepCount: number;
+  readonly carriedSteps: readonly RoadmapStepCarryOver[];
+};
+
 export type RoadmapEnrollmentInput = {
   readonly userId: string;
   readonly draftId: string;
   readonly roadmapId: string;
   readonly targetDate: Date | null;
+  readonly replaces?: RoadmapEnrollmentReplacement;
 };
 
 export type RoadmapStepProgressProjection = {

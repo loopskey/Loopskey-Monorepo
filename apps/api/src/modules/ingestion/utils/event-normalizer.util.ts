@@ -1,4 +1,5 @@
 import { EventCategory, EventDeliveryMode, EventType } from "@prisma/client";
+import { normalizeContentCategory } from "@utils/content-category.util";
 
 const key = (value?: string | null) =>
   value
@@ -48,26 +49,5 @@ export const normalizeEventDeliveryMode = (
   return map[normalized] ?? EventDeliveryMode.IN_PERSON;
 };
 
-export const normalizeEventCategory = (
-  value?: string | null,
-): EventCategory => {
-  const normalized = key(value);
-  if (!normalized) return EventCategory.OTHER;
-  if (normalized in EventCategory) return normalized as EventCategory;
-  const map: Record<string, EventCategory> = {
-    AI: EventCategory.TECHNOLOGY,
-    DATA: EventCategory.TECHNOLOGY,
-    TECH: EventCategory.TECHNOLOGY,
-    SOFTWARE: EventCategory.TECHNOLOGY,
-    PROGRAMMING: EventCategory.TECHNOLOGY,
-    MANAGEMENT: EventCategory.BUSINESS,
-    ENTREPRENEURSHIP: EventCategory.BUSINESS,
-    ACCOUNTING: EventCategory.FINANCE,
-    SALES: EventCategory.MARKETING,
-    HR: EventCategory.LEADERSHIP,
-    LAW: EventCategory.COMPLIANCE,
-    MEDICAL: EventCategory.HEALTHCARE,
-    NURSING: EventCategory.HEALTHCARE,
-  };
-  return map[normalized] ?? EventCategory.OTHER;
-};
+export const normalizeEventCategory = (value?: string | null): EventCategory =>
+  normalizeContentCategory(value);

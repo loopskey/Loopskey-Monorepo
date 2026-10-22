@@ -1,3 +1,5 @@
+import { COMPLETION_DATE_IN_FUTURE_KEY } from "@/utils/completion-date.util";
+import { isCompletionDateAllowed } from "@/utils/completion-date.util";
 import { CreditType, PduCategory, PduSource } from "@/lib/graphql/base";
 import { z } from "zod";
 
@@ -25,7 +27,10 @@ const evidenceFileSchema = z
 export const basicInfoSchema = z.object({
   title: z.string().trim().min(3, "Activity title is required").max(200),
   activityType: z.nativeEnum(PduSource),
-  dateCompleted: z.string().min(1, "Date completed is required"),
+  dateCompleted: z
+    .string()
+    .min(1, "Date completed is required")
+    .refine(isCompletionDateAllowed, COMPLETION_DATE_IN_FUTURE_KEY),
   providerOrganizer: z
     .string()
     .trim()

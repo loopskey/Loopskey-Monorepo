@@ -59,6 +59,38 @@ const assignment = (
   ...overrides,
 });
 
+const listedContent = (
+  id: string,
+  overrides: Record<string, unknown> = {},
+) => ({
+  id,
+  contentType: null,
+  contentId: null,
+  externalTitle: `Item ${id}`,
+  externalProvider: null,
+  externalUrl: "https://example.com/item",
+  description: null,
+  category: null,
+  indicativeCredits: null,
+  requirementId: null,
+  ...overrides,
+});
+
+const completion = (
+  learningContentId: string,
+  activityId: string,
+  overrides: Record<string, unknown> = {},
+) => ({
+  userId: "user-1",
+  status: "PENDING",
+  credits: 2,
+  activityId,
+  learningContentId,
+  completedAt: day("2026-03-01"),
+  submittedAt: new Date("2026-03-05T09:30:00.000Z"),
+  ...overrides,
+});
+
 const createService = () => {
   const prisma = {
     associationRequirementAssignment: { findMany: jest.fn() },
@@ -72,7 +104,7 @@ const createService = () => {
   const catalog = { resolveCatalogItems: jest.fn().mockResolvedValue([]) };
   const activities = {
     activityDetailsForOwners: jest.fn().mockResolvedValue([]),
-    activitiesForMembers: jest.fn().mockResolvedValue([]),
+    contentCompletions: jest.fn().mockResolvedValue([]),
   };
   const service = new AssociationMyRequirementsService(
     prisma as unknown as PrismaService,
@@ -344,17 +376,9 @@ describe("AssociationMyRequirementsService.one", () => {
         isAvailable: true,
       },
     ]);
-    activities.activitiesForMembers.mockResolvedValue([
-      {
-        associationLearningContentId: "content-ext",
-        contentType: null,
-        contentId: null,
-      },
-      {
-        associationLearningContentId: null,
-        contentType: "COURSE",
-        contentId: "course-1",
-      },
+    activities.contentCompletions.mockResolvedValue([
+      completion("content-ext", "act-ext"),
+      completion("content-cat", "act-cat"),
     ]);
 
     const { learningContents } = await service.one("user-1", "req-1");
@@ -370,6 +394,144 @@ describe("AssociationMyRequirementsService.one", () => {
     expect(learningContents[0].slug).toBeNull();
     expect(learningContents[1].isExternal).toBe(false);
     expect(learningContents[1].slug).toBe("structural-basics");
+  });
+
+  it("asks only for the listed items instead of loading every activity", async () => {
+    const { service, prisma, activities } = createService();
+    prisma.associationRequirementAssignment.findMany.mockResolvedValue([
+      assignment("a-1", "req-1"),
+    ]);
+    prisma.associationLearningContent.findMany.mockResolvedValue([
+      listedContent("content-ext"),
+      listedContent("content-cat", {
+        contentType: ContentType.COURSE,
+        contentId: "course-1",
+      }),
+    ]);
+
+    await service.one("user-1", "req-1");
+
+    expect(activities.contentCompletions).toHaveBeenCalledWith({
+      userIds: ["user-1"],
+      items: [
+        {
+          learningContentId: "content-ext",
+          contentType: null,
+          contentId: null,
+        },
+        {
+          learningContentId: "content-cat",
+          contentType: ContentType.COURSE,
+          contentId: "course-1",
+        },
+      ],
+    });
+  });
+
+  it("reports the completion date, submission date and what the requirement counted", async () => {
+    const { service, prisma, activities } = createService();
+    prisma.associationRequirementAssignment.findMany.mockResolvedValue([
+      assignment("a-1", "req-1"),
+    ]);
+    prisma.associationLearningContent.findMany.mockResolvedValue([
+      listedContent("content-ext"),
+    ]);
+    activities.contentCompletions.mockResolvedValue([
+      completion("content-ext", "act-ext"),
+    ]);
+    prisma.associationCreditAttribution.findMany.mockImplementation(
+      async ({ where }: { where: { activityId?: unknown } }) =>
+        where.activityId
+          ? [
+              {
+                activityId: "act-ext",
+                creditedAmount: 2,
+                isLate: true,
+                state: AssociationAttributionState.COUNTED,
+              },
+            ]
+          : [],
+    );
+
+    const { learningContents } = await service.one("user-1", "req-1");
+
+    expect(learningContents[0]).toMatchObject({
+      isLate: true,
+      creditedAmount: 2,
+      completionState: AssociationAttributionState.COUNTED,
+      completedAt: day("2026-03-01"),
+      submittedAt: new Date("2026-03-05T09:30:00.000Z"),
+    });
+    expect(prisma.associationCreditAttribution.findMany).toHaveBeenCalledWith({
+      where: { assignmentId: "a-1", activityId: { in: ["act-ext"] } },
+      select: {
+        state: true,
+        isLate: true,
+        activityId: true,
+        creditedAmount: true,
+      },
+    });
+  });
+
+  it("shows a logged completion the requirement does not count as completed without a state", async () => {
+    const { service, prisma, activities } = createService();
+    prisma.associationRequirementAssignment.findMany.mockResolvedValue([
+      assignment("a-1", "req-1"),
+    ]);
+    prisma.associationLearningContent.findMany.mockResolvedValue([
+      listedContent("content-ext"),
+    ]);
+    activities.contentCompletions.mockResolvedValue([
+      completion("content-ext", "act-ext"),
+    ]);
+
+    const { learningContents } = await service.one("user-1", "req-1");
+
+    expect(learningContents[0]).toMatchObject({
+      isCompleted: true,
+      isLate: false,
+      creditedAmount: null,
+      completionState: null,
+    });
+  });
+
+  it("reports a rejected completion as rejected even when it was never attributed", async () => {
+    const { service, prisma, activities } = createService();
+    prisma.associationRequirementAssignment.findMany.mockResolvedValue([
+      assignment("a-1", "req-1"),
+    ]);
+    prisma.associationLearningContent.findMany.mockResolvedValue([
+      listedContent("content-ext"),
+    ]);
+    activities.contentCompletions.mockResolvedValue([
+      completion("content-ext", "act-ext", { status: "REJECTED" }),
+    ]);
+
+    const { learningContents } = await service.one("user-1", "req-1");
+
+    expect(learningContents[0].completionState).toBe(
+      AssociationAttributionState.REJECTED,
+    );
+  });
+
+  it("leaves an item nobody completed with no dates and no state", async () => {
+    const { service, prisma } = createService();
+    prisma.associationRequirementAssignment.findMany.mockResolvedValue([
+      assignment("a-1", "req-1"),
+    ]);
+    prisma.associationLearningContent.findMany.mockResolvedValue([
+      listedContent("content-todo"),
+    ]);
+
+    const { learningContents } = await service.one("user-1", "req-1");
+
+    expect(learningContents[0]).toMatchObject({
+      isCompleted: false,
+      completedAt: null,
+      submittedAt: null,
+      creditedAmount: null,
+      completionState: null,
+    });
   });
 
   it("keeps catalogue items visible when the catalogue cannot be resolved", async () => {
