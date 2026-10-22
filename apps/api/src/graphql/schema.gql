@@ -1869,6 +1869,13 @@ input CourseFilterInput {
   status: CourseStatus
 }
 
+type CourseLanguage {
+  availableLocales: [AppLanguage!]!
+  courseId: ID!
+  publishedLocales: [AppLanguage!]!
+  sourceLanguage: AppLanguage
+}
+
 enum CourseLevel {
   ADVANCED
   ALL_LEVELS
@@ -3039,6 +3046,7 @@ type Mutation {
   setAssociationMemberRequirements(input: SetAssociationMemberRequirementsInput!): AssociationMemberRequirementsResult!
   setAssociationMemberStatus(input: SetAssociationMemberStatusInput!): AssociationMember!
   setCourseIndexExclusion(input: SetContentIndexExclusionInput!): ContentSeoSettings!
+  setCourseSourceLanguage(input: SetCourseSourceLanguageInput!): CourseLanguage!
   setCourseTranslationPublication(input: SetCourseTranslationPublicationInput!): CourseTranslation!
   setEventIndexExclusion(input: SetContentIndexExclusionInput!): ContentSeoSettings!
   setEventTranslationPublication(input: SetEventTranslationPublicationInput!): EventTranslation!
@@ -4984,6 +4992,7 @@ type Query {
   courseById(courseId: String!): Course!
   courseBySlug(locale: AppLanguage, slug: String!): Course!
   courseFilterFacets: CourseFilterFacets!
+  courseLanguage(courseId: String!): CourseLanguage!
   courseSeo(courseId: String!): ContentSeoSettings!
   courseTranslations(courseId: String!): [CourseTranslation!]!
   courses(filter: CourseFilterInput, locale: AppLanguage, pagination: CoursePaginationInput, sort: CourseSortInput): PaginatedCourses!
@@ -5521,6 +5530,11 @@ input SetCertificateCpdPlanInput {
 input SetContentIndexExclusionInput {
   contentId: ID!
   excluded: Boolean!
+}
+
+input SetCourseSourceLanguageInput {
+  courseId: ID!
+  sourceLanguage: AppLanguage!
 }
 
 input SetCourseTranslationPublicationInput {

@@ -11,6 +11,7 @@ import { Label } from "@ui/label";
 import type { TContentSeoKind } from "@/types/content-seo.types";
 import type { FormEvent } from "react";
 
+import CourseTranslationDialog from "@modules/ContentTranslation/CourseTranslationDialog";
 import ContentSeoDialog from "@modules/ContentSeo/ContentSeoDialog";
 
 const KINDS: readonly TContentSeoKind[] = [
@@ -95,17 +96,32 @@ const AdminSearchVisibilityTab = () => {
           )}
 
           {result.isSuccess && result.data && (
-            <div className="flex flex-wrap items-center justify-between gap-3 rounded-lg border p-4">
-              <p className="min-w-0 break-words font-medium">
-                {t("contentSeo.admin.found", { title: result.data.title })}
-              </p>
-              <ContentSeoDialog
-                canModerateIndex
-                slug={result.data.slug}
-                contentId={result.data.id}
-                contentTitle={result.data.title}
-                kind={result.originalArgs?.kind ?? kind}
-              />
+            <div className="space-y-3 rounded-lg border p-4">
+              <div className="flex flex-wrap items-center justify-between gap-3">
+                <p className="min-w-0 break-words font-medium">
+                  {t("contentSeo.admin.found", { title: result.data.title })}
+                </p>
+                <div className="flex flex-wrap gap-2">
+                  <ContentSeoDialog
+                    canModerateIndex
+                    slug={result.data.slug}
+                    contentId={result.data.id}
+                    contentTitle={result.data.title}
+                    kind={result.originalArgs?.kind ?? kind}
+                  />
+                  {(result.originalArgs?.kind ?? kind) === "course" && (
+                    <CourseTranslationDialog
+                      courseId={result.data.id}
+                      courseTitle={result.data.title}
+                    />
+                  )}
+                </div>
+              </div>
+              {(result.originalArgs?.kind ?? kind) !== "course" && (
+                <p className="text-muted-foreground">
+                  {t("contentTranslation.unavailable")}
+                </p>
+              )}
             </div>
           )}
         </div>

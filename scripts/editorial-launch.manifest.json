@@ -1,0 +1,107 @@
+{
+  "version": 1,
+  "preparedOn": "2026-10-20",
+  "environments": [
+    "development",
+    "staging"
+  ],
+  "provenance": {
+    "copyAuthor": "Loopskey platform team, written for this manifest",
+    "sources": [
+      "Titles, levels, requirements and learning outcomes are read from the published content records of the environment the manifest is applied to; the biography describes no fixed catalogue, because the published set differs per environment.",
+      "No accreditation, endorsement, partner or statistic is asserted anywhere in this copy."
+    ],
+    "pendingBeforeProduction": [
+      "topicHub.reviewer: a named editorial reviewer must approve the English and French guidance.",
+      "providerProfile: the provider account owner must supply the display name, biography, website and logo for their own organisation; the values below belong to an acceptance account.",
+      "providerProfile.websiteUrl: example.com is the IANA-reserved documentation domain, used so the link path can be exercised without naming a third party.",
+      "courseTranslation.reviewer: a French-speaking reviewer must confirm the translation against the source course."
+    ]
+  },
+  "topicHub": {
+    "slug": "choosing-cpd-for-certification-renewal",
+    "category": "CERTIFICATION",
+    "expectedPath": "/topics/choosing-cpd-for-certification-renewal",
+    "referenceSlugs": [
+      "pmp-exam-preparation",
+      "professional-ethics-and-compliance",
+      "scrum-master-essentials",
+      "cybersecurity-awareness-for-professionals"
+    ],
+    "en": {
+      "title": "Choosing CPD That Counts Toward Certification Renewal",
+      "introduction": "Most certification bodies accept a wide range of continuing professional development, but none of them accept all of it, and few tell you in advance which hours will survive an audit. This guide explains how to read a renewal requirement before you enrol, what evidence to keep from the first day of a course, and how to spread learning across a cycle so that one rejected activity cannot put a renewal at risk.",
+      "guidance": "Start from the renewal rule rather than the course catalogue. A renewal requirement normally fixes four things: how many hours or credits the cycle needs, which categories those hours may come from, how much of the total any single category may supply, and what the body will accept as proof. A course that is excellent on its own terms is still the wrong purchase if it lands in a category you have already filled.\n\nTreat category caps as the real constraint. Where a scheme caps self-paced study, two shorter courses in different categories are usually worth more toward a renewal than one long course in a category that is already full. Where a scheme asks for a reflective statement rather than hours, the deciding factor is whether the course gives you something specific enough to write about.\n\nDecide what proof you will hold before you enrol, not after. A certificate that states the completion date and the hours, a syllabus that shows the subject matter, and your own dated notes of what changed in your practice will answer almost any audit question. Reconstructing any of that a year later is far harder than saving it on the day.\n\nFinally, keep the cycle paced. Learning compressed into the last weeks before a deadline leaves no room to replace an activity the body declines, and a declined activity close to a deadline is the most common way a renewal fails.",
+      "sections": [
+        {
+          "heading": "Read the renewal rule before you choose a course",
+          "body": "Find the current cycle rule from the certification body itself and write down the four numbers that govern it: total hours required, eligible categories, the cap on each category, and the deadline. Published summaries age quickly, and a rule that changed between cycles is a common reason hours are refused. With those four numbers in front of you, a course page becomes easy to judge: it either fills a category you still have room in, or it does not."
+        },
+        {
+          "heading": "Keep evidence that survives an audit",
+          "body": "Most bodies ask for the same three things: proof that you took the activity, proof of when, and proof of how long. Save the completion certificate with its date and stated hours, keep a copy of the syllabus or agenda that shows the subject matter, and add two or three dated lines of your own about what you changed in your work as a result. Store all three together under the renewal cycle they belong to, because a certificate found without its cycle is often counted in the wrong one."
+        },
+        {
+          "heading": "Spread the cycle instead of ending it in a rush",
+          "body": "A cycle planned as roughly equal quarters leaves time to replace anything the body declines and keeps you from paying for concentrated learning you cannot absorb. It also lets you respond to changes at work during the cycle rather than committing every available hour in advance. If a deadline is already close, prioritise the categories with the strictest proof requirements first, since those are the ones that cannot be fixed quickly."
+        },
+        {
+          "heading": "When a course is the wrong instrument",
+          "body": "Not every gap is best closed by a course. Where a scheme accepts structured practice, mentoring, committee work, writing or presenting, those activities often carry the same credit while producing evidence that is easier to defend, because the output itself is the proof. A course is the right instrument when you need a syllabus you did not write, an assessment you cannot set yourself, or a certificate the body names explicitly."
+        }
+      ]
+    },
+    "fr": {
+      "title": "Choisir une formation continue qui compte pour le renouvellement de votre certification",
+      "introduction": "La plupart des organismes de certification acceptent un large éventail d'activités de formation continue, mais aucun ne les accepte toutes, et peu indiquent à l'avance quelles heures résisteront à un contrôle. Ce guide explique comment lire une exigence de renouvellement avant de vous inscrire, quelles preuves conserver dès le premier jour d'une formation, et comment répartir vos apprentissages sur le cycle afin qu'une seule activité refusée ne compromette pas votre renouvellement.",
+      "guidance": "Partez de la règle de renouvellement plutôt que du catalogue de formations. Une exigence de renouvellement fixe normalement quatre éléments : le nombre d'heures ou de crédits requis pour le cycle, les catégories admissibles, la part maximale que chaque catégorie peut fournir, et ce que l'organisme accepte comme preuve. Une formation excellente en soi reste un mauvais achat si elle relève d'une catégorie que vous avez déjà remplie.\n\nConsidérez les plafonds par catégorie comme la véritable contrainte. Lorsqu'un régime plafonne l'étude en autonomie, deux formations plus courtes dans des catégories différentes valent généralement plus, pour un renouvellement, qu'une longue formation dans une catégorie déjà saturée. Lorsqu'un régime demande une note réflexive plutôt que des heures, le critère déterminant est de savoir si la formation vous donne matière suffisamment précise à écrire.\n\nDécidez des preuves que vous conserverez avant de vous inscrire, et non après. Une attestation indiquant la date d'achèvement et le nombre d'heures, un programme montrant le contenu abordé, et vos propres notes datées sur ce qui a changé dans votre pratique répondront à presque toutes les questions d'un contrôle. Reconstituer tout cela un an plus tard est bien plus difficile que de l'enregistrer le jour même.\n\nEnfin, répartissez le cycle dans le temps. Des apprentissages concentrés dans les dernières semaines avant l'échéance ne laissent aucune marge pour remplacer une activité refusée par l'organisme, et une activité refusée juste avant l'échéance est la cause la plus fréquente d'un renouvellement manqué.",
+      "sections": [
+        {
+          "heading": "Lisez la règle de renouvellement avant de choisir une formation",
+          "body": "Procurez-vous la règle du cycle en cours auprès de l'organisme de certification lui-même et notez les quatre données qui la régissent : le total d'heures exigé, les catégories admissibles, le plafond de chaque catégorie et l'échéance. Les résumés publiés vieillissent vite, et une règle modifiée entre deux cycles explique souvent que des heures soient refusées. Avec ces quatre données sous les yeux, une page de formation devient facile à évaluer : soit elle comble une catégorie où il vous reste de la place, soit non."
+        },
+        {
+          "heading": "Conservez des preuves qui résistent à un contrôle",
+          "body": "La plupart des organismes demandent les trois mêmes éléments : la preuve que vous avez suivi l'activité, la preuve de la date et la preuve de la durée. Conservez l'attestation d'achèvement avec sa date et les heures indiquées, gardez une copie du programme ou de l'ordre du jour qui montre le contenu abordé, et ajoutez deux ou trois lignes datées de votre main sur ce que vous avez changé dans votre travail. Rangez ces trois éléments ensemble sous le cycle de renouvellement auquel ils appartiennent, car une attestation retrouvée sans son cycle est souvent comptée dans le mauvais."
+        },
+        {
+          "heading": "Répartissez le cycle au lieu de le terminer dans l'urgence",
+          "body": "Un cycle planifié en trimestres à peu près équivalents laisse le temps de remplacer ce que l'organisme refuserait et vous évite de payer pour des apprentissages trop concentrés pour être assimilés. Il vous permet aussi de réagir aux changements survenus dans votre travail pendant le cycle plutôt que d'engager à l'avance chaque heure disponible. Si l'échéance est déjà proche, traitez d'abord les catégories aux exigences de preuve les plus strictes, car ce sont celles qui ne peuvent pas être rattrapées rapidement."
+        },
+        {
+          "heading": "Quand une formation n'est pas le bon instrument",
+          "body": "Toutes les lacunes ne se comblent pas par une formation. Lorsqu'un régime accepte la pratique encadrée, le mentorat, le travail en comité, la rédaction ou les présentations, ces activités rapportent souvent le même crédit tout en produisant des preuves plus faciles à défendre, puisque le résultat lui-même fait office de preuve. Une formation est le bon instrument lorsqu'il vous faut un programme que vous n'avez pas écrit, une évaluation que vous ne pouvez pas vous administrer, ou une attestation que l'organisme nomme explicitement."
+        }
+      ]
+    }
+  },
+  "providerProfile": {
+    "accountEmail": "provider.1@loopskey.dev",
+    "expectedPath": "/providers/lennie-kris",
+    "displayName": "Lennie Kris",
+    "biography": "Lennie Kris publishes continuing professional development on Loopskey. Every title, level, requirement and learning outcome listed on this page is read from the published content record itself, so the catalogue shown here is whatever this account currently has published and nothing else. This page makes no accreditation, endorsement or partnership claim.",
+    "websiteUrl": "https://www.example.com",
+    "links": [
+      {
+        "label": "Course catalogue",
+        "url": "https://www.example.com/courses"
+      }
+    ]
+  },
+  "courseTranslation": {
+    "courseSlug": "leadership-for-technical-teams",
+    "locale": "FR",
+    "expectedPath": "/fr/courses/leadership-for-technical-teams",
+    "title": "Leadership pour les équipes techniques",
+    "description": "Développez vos compétences en leadership, en communication, en accompagnement et en prise de décision dans des environnements techniques.",
+    "requirements": [
+      "Intérêt pour le leadership et le développement des équipes"
+    ],
+    "learnings": [
+      "Diriger des équipes techniques",
+      "Améliorer la communication",
+      "Résoudre les conflits au sein de l'équipe",
+      "Instaurer la confiance et la responsabilisation"
+    ]
+  }
+}

@@ -9,6 +9,7 @@ export enum CourseGqlObjectNames {
   COURSE_LEVEL_FACET = "CourseLevelFacet",
   COURSE_RATING_FACET = "CourseRatingFacet",
   COURSE_TRANSLATION = "CourseTranslation",
+  COURSE_LANGUAGE = "CourseLanguage",
 }
 
 export enum CourseGqlInputNames {
@@ -19,6 +20,7 @@ export enum CourseGqlInputNames {
   COURSE_PAGINATION = "CoursePaginationInput",
   SAVE_COURSE_TRANSLATION = "SaveCourseTranslationInput",
   SET_COURSE_TRANSLATION_PUBLICATION = "SetCourseTranslationPublicationInput",
+  SET_COURSE_SOURCE_LANGUAGE = "SetCourseSourceLanguageInput",
 }
 
 export enum CourseGqlQueryNames {
@@ -30,6 +32,7 @@ export enum CourseGqlQueryNames {
   COURSE_FILTER_FACETS = "courseFilterFacets",
   COURSE_TRANSLATIONS = "courseTranslations",
   COURSE_SEO = "courseSeo",
+  COURSE_LANGUAGE = "courseLanguage",
 }
 
 export enum CourseGqlMutationNames {
@@ -43,4 +46,5 @@ export enum CourseGqlMutationNames {
   SET_COURSE_TRANSLATION_PUBLICATION = "setCourseTranslationPublication",
   SAVE_COURSE_SEO = "saveCourseSeo",
   SET_COURSE_INDEX_EXCLUSION = "setCourseIndexExclusion",
+  SET_COURSE_SOURCE_LANGUAGE = "setCourseSourceLanguage",
 }

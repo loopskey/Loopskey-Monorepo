@@ -160,10 +160,76 @@ export const courseApi = baseApi.injectEndpoints({
         response.restoreCourse,
       invalidatesTags: ["Courses"],
     }),
+
+    courseTranslations: builder.query<
+      TAPI.CourseTranslationsQuery["courseTranslations"],
+      TAPI.CourseTranslationsQueryVariables["courseId"]
+    >({
+      query: (courseId) => ({
+        document: API.CourseTranslationsDocument,
+        variables: { courseId },
+      }),
+      transformResponse: (response: TAPI.CourseTranslationsQuery) =>
+        response.courseTranslations,
+    }),
+
+    courseLanguage: builder.query<
+      TAPI.CourseLanguageQuery["courseLanguage"],
+      TAPI.CourseLanguageQueryVariables["courseId"]
+    >({
+      query: (courseId) => ({
+        document: API.CourseLanguageDocument,
+        variables: { courseId },
+      }),
+      transformResponse: (response: TAPI.CourseLanguageQuery) =>
+        response.courseLanguage,
+    }),
+
+    saveCourseTranslation: builder.mutation<
+      TAPI.SaveCourseTranslationMutation["saveCourseTranslation"],
+      TAPI.SaveCourseTranslationMutationVariables["input"]
+    >({
+      query: (input) => ({
+        document: API.SaveCourseTranslationDocument,
+        variables: { input },
+      }),
+      transformResponse: (response: TAPI.SaveCourseTranslationMutation) =>
+        response.saveCourseTranslation,
+    }),
+
+    setCourseTranslationPublication: builder.mutation<
+      TAPI.SetCourseTranslationPublicationMutation["setCourseTranslationPublication"],
+      TAPI.SetCourseTranslationPublicationMutationVariables["input"]
+    >({
+      query: (input) => ({
+        document: API.SetCourseTranslationPublicationDocument,
+        variables: { input },
+      }),
+      transformResponse: (
+        response: TAPI.SetCourseTranslationPublicationMutation,
+      ) => response.setCourseTranslationPublication,
+    }),
+
+    setCourseSourceLanguage: builder.mutation<
+      TAPI.SetCourseSourceLanguageMutation["setCourseSourceLanguage"],
+      TAPI.SetCourseSourceLanguageMutationVariables["input"]
+    >({
+      query: (input) => ({
+        document: API.SetCourseSourceLanguageDocument,
+        variables: { input },
+      }),
+      transformResponse: (response: TAPI.SetCourseSourceLanguageMutation) =>
+        response.setCourseSourceLanguage,
+    }),
   }),
 });
 
 export const {
+  useCourseTranslationsQuery,
+  useCourseLanguageQuery,
+  useSaveCourseTranslationMutation,
+  useSetCourseTranslationPublicationMutation,
+  useSetCourseSourceLanguageMutation,
   useCoursesQuery,
   useCourseFilterFacetsQuery,
   useCourseByIdQuery,

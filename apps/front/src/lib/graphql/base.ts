@@ -2024,6 +2024,14 @@ export type CourseFilterInput = {
   status?: InputMaybe<CourseStatus>;
 };
 
+export type CourseLanguage = {
+  __typename?: 'CourseLanguage';
+  availableLocales: Array<AppLanguage>;
+  courseId: Scalars['ID']['output'];
+  publishedLocales: Array<AppLanguage>;
+  sourceLanguage?: Maybe<AppLanguage>;
+};
+
 export const CourseLevel = {
   Advanced: 'ADVANCED',
   AllLevels: 'ALL_LEVELS',
@@ -3246,6 +3254,7 @@ export type Mutation = {
   setAssociationMemberRequirements: AssociationMemberRequirementsResult;
   setAssociationMemberStatus: AssociationMember;
   setCourseIndexExclusion: ContentSeoSettings;
+  setCourseSourceLanguage: CourseLanguage;
   setCourseTranslationPublication: CourseTranslation;
   setEventIndexExclusion: ContentSeoSettings;
   setEventTranslationPublication: EventTranslation;
@@ -3945,6 +3954,11 @@ export type MutationSetAssociationMemberStatusArgs = {
 
 export type MutationSetCourseIndexExclusionArgs = {
   input: SetContentIndexExclusionInput;
+};
+
+
+export type MutationSetCourseSourceLanguageArgs = {
+  input: SetCourseSourceLanguageInput;
 };
 
 
@@ -6335,6 +6349,7 @@ export type Query = {
   courseById: Course;
   courseBySlug: Course;
   courseFilterFacets: CourseFilterFacets;
+  courseLanguage: CourseLanguage;
   courseSeo: ContentSeoSettings;
   courseTranslations: Array<CourseTranslation>;
   courses: PaginatedCourses;
@@ -6805,6 +6820,11 @@ export type QueryCourseByIdArgs = {
 export type QueryCourseBySlugArgs = {
   locale?: InputMaybe<AppLanguage>;
   slug: Scalars['String']['input'];
+};
+
+
+export type QueryCourseLanguageArgs = {
+  courseId: Scalars['String']['input'];
 };
 
 
@@ -7784,6 +7804,11 @@ export type SetCertificateCpdPlanInput = {
 export type SetContentIndexExclusionInput = {
   contentId: Scalars['ID']['input'];
   excluded: Scalars['Boolean']['input'];
+};
+
+export type SetCourseSourceLanguageInput = {
+  courseId: Scalars['ID']['input'];
+  sourceLanguage: AppLanguage;
 };
 
 export type SetCourseTranslationPublicationInput = {

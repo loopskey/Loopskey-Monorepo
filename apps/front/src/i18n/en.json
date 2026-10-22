@@ -8683,5 +8683,51 @@
         "youtube": "YouTube channel"
       }
     }
+  },
+  "contentTranslation": {
+    "open": "Translations",
+    "title": "Translated copy",
+    "description": "Write and publish the translated copy of {{title}}. A translation stays private until it is published, and the public page keeps its original language until then.",
+    "language": "Translation language",
+    "unavailable": "This tab translates courses only. Events are translated from the provider's own dashboard, and podcasts and channels have no translation editor yet.",
+    "fields": {
+      "title": "Title",
+      "description": "Description",
+      "requirements": "Requirements",
+      "learnings": "What learners gain"
+    },
+    "listHelp": "One line per entry.",
+    "completeness": "The original lists requirements and outcomes, so a published translation must list them too.",
+    "status": {
+      "none": "No translation saved in this language yet.",
+      "draft": "Saved as a private draft, version {{version}}.",
+      "published": "Published, version {{version}}."
+    },
+    "save": "Save draft",
+    "publish": "Publish translation",
+    "unpublish": "Unpublish translation",
+    "reload": "Discard my copy and reload",
+    "retry": "Try again",
+    "loadFailed": "The translations could not be loaded.",
+    "sourceLanguage": {
+      "label": "Language of the original copy",
+      "help": "Declaring the original language lets the page advertise both addresses to search engines. Until it is declared, only the translated address is advertised.",
+      "undeclared": "Not declared yet.",
+      "declared": "Declared as {{language}}.",
+      "declare": "Declare {{language}}",
+      "locales": "Addresses advertised: {{locales}}",
+      "none": "none"
+    },
+    "feedback": {
+      "saved": "Draft saved.",
+      "published": "Translation published.",
+      "unpublished": "Translation unpublished.",
+      "declared": "Original language declared.",
+      "conflict": "Someone else changed this translation while you were editing. Your copy is still here; reload to take theirs.",
+      "incomplete": "A published translation needs every part the original has.",
+      "sourceConflict": "That language already has a published translation, so it cannot also be the original language.",
+      "blank": "A title and a description are required.",
+      "failed": "The change could not be saved."
+    }
   }
 }
