@@ -198,7 +198,7 @@ SMOKE_LOG="$BACKUP_DIR/smoke-$STAMP.log"
 
 run_smoke() {
   "${DC[@]}" exec -T front sh -c \
-    'node scripts/seo-audit.mjs --base-url http://127.0.0.1:3000 --site-origin "$NEXT_PUBLIC_SITE_URL" --environment "$DEPLOYMENT_ENV" --profile smoke'
+    'node scripts/seo-audit.mjs --base-url http://127.0.0.1:3000 --site-origin "$NEXT_PUBLIC_SITE_URL" --environment "$DEPLOYMENT_ENV" --profile smoke && node scripts/seo-audit.mjs --base-url http://127.0.0.1:3000 --site-origin "$NEXT_PUBLIC_SITE_URL" --environment "$DEPLOYMENT_ENV" --profile hosts --alias-hosts "$SITE_CANONICAL_HOST_ALIASES" --https-redirect "$SITE_HTTPS_REDIRECT"'
 }
 
 log "Smoke check of the public site"
@@ -218,8 +218,11 @@ if [ "$smoke_passed" -ne 1 ]; then
   grep -E '^(FAIL|        \[)' "$SMOKE_LOG" >&2 || true
   rollback
 fi
-if grep -q '^SKIP' "$SMOKE_LOG"; then
+if grep -q '^SKIP  smoke-course' "$SMOKE_LOG"; then
   echo "  note: a non-production detail fixture is unavailable; its sitemap is intentionally absent."
+fi
+if grep -q '^SKIP  \(alias\|forwarded\)-' "$SMOKE_LOG"; then
+  echo "  note: host alias or HTTPS redirect checks were skipped because this image does not enable them."
 fi
 
 log "Migration state"

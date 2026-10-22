@@ -42,6 +42,9 @@ export class PodcastTranslationService {
   constructor(private readonly prisma: PrismaService) {
     this.store = {
       transaction: (work) => this.prisma.$transaction((tx) => work(tx)),
+      lockParent: async (tx, podcastId) => {
+        await tx.$queryRaw`SELECT 1 FROM "Podcast" WHERE "id" = ${podcastId} FOR UPDATE`;
+      },
       findParent: (tx, podcastId) =>
         tx.podcast.findUnique({
           where: { id: podcastId },
@@ -49,6 +52,7 @@ export class PodcastTranslationService {
             id: true,
             providerId: true,
             deletedAt: true,
+            sourceLanguage: true,
           },
         }),
       findTranslation: (tx, podcastId, locale) =>

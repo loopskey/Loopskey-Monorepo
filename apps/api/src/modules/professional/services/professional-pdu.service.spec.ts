@@ -12,6 +12,7 @@ import {
 } from "@nestjs/common";
 import { LearningActivityChangeKind } from "@professional/public/professional-compliance-api.events";
 import { CreditType, PDUCategory } from "@prisma/client";
+import { ProfessionalMessageCode } from "@professional/enums/message-code.enum";
 
 import type { PrismaService } from "@prisma/prisma.service";
 
@@ -56,13 +57,19 @@ const createPrismaMock = () => {
 
 const createService = (
   prisma = createPrismaMock(),
-  requirementDirectoryOverrides: { isAssigned?: jest.Mock } = {},
+  requirementDirectoryOverrides: {
+    isAssigned?: jest.Mock;
+    lockContentLink?: jest.Mock;
+  } = {},
 ) => {
   const append = jest.fn().mockResolvedValue(undefined);
   const requirementDirectory = {
     isAssigned:
       requirementDirectoryOverrides.isAssigned ??
       jest.fn().mockResolvedValue(true),
+    lockContentLink:
+      requirementDirectoryOverrides.lockContentLink ??
+      jest.fn().mockResolvedValue({ requirementId: null }),
     syncAssignedRequirements: jest.fn().mockResolvedValue(undefined),
   };
   const service = new ProfessionalPduService(
@@ -536,6 +543,292 @@ describe("ProfessionalPduService external assigned-content dedup", () => {
 
     expect(prisma.pDUActivity.findFirst).not.toHaveBeenCalled();
     expect(prisma.pDUActivity.create).toHaveBeenCalledTimes(1);
+  });
+});
+
+describe("ProfessionalPduService re-submission", () => {
+  it("returns a reviewed content activity to pending review when it is submitted again", async () => {
+    const { service, prisma } = createService();
+    prisma.pDUActivity.findFirst.mockResolvedValue({ id: "activity-1" });
+    prisma.pDUActivity.update.mockResolvedValue({
+      id: "activity-1",
+      userId: "user-1",
+    });
+
+    await service.createPduActivity(
+      professional,
+      createInput({ associationLearningContentId: "learning-content-1" }),
+    );
+
+    expect(prisma.pDUActivity.update.mock.calls[0][0].data).toEqual(
+      expect.objectContaining({
+        status: PDUStatus.PENDING,
+        reviewNote: null,
+      }),
+    );
+  });
+
+  it("keeps the review state out of a first submission", async () => {
+    const { service, prisma } = createService();
+    prisma.pDUActivity.findFirst.mockResolvedValue(null);
+    prisma.pDUActivity.create.mockResolvedValue({
+      id: "activity-2",
+      userId: "user-1",
+    });
+
+    await service.createPduActivity(
+      professional,
+      createInput({ associationLearningContentId: "learning-content-2" }),
+    );
+
+    const data = prisma.pDUActivity.create.mock.calls[0][0].data;
+    expect(data).not.toHaveProperty("status");
+    expect(data).not.toHaveProperty("reviewNote");
+  });
+});
+
+describe("ProfessionalPduService completion dates", () => {
+  const inDays = (days: number) =>
+    new Date(Date.now() + days * 24 * 60 * 60 * 1000).toISOString();
+
+  it("accepts today and the next UTC day, which a user ahead of UTC can pick", async () => {
+    const { service, prisma } = createService();
+    prisma.pDUActivity.create.mockResolvedValue({
+      id: "activity-1",
+      userId: "user-1",
+    });
+
+    await service.createPduActivity(
+      professional,
+      createInput({ date: inDays(0.9) }),
+    );
+
+    expect(prisma.pDUActivity.create).toHaveBeenCalledTimes(1);
+  });
+
+  it("refuses a completion date beyond the next UTC day, without writing", async () => {
+    const { service, prisma } = createService();
+
+    await expect(
+      service.createPduActivity(professional, createInput({ date: inDays(3) })),
+    ).rejects.toBeInstanceOf(BadRequestException);
+    expect(prisma.pDUActivity.create).not.toHaveBeenCalled();
+    expect(prisma.pDUActivity.findFirst).not.toHaveBeenCalled();
+  });
+
+  it("answers with a domain code the client can route on", async () => {
+    const { service } = createService();
+
+    await expect(
+      service.createPduActivity(professional, createInput({ date: inDays(3) })),
+    ).rejects.toMatchObject({
+      response: { code: ProfessionalMessageCode.PDU_ACTIVITY_DATE_IN_FUTURE },
+    });
+  });
+
+  it("refuses moving an existing activity into the future", async () => {
+    const { service, prisma } = createService();
+    prisma.pDUActivity.findFirst.mockResolvedValue({
+      id: "activity-1",
+      userId: "user-1",
+      evidenceFiles: [],
+    });
+
+    await expect(
+      service.updatePduActivity(professional, {
+        activityId: "activity-1",
+        date: inDays(3),
+      } as never),
+    ).rejects.toBeInstanceOf(BadRequestException);
+    expect(prisma.pDUActivity.update).not.toHaveBeenCalled();
+  });
+});
+
+describe("ProfessionalPduService association learning content link", () => {
+  it("locks the member's link inside the write transaction", async () => {
+    const lockContentLink = jest
+      .fn()
+      .mockResolvedValue({ requirementId: null });
+    const { service, prisma } = createService(createPrismaMock(), {
+      lockContentLink,
+    });
+    prisma.pDUActivity.findFirst.mockResolvedValue(null);
+    prisma.pDUActivity.create.mockResolvedValue({
+      id: "activity-1",
+      userId: "user-1",
+    });
+
+    await service.createPduActivity(
+      professional,
+      createInput({ associationLearningContentId: "content-1" }),
+    );
+
+    expect(lockContentLink).toHaveBeenCalledWith(prisma, "user-1", "content-1");
+  });
+
+  it("refuses content the member was never offered, without writing", async () => {
+    const lockContentLink = jest.fn().mockResolvedValue(null);
+    const { service, prisma } = createService(createPrismaMock(), {
+      lockContentLink,
+    });
+    prisma.pDUActivity.findFirst.mockResolvedValue(null);
+
+    await expect(
+      service.createPduActivity(
+        professional,
+        createInput({ associationLearningContentId: "content-other" }),
+      ),
+    ).rejects.toBeInstanceOf(NotFoundException);
+    expect(prisma.pDUActivity.create).not.toHaveBeenCalled();
+  });
+
+  it("refuses a requirement other than the one the item counts toward", async () => {
+    const lockContentLink = jest
+      .fn()
+      .mockResolvedValue({ requirementId: "req-a" });
+    const { service, prisma } = createService(createPrismaMock(), {
+      lockContentLink,
+    });
+    prisma.pDUActivity.findFirst.mockResolvedValue(null);
+
+    await expect(
+      service.createPduActivity(
+        professional,
+        createInput({
+          associationRequirementId: "req-b",
+          associationLearningContentId: "content-1",
+        }),
+      ),
+    ).rejects.toBeInstanceOf(BadRequestException);
+    expect(prisma.pDUActivity.create).not.toHaveBeenCalled();
+  });
+
+  it("accepts the requirement the item counts toward and an item with none", async () => {
+    const lockContentLink = jest
+      .fn()
+      .mockResolvedValueOnce({ requirementId: "req-a" })
+      .mockResolvedValueOnce({ requirementId: null });
+    const { service, prisma } = createService(createPrismaMock(), {
+      lockContentLink,
+    });
+    prisma.pDUActivity.findFirst.mockResolvedValue(null);
+    prisma.pDUActivity.create.mockResolvedValue({
+      id: "activity-1",
+      userId: "user-1",
+    });
+
+    await service.createPduActivity(
+      professional,
+      createInput({
+        associationRequirementId: "req-a",
+        associationLearningContentId: "content-1",
+      }),
+    );
+    await service.createPduActivity(
+      professional,
+      createInput({
+        associationRequirementId: "req-b",
+        associationLearningContentId: "content-2",
+      }),
+    );
+
+    expect(prisma.pDUActivity.create).toHaveBeenCalledTimes(2);
+  });
+
+  it("checks the link again when an edit points an activity at an item", async () => {
+    const lockContentLink = jest.fn().mockResolvedValue(null);
+    const { service, prisma } = createService(createPrismaMock(), {
+      lockContentLink,
+    });
+    prisma.pDUActivity.findFirst.mockResolvedValue({
+      id: "activity-1",
+      userId: "user-1",
+      associationRequirementId: null,
+      associationLearningContentId: null,
+      evidenceFiles: [],
+    });
+
+    await expect(
+      service.updatePduActivity(professional, {
+        activityId: "activity-1",
+        associationLearningContentId: "content-other",
+      } as never),
+    ).rejects.toBeInstanceOf(NotFoundException);
+    expect(prisma.pDUActivity.update).not.toHaveBeenCalled();
+  });
+
+  it("refuses an edit that moves a linked activity to a different requirement than its item", async () => {
+    const lockContentLink = jest
+      .fn()
+      .mockResolvedValue({ requirementId: "req-a" });
+    const { service, prisma } = createService(createPrismaMock(), {
+      lockContentLink,
+    });
+    prisma.pDUActivity.findFirst.mockResolvedValue({
+      id: "activity-1",
+      userId: "user-1",
+      associationRequirementId: "req-a",
+      associationLearningContentId: "content-1",
+      evidenceFiles: [],
+    });
+
+    await expect(
+      service.updatePduActivity(professional, {
+        activityId: "activity-1",
+        associationRequirementId: "req-b",
+      } as never),
+    ).rejects.toBeInstanceOf(BadRequestException);
+    expect(prisma.pDUActivity.update).not.toHaveBeenCalled();
+  });
+
+  it("lets an edit change the requirement when the item's link has since been withdrawn", async () => {
+    const lockContentLink = jest.fn().mockResolvedValue(null);
+    const { service, prisma } = createService(createPrismaMock(), {
+      lockContentLink,
+    });
+    prisma.pDUActivity.findFirst.mockResolvedValue({
+      id: "activity-1",
+      userId: "user-1",
+      associationRequirementId: "req-a",
+      associationLearningContentId: "content-1",
+      evidenceFiles: [],
+    });
+    prisma.pDUActivity.update.mockResolvedValue({
+      id: "activity-1",
+      userId: "user-1",
+    });
+
+    await service.updatePduActivity(professional, {
+      activityId: "activity-1",
+      associationRequirementId: "req-b",
+    } as never);
+
+    expect(prisma.pDUActivity.update).toHaveBeenCalledTimes(1);
+  });
+
+  it("does not look at the link for an edit that touches neither the item nor the requirement", async () => {
+    const lockContentLink = jest.fn();
+    const { service, prisma } = createService(createPrismaMock(), {
+      lockContentLink,
+    });
+    prisma.pDUActivity.findFirst.mockResolvedValue({
+      id: "activity-1",
+      userId: "user-1",
+      associationRequirementId: "req-a",
+      associationLearningContentId: "content-1",
+      evidenceFiles: [],
+    });
+    prisma.pDUActivity.update.mockResolvedValue({
+      id: "activity-1",
+      userId: "user-1",
+    });
+
+    await service.updatePduActivity(professional, {
+      activityId: "activity-1",
+      title: "Renamed",
+    } as never);
+
+    expect(lockContentLink).not.toHaveBeenCalled();
   });
 });
 

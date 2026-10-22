@@ -40,6 +40,9 @@ export class YouTubeChannelTranslationService {
   constructor(private readonly prisma: PrismaService) {
     this.store = {
       transaction: (work) => this.prisma.$transaction((tx) => work(tx)),
+      lockParent: async (tx, channelId) => {
+        await tx.$queryRaw`SELECT 1 FROM "YouTubeChannel" WHERE "id" = ${channelId} FOR UPDATE`;
+      },
       findParent: (tx, channelId) =>
         tx.youTubeChannel.findUnique({
           where: { id: channelId },
@@ -47,6 +50,7 @@ export class YouTubeChannelTranslationService {
             id: true,
             providerId: true,
             deletedAt: true,
+            sourceLanguage: true,
           },
         }),
       findTranslation: (tx, channelId, locale) =>

@@ -802,6 +802,7 @@ type AssociationMemberActivity {
   reviewNote: String
   source: PDUSource!
   state: AssociationAttributionState!
+  submittedAt: DateTime!
   title: String!
 }
 
@@ -832,12 +833,16 @@ type AssociationMemberCompliance {
 type AssociationMemberContentCompletion {
   activityDate: DateTime!
   activityId: ID!
+  completionState: AssociationAttributionState
   contentType: ContentType
+  creditedAmount: Float
   credits: Float!
   id: ID!
   indicativeCredits: Float
   isExternal: Boolean!
+  isLate: Boolean!
   provider: String
+  submittedAt: DateTime!
   title: String!
 }
 
@@ -1082,6 +1087,7 @@ type AssociationMyRequirementActivity {
   isLate: Boolean!
   reviewNote: String
   state: AssociationAttributionState!
+  submittedAt: DateTime!
   title: String!
 }
 
@@ -1089,8 +1095,11 @@ type AssociationMyRequirementContent {
   associationId: ID!
   associationName: String!
   category: PDUCategory
+  completedAt: DateTime
+  completionState: AssociationAttributionState
   contentId: ID
   contentType: ContentType
+  creditedAmount: Float
   description: String
   externalUrl: String
   id: ID!
@@ -1099,9 +1108,11 @@ type AssociationMyRequirementContent {
   isAvailable: Boolean!
   isCompleted: Boolean!
   isExternal: Boolean!
+  isLate: Boolean!
   isLinkedToRequirement: Boolean!
   provider: String
   slug: String
+  submittedAt: DateTime
   title: String!
 }
 
@@ -1398,6 +1409,14 @@ enum AssociationSubmissionWindow {
   WHOLE_PERIOD
 }
 
+input AttachRetiredContentSlugInput {
+  contentId: ID!
+  evidence: String!
+  expectedSlug: String!
+  kind: ContentUrlKind!
+  retiredSlug: String!
+}
+
 enum AuditAction {
   ADMIN_PROFILE_UPDATED
   ASSOCIATION_ACCOUNT_ACTIVATED
@@ -1410,6 +1429,9 @@ enum AuditAction {
   CONTENT_INDEX_EXCLUSION_CHANGED
   CONTENT_SEO_UPDATED
   CONTENT_SLUG_CHANGED
+  CONTENT_URL_ALIAS_ATTACHED
+  INGESTION_ITEM_APPROVED
+  INGESTION_ITEM_REJECTED
   ORGANIZATION_ACCOUNT_ACTIVATED
   ORGANIZATION_ACCOUNT_CREATED
   ORGANIZATION_ACTIVATION_RESENT
@@ -1792,17 +1814,36 @@ type Course {
 }
 
 enum CourseCategory {
+  ACCOUNTING
+  AI
   BUSINESS
+  CAREER
+  CERTIFICATION
+  CLOUD
+  COMMUNICATION
   COMPLIANCE
-  CPD
+  CONSTRUCTION
+  CYBERSECURITY
+  DATA
   DESIGN
   EDUCATION
   ENGINEERING
   FINANCE
+  GENERAL
   HEALTHCARE
+  HEALTH_SAFETY
+  HUMAN_RESOURCES
   LEADERSHIP
+  LEGAL
   MARKETING
-  OTHER
+  NURSING
+  PRODUCT_MANAGEMENT
+  PROJECT_MANAGEMENT
+  QUALITY
+  SALES
+  SOFTWARE_DEVELOPMENT
+  SUPPLY_CHAIN
+  SUSTAINABILITY
   TECHNOLOGY
 }
 
@@ -1826,6 +1867,13 @@ input CourseFilterInput {
   providerId: String
   search: String
   status: CourseStatus
+}
+
+type CourseLanguage {
+  availableLocales: [AppLanguage!]!
+  courseId: ID!
+  publishedLocales: [AppLanguage!]!
+  sourceLanguage: AppLanguage
 }
 
 enum CourseLevel {
@@ -2376,17 +2424,36 @@ input EventCatalogFilterInput {
 }
 
 enum EventCategory {
+  ACCOUNTING
+  AI
   BUSINESS
+  CAREER
+  CERTIFICATION
+  CLOUD
+  COMMUNICATION
   COMPLIANCE
-  CPD
+  CONSTRUCTION
+  CYBERSECURITY
+  DATA
   DESIGN
   EDUCATION
   ENGINEERING
   FINANCE
+  GENERAL
   HEALTHCARE
+  HEALTH_SAFETY
+  HUMAN_RESOURCES
   LEADERSHIP
+  LEGAL
   MARKETING
-  OTHER
+  NURSING
+  PRODUCT_MANAGEMENT
+  PROJECT_MANAGEMENT
+  QUALITY
+  SALES
+  SOFTWARE_DEVELOPMENT
+  SUPPLY_CHAIN
+  SUSTAINABILITY
   TECHNOLOGY
 }
 
@@ -2663,6 +2730,7 @@ type IngestionItem {
   imageCandidateUrl: String
   lastSeenAt: DateTime!
   rejectionReason: String
+  reviewReasons: [IngestionReviewReason!]!
   reviewedAt: DateTime
   reviewedById: String
   reviewedByName: String
@@ -2681,6 +2749,7 @@ type IngestionItemCatalog {
 }
 
 input IngestionItemFilter {
+  heldForReview: Boolean
   search: String
   sourceId: String
   state: IngestionItemState
@@ -2709,6 +2778,13 @@ type IngestionPageInfo {
 input IngestionPagination {
   cursor: String
   take: Int = 20
+}
+
+enum IngestionReviewReason {
+  MISSING_DESCRIPTION
+  PLACEHOLDER_CONTENT
+  PLACEHOLDER_URL
+  PREVIOUSLY_REJECTED
 }
 
 type IngestionSource {
@@ -2855,6 +2931,7 @@ type Mutation {
   archiveEvent(eventId: String!): Event!
   archivePodcast(podcastId: String!): Podcast!
   archiveYouTubeChannel(channelId: String!): YouTubeChannel!
+  attachRetiredContentSlug(input: AttachRetiredContentSlugInput!): ContentUrlSettings!
   bulkAddOrganizationMembers(input: BulkAddOrganizationMembersInput!): BulkAddOrganizationMembersResult!
   bulkInviteAssociationMembers(input: BulkInviteAssociationMembersInput!): AssociationBulkInviteResult!
   cancelContentEnrollment(input: ContentActionInput!): ContentActionPayload!
@@ -2907,6 +2984,7 @@ type Mutation {
   deleteUser(userId: String!): User!
   deleteYouTubeChannel(channelId: String!): YouTubeChannel!
   deleteYouTubeVideo(videoId: String!): YouTubeVideo!
+  discardRoadmapEdit(draftId: ID!): Boolean!
   dismissProfessionalOnboarding: ProfessionalDashboardProfile!
   enrollContent(input: ContentActionInput!): ContentActionPayload!
   forgotPassword(input: ForgotPasswordInput!): AuthPayload!
@@ -2968,6 +3046,7 @@ type Mutation {
   setAssociationMemberRequirements(input: SetAssociationMemberRequirementsInput!): AssociationMemberRequirementsResult!
   setAssociationMemberStatus(input: SetAssociationMemberStatusInput!): AssociationMember!
   setCourseIndexExclusion(input: SetContentIndexExclusionInput!): ContentSeoSettings!
+  setCourseSourceLanguage(input: SetCourseSourceLanguageInput!): CourseLanguage!
   setCourseTranslationPublication(input: SetCourseTranslationPublicationInput!): CourseTranslation!
   setEventIndexExclusion(input: SetContentIndexExclusionInput!): ContentSeoSettings!
   setEventTranslationPublication(input: SetEventTranslationPublicationInput!): EventTranslation!
@@ -2982,6 +3061,7 @@ type Mutation {
   setYouTubeChannelTranslationPublication(input: SetYouTubeChannelTranslationPublicationInput!): YouTubeChannelTranslation!
   startProfessionalOnboarding: ProfessionalDashboardProfile!
   startRoadmapDraft: ProfessionalRoadmapDraft!
+  startRoadmapEdit(roadmapId: ID!): ProfessionalRoadmapDraft!
   startRoadmapStep(enrollmentId: ID!, stepId: ID!): RoadmapStepProgress!
   submitAssociationAccessRequest(input: SubmitAssociationAccessRequestInput!): AssociationActionResponse!
   submitContactInquiry(input: SubmitContactInquiryInput!): SubmitContactInquiryPayload!
@@ -3847,20 +3927,36 @@ type Podcast {
 }
 
 enum PodcastCategory {
+  ACCOUNTING
   AI
   BUSINESS
   CAREER
+  CERTIFICATION
+  CLOUD
+  COMMUNICATION
   COMPLIANCE
-  CPD
+  CONSTRUCTION
+  CYBERSECURITY
   DATA
   DESIGN
   EDUCATION
   ENGINEERING
   FINANCE
+  GENERAL
   HEALTHCARE
+  HEALTH_SAFETY
+  HUMAN_RESOURCES
   LEADERSHIP
+  LEGAL
   MARKETING
-  OTHER
+  NURSING
+  PRODUCT_MANAGEMENT
+  PROJECT_MANAGEMENT
+  QUALITY
+  SALES
+  SOFTWARE_DEVELOPMENT
+  SUPPLY_CHAIN
+  SUSTAINABILITY
   TECHNOLOGY
 }
 
@@ -4393,6 +4489,8 @@ type ProfessionalRoadmapDraft {
   preferredDeliveryFormats: [DeliveryFormat!]!
   preferredFormats: [LearningFormat!]!
   remainingFields: [RoadmapDraftStep!]!
+  replacesRoadmapId: ID
+  replacesRoadmapTitle: String
   requiredCredits: Float
   requiredFieldCount: Int!
   skillLevel: SkillLevel
@@ -4412,6 +4510,7 @@ type ProfessionalRoadmapGeneration {
   failure: RoadmapGenerationFailure
   goal: String
   id: ID!
+  replacesRoadmapId: ID
   status: RoadmapDraftStatus!
   updatedAt: DateTime!
 }
@@ -4893,6 +4992,7 @@ type Query {
   courseById(courseId: String!): Course!
   courseBySlug(locale: AppLanguage, slug: String!): Course!
   courseFilterFacets: CourseFilterFacets!
+  courseLanguage(courseId: String!): CourseLanguage!
   courseSeo(courseId: String!): ContentSeoSettings!
   courseTranslations(courseId: String!): [CourseTranslation!]!
   courses(filter: CourseFilterInput, locale: AppLanguage, pagination: CoursePaginationInput, sort: CourseSortInput): PaginatedCourses!
@@ -5328,11 +5428,20 @@ input SaveYouTubeChannelTranslationInput {
   title: String!
 }
 
+type SearchHealthCollection {
+  apiEnabled: Boolean!
+  dedupWindowHours: Int!
+  notices: [SearchHealthNotice!]!
+  retentionDays: Int!
+  vitalsSampleRate: Float!
+}
+
 type SearchHealthConversionRow {
   attribution: TelemetryAttribution!
   contentKind: TelemetryContentKind!
   count: Int!
   event: TelemetryConversionEvent!
+  locale: TelemetryLocale!
   role: TelemetryRegistrationRole!
 }
 
@@ -5342,7 +5451,19 @@ type SearchHealthIntakeRow {
   outcome: TelemetryIntakeOutcome!
 }
 
+enum SearchHealthNotice {
+  AGGREGATES_AVAILABLE
+  COLLECTION_DISABLED
+  DELIVERY_FAILURES
+  INSUFFICIENT_SAMPLES
+  NO_DATA
+  PARTIAL_COVERAGE
+  RATE_LIMITED
+  SAMPLED
+}
+
 type SearchHealthReport {
+  collection: SearchHealthCollection!
   conversions: [SearchHealthConversionRow!]!
   days: Int!
   daysWithData: Int!
@@ -5409,6 +5530,11 @@ input SetCertificateCpdPlanInput {
 input SetContentIndexExclusionInput {
   contentId: ID!
   excluded: Boolean!
+}
+
+input SetCourseSourceLanguageInput {
+  courseId: ID!
+  sourceLanguage: AppLanguage!
 }
 
 input SetCourseTranslationPublicationInput {
@@ -6242,20 +6368,36 @@ enum WishlistSortBy {
 }
 
 enum YouTubeCategory {
+  ACCOUNTING
   AI
   BUSINESS
   CAREER
+  CERTIFICATION
+  CLOUD
+  COMMUNICATION
   COMPLIANCE
-  CPD
+  CONSTRUCTION
+  CYBERSECURITY
   DATA
   DESIGN
   EDUCATION
   ENGINEERING
   FINANCE
+  GENERAL
   HEALTHCARE
+  HEALTH_SAFETY
+  HUMAN_RESOURCES
   LEADERSHIP
+  LEGAL
   MARKETING
-  OTHER
+  NURSING
+  PRODUCT_MANAGEMENT
+  PROJECT_MANAGEMENT
+  QUALITY
+  SALES
+  SOFTWARE_DEVELOPMENT
+  SUPPLY_CHAIN
+  SUSTAINABILITY
   TECHNOLOGY
 }
 

@@ -7,11 +7,16 @@ import { publicContentChange } from "@utils/public-content-change.util";
 import { requestContext } from "@infrastructure/observability/request-context";
 import { SaveCourseTranslationInput } from "@course/dtos/save-course-translation.input";
 import { SetCourseTranslationPublicationInput } from "@course/dtos/set-course-translation-publication.input";
+import { SetCourseSourceLanguageInput } from "@course/dtos/set-course-source-language.input";
 import {
+  authorizeTranslationParent,
   listContentTranslations,
   localizeRecord,
+  normalizeSourceLanguage,
+  resolveVariants,
   saveContentTranslation,
   setContentTranslationPublication,
+  sourceLanguageIsTranslated,
 } from "@utils/content-translation.util";
 
 import type {
@@ -49,6 +54,9 @@ export class CourseTranslationService {
   constructor(private readonly prisma: PrismaService) {
     this.store = {
       transaction: (work) => this.prisma.$transaction((tx) => work(tx)),
+      lockParent: async (tx, courseId) => {
+        await tx.$queryRaw`SELECT 1 FROM "Course" WHERE "id" = ${courseId} FOR UPDATE`;
+      },
       findParent: (tx, courseId) =>
         tx.course.findUnique({
           where: { id: courseId },
@@ -56,6 +64,7 @@ export class CourseTranslationService {
             id: true,
             providerId: true,
             deletedAt: true,
+            sourceLanguage: true,
             learnings: true,
             requirements: true,
           },
@@ -134,6 +143,92 @@ export class CourseTranslationService {
           select: translationSelect,
         }),
     );
+  }
+
+  async readLanguage(courseId: string, actor: TranslationActor) {
+    return this.store.transaction(async (tx) => {
+      await authorizeTranslationParent(
+        this.store,
+        tx,
+        courseId,
+        actor,
+        this.guards,
+      );
+      return this.languageOf(tx, courseId);
+    });
+  }
+
+  async setSourceLanguage(
+    input: SetCourseSourceLanguageInput,
+    actor: TranslationActor,
+  ) {
+    const language = await this.store.transaction(async (tx) => {
+      await authorizeTranslationParent(
+        this.store,
+        tx,
+        input.courseId,
+        actor,
+        this.guards,
+        true,
+      );
+      const { count } = await tx.course.updateMany({
+        where: {
+          id: input.courseId,
+          translations: {
+            none: { locale: input.sourceLanguage, isPublished: true },
+          },
+        },
+        data: {
+          sourceLanguage: input.sourceLanguage.toLowerCase(),
+          ...publicContentChange(),
+        },
+      });
+      if (count !== 1) throw sourceLanguageIsTranslated();
+      return this.languageOf(tx, input.courseId);
+    });
+    this.logger.log("Course source language declared", {
+      kind: "course",
+      sourceLanguage: language.sourceLanguage,
+      availableLocales: language.availableLocales,
+      correlationId: requestContext.correlationId(),
+    });
+    return language;
+  }
+
+  private async languageOf(
+    tx: Prisma.TransactionClient,
+    courseId: string,
+  ): Promise<{
+    courseId: string;
+    sourceLanguage: AppLanguage | null;
+    publishedLocales: AppLanguage[];
+    availableLocales: AppLanguage[];
+  }> {
+    const [course, published] = await Promise.all([
+      tx.course.findUniqueOrThrow({
+        where: { id: courseId },
+        select: { sourceLanguage: true },
+      }),
+      tx.courseTranslation.findMany({
+        where: { courseId, isPublished: true },
+        select: { locale: true },
+        orderBy: { locale: "asc" },
+      }),
+    ]);
+    const publishedLocales = published.map((row) => row.locale);
+    const variants = resolveVariants({
+      sourceLanguage: course.sourceLanguage,
+      published: publishedLocales,
+    });
+    return {
+      courseId,
+      sourceLanguage: normalizeSourceLanguage(course.sourceLanguage),
+      publishedLocales,
+      availableLocales: [
+        ...(variants.english ? [AppLanguage.EN] : []),
+        ...(variants.french ? [AppLanguage.FR] : []),
+      ],
+    };
   }
 
   async save(input: SaveCourseTranslationInput, actor: TranslationActor) {

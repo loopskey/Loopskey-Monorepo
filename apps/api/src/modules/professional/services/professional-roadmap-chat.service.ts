@@ -8,6 +8,7 @@ import { ProfessionalCpdPlanService } from "@professional/services/professional-
 import { ProfessionalProfileService } from "@professional/services/professional-profile.service";
 import { CertificationSearchService } from "@professional/services/certification-search.service";
 import { PatchRoadmapCpdSetupInput } from "@professional/dtos/patch-roadmap-cpd-setup.input";
+import { PROFESSIONAL_CATALOG_API } from "@course/public/professional-catalog-api";
 import { ProfessionalMessageCode } from "@professional/enums/message-code.enum";
 import { roadmapContractProgress } from "@professional/utils/roadmap-draft-readiness.util";
 import { stepOfFirstMissingField } from "@professional/utils/roadmap-draft-readiness.util";
@@ -46,17 +47,18 @@ import { TUser } from "@common/types/user.types";
 import { Role } from "@prisma/client";
 
 import { type WidgetValidationContext } from "@professional/utils/roadmap-widget-validation.util";
+import { type ProfessionalCatalogApi } from "@course/public/professional-catalog-api";
 import { type CertificationOption } from "@professional/utils/roadmap-widget-validation.util";
 import { type RankableTerm } from "@professional/utils/roadmap-relevance.util";
 import { type TaxonomyTerm } from "@professional/utils/profile-taxonomy.util";
 
 import {
   type ChatTurnData,
-  type ServiceAiFailureTrace,
   type ServiceAiPort,
   type RoadmapWidget,
   type RoadmapChatEntry,
   type RoadmapDraftState,
+  type ServiceAiFailureTrace,
 } from "@infrastructure/service-ai/service-ai.port";
 
 import * as T from "@professional/types/professional-roadmap-chat.types";
@@ -119,6 +121,8 @@ export class ProfessionalRoadmapChatService {
     private readonly cpdPlans: ProfessionalCpdPlanService,
     private readonly certifications: CertificationSearchService,
     private readonly prisma: PrismaService,
+    @Inject(PROFESSIONAL_CATALOG_API)
+    private readonly catalog: ProfessionalCatalogApi,
   ) {}
 
   private assertProfessional(user: TUser) {
@@ -386,6 +390,12 @@ export class ProfessionalRoadmapChatService {
     return (widget ?? Prisma.JsonNull) as unknown as Prisma.InputJsonValue;
   }
 
+  private async replacedRoadmapTitle(draft: DraftRow) {
+    if (!draft.replacesRoadmapId) return null;
+    const [roadmap] = await this.catalog.roadmaps([draft.replacesRoadmapId]);
+    return typeof roadmap?.title === "string" ? roadmap.title : null;
+  }
+
   private async view(
     user: TUser,
     draft: DraftRow,
@@ -398,6 +408,7 @@ export class ProfessionalRoadmapChatService {
       draft.cpdPlanId ? this.cpdPlans.plan(user, draft.cpdPlanId) : null,
     ]);
     const subjectOptions = catalogue.options;
+    const replacesRoadmapTitle = await this.replacedRoadmapTitle(draft);
     const pending = await this.drafts.lastAssistantMessage(user.id, draft.id);
     const completion = roadmapContractProgress(fields, catalogue.knownIds);
     const canGenerate =
@@ -412,6 +423,8 @@ export class ProfessionalRoadmapChatService {
       ...fields,
       id: draft.id,
       status: draft.status,
+      replacesRoadmapTitle,
+      replacesRoadmapId: draft.replacesRoadmapId,
       failureReason: draft.failureReason,
       failure: mapGenerationFailure(draft.failureReason),
       updatedAt: draft.updatedAt,

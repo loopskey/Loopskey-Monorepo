@@ -1,5 +1,5 @@
 import * as Types from "@/lib/graphql/base";
-import { TypedDocumentString } from "@/lib/graphql/base";
+import { TypedDocumentString } from "@/lib/graphql/document";
 export type PodcastFieldsFragment = { __typename?: 'Podcast', id: string, host: string, slug: string, title: string, status: Types.PodcastStatus, rating: number, category: Types.PodcastCategory, imageUrl?: string | null, sourceUrl?: string | null, listeners: number, createdAt: string, updatedAt: string, deletedAt?: string | null, isFeatured: boolean, providerId?: string | null, description: string, ratingCount: number, episodeCount: number, durationMinutes?: number | null };
 
 export type PodcastEpisodeFieldsFragment = { __typename?: 'PodcastEpisode', id: string, title: string, audioUrl?: string | null, sourceUrl?: string | null, podcastId: string, updatedAt: string, createdAt: string, publishedAt?: string | null, description?: string | null, episodeNumber: number, durationMinutes?: number | null };

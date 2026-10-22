@@ -91,6 +91,15 @@ jobs:
       - name: Build
         run: npx turbo run build --affected
 
+      - name: Check public JavaScript targets and ceilings
+        shell: bash
+        run: |
+          if [ ! -f apps/front/.next/BUILD_ID ]; then
+            echo "The frontend was not built in this run, so there is nothing to measure."
+            exit 0
+          fi
+          npm run bundle-report --workspace front -- --check-targets --check-ceilings
+
       - name: Check generated GraphQL types
         shell: bash
         run: |
@@ -110,7 +119,14 @@ jobs:
           node scripts/seed-sitemap-fixture.cjs --self-test
 
       - name: SEO diagnostic self-test
-        run: node scripts/seo-audit.mjs --self-test
+        run: |
+          node scripts/seo-audit.mjs --self-test
+          node scripts/search-console-review.mjs --self-test
+
+      - name: Performance lab self-test
+        run: |
+          node scripts/perf-lab.mjs --self-test
+          node scripts/perf-fixture-api.mjs --self-test
 
       - name: Audit the production build
         shell: bash
@@ -135,6 +151,11 @@ jobs:
             --site-origin "$NEXT_PUBLIC_SITE_URL" \
             --environment "$DEPLOYMENT_ENV" \
             --profile static
+          node scripts/seo-audit.mjs \
+            --base-url http://127.0.0.1:3100 \
+            --site-origin "$NEXT_PUBLIC_SITE_URL" \
+            --environment "$DEPLOYMENT_ENV" \
+            --profile hosts
 
   api-image:
     name: API image dependencies
@@ -206,6 +227,8 @@ jobs:
           for environment in production staging; do
             docker build -f Dockerfile.front -t "loopskey-front:ci-$environment" \
               --build-arg NEXT_PUBLIC_SITE_URL=https://www.matrix.invalid \
+              --build-arg SITE_CANONICAL_HOST_ALIASES=matrix.invalid \
+              --build-arg SITE_HTTPS_REDIRECT=true \
               --build-arg DEPLOYMENT_ENV="$environment" \
               --build-arg BUILD_SHA="${{ github.sha }}" .
           done

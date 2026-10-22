@@ -416,9 +416,14 @@ the shared shell small and both are easy to undo by accident:
 Keep heavy libraries — charts, calendar, spreadsheet, WebGL, maps — behind
 `next/dynamic` or a deferred `import()`. After a build,
 `npm run bundle-report --workspace front` prints first-load JavaScript per
-prerendered route; check it whenever a change adds a dependency or a client
+public route; check it whenever a change adds a dependency or a client
 component, and confirm the deferred library is absent from the route's chunks
-rather than assuming it.
+rather than assuming it. `-- --check-targets` fails above a route's target
+budget and `-- --check-ceilings` fails above its recorded ceiling; CI runs both.
+The bundler keeps a module whole, so one value import of a large module (the
+GraphQL enums in `base.ts`, `utils/constant.ts`) ships all of it; the public
+shell imports from small modules such as `utils/site-navigation.ts` instead.
+`apps/front/docs/public-page-performance.md` records the measurements.
 
 ## Frontend Data and GraphQL
 
@@ -437,6 +442,13 @@ rather than assuming it.
 - Include credentials through the shared GraphQL base query.
 - Let the shared base query handle access-token refresh; do not add competing
   refresh logic per endpoint.
+- The base query delegates to `executeWithRefresh` in `lib/graphql/request.ts`.
+  Public pages that hold no cached API state use that same function instead of
+  loading Redux: the shell reads the visitor through
+  `lib/session/public-session.ts`, and a one-off public mutation such as the
+  contact form calls it directly. The Redux store is provided by the `(app)`
+  layout and only by the public pages whose islands query through RTK Query
+  (home, content details).
 - Use tag invalidation or an intentional cache update after mutations.
 - Never call Prisma from the frontend.
 - Do not invent a REST endpoint when a GraphQL contract already exists. REST is

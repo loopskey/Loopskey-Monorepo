@@ -598,18 +598,37 @@ model OrganizationAccessRequest {
 
 // ============== Course ===============
 enum CourseCategory {
-  CPD
-  OTHER
-  DESIGN
-  FINANCE
+  ACCOUNTING
+  AI
   BUSINESS
-  EDUCATION
-  MARKETING
-  TECHNOLOGY
-  LEADERSHIP
+  CAREER
+  CERTIFICATION
+  CLOUD
+  COMMUNICATION
   COMPLIANCE
-  HEALTHCARE
+  CONSTRUCTION
+  CYBERSECURITY
+  DATA
+  DESIGN
+  EDUCATION
   ENGINEERING
+  FINANCE
+  GENERAL
+  HEALTHCARE
+  HEALTH_SAFETY
+  HUMAN_RESOURCES
+  LEADERSHIP
+  LEGAL
+  MARKETING
+  NURSING
+  PRODUCT_MANAGEMENT
+  PROJECT_MANAGEMENT
+  QUALITY
+  SALES
+  SOFTWARE_DEVELOPMENT
+  SUPPLY_CHAIN
+  SUSTAINABILITY
+  TECHNOLOGY
 }
 
 enum CourseLevel {
@@ -778,18 +797,37 @@ enum EventStatus {
 }
 
 enum EventCategory {
-  CPD
-  OTHER
-  DESIGN
-  FINANCE
+  ACCOUNTING
+  AI
   BUSINESS
-  EDUCATION
-  MARKETING
-  TECHNOLOGY
-  HEALTHCARE
-  LEADERSHIP
+  CAREER
+  CERTIFICATION
+  CLOUD
+  COMMUNICATION
   COMPLIANCE
+  CONSTRUCTION
+  CYBERSECURITY
+  DATA
+  DESIGN
+  EDUCATION
   ENGINEERING
+  FINANCE
+  GENERAL
+  HEALTHCARE
+  HEALTH_SAFETY
+  HUMAN_RESOURCES
+  LEADERSHIP
+  LEGAL
+  MARKETING
+  NURSING
+  PRODUCT_MANAGEMENT
+  PROJECT_MANAGEMENT
+  QUALITY
+  SALES
+  SOFTWARE_DEVELOPMENT
+  SUPPLY_CHAIN
+  SUSTAINABILITY
+  TECHNOLOGY
 }
 
 enum EventRegistrationStatus {
@@ -971,21 +1009,37 @@ model CalendarEvent {
 
 // ============== Podcast ================
 enum PodcastCategory {
+  ACCOUNTING
   AI
-  CPD
-  DATA
-  OTHER
-  CAREER
-  DESIGN
-  FINANCE
   BUSINESS
-  EDUCATION
-  MARKETING
-  TECHNOLOGY
-  HEALTHCARE
-  LEADERSHIP
+  CAREER
+  CERTIFICATION
+  CLOUD
+  COMMUNICATION
   COMPLIANCE
+  CONSTRUCTION
+  CYBERSECURITY
+  DATA
+  DESIGN
+  EDUCATION
   ENGINEERING
+  FINANCE
+  GENERAL
+  HEALTHCARE
+  HEALTH_SAFETY
+  HUMAN_RESOURCES
+  LEADERSHIP
+  LEGAL
+  MARKETING
+  NURSING
+  PRODUCT_MANAGEMENT
+  PROJECT_MANAGEMENT
+  QUALITY
+  SALES
+  SOFTWARE_DEVELOPMENT
+  SUPPLY_CHAIN
+  SUSTAINABILITY
+  TECHNOLOGY
 }
 
 enum PodcastStatus {
@@ -1068,21 +1122,37 @@ model PodcastEpisode {
 
 // =============== YouTube ==================
 enum YouTubeCategory {
+  ACCOUNTING
   AI
-  CPD
-  DATA
-  OTHER
-  DESIGN
-  CAREER
-  FINANCE
   BUSINESS
-  EDUCATION
-  MARKETING
-  TECHNOLOGY
-  HEALTHCARE
-  LEADERSHIP
+  CAREER
+  CERTIFICATION
+  CLOUD
+  COMMUNICATION
   COMPLIANCE
+  CONSTRUCTION
+  CYBERSECURITY
+  DATA
+  DESIGN
+  EDUCATION
   ENGINEERING
+  FINANCE
+  GENERAL
+  HEALTHCARE
+  HEALTH_SAFETY
+  HUMAN_RESOURCES
+  LEADERSHIP
+  LEGAL
+  MARKETING
+  NURSING
+  PRODUCT_MANAGEMENT
+  PROJECT_MANAGEMENT
+  QUALITY
+  SALES
+  SOFTWARE_DEVELOPMENT
+  SUPPLY_CHAIN
+  SUSTAINABILITY
+  TECHNOLOGY
 }
 
 enum YouTubeChannelStatus {
@@ -1870,6 +1940,7 @@ model PDUTarget {
   @@index([category])
 }
 
+/// Unmanaged partial unique indexes: PDUActivity_user_content_key (userId, contentType, contentId) WHERE contentType IS NOT NULL AND contentId IS NOT NULL, and PDUActivity_user_learning_content_key (userId, associationLearningContentId) WHERE associationLearningContentId IS NOT NULL AND (contentType IS NULL OR contentId IS NULL).
 model PDUActivity {
   id String @id @default(cuid())
 
@@ -1955,6 +2026,19 @@ model ProfessionalAssociationRequirementLink {
 
   @@id([userId, associationRequirementId])
   @@index([userId])
+}
+
+model ProfessionalAssociationContentLink {
+  userId            String
+  learningContentId String
+  requirementId     String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@id([userId, learningContentId])
+  @@index([learningContentId])
+  @@index([requirementId])
 }
 
 // ================ CPD / PDU Plans ==================
@@ -2273,6 +2357,7 @@ model Roadmap {
 
   phases      RoadmapPhase[]
   enrollments RoadmapEnrollment[]
+  editDrafts  RoadmapDraft[]      @relation("RoadmapEditDrafts")
 
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
@@ -2385,11 +2470,15 @@ model RoadmapStepProgress {
   @@index([enrollmentId, status])
 }
 
+/// Unmanaged partial unique index: RoadmapDraft_open_edit_key on (replacesRoadmapId) WHERE replacesRoadmapId IS NOT NULL AND status IN (COLLECTING, READY, GENERATING, FAILED).
 model RoadmapDraft {
   id String @id @default(cuid())
 
   userId String
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  replacesRoadmapId String?
+  replacesRoadmap   Roadmap? @relation("RoadmapEditDrafts", fields: [replacesRoadmapId], references: [id], onDelete: SetNull)
 
   status      RoadmapDraftStatus @default(COLLECTING)
   currentStep RoadmapDraftStep   @default(GOAL)
@@ -2439,6 +2528,7 @@ model RoadmapDraft {
   @@index([userId, status])
   @@index([certificationId])
   @@index([cpdPlanId])
+  @@index([replacesRoadmapId])
 }
 
 model RoadmapChatMessage {
@@ -2830,6 +2920,9 @@ enum AuditAction {
   PROVIDER_PROFILE_REVIEWED
   PROVIDER_PROFILE_WITHDRAWN
   PROVIDER_PROFILE_INDEX_EXCLUSION_CHANGED
+  INGESTION_ITEM_APPROVED
+  INGESTION_ITEM_REJECTED
+  CONTENT_URL_ALIAS_ATTACHED
 }
 
 model AuditLog {
@@ -3421,6 +3514,13 @@ enum IngestionItemState {
   REJECTED
 }
 
+enum IngestionReviewReason {
+  PLACEHOLDER_CONTENT
+  PLACEHOLDER_URL
+  PREVIOUSLY_REJECTED
+  MISSING_DESCRIPTION
+}
+
 model IngestionSource {
   id   String @id @default(cuid())
   slug String @unique
@@ -3516,8 +3616,9 @@ model IngestionItem {
   unmappedFields    String[] @default([])
   imageCandidateUrl String?
 
-  state           IngestionItemState @default(PENDING)
+  state           IngestionItemState      @default(PENDING)
   rejectionReason String?
+  reviewReasons   IngestionReviewReason[] @default([])
 
   reviewedById String?
   reviewedBy   User?     @relation(fields: [reviewedById], references: [id], onDelete: SetNull)

@@ -1,0 +1,2 @@
+-- AlterEnum
+ALTER TYPE "AuditAction" ADD VALUE 'CONTENT_URL_ALIAS_ATTACHED';

@@ -53,6 +53,8 @@ const ProfessionalRoadmapTab = () => {
     explorePage,
     isGenerating,
     stepProgress,
+    handleEdit,
+    nextStepRef,
     justCompleted,
     exploreSearch,
     unenrollingId,
@@ -60,7 +62,9 @@ const ProfessionalRoadmapTab = () => {
     myRoadmapsData,
     hasFailedDraft,
     handleUnenroll,
+    handleContinue,
     handlePrevious,
+    editingRoadmapId,
     recommendations,
     exploreRoadmaps,
     explorePageInfo,
@@ -173,6 +177,7 @@ const ProfessionalRoadmapTab = () => {
             draftId={draft.id}
             status={draft.status}
             failure={draft.failure}
+            isEdit={Boolean(draft.replacesRoadmapId)}
             updatedAt={draft.updatedAt}
             onRetry={handleRetryGeneration}
             isRetrying={isRetryingGeneration}
@@ -211,7 +216,10 @@ const ProfessionalRoadmapTab = () => {
             <div className="space-y-3">
               <RoadmapSwitcher
                 search={search}
+                onEdit={handleEdit}
                 roadmaps={myRoadmaps}
+                onContinue={handleContinue}
+                editingRoadmapId={editingRoadmapId}
                 showSearch={showSearch}
                 isFetching={isMyRoadmapsFetching}
                 activeRoadmapId={activeRoadmap?.id}
@@ -239,14 +247,18 @@ const ProfessionalRoadmapTab = () => {
                   <RoadmapWorkspaceHeader
                     key={activeRoadmap.id}
                     roadmap={activeRoadmap}
+                    onEdit={handleEdit}
                     headingRef={headingRef}
                     onUnenroll={handleUnenroll}
+                    onContinue={handleContinue}
+                    editingRoadmapId={editingRoadmapId}
                     isUnenrolling={unenrollingId === activeRoadmap.id}
                   />
                 </div>
 
                 <div className="min-w-0 xl:col-start-1">
                   <RoadmapFocusCard
+                    focusRef={nextStepRef}
                     roadmap={activeRoadmap}
                     onStart={stepProgress.start}
                     pending={stepProgress.pending}

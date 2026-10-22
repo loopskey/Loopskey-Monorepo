@@ -163,46 +163,14 @@
   },
   "authPages": {
     "common": {
-      "genericError": "Something went wrong. Please try again.",
-      "invalidOtp": "Invalid OTP, please try again.",
-      "otpAttemptsExceeded": "Too many invalid OTP attempts. Please request a new code.",
-      "otpExpired": "This OTP has expired. Please request a new code."
-    },
-    "errors": {
-      "emailAlreadyExists": "This email is already in use.",
-      "emailNotVerified": "Please verify your email before signing in.",
-      "emailSendFailed": "We could not send the email. Please try again.",
-      "invalidCredentials": "The email or password is incorrect.",
-      "invalidRole": "This account does not match the selected role.",
-      "otpResendTooSoon": "Please wait before requesting another verification code.",
-      "passwordStrength": "Password must be at least 8 characters and include both letters and numbers.",
-      "passwordTooObvious": "Choose a less predictable password.",
-      "rateLimited": "Too many attempts. Please wait a few minutes and try again.",
-      "roleNotAllowedForRegister": "Direct registration is not available for the selected role.",
-      "userAlreadyExists": "An account with this email already exists.",
-      "userDeleted": "This user account is no longer available.",
-      "userDisabled": "This user account is not active.",
-      "userNotFound": "No user account was found."
-    },
-    "oauth": {
-      "accessDenied": "You cancelled the login before it finished.",
-      "googleEmailNotFound": "Google account email was not found.",
-      "googleEmailNotVerified": "Google account email is not verified.",
-      "invalidState": "Your login request expired or could not be verified. Please try again.",
-      "linkedinAccountConflict": "This LinkedIn account is already linked to another user.",
-      "linkedinEmailNotFound": "Your LinkedIn account did not share an email address.",
-      "linkedinEmailNotVerified": "Your LinkedIn email address is not verified.",
-      "linkedinRoleNotAllowed": "LinkedIn login is not allowed for this role.",
-      "linkedinSignupNotAllowedForRole": "LinkedIn signup is not allowed for this role.",
-      "loginFailed": "OAuth login failed. Please try again.",
-      "roleNotAllowed": "Social login is not allowed for this role.",
-      "signupNotAllowedForRole": "Social signup is not allowed for this role."
+      "genericError": "Something went wrong. Please try again."
     }
   },
   "common": {
     "all": "All",
     "appName": "LoopsKey",
     "cancel": "Cancel",
+    "completionDateInFuture": "The completion date cannot be in the future.",
     "confirm": "Confirm",
     "contentTypes": {
       "COURSE": "Course",
@@ -336,20 +304,36 @@
     },
     "enums": {
       "courseCategory": {
-        "AI": "AI",
+        "ACCOUNTING": "Accounting",
+        "AI": "AI & Machine Learning",
         "BUSINESS": "Business",
-        "CAREER": "Career",
+        "CAREER": "Career Development",
+        "CERTIFICATION": "CPD & Certification",
+        "CLOUD": "Cloud Computing",
+        "COMMUNICATION": "Communication",
         "COMPLIANCE": "Compliance",
-        "CPD": "CPD",
-        "DATA": "Data",
+        "CONSTRUCTION": "Civil & Construction",
+        "CYBERSECURITY": "Cybersecurity",
+        "DATA": "Data & Analytics",
         "DESIGN": "Design",
         "EDUCATION": "Education",
         "ENGINEERING": "Engineering",
         "FINANCE": "Finance",
+        "GENERAL": "General",
         "HEALTHCARE": "Healthcare",
+        "HEALTH_SAFETY": "Health & Safety",
+        "HUMAN_RESOURCES": "Human Resources",
         "LEADERSHIP": "Leadership",
+        "LEGAL": "Legal",
         "MARKETING": "Marketing",
-        "OTHER": "Other",
+        "NURSING": "Nursing & Care",
+        "PRODUCT_MANAGEMENT": "Product Management",
+        "PROJECT_MANAGEMENT": "Project Management",
+        "QUALITY": "Quality Management",
+        "SALES": "Sales",
+        "SOFTWARE_DEVELOPMENT": "Software Development",
+        "SUPPLY_CHAIN": "Supply Chain",
+        "SUSTAINABILITY": "Sustainability",
         "TECHNOLOGY": "Technology"
       },
       "courseLevel": {
@@ -359,17 +343,36 @@
         "INTERMEDIATE": "Intermediate"
       },
       "eventCategory": {
+        "ACCOUNTING": "Accounting",
+        "AI": "AI & Machine Learning",
         "BUSINESS": "Business",
+        "CAREER": "Career Development",
+        "CERTIFICATION": "CPD & Certification",
+        "CLOUD": "Cloud Computing",
+        "COMMUNICATION": "Communication",
         "COMPLIANCE": "Compliance",
-        "CPD": "CPD",
+        "CONSTRUCTION": "Civil & Construction",
+        "CYBERSECURITY": "Cybersecurity",
+        "DATA": "Data & Analytics",
         "DESIGN": "Design",
         "EDUCATION": "Education",
         "ENGINEERING": "Engineering",
         "FINANCE": "Finance",
+        "GENERAL": "General",
         "HEALTHCARE": "Healthcare",
+        "HEALTH_SAFETY": "Health & Safety",
+        "HUMAN_RESOURCES": "Human Resources",
         "LEADERSHIP": "Leadership",
+        "LEGAL": "Legal",
         "MARKETING": "Marketing",
-        "OTHER": "Other",
+        "NURSING": "Nursing & Care",
+        "PRODUCT_MANAGEMENT": "Product Management",
+        "PROJECT_MANAGEMENT": "Project Management",
+        "QUALITY": "Quality Management",
+        "SALES": "Sales",
+        "SOFTWARE_DEVELOPMENT": "Software Development",
+        "SUPPLY_CHAIN": "Supply Chain",
+        "SUSTAINABILITY": "Sustainability",
         "TECHNOLOGY": "Technology"
       },
       "eventType": {
@@ -383,37 +386,69 @@
         "WORKSHOP": "Workshop"
       },
       "podcastCategory": {
-        "AI": "AI",
+        "ACCOUNTING": "Accounting",
+        "AI": "AI & Machine Learning",
         "BUSINESS": "Business",
-        "CAREER": "Career",
+        "CAREER": "Career Development",
+        "CERTIFICATION": "CPD & Certification",
+        "CLOUD": "Cloud Computing",
+        "COMMUNICATION": "Communication",
         "COMPLIANCE": "Compliance",
-        "CPD": "CPD",
-        "DATA": "Data",
+        "CONSTRUCTION": "Civil & Construction",
+        "CYBERSECURITY": "Cybersecurity",
+        "DATA": "Data & Analytics",
         "DESIGN": "Design",
         "EDUCATION": "Education",
         "ENGINEERING": "Engineering",
         "FINANCE": "Finance",
+        "GENERAL": "General",
         "HEALTHCARE": "Healthcare",
+        "HEALTH_SAFETY": "Health & Safety",
+        "HUMAN_RESOURCES": "Human Resources",
         "LEADERSHIP": "Leadership",
+        "LEGAL": "Legal",
         "MARKETING": "Marketing",
-        "OTHER": "Other",
+        "NURSING": "Nursing & Care",
+        "PRODUCT_MANAGEMENT": "Product Management",
+        "PROJECT_MANAGEMENT": "Project Management",
+        "QUALITY": "Quality Management",
+        "SALES": "Sales",
+        "SOFTWARE_DEVELOPMENT": "Software Development",
+        "SUPPLY_CHAIN": "Supply Chain",
+        "SUSTAINABILITY": "Sustainability",
         "TECHNOLOGY": "Technology"
       },
       "youtubeCategory": {
-        "AI": "AI",
+        "ACCOUNTING": "Accounting",
+        "AI": "AI & Machine Learning",
         "BUSINESS": "Business",
-        "CAREER": "Career",
+        "CAREER": "Career Development",
+        "CERTIFICATION": "CPD & Certification",
+        "CLOUD": "Cloud Computing",
+        "COMMUNICATION": "Communication",
         "COMPLIANCE": "Compliance",
-        "CPD": "CPD",
-        "DATA": "Data",
+        "CONSTRUCTION": "Civil & Construction",
+        "CYBERSECURITY": "Cybersecurity",
+        "DATA": "Data & Analytics",
         "DESIGN": "Design",
         "EDUCATION": "Education",
         "ENGINEERING": "Engineering",
         "FINANCE": "Finance",
+        "GENERAL": "General",
         "HEALTHCARE": "Healthcare",
+        "HEALTH_SAFETY": "Health & Safety",
+        "HUMAN_RESOURCES": "Human Resources",
         "LEADERSHIP": "Leadership",
+        "LEGAL": "Legal",
         "MARKETING": "Marketing",
-        "OTHER": "Other",
+        "NURSING": "Nursing & Care",
+        "PRODUCT_MANAGEMENT": "Product Management",
+        "PROJECT_MANAGEMENT": "Project Management",
+        "QUALITY": "Quality Management",
+        "SALES": "Sales",
+        "SOFTWARE_DEVELOPMENT": "Software Development",
+        "SUPPLY_CHAIN": "Supply Chain",
+        "SUSTAINABILITY": "Sustainability",
         "TECHNOLOGY": "Technology"
       }
     },
@@ -521,6 +556,7 @@
       "pdu": "PDU",
       "pduValue": "{{count}} PDU",
       "registerNow": "Register now",
+      "schedule": "Schedule",
       "speaker": "Speaker"
     },
     "goToContent": {
@@ -535,6 +571,10 @@
       "button": "Mark as Completed",
       "completedButton": "Completed",
       "description": "Review the details and save this as a completed learning activity.",
+      "errors": {
+        "contentNotAvailable": "This content is no longer offered to you by your association, so it cannot be marked complete.",
+        "requirementMismatch": "This content counts toward a different requirement. Choose the requirement it is linked to."
+      },
       "evidenceRequired": "Attach a certificate file or link before saving — this requirement needs evidence.",
       "fields": {
         "activityType": "Activity type",
@@ -927,8 +967,8 @@
         "aiPodcasts": "AI podcasts",
         "businessCourses": "Business courses",
         "careerPodcasts": "Career podcasts",
+        "certificationEvents": "Certification events",
         "complianceEvents": "Compliance events",
-        "cpdEvents": "CPD events",
         "dataYouTube": "Data YouTube",
         "engineeringYouTube": "Engineering YouTube",
         "leadershipCourses": "Leadership courses",
@@ -962,10 +1002,19 @@
     },
     "learningHub": {
       "badge": "Featured learning hub",
+      "details": "Details",
       "emptyText": "Featured learning content will appear here once providers publish new items.",
       "emptyTitle": "No featured content yet",
+      "errorText": "Check your connection and try again.",
+      "errorTitle": "We couldn’t load this content",
       "free": "Free",
       "info": "Info",
+      "kind": {
+        "course": "Course",
+        "event": "Event",
+        "podcast": "Podcast",
+        "youtube": "YouTube"
+      },
       "meta": {
         "attendees": "{{count}} attendees",
         "episodes": "{{count}} episodes",
@@ -977,43 +1026,30 @@
         "videos": "{{count}} videos"
       },
       "price": "Price",
-      "spotlight": "Spotlight",
+      "retry": "Try again",
+      "shelf": {
+        "label": "Suggested content",
+        "next": "Next item",
+        "pause": "Pause autoplay",
+        "play": "Resume autoplay",
+        "previous": "Previous item",
+        "rated": "Rated {{rating}} out of 5",
+        "show": "Show {{title}}",
+        "slide": "Item {{current}} of {{total}}",
+        "upNext": "Up next"
+      },
       "subtitle": "Explore curated courses, live events, podcasts, and expert channels designed for CPD, professional growth, and lifelong learning.",
       "tabs": {
         "courses": "Courses",
-        "coursesDescription": "Structured learning",
         "events": "Events",
-        "eventsDescription": "Live and upcoming",
         "podcasts": "Podcasts",
-        "podcastsDescription": "Listen and grow",
-        "youtube": "YouTube",
-        "youtubeDescription": "Expert channels"
+        "youtube": "YouTube"
       },
+      "tabsLabel": "Content type",
       "title": "Suggested For you",
+      "totalAvailable": "{{count}} items available",
       "viewAll": "View all content",
       "viewDetails": "View details"
-    },
-    "newFeature": {
-      "badge": "New Feature",
-      "cards": {
-        "community": {
-          "text": "Learn alongside others following the same path and share experiences.",
-          "title": "Community Driven"
-        },
-        "progress": {
-          "text": "Monitor your advancement and celebrate milestones along the way.",
-          "title": "Track Progress"
-        },
-        "structured": {
-          "text": "Clear, step-by-step learning paths designed by industry experts.",
-          "title": "Structured Progress"
-        }
-      },
-      "ctaButton": "Explore Roadmaps",
-      "ctaText": "Choose from various learning paths curated by industry experts. Whether you're starting from scratch or advancing your skills, our roadmaps guide you every step of the way.",
-      "ctaTitle": "Start Your Journey Today",
-      "description": "Navigate your learning journey with expert-crafted roadmaps. Follow structured paths from beginner to advanced levels.",
-      "title": "Learning Roadmaps"
     },
     "organization": {
       "compliance": {
@@ -1103,117 +1139,6 @@
       "primaryAction": "Become a provider",
       "secondaryAction": "View services",
       "title": "Reach professionals actively learning"
-    },
-    "roadmapShowcase": {
-      "badge": "AI learning roadmap",
-      "benefits": {
-        "adaptiveRoadmap": "Adapts as your role and skills evolve",
-        "aiSequencing": "Goal-driven sequencing built by AI",
-        "eventSlotting": "Recommended events automatically slotted in",
-        "progressTracking": "Live progress and CPD tracking"
-      },
-      "description": "LoopsKey turns your goals into a living roadmap — sequencing courses, events, and certifications in the right order with milestones you can actually hit.",
-      "highlight": "roadmap",
-      "metrics": {
-        "cpd": "CPD points",
-        "next": "Next milestone",
-        "progress": "Progress"
-      },
-      "milestones": {
-        "charteredEngineer": {
-          "meta": "Goal milestone · Q4",
-          "title": "Chartered Engineer Application"
-        },
-        "incoseSymposium": {
-          "meta": "Live event · Jul 12",
-          "title": "INCOSE International Symposium"
-        },
-        "riskReliability": {
-          "meta": "AI-recommended · 16h",
-          "title": "Advanced Risk & Reliability"
-        },
-        "systemsEngineering": {
-          "meta": "8 modules · 24 CPD pts",
-          "title": "Foundations of Systems Engineering"
-        }
-      },
-      "preview": {
-        "eyebrow": "Roadmap",
-        "status": "In progress",
-        "title": "Path to Chartered Engineer"
-      },
-      "primaryAction": "Book consultation",
-      "secondaryAction": "Explore services",
-      "status": {
-        "active": "In progress",
-        "done": "Done",
-        "upcoming": "Upcoming"
-      },
-      "title": "Turn career goals into a living"
-    },
-    "services": {
-      "badge": "LoopsKey Services",
-      "items": {
-        "contentAggregation": {
-          "text": "Discover global learning opportunities effortlessly. Our AI aggregates webinars, seminars, and expert sessions, giving you access to diverse professional content in one place.",
-          "title": "Learning Content Aggregation"
-        },
-        "cpdManagement": {
-          "text": "Stay in the loop with your profession by seamlessly managing your Continuous Professional Development (CPD). Track your progress, plan future learning, and stay ahead with ease.",
-          "title": "CPD Management"
-        },
-        "dataAnalytics": {
-          "text": "Gain actionable insights with LoopsKey analytics. Track learning trends, assess needs, and make data-driven decisions to stay ahead of the curve.",
-          "title": "Data Analytics"
-        },
-        "hrAssociations": {
-          "text": "Empower your workforce with accredited training opportunities. Streamline professional development and keep skills competitive in a fast-changing world.",
-          "title": "HR and Professional Associations"
-        },
-        "personalizedDashboard": {
-          "text": "Access a tailored dashboard that highlights upcoming events, registered courses, and personalized recommendations aligned with your career goals.",
-          "title": "Personalized Dashboard"
-        },
-        "professionalsConnection": {
-          "text": "Expand your horizons by connecting with top-tier training and development opportunities worldwide, regardless of location or affiliation.",
-          "title": "Professionals Connection"
-        },
-        "providerSolutions": {
-          "text": "Unlock new opportunities as a content provider. Share your webinars, courses, and events with a global network of professionals seeking continuous education.",
-          "title": "Content Provider Solutions"
-        },
-        "recommendations": {
-          "text": "Leverage AI-driven tagging and advanced search to receive intelligent, personalized recommendations that match your expertise and interests.",
-          "title": "Intelligent Recommendations"
-        }
-      },
-      "subtitle": "LoopsKey brings learning discovery, CPD tracking, provider tools, recommendations, and analytics into one intelligent platform.",
-      "title": "Everything you need for professional development"
-    },
-    "testimonials": {
-      "description": "From individual engineers to global organizations and training providers.",
-      "eyebrow": "Testimonials",
-      "items": {
-        "engineer": {
-          "name": "Daniel Park",
-          "quote": "LoopsKey replaced four spreadsheets and a dozen browser tabs. My CPD is finally on autopilot — and I'm learning the right things.",
-          "role": "Senior Systems Engineer · Siemens",
-          "tag": "Engineer"
-        },
-        "organization": {
-          "name": "Maria Gonzalez",
-          "quote": "We deployed across 1,800 engineers. CPD compliance jumped from 61% to 94% in one quarter and L&D finally has the analytics it needed.",
-          "role": "Chief People Officer · TechCorp",
-          "tag": "Organization"
-        },
-        "provider": {
-          "name": "Aisha Nour",
-          "quote": "Listing our certification programs on LoopsKey 4x'd qualified registrations. The audience is precisely who we want.",
-          "role": "Director of Programs · Global PM Institute",
-          "tag": "Provider"
-        }
-      },
-      "title": "Trusted across the industry"
     }
   },
   "navigation": {
@@ -1222,15 +1147,18 @@
     "contact": "Contact",
     "content": "Content",
     "faq": "FAQ",
+    "homeLink": "LoopsKey home",
     "openMenu": "Open menu",
-    "services": "Services"
+    "primary": "Main",
+    "services": "Services",
+    "skipToContent": "Skip to main content"
   },
   "notFound": {
     "backHome": "Back to Home",
     "badge": "Page not found",
+    "browseCatalog": "Browse all content",
     "description": "The page you are looking for may have been moved, renamed, or is no longer available.",
     "emailTitle": "Need help?",
-    "goBack": "Go Back",
     "supportText": "Tell us what you were trying to find.",
     "supportTitle": "Contact support",
     "title": "This page seems to be off the learning path"
@@ -1718,14 +1646,6 @@
         "year": "Applicable year"
       },
       "title": "My Learning Activities"
-    },
-    "settings": {
-      "saved": "Settings saved successfully.",
-      "security": {
-        "emailChanged": "Email changed successfully.",
-        "otpSent": "Verification code has been sent.",
-        "passwordChanged": "Password changed successfully."
-      }
     }
   },
   "providerDashboard": {
@@ -1753,15 +1673,6 @@
         "FEATURED_LISTING": "Featured listing",
         "SOCIAL_BOOST": "Social boost",
         "SOCIAL_MEDIA_BOOST": "Social media boost"
-      }
-    },
-    "settings": {
-      "messages": {
-        "emailChanged": "Email changed successfully.",
-        "notificationsSaved": "Notification settings saved successfully.",
-        "otpSent": "Verification code has been sent.",
-        "passwordChanged": "Password changed successfully.",
-        "profileSaved": "Organization profile saved successfully."
       }
     }
   },
@@ -1899,1223 +1810,6 @@
     "linkedin": "LinkedIn",
     "x": "X",
     "youtube": "YouTube"
-  },
-  "staticInfoPage": {
-    "backToTop": "Back to top",
-    "eyebrow": "LoopsKey information",
-    "nav": {
-      "description": "Jump straight to the section you need.",
-      "label": "Sections of {{page}}",
-      "title": "On this page"
-    },
-    "sectionLabel": "Section {{number}}"
-  },
-  "staticPages": {
-    "accessibility": {
-      "blocks": [
-        {
-          "text": "LoopsKey is committed to making professional learning tools accessible and usable for all users.",
-          "type": "paragraph"
-        },
-        {
-          "text": "We aim to provide a platform that supports professionals with different abilities, devices, learning needs, and assistive technologies.",
-          "type": "paragraph"
-        },
-        {
-          "text": "Our Accessibility Goals",
-          "type": "heading"
-        },
-        {
-          "text": "LoopsKey aims to support:",
-          "type": "paragraph"
-        },
-        {
-          "text": "Clear page structure",
-          "type": "listItem"
-        },
-        {
-          "text": "Readable typography",
-          "type": "listItem"
-        },
-        {
-          "text": "Sufficient color contrast",
-          "type": "listItem"
-        },
-        {
-          "text": "Keyboard-friendly navigation",
-          "type": "listItem"
-        },
-        {
-          "text": "Visible focus states",
-          "type": "listItem"
-        },
-        {
-          "text": "Clear form labels",
-          "type": "listItem"
-        },
-        {
-          "text": "Helpful error messages",
-          "type": "listItem"
-        },
-        {
-          "text": "Responsive design for mobile and desktop",
-          "type": "listItem"
-        },
-        {
-          "text": "Meaningful text alternatives where applicable",
-          "type": "listItem"
-        },
-        {
-          "text": "Continuous Improvement",
-          "type": "heading"
-        },
-        {
-          "text": "Accessibility is an ongoing process. As LoopsKey grows, we will continue improving usability, interface clarity, and compatibility with assistive technologies.",
-          "type": "paragraph"
-        },
-        {
-          "text": "Accessibility Feedback",
-          "type": "heading"
-        },
-        {
-          "text": "If you experience an accessibility barrier while using LoopsKey, please contact:",
-          "type": "paragraph"
-        },
-        {
-          "text": "loopskey.dev@gmail.com",
-          "type": "paragraph"
-        },
-        {
-          "text": "Please include the page or feature, your device and browser, and a short description of the issue.",
-          "type": "paragraph"
-        }
-      ],
-      "title": "Accessibility"
-    },
-    "associationPartners": {
-      "blocks": [
-        {
-          "text": "LoopsKey works with professional associations, licensing bodies, and certification organizations that want to improve member learning, CPD/PDU tracking, and professional development engagement.",
-          "type": "paragraph"
-        },
-        {
-          "text": "Partnership Value",
-          "type": "heading"
-        },
-        {
-          "text": "Associations can use LoopsKey to help members stay informed, organized, and on track with development requirements.",
-          "type": "paragraph"
-        },
-        {
-          "text": "LoopsKey can support:",
-          "type": "paragraph"
-        },
-        {
-          "text": "Member learning dashboards",
-          "type": "listItem"
-        },
-        {
-          "text": "CPD/PDU requirement setup",
-          "type": "listItem"
-        },
-        {
-          "text": "Member progress tracking",
-          "type": "listItem"
-        },
-        {
-          "text": "Assigned or recommended learning content",
-          "type": "listItem"
-        },
-        {
-          "text": "Certificate and evidence management",
-          "type": "listItem"
-        },
-        {
-          "text": "Summary reports and compliance visibility",
-          "type": "listItem"
-        },
-        {
-          "text": "Learning gap insights",
-          "type": "listItem"
-        },
-        {
-          "text": "Why Partner with LoopsKey",
-          "type": "heading"
-        },
-        {
-          "text": "LoopsKey gives associations a modern way to support members beyond traditional communication and manual reporting.",
-          "type": "paragraph"
-        },
-        {
-          "text": "Benefits include:",
-          "type": "paragraph"
-        },
-        {
-          "text": "Improved member experience",
-          "type": "listItem"
-        },
-        {
-          "text": "Better visibility into development progress",
-          "type": "listItem"
-        },
-        {
-          "text": "Reduced administrative workload",
-          "type": "listItem"
-        },
-        {
-          "text": "Stronger learning engagement",
-          "type": "listItem"
-        },
-        {
-          "text": "More structured CPD/PDU support",
-          "type": "listItem"
-        },
-        {
-          "text": "AI-powered recommendations for members",
-          "type": "listItem"
-        },
-        {
-          "text": "Suitable Partners",
-          "type": "heading"
-        },
-        {
-          "text": "LoopsKey is suitable for:",
-          "type": "paragraph"
-        },
-        {
-          "text": "Professional associations",
-          "type": "listItem"
-        },
-        {
-          "text": "Licensing bodies",
-          "type": "listItem"
-        },
-        {
-          "text": "Certification organizations",
-          "type": "listItem"
-        },
-        {
-          "text": "Industry groups",
-          "type": "listItem"
-        },
-        {
-          "text": "Continuing education programs",
-          "type": "listItem"
-        },
-        {
-          "text": "Workforce development organizations",
-          "type": "listItem"
-        },
-        {
-          "text": "Contact",
-          "type": "heading"
-        },
-        {
-          "text": "To discuss association partnership opportunities, contact:",
-          "type": "paragraph"
-        },
-        {
-          "text": "loopskey.dev@gmail.com",
-          "type": "paragraph"
-        }
-      ],
-      "cta": {
-        "href": "/contact",
-        "label": "Book an Association"
-      },
-      "title": "Association Partners"
-    },
-    "associations": {
-      "blocks": [
-        {
-          "text": "LoopsKey helps professional associations, certification bodies, and licensing organizations support member learning, CPD/PDU progress, and professional development reporting.",
-          "type": "paragraph"
-        },
-        {
-          "text": "Associations often need to help members understand requirements, complete training, track progress, and submit evidence. LoopsKey provides a digital platform that supports both members and administrators.",
-          "type": "paragraph"
-        },
-        {
-          "text": "How LoopsKey Helps Associations",
-          "type": "heading"
-        },
-        {
-          "text": "Associations can use LoopsKey to:",
-          "type": "paragraph"
-        },
-        {
-          "text": "Upload and manage member lists",
-          "type": "listItem"
-        },
-        {
-          "text": "Configure CPD/PDU requirements",
-          "type": "listItem"
-        },
-        {
-          "text": "Assign required or recommended learning content",
-          "type": "listItem"
-        },
-        {
-          "text": "Monitor member progress",
-          "type": "listItem"
-        },
-        {
-          "text": "Track category completion",
-          "type": "listItem"
-        },
-        {
-          "text": "View members who are on track or behind",
-          "type": "listItem"
-        },
-        {
-          "text": "Support certificate and proof collection",
-          "type": "listItem"
-        },
-        {
-          "text": "Generate CPD and compliance summaries",
-          "type": "listItem"
-        },
-        {
-          "text": "Improve member engagement with personalized recommendations",
-          "type": "listItem"
-        },
-        {
-          "text": "Member Dashboard",
-          "type": "heading"
-        },
-        {
-          "text": "Each professional member can receive a personalized dashboard to track learning activities, CPD/PDU progress, certificates, deadlines, and recommended content.",
-          "type": "paragraph"
-        },
-        {
-          "text": "Association Dashboard",
-          "type": "heading"
-        },
-        {
-          "text": "Association administrators can view member progress, assign content, manage learning requirements, and access summary reports.",
-          "type": "paragraph"
-        },
-        {
-          "text": "Requirement Management",
-          "type": "heading"
-        },
-        {
-          "text": "LoopsKey can support different requirement models, including:",
-          "type": "paragraph"
-        },
-        {
-          "text": "Annual CPD requirements",
-          "type": "listItem"
-        },
-        {
-          "text": "Multi-year PDU cycles",
-          "type": "listItem"
-        },
-        {
-          "text": "Category-based requirements",
-          "type": "listItem"
-        },
-        {
-          "text": "Ethics or professional responsibility requirements",
-          "type": "listItem"
-        },
-        {
-          "text": "Evidence-based reporting",
-          "type": "listItem"
-        },
-        {
-          "text": "User-declared or association-provided rules",
-          "type": "listItem"
-        },
-        {
-          "text": "Benefits for Associations",
-          "type": "heading"
-        },
-        {
-          "text": "LoopsKey helps associations:",
-          "type": "paragraph"
-        },
-        {
-          "text": "Reduce manual tracking",
-          "type": "listItem"
-        },
-        {
-          "text": "Improve member support",
-          "type": "listItem"
-        },
-        {
-          "text": "Increase training participation",
-          "type": "listItem"
-        },
-        {
-          "text": "Improve compliance visibility",
-          "type": "listItem"
-        },
-        {
-          "text": "Provide modern digital member value",
-          "type": "listItem"
-        },
-        {
-          "text": "Understand common skill gaps",
-          "type": "listItem"
-        },
-        {
-          "text": "Promote trusted learning resources",
-          "type": "listItem"
-        },
-        {
-          "text": "Partner with LoopsKey",
-          "type": "heading"
-        },
-        {
-          "text": "LoopsKey works with associations that want to modernize professional development, CPD tracking, and member learning engagement.",
-          "type": "paragraph"
-        }
-      ],
-      "cta": {
-        "href": "/auth/association",
-        "label": "Book an Association"
-      },
-      "title": "For Associations"
-    },
-    "companyContentProviders": {
-      "blocks": [
-        {
-          "text": "LoopsKey helps course providers, event organizers, webinar hosts, training companies, and educational organizations reach professionals who are actively planning their learning.",
-          "type": "paragraph"
-        },
-        {
-          "text": "Provider Opportunities",
-          "type": "heading"
-        },
-        {
-          "text": "Content providers can list or promote:",
-          "type": "paragraph"
-        },
-        {
-          "text": "Courses",
-          "type": "listItem"
-        },
-        {
-          "text": "Webinars",
-          "type": "listItem"
-        },
-        {
-          "text": "Workshops",
-          "type": "listItem"
-        },
-        {
-          "text": "Conferences",
-          "type": "listItem"
-        },
-        {
-          "text": "Events",
-          "type": "listItem"
-        },
-        {
-          "text": "Articles",
-          "type": "listItem"
-        },
-        {
-          "text": "Podcasts",
-          "type": "listItem"
-        },
-        {
-          "text": "Videos",
-          "type": "listItem"
-        },
-        {
-          "text": "Certification preparation content",
-          "type": "listItem"
-        },
-        {
-          "text": "Professional development programs",
-          "type": "listItem"
-        },
-        {
-          "text": "Benefits for Providers",
-          "type": "heading"
-        },
-        {
-          "text": "LoopsKey helps providers:",
-          "type": "paragraph"
-        },
-        {
-          "text": "Reach relevant professional audiences",
-          "type": "listItem"
-        },
-        {
-          "text": "Improve visibility through AI-powered recommendations",
-          "type": "listItem"
-        },
-        {
-          "text": "Connect content to user goals and certification needs",
-          "type": "listItem"
-        },
-        {
-          "text": "Highlight CPD/PDU value where applicable",
-          "type": "listItem"
-        },
-        {
-          "text": "Increase qualified interest in learning programs",
-          "type": "listItem"
-        },
-        {
-          "text": "Build credibility with professional users",
-          "type": "listItem"
-        },
-        {
-          "text": "Content Quality",
-          "type": "heading"
-        },
-        {
-          "text": "Providers should keep content information accurate and current. Listings should include title, description, date, duration, format, cost, learning outcomes, provider details, certificate availability, and CPD/PDU information where applicable.",
-          "type": "paragraph"
-        },
-        {
-          "text": "Contact",
-          "type": "heading"
-        },
-        {
-          "text": "To become a content provider, contact:",
-          "type": "paragraph"
-        },
-        {
-          "text": "loopskey.dev@gmail.com",
-          "type": "paragraph"
-        }
-      ],
-      "cta": {
-        "href": "/auth/provider",
-        "label": "Become a Content Provider"
-      },
-      "title": "Content Providers"
-    },
-    "cookies": {
-      "blocks": [
-        {
-          "text": "Last updated: August 5, 2026",
-          "type": "paragraph"
-        },
-        {
-          "text": "LoopsKey uses cookies and similar technologies to support website functionality, improve user experience, analyze usage, and maintain platform security.",
-          "type": "paragraph"
-        },
-        {
-          "text": "1. What Cookies Are",
-          "type": "heading"
-        },
-        {
-          "text": "Cookies are small files placed on a user’s device when visiting a website. They help websites remember information and improve functionality.",
-          "type": "paragraph"
-        },
-        {
-          "text": "2. Types of Cookies We May Use",
-          "type": "heading"
-        },
-        {
-          "text": "LoopsKey may use:",
-          "type": "paragraph"
-        },
-        {
-          "text": "Essential cookies",
-          "type": "listItem"
-        },
-        {
-          "text": "Preference cookies",
-          "type": "listItem"
-        },
-        {
-          "text": "Analytics cookies",
-          "type": "listItem"
-        },
-        {
-          "text": "Security cookies",
-          "type": "listItem"
-        },
-        {
-          "text": "Marketing or campaign cookies, where applicable",
-          "type": "listItem"
-        },
-        {
-          "text": "3. Why We Use Cookies",
-          "type": "heading"
-        },
-        {
-          "text": "Cookies may help LoopsKey:",
-          "type": "paragraph"
-        },
-        {
-          "text": "Keep users signed in",
-          "type": "listItem"
-        },
-        {
-          "text": "Remember preferences",
-          "type": "listItem"
-        },
-        {
-          "text": "Improve platform performance",
-          "type": "listItem"
-        },
-        {
-          "text": "Understand website usage",
-          "type": "listItem"
-        },
-        {
-          "text": "Measure campaign effectiveness",
-          "type": "listItem"
-        },
-        {
-          "text": "Protect accounts and sessions",
-          "type": "listItem"
-        },
-        {
-          "text": "4. Third-Party Cookies",
-          "type": "heading"
-        },
-        {
-          "text": "Some service providers may use cookies or similar tools when supporting analytics, authentication, payments, or customer support.",
-          "type": "paragraph"
-        },
-        {
-          "text": "5. Managing Cookies",
-          "type": "heading"
-        },
-        {
-          "text": "Users can manage cookies through browser settings. Some features may not work properly if essential cookies are disabled.",
-          "type": "paragraph"
-        },
-        {
-          "text": "6. Contact",
-          "type": "heading"
-        },
-        {
-          "text": "For cookie-related questions, contact LoopsKey at loopskey.dev@gmail.com.",
-          "type": "paragraph"
-        }
-      ],
-      "title": "Cookie Statement"
-    },
-    "organizations": {
-      "blocks": [
-        {
-          "text": "LoopsKey helps organizations support employee learning, professional development, certification tracking, and workforce skill growth.",
-          "type": "paragraph"
-        },
-        {
-          "text": "Companies and HR teams often need visibility into employee learning activities, training progress, certificates, and development goals. LoopsKey provides a centralized platform to help organizations guide and monitor professional learning.",
-          "type": "paragraph"
-        },
-        {
-          "text": "How Organizations Can Use LoopsKey",
-          "type": "heading"
-        },
-        {
-          "text": "Organizations can use LoopsKey to:",
-          "type": "paragraph"
-        },
-        {
-          "text": "Support employee learning goals",
-          "type": "listItem"
-        },
-        {
-          "text": "Recommend training content",
-          "type": "listItem"
-        },
-        {
-          "text": "Track completed learning activities",
-          "type": "listItem"
-        },
-        {
-          "text": "Monitor certification and licence status",
-          "type": "listItem"
-        },
-        {
-          "text": "Manage certificate records",
-          "type": "listItem"
-        },
-        {
-          "text": "Review CPD/PDU progress where applicable",
-          "type": "listItem"
-        },
-        {
-          "text": "Identify skill gaps across teams",
-          "type": "listItem"
-        },
-        {
-          "text": "Support employee development plans",
-          "type": "listItem"
-        },
-        {
-          "text": "Prepare internal learning summaries",
-          "type": "listItem"
-        },
-        {
-          "text": "Employee Learning Roadmaps",
-          "type": "heading"
-        },
-        {
-          "text": "LoopsKey can help employees build learning roadmaps based on their roles, goals, skill level, and available time. These roadmaps can support onboarding, upskilling, leadership development, compliance training, or career growth.",
-          "type": "paragraph"
-        },
-        {
-          "text": "Training and Certification Visibility",
-          "type": "heading"
-        },
-        {
-          "text": "Organizations can gain better visibility into professional development activity, including:",
-          "type": "paragraph"
-        },
-        {
-          "text": "Completed learning",
-          "type": "listItem"
-        },
-        {
-          "text": "Upcoming training",
-          "type": "listItem"
-        },
-        {
-          "text": "Expiring certificates",
-          "type": "listItem"
-        },
-        {
-          "text": "Required development hours",
-          "type": "listItem"
-        },
-        {
-          "text": "Learning gaps",
-          "type": "listItem"
-        },
-        {
-          "text": "Progress by employee or team",
-          "type": "listItem"
-        },
-        {
-          "text": "Benefits for Organizations",
-          "type": "heading"
-        },
-        {
-          "text": "LoopsKey helps organizations:",
-          "type": "paragraph"
-        },
-        {
-          "text": "Improve workforce development",
-          "type": "listItem"
-        },
-        {
-          "text": "Reduce fragmented learning records",
-          "type": "listItem"
-        },
-        {
-          "text": "Support certification readiness",
-          "type": "listItem"
-        },
-        {
-          "text": "Strengthen employee engagement",
-          "type": "listItem"
-        },
-        {
-          "text": "Make training investment more visible",
-          "type": "listItem"
-        },
-        {
-          "text": "Encourage continuous learning",
-          "type": "listItem"
-        },
-        {
-          "text": "Support professional growth plans",
-          "type": "listItem"
-        },
-        {
-          "text": "Suitable For",
-          "type": "heading"
-        },
-        {
-          "text": "LoopsKey can support:",
-          "type": "paragraph"
-        },
-        {
-          "text": "HR departments",
-          "type": "listItem"
-        },
-        {
-          "text": "Learning and development teams",
-          "type": "listItem"
-        },
-        {
-          "text": "Professional services firms",
-          "type": "listItem"
-        },
-        {
-          "text": "Engineering companies",
-          "type": "listItem"
-        },
-        {
-          "text": "Technology companies",
-          "type": "listItem"
-        },
-        {
-          "text": "Consulting firms",
-          "type": "listItem"
-        },
-        {
-          "text": "Regulated industries",
-          "type": "listItem"
-        },
-        {
-          "text": "Growing organizations with training needs",
-          "type": "listItem"
-        }
-      ],
-      "cta": {
-        "href": "/auth/organization",
-        "label": "Explore Organization Solutions"
-      },
-      "title": "For Organizations"
-    },
-    "professionals": {
-      "blocks": [
-        {
-          "text": "LoopsKey helps professionals plan, complete, track, and report their learning in one place.",
-          "type": "paragraph"
-        },
-        {
-          "text": "Many professionals need to maintain certifications, complete CPD/PDU requirements, attend training, collect certificates, and prepare annual progress summaries. LoopsKey brings these activities together in a simple AI-powered platform.",
-          "type": "paragraph"
-        },
-        {
-          "text": "What Professionals Can Do with LoopsKey",
-          "type": "heading"
-        },
-        {
-          "text": "With LoopsKey, professionals can:",
-          "type": "paragraph"
-        },
-        {
-          "text": "Create a personalized learning roadmap",
-          "type": "listItem"
-        },
-        {
-          "text": "Search and save relevant learning opportunities",
-          "type": "listItem"
-        },
-        {
-          "text": "Track CPD, PDU, CEU, or training hours",
-          "type": "listItem"
-        },
-        {
-          "text": "Add completed learning activities",
-          "type": "listItem"
-        },
-        {
-          "text": "Upload certificates and proof files",
-          "type": "listItem"
-        },
-        {
-          "text": "Manage certification and licence records",
-          "type": "listItem"
-        },
-        {
-          "text": "View upcoming deadlines in the calendar",
-          "type": "listItem"
-        },
-        {
-          "text": "Generate CPD/PDU summaries for reporting",
-          "type": "listItem"
-        },
-        {
-          "text": "Receive learning recommendations based on goals and profile",
-          "type": "listItem"
-        },
-        {
-          "text": "Personalized Learning Roadmaps",
-          "type": "heading"
-        },
-        {
-          "text": "LoopsKey helps users define a professional learning goal and generate a structured roadmap. The roadmap may include courses, webinars, events, articles, podcasts, workshops, and milestones.",
-          "type": "paragraph"
-        },
-        {
-          "text": "Users can update their roadmap based on skill level, preferred topics, available time, and certification needs.",
-          "type": "paragraph"
-        },
-        {
-          "text": "CPD/PDU Progress Tracking",
-          "type": "heading"
-        },
-        {
-          "text": "LoopsKey helps professionals track annual development requirements by recording completed learning activities and credit values.",
-          "type": "paragraph"
-        },
-        {
-          "text": "Users can track:",
-          "type": "paragraph"
-        },
-        {
-          "text": "Total required credits",
-          "type": "listItem"
-        },
-        {
-          "text": "Completed credits",
-          "type": "listItem"
-        },
-        {
-          "text": "Remaining credits",
-          "type": "listItem"
-        },
-        {
-          "text": "Category progress",
-          "type": "listItem"
-        },
-        {
-          "text": "Submission deadlines",
-          "type": "listItem"
-        },
-        {
-          "text": "Evidence and certificate status",
-          "type": "listItem"
-        },
-        {
-          "text": "Learning Activity Records",
-          "type": "heading"
-        },
-        {
-          "text": "After attending a course, event, webinar, meeting, or other learning activity, users can add the activity to their LoopsKey dashboard. They can include title, type, date, duration, credit value, CPD/PDU category, notes, and proof files.",
-          "type": "paragraph"
-        },
-        {
-          "text": "Who This Is For",
-          "type": "heading"
-        },
-        {
-          "text": "LoopsKey is useful for:",
-          "type": "paragraph"
-        },
-        {
-          "text": "Engineers",
-          "type": "listItem"
-        },
-        {
-          "text": "Project managers",
-          "type": "listItem"
-        },
-        {
-          "text": "Accountants",
-          "type": "listItem"
-        },
-        {
-          "text": "HR professionals",
-          "type": "listItem"
-        },
-        {
-          "text": "Technology professionals",
-          "type": "listItem"
-        },
-        {
-          "text": "Consultants",
-          "type": "listItem"
-        },
-        {
-          "text": "Business professionals",
-          "type": "listItem"
-        },
-        {
-          "text": "Regulated professionals",
-          "type": "listItem"
-        },
-        {
-          "text": "Lifelong learners",
-          "type": "listItem"
-        },
-        {
-          "text": "Start Your Professional Learning Plan",
-          "type": "heading"
-        },
-        {
-          "text": "Use LoopsKey to organize your learning, track your progress, and stay prepared for your next certification or licence renewal.",
-          "type": "paragraph"
-        }
-      ],
-      "cta": {
-        "href": "/auth/professional",
-        "label": "Create My Learning Roadmap"
-      },
-      "title": "For Professionals"
-    },
-    "security": {
-      "blocks": [
-        {
-          "text": "LoopsKey is designed to support professional learning records, certificates, CPD/PDU progress, and user profile information. We understand the importance of protecting this information.",
-          "type": "paragraph"
-        },
-        {
-          "text": "Our Security Approach",
-          "type": "heading"
-        },
-        {
-          "text": "LoopsKey aims to protect user information through reasonable technical and organizational safeguards, including:",
-          "type": "paragraph"
-        },
-        {
-          "text": "Secure account access",
-          "type": "listItem"
-        },
-        {
-          "text": "Role-based permissions",
-          "type": "listItem"
-        },
-        {
-          "text": "Secure data storage",
-          "type": "listItem"
-        },
-        {
-          "text": "Limited access to uploaded files",
-          "type": "listItem"
-        },
-        {
-          "text": "Responsible third-party service use",
-          "type": "listItem"
-        },
-        {
-          "text": "Monitoring and operational controls",
-          "type": "listItem"
-        },
-        {
-          "text": "Data minimization where possible",
-          "type": "listItem"
-        },
-        {
-          "text": "Uploaded Certificates and Proof Files",
-          "type": "heading"
-        },
-        {
-          "text": "Users may upload certificates, proof of attendance, or other learning evidence. These files are used to support learning activity records, CPD/PDU tracking, and reporting features.",
-          "type": "paragraph"
-        },
-        {
-          "text": "LoopsKey does not sell uploaded certificate or proof documents.",
-          "type": "paragraph"
-        },
-        {
-          "text": "AI and Data Protection",
-          "type": "heading"
-        },
-        {
-          "text": "LoopsKey may use AI services to support features such as keyword extraction, content classification, learning roadmap generation, and recommendations.",
-          "type": "paragraph"
-        },
-        {
-          "text": "Where possible, LoopsKey aims to send only the minimum information needed to perform the requested AI function.",
-          "type": "paragraph"
-        },
-        {
-          "text": "Organization and Association Visibility",
-          "type": "heading"
-        },
-        {
-          "text": "If a user is connected to an association, employer, or organization account, certain learning progress or CPD/PDU information may be visible to that organization depending on the program setup, user permission, or applicable agreement.",
-          "type": "paragraph"
-        },
-        {
-          "text": "Report a Security Concern",
-          "type": "heading"
-        },
-        {
-          "text": "If you believe you have found a security issue, contact:",
-          "type": "paragraph"
-        },
-        {
-          "text": "loopskey.dev@gmail.com",
-          "type": "paragraph"
-        }
-      ],
-      "title": "Security & Data Protection"
-    },
-    "solutionContentProviders": {
-      "blocks": [
-        {
-          "text": "LoopsKey helps content providers reach professionals who are actively looking for courses, events, webinars, workshops, and other learning opportunities.",
-          "type": "paragraph"
-        },
-        {
-          "text": "Training providers often struggle to connect with the right professional audience. LoopsKey improves content visibility by matching learning content with user goals, professional profiles, certifications, and CPD/PDU needs.",
-          "type": "paragraph"
-        },
-        {
-          "text": "Who Can Become a Content Provider",
-          "type": "heading"
-        },
-        {
-          "text": "LoopsKey can support providers offering:",
-          "type": "paragraph"
-        },
-        {
-          "text": "Courses",
-          "type": "listItem"
-        },
-        {
-          "text": "Webinars",
-          "type": "listItem"
-        },
-        {
-          "text": "Workshops",
-          "type": "listItem"
-        },
-        {
-          "text": "Conferences",
-          "type": "listItem"
-        },
-        {
-          "text": "Events",
-          "type": "listItem"
-        },
-        {
-          "text": "Podcasts",
-          "type": "listItem"
-        },
-        {
-          "text": "Articles",
-          "type": "listItem"
-        },
-        {
-          "text": "Videos",
-          "type": "listItem"
-        },
-        {
-          "text": "Certification preparation programs",
-          "type": "listItem"
-        },
-        {
-          "text": "Professional training resources",
-          "type": "listItem"
-        },
-        {
-          "text": "How LoopsKey Helps Content Providers",
-          "type": "heading"
-        },
-        {
-          "text": "Content providers can use LoopsKey to:",
-          "type": "paragraph"
-        },
-        {
-          "text": "List learning content",
-          "type": "listItem"
-        },
-        {
-          "text": "Reach targeted professional users",
-          "type": "listItem"
-        },
-        {
-          "text": "Improve visibility through AI-powered recommendations",
-          "type": "listItem"
-        },
-        {
-          "text": "Connect content to CPD/PDU categories",
-          "type": "listItem"
-        },
-        {
-          "text": "Promote certificate-based learning activities",
-          "type": "listItem"
-        },
-        {
-          "text": "Highlight provider credibility",
-          "type": "listItem"
-        },
-        {
-          "text": "Reach associations and organizations",
-          "type": "listItem"
-        },
-        {
-          "text": "Increase qualified registration interest",
-          "type": "listItem"
-        },
-        {
-          "text": "Content Information Needed",
-          "type": "heading"
-        },
-        {
-          "text": "To improve search and recommendations, providers should include:",
-          "type": "paragraph"
-        },
-        {
-          "text": "Title",
-          "type": "listItem"
-        },
-        {
-          "text": "Description",
-          "type": "listItem"
-        },
-        {
-          "text": "Learning outcomes",
-          "type": "listItem"
-        },
-        {
-          "text": "Content type",
-          "type": "listItem"
-        },
-        {
-          "text": "Date and time",
-          "type": "listItem"
-        },
-        {
-          "text": "Duration",
-          "type": "listItem"
-        },
-        {
-          "text": "Cost",
-          "type": "listItem"
-        },
-        {
-          "text": "Format",
-          "type": "listItem"
-        },
-        {
-          "text": "Location or online link",
-          "type": "listItem"
-        },
-        {
-          "text": "Provider information",
-          "type": "listItem"
-        },
-        {
-          "text": "CPD/PDU or certificate details, if applicable",
-          "type": "listItem"
-        },
-        {
-          "text": "Target audience",
-          "type": "listItem"
-        },
-        {
-          "text": "Skill level",
-          "type": "listItem"
-        },
-        {
-          "text": "Related topics and keywords",
-          "type": "listItem"
-        },
-        {
-          "text": "Provider Responsibilities",
-          "type": "heading"
-        },
-        {
-          "text": "Content providers are responsible for keeping their listings accurate, current, and clear. If content includes CPD/PDU credits or certificates, the provider should clearly state the credit value, eligibility, and evidence provided.",
-          "type": "paragraph"
-        },
-        {
-          "text": "Become a LoopsKey Content Provider",
-          "type": "heading"
-        },
-        {
-          "text": "Join LoopsKey to reach professionals who are planning their learning journey and tracking professional development progress.",
-          "type": "paragraph"
-        }
-      ],
-      "cta": {
-        "href": "/auth/provider",
-        "label": "Become a Content Provider"
-      },
-      "title": "For Content Providers"
-    }
   },
   "termsPage": {
     "contactCard": {

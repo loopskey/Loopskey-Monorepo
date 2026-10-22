@@ -4,14 +4,14 @@ import type * as API from "@/lib/graphql/base";
 
 export type TProviderDashboardTab =
   | "overview"
-  | "analytics"
-  | "attendees"
   | "my-goals"
   | "settings"
+  | "analytics"
+  | "attendees"
   | "my-events"
   | "create-event"
-  | "promotion-requests"
-  | "public-profile";
+  | "public-profile"
+  | "promotion-requests";
 
 export type TTimePoint = {
   date: string;
@@ -60,8 +60,8 @@ export type TSelectField = {
 };
 
 export type TCreateEventStatus =
-  | API.EventStatus.Draft
-  | API.EventStatus.Published;
+  | typeof API.EventStatus.Draft
+  | typeof API.EventStatus.Published;
 
 export type TProviderCreateEventForm = {
   pdu: string;

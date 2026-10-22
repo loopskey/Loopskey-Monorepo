@@ -135,6 +135,134 @@ describe("ProfessionalComplianceApiService", () => {
     });
   });
 
+  describe("contentCompletions", () => {
+    const completionRow = (overrides: Record<string, unknown> = {}) => ({
+      id: "act-1",
+      pdus: 2,
+      userId: "user-1",
+      status: PDUStatus.APPROVED,
+      date: new Date("2026-03-01T00:00:00.000Z"),
+      createdAt: new Date("2026-03-05T09:30:00.000Z"),
+      contentType: null,
+      contentId: null,
+      associationLearningContentId: null,
+      ...overrides,
+    });
+
+    it("reads nothing without users or items", async () => {
+      const { service, findMany } = setup();
+
+      await expect(
+        service.contentCompletions({ userIds: [], items: [] }),
+      ).resolves.toEqual([]);
+      await expect(
+        service.contentCompletions({ userIds: ["user-1"], items: [] }),
+      ).resolves.toEqual([]);
+      expect(findMany).not.toHaveBeenCalled();
+    });
+
+    it("asks only for the named users and the listed items, completed activities only", async () => {
+      const { service, findMany } = setup({ rows: [] });
+
+      await service.contentCompletions({
+        userIds: ["user-1", "user-2"],
+        items: [
+          { learningContentId: "lc-ext", contentType: null, contentId: null },
+          {
+            learningContentId: "lc-cat",
+            contentType: "COURSE",
+            contentId: "course-1",
+          },
+        ],
+      });
+
+      expect(findMany.mock.calls[0][0].where).toEqual({
+        userId: { in: ["user-1", "user-2"] },
+        completionStatus: PDUCompletionStatus.COMPLETED,
+        OR: [
+          { associationLearningContentId: { in: ["lc-ext", "lc-cat"] } },
+          { contentType: "COURSE", contentId: "course-1" },
+        ],
+      });
+    });
+
+    it("matches an external item by its id and a catalogue item by its reference", async () => {
+      const { service } = setup({
+        rows: [
+          completionRow({
+            id: "act-ext",
+            associationLearningContentId: "lc-ext",
+          }),
+          completionRow({
+            id: "act-cat",
+            contentType: "COURSE",
+            contentId: "course-1",
+          }),
+        ] as never,
+      });
+
+      const completions = await service.contentCompletions({
+        userIds: ["user-1"],
+        items: [
+          { learningContentId: "lc-ext", contentType: null, contentId: null },
+          {
+            learningContentId: "lc-cat",
+            contentType: "COURSE",
+            contentId: "course-1",
+          },
+          { learningContentId: "lc-none", contentType: null, contentId: null },
+        ],
+      });
+
+      expect(
+        completions.map((row) => [row.learningContentId, row.activityId]),
+      ).toEqual([
+        ["lc-ext", "act-ext"],
+        ["lc-cat", "act-cat"],
+      ]);
+    });
+
+    it("carries the completion date, the submission date, the credits and the review status", async () => {
+      const { service } = setup({
+        rows: [
+          completionRow({ associationLearningContentId: "lc-ext" }),
+        ] as never,
+      });
+
+      const [completion] = await service.contentCompletions({
+        userIds: ["user-1"],
+        items: [
+          { learningContentId: "lc-ext", contentType: null, contentId: null },
+        ],
+      });
+
+      expect(completion).toEqual({
+        userId: "user-1",
+        status: PDUStatus.APPROVED,
+        credits: 2,
+        activityId: "act-1",
+        completedAt: new Date("2026-03-01T00:00:00.000Z"),
+        submittedAt: new Date("2026-03-05T09:30:00.000Z"),
+        learningContentId: "lc-ext",
+      });
+    });
+
+    it("never matches an external item to an activity that only shares a null catalogue reference", async () => {
+      const { service } = setup({
+        rows: [completionRow({ id: "act-manual" })] as never,
+      });
+
+      await expect(
+        service.contentCompletions({
+          userIds: ["user-1"],
+          items: [
+            { learningContentId: "lc-ext", contentType: null, contentId: null },
+          ],
+        }),
+      ).resolves.toEqual([]);
+    });
+  });
+
   describe("settleReview", () => {
     it("is a conditional write naming PENDING and the owner list", async () => {
       const { service, updateMany } = setup();

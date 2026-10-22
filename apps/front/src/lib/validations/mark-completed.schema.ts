@@ -1,4 +1,6 @@
 import { CreditType, PduCategory, PduSource } from "@/lib/graphql/base";
+import { COMPLETION_DATE_IN_FUTURE_KEY } from "@/utils/completion-date.util";
+import { isCompletionDateAllowed } from "@/utils/completion-date.util";
 import { evidenceSchema } from "@/lib/validations/pdu-activity.schema";
 import { z } from "zod";
 
@@ -14,7 +16,10 @@ export const markCompletedSchema = z.object({
     .trim()
     .min(1, "Provider / organizer is required")
     .max(200),
-  dateCompleted: z.string().min(1, "Completion date is required"),
+  dateCompleted: z
+    .string()
+    .min(1, "Completion date is required")
+    .refine(isCompletionDateAllowed, COMPLETION_DATE_IN_FUTURE_KEY),
   creditType: z.nativeEnum(CreditType),
   creditValue: z.coerce
     .number({ message: "Credit value is required" })

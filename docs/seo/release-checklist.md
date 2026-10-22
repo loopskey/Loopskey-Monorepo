@@ -9,8 +9,8 @@ as pending.
 
 - [ ] CI is green: lint, types, unit tests, API end-to-end tests, build, the
       generated GraphQL check and the SEO diagnostic self-test.
-- [ ] `npm run bundle-report --workspace front -- --check` reports every public
-      route within its ceiling.
+- [ ] `npm run bundle-report --workspace front -- --check-targets --check-ceilings`
+      reports every public route within its target and its ceiling.
 - [ ] Any Prisma migration was read for stray `DROP INDEX` lines before it was
       applied.
 - [ ] A change to the sitemap, canonical, hreflang, robots or structured data was
@@ -29,12 +29,19 @@ as pending.
       repository variable `NEXT_PUBLIC_SITE_URL`. The container refuses to start
       when either disagrees with the image; see
       `docs/seo/production-indexing-recovery.md`.
+- [ ] A change to host aliases, HTTPS redirects or the ingress follows
+      `docs/seo/canonical-host-and-redirects.md`: one layer owns each redirect,
+      cookie and OAuth settings were confirmed first, and the outside redirect
+      checks were recorded.
 - [ ] The deployment output shows `Smoke check of the public site` passing. The
       reason for a failure is kept in `$LOOPSKEY_BACKUP_DIR/smoke-<stamp>.log`.
 - [ ] Production smoke includes a checked eligible course detail; missing
       fixtures and incomplete sitemap-shard coverage must fail the check.
 - [ ] The telemetry decision in `docs/seo/telemetry-and-privacy.md` is recorded
-      (approver and date), or both telemetry flags are `false`.
+      in `docs/seo/operator-manifest.md` (approver and date), or both telemetry
+      flags are `false`.
+- [ ] Admin, Search health, on this deployment, shows the website build and the
+      API in the state the manifest says. A mismatch is a defect, not a result.
 
 ## 3. Staging (must be unindexable)
 
@@ -73,7 +80,8 @@ node scripts/seo-audit.mjs --base-url https://<production-origin> --environment 
 
 ## 5. Search Console and monitoring (operator)
 
-Follow `docs/seo/search-console-runbook.md`. These stay unticked until done.
+Follow `docs/seo/search-console-runbook.md` and record the results in
+`docs/seo/operator-manifest.md`. These stay unticked until done.
 
 - [ ] Domain property verified.
 - [ ] Sitemap submitted.
@@ -99,9 +107,11 @@ attribute every change to search work.
 | When   | Compare                                                                               | Source               | Owner       |
 | ------ | ------------------------------------------------------------------------------------- | -------------------- | ----------- |
 | Day 7  | Impressions, clicks, CTR, indexed canonical pages, sitemap discovered count           | Search Console       | to be named |
+| Day 7  | The same measures for queries, pages, countries and devices, as one artifact          | `scripts/search-console-review.mjs` | to be named |
 | Day 7  | Organic registration starts and completions, content page opens, external link clicks | Admin, Search health | to be named |
 | Day 7  | 75th percentile and sample size for LCP, INP, CLS by device and template              | Admin, Search health | to be named |
 | Day 28 | The same measures against the previous 28 days                                        | Same sources         | to be named |
+| Day 28 | The same artifact with `windowDays` 28                                                | `scripts/search-console-review.mjs` | to be named |
 | Day 28 | Core Web Vitals report and any indexing issue trend                                   | Search Console       | to be named |
 
 Thresholds for action:

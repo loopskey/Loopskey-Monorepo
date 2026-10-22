@@ -1,4 +1,3 @@
-import { publicContentChange } from "@utils/public-content-change.util";
 import { COURSE_INGESTION_COMPRESSED_BODY_LIMIT_BYTES } from "@ingestion/enums/course-ingestion.constant";
 import { NotFoundException, PayloadTooLargeException } from "@nestjs/common";
 import { IngestionBatchMode, IngestionBatchStatus } from "@prisma/client";
@@ -11,11 +10,15 @@ import { COURSE_INGESTION_EVENT_VERSION } from "@ingestion/enums/course-ingestio
 import { CATALOG_CONTENT_CHANGED_EVENT } from "@ingestion/enums/course-ingestion.constant";
 import { COURSE_INGESTION_ITEM_LIMIT } from "@ingestion/enums/course-ingestion.constant";
 import { COURSE_INGESTION_EVENT_NAME } from "@ingestion/enums/course-ingestion.constant";
+import { assessPublicationQuality } from "@ingestion/utils/publication-quality.util";
 import { CourseIngestionPipeline } from "@ingestion/services/course-ingestion-pipeline.service";
 import { validateCourseFieldMap } from "@ingestion/utils/course-field-map.util";
+import { IngestionReviewReason } from "@prisma/client";
 import { CourseStatus, Prisma } from "@prisma/client";
 import { IngestionMessageCode } from "@ingestion/enums/message-code.enum";
+import { publicContentChange } from "@utils/public-content-change.util";
 import { CourseFieldMapError } from "@ingestion/utils/course-field-map.util";
+import { holdsPublication } from "@ingestion/utils/publication-quality.util";
 import { requestContext } from "@infrastructure/observability/request-context";
 import { OutboxService } from "@infrastructure/outbox/outbox.service";
 import { PrismaService } from "@prisma/prisma.service";
@@ -41,6 +44,8 @@ type LockedIngestionItem = {
   id: string;
   canonicalHash: string;
   catalogId: string | null;
+  state: IngestionItemState;
+  reviewedById: string | null;
 };
 
 @Injectable()
@@ -167,10 +172,6 @@ export class CourseIngestionService {
     return this.toStoredReceipt(batch);
   }
 
-  /**
-   * The administrator counterpart of `getBatch`, not scoped to a caller's own
-   * source: an admin is platform-wide and reads any batch by id.
-   */
   async getBatchForAdmin(batchId: string) {
     const batch = await this.prisma.ingestionBatch.findUnique({
       where: { id: batchId },
@@ -416,7 +417,13 @@ export class CourseIngestionService {
             where: { externalRef },
             select: { id: true },
           });
-          const courseData = this.courseData(input.source, input.prepared);
+          const reviewReasons = this.reviewReasons(input.prepared, existing);
+          const publishing = {
+            ...input.source,
+            autoPublish:
+              input.source.autoPublish && !holdsPublication(reviewReasons),
+          };
+          const courseData = this.courseData(publishing, input.prepared);
           const course = existingCourse
             ? await transaction.course.update({
                 where: { id: existingCourse.id },
@@ -446,10 +453,11 @@ export class CourseIngestionService {
             unmappedFields: input.prepared.unmappedFields,
             imageCandidateUrl:
               input.prepared.canonical.imageCandidateUrl ?? null,
-            state: input.source.autoPublish
+            state: publishing.autoPublish
               ? IngestionItemState.ACCEPTED
               : IngestionItemState.PENDING,
             rejectionReason: null,
+            reviewReasons,
             catalogId: course.id,
             lastSeenAt: new Date(),
           };
@@ -467,6 +475,14 @@ export class CourseIngestionService {
                 },
                 select: { id: true },
               });
+
+          if (input.source.autoPublish && !publishing.autoPublish)
+            this.logger.warn("Held an ingested course for review.", {
+              correlationId: requestContext.correlationId(),
+              sourceId: input.source.sourceId,
+              itemId: ingestionItem.id,
+              reviewReasons,
+            });
 
           await this.outbox.append(
             {
@@ -597,7 +613,7 @@ export class CourseIngestionService {
     externalId: string,
   ) {
     const rows = await transaction.$queryRaw<LockedIngestionItem[]>`
-      SELECT "id", "canonicalHash", "catalogId"
+      SELECT "id", "canonicalHash", "catalogId", "state", "reviewedById"
       FROM "IngestionItem"
       WHERE "sourceId" = ${sourceId} AND "externalId" = ${externalId}
       FOR UPDATE
@@ -645,6 +661,25 @@ export class CourseIngestionService {
       creditConfidence: canonical.creditConfidence ?? null,
       deletedAt: null,
     };
+  }
+
+  private reviewReasons(
+    prepared: Extract<PreparedCourseItem, { outcome: "accepted" }>,
+    existing: LockedIngestionItem | null,
+  ): IngestionReviewReason[] {
+    const rejectedByReviewer =
+      existing?.state === IngestionItemState.REJECTED &&
+      existing.reviewedById !== null;
+    return [
+      ...(rejectedByReviewer
+        ? [IngestionReviewReason.PREVIOUSLY_REJECTED]
+        : []),
+      ...assessPublicationQuality({
+        title: prepared.canonical.title,
+        description: prepared.canonical.description,
+        urls: [prepared.canonical.canonicalUrl],
+      }),
+    ];
   }
 
   private externalRef(source: TIngestionSourceContext, externalId: string) {

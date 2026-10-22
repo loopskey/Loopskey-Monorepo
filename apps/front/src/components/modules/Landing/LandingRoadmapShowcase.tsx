@@ -1,9 +1,7 @@
-"use client";
-
 import { benefits, milestones, statusConfig } from "@/utils/constant";
+import { loadTranslator } from "@/i18n/dictionaries";
 import { RevealOnScroll } from "@elements/reveal-scroll";
 import { GlassCard } from "@elements/glass-card";
-import { useI18n } from "@/hooks/useI18n";
 import { Button } from "@ui/button";
 import { cn } from "@/lib/utils";
 
@@ -11,13 +9,14 @@ import Link from "@elements/localized-link";
 
 import * as L from "lucide-react";
 
-const LandingRoadmapShowcase = () => {
-  const { t } = useI18n();
+import type { PublicLocale } from "@/lib/i18n/locale";
+
+const LandingRoadmapShowcase = async ({ locale }: { locale: PublicLocale }) => {
+  const { t } = await loadTranslator(locale);
 
   return (
     <section className="relative overflow-x-clip px-4 py-16 sm:px-6 lg:px-8">
-      <div className="pointer-events-none absolute inset-0 -z-10">
-      </div>
+      <div className="pointer-events-none absolute inset-0 -z-10"></div>
 
       <div className="mx-auto grid max-w-7xl items-center gap-10 lg:grid-cols-[0.92fr_1.08fr] px-4 sm:px-6 lg:px-8">
         <RevealOnScroll direction="left">

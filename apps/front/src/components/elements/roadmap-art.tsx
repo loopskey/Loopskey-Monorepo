@@ -1,24 +1,11 @@
-import { CourseCategory } from "@/lib/graphql/base";
+import { getContentCategoryArtSrc } from "@utils/content-category-art.constant";
 import { cn } from "@/lib/utils";
 
 import type { RoadmapArtProps } from "@/types/element.types";
 
 import Image from "next/image";
 
-const CATEGORY_ART_CLASS_NAME: Record<CourseCategory, string> = {
-  [CourseCategory.Cpd]: "bg-[url('/roadmap-art-cpd.svg')]",
-  [CourseCategory.Other]: "bg-[url('/roadmap-art-other.svg')]",
-  [CourseCategory.Design]: "bg-[url('/roadmap-art-design.svg')]",
-  [CourseCategory.Finance]: "bg-[url('/roadmap-art-finance.svg')]",
-  [CourseCategory.Business]: "bg-[url('/roadmap-art-business.svg')]",
-  [CourseCategory.Education]: "bg-[url('/roadmap-art-education.svg')]",
-  [CourseCategory.Marketing]: "bg-[url('/roadmap-art-marketing.svg')]",
-  [CourseCategory.Technology]: "bg-[url('/roadmap-art-technology.svg')]",
-  [CourseCategory.Leadership]: "bg-[url('/roadmap-art-leadership.svg')]",
-  [CourseCategory.Compliance]: "bg-[url('/roadmap-art-compliance.svg')]",
-  [CourseCategory.Healthcare]: "bg-[url('/roadmap-art-healthcare.svg')]",
-  [CourseCategory.Engineering]: "bg-[url('/roadmap-art-engineering.svg')]",
-};
+const FALLBACK_CATEGORY = "GENERAL";
 
 export const RoadmapArt = ({
   category,
@@ -26,6 +13,10 @@ export const RoadmapArt = ({
   className,
   sizes = "56px",
 }: RoadmapArtProps) => {
+  const artSrc =
+    getContentCategoryArtSrc(category) ??
+    getContentCategoryArtSrc(FALLBACK_CATEGORY);
+
   return (
     <span
       aria-hidden
@@ -44,10 +35,8 @@ export const RoadmapArt = ({
         />
       ) : (
         <span
-          className={cn(
-            "absolute inset-0 bg-cover bg-center",
-            CATEGORY_ART_CLASS_NAME[category ?? CourseCategory.Other],
-          )}
+          className="absolute inset-0 bg-cover bg-[position:85%_center]"
+          style={{ backgroundImage: `url(${artSrc})` }}
         />
       )}
     </span>

@@ -50,20 +50,23 @@ const LandingHero = () => {
       <div className="pointer-events-none absolute inset-0 -z-10"></div>
 
       <div className="mx-auto grid max-w-7xl items-center gap-10 lg:grid-cols-[1.05fr_0.95fr] px-4 sm:px-6 lg:px-8">
-        <div className="animate-in fade-in-0 slide-in-from-bottom-5 duration-700">
+        <div className="animate-in slide-in-from-bottom-5 duration-700">
           <div className="mb-5 inline-flex items-center gap-2 rounded-full border px-4 py-2 text-sm font-bold text-primary shadow-sm">
             <Sparkles className="h-4 w-4" />
             {t("landing.hero.badge")}
           </div>
 
-          <h1 className="max-w-4xl text-3xl font-bold leading-[1.5] tracking-tight sm:text-3xl lg:text-4xl xl:text-4xl">
+          <h1
+            aria-label={`${titleLine1} ${titleLine2} ${titleLine3}`}
+            className="max-w-4xl text-3xl font-bold leading-[1.5] tracking-tight sm:text-3xl lg:text-4xl xl:text-4xl"
+          >
             <SplitText
               tag="span"
               text={titleLine1}
               textAlign="left"
-              className="block"
               delay={HERO_SPLIT_STAGGER_MS}
               duration={HERO_SPLIT_DURATION_S}
+              className="block text-brand-orange-large-text"
             />
             <SplitText
               tag="span"
@@ -71,14 +74,14 @@ const LandingHero = () => {
               text={titleLine2}
               startDelay={line2StartDelay}
               delay={HERO_SPLIT_STAGGER_MS}
-              className="block text-primary"
+              className="block text-brand-navy"
               duration={HERO_SPLIT_DURATION_S}
             />
             <SplitText
               tag="span"
               text={titleLine3}
               textAlign="left"
-              className="block"
+              className="block text-brand-sky-large-text"
               startDelay={line3StartDelay}
               delay={HERO_SPLIT_STAGGER_MS}
               duration={HERO_SPLIT_DURATION_S}
@@ -201,7 +204,7 @@ const LandingHero = () => {
           </div>
         </div>
 
-        <div className="relative animate-in fade-in-0 zoom-in-95 slide-in-from-bottom-6 duration-700 lg:min-h-[620px]">
+        <div className="relative animate-in zoom-in-95 slide-in-from-bottom-6 duration-700 lg:min-h-[620px]">
           <div className="relative mx-auto flex max-w-xl items-center justify-center [perspective:1400px]">
             <div className="relative h-[420px] w-full sm:h-[520px] animate-[hero-float_5s_ease-in-out_infinite] transition-transform duration-700 lg:[transform:rotateY(-8deg)] lg:hover:[transform:rotateY(0deg)_scale(1.03)]">
               <Image

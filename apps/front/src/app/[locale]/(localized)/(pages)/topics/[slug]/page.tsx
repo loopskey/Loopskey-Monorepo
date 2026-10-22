@@ -6,6 +6,7 @@ import { editorialMetadata } from "@/lib/site/editorial-metadata";
 import { noindexMetadata } from "@/lib/site/page-metadata";
 import { editorialTrail } from "@/lib/structured-data/trail";
 import { loadDictionary } from "@/i18n/dictionaries";
+import { ClientMessages } from "@elements/client-messages";
 import { topicHubGraph } from "@/lib/structured-data/editorial-graphs";
 import { topicPath } from "@/lib/content-catalog/public-path";
 import { notFound } from "next/navigation";
@@ -63,11 +64,13 @@ const Page = async ({ params }: TContentDetailPageProps) => {
           nodes={topicHubGraph({ content: hub, locale: publicLocale, trail })}
         />
       )}
-      <TopicHubPage
-        hub={hub}
-        locale={publicLocale}
-        breadcrumbs={<Breadcrumbs trail={trail} locale={publicLocale} />}
-      />
+      <ClientMessages scope="editorial" locale={publicLocale}>
+        <TopicHubPage
+          hub={hub}
+          locale={publicLocale}
+          breadcrumbs={<Breadcrumbs trail={trail} locale={publicLocale} />}
+        />
+      </ClientMessages>
     </>
   );
 };

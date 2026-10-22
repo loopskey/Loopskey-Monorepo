@@ -14,4 +14,13 @@ export const URL_FEEDBACK_KEY: Record<string, string> = {
   [ContentUrlMessageCode.ACCESS_DENIED]: "contentSeo.url.feedback.forbidden",
 };
 
+export const RECOVERY_FEEDBACK_KEY: Record<string, string> = {
+  attached: "contentSeo.url.recovery.feedback.attached",
+  [ContentUrlMessageCode.SLUG_TAKEN]: "contentSeo.url.recovery.feedback.taken",
+  [ContentUrlMessageCode.TARGET_NOT_PUBLIC]:
+    "contentSeo.url.recovery.feedback.notPublic",
+};
+
+export const RETIRED_SLUG_EVIDENCE_MIN_LENGTH = 10;
+
 export const normalizeSlugInput = (value: string) => value.trim().toLowerCase();

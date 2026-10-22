@@ -1,5 +1,5 @@
 import * as Types from "@/lib/graphql/base";
-import { TypedDocumentString } from "@/lib/graphql/base";
+import { TypedDocumentString } from "@/lib/graphql/document";
 export type AdminDashboardPageInfoFieldsFragment = { __typename?: 'AdminPageInfo', nextCursor?: string | null, hasNextPage: boolean };
 
 export type AdminDashboardProfileFieldsFragment = { __typename?: 'AdminProfile', id: string, bio?: string | null, role: Types.Role, email?: string | null, status: Types.UserStatus, fullName?: string | null, avatarUrl?: string | null, createdAt: string, updatedAt: string };

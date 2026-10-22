@@ -14,6 +14,7 @@ import { ProfessionalRoadmapDraftService } from "@professional/services/professi
 import { ProfessionalRoadmapChatResolver } from "@professional/resolvers/professional-roadmap-chat.resolver";
 import { RoadmapGenerationOutboxHandler } from "@professional/application/roadmap-generation-outbox.handler";
 import { ProfessionalRoadmapChatService } from "@professional/services/professional-roadmap-chat.service";
+import { ProfessionalRoadmapEditService } from "@professional/services/professional-roadmap-edit.service";
 import { ProfessionalRoleProfileHandler } from "@professional/application/professional-role-profile.handler";
 import { ProfessionalOnboardingResolver } from "@professional/resolvers/professional-onboarding.resolver";
 import { ProfessionalCredentialService } from "@professional/services/professional-credential.service";
@@ -96,6 +97,7 @@ import "@professional/enums/professional-register.enum";
     ProfessionalRoadmapResolver,
     ProfessionalSettingsService,
     ProfessionalCpdPlanResolver,
+    LocalEvidenceStorageAdapter,
     ProfessionalOverviewResolver,
     ProfessionalCalendarResolver,
     ProfessionalSettingsResolver,
@@ -105,20 +107,20 @@ import "@professional/enums/professional-register.enum";
     RoadmapGenerationOutboxHandler,
     ProfessionalOnboardingResolver,
     ProfessionalRoleProfileHandler,
-    ProfessionalRoadmapDraftService,
     ProfessionalRoadmapChatService,
+    ProfessionalRoadmapEditService,
+    ProfessionalRoadmapDraftService,
     ProfessionalRoadmapChatResolver,
     ProfessionalCertificatesService,
     ProfessionalCertificatesResolver,
+    ProfessionalComplianceApiService,
     ProfessionalRoadmapProgressService,
     ProfessionalCertificateFileService,
     ProfessionalProvisioningApiService,
-    ProfessionalComplianceApiService,
-    ProfessionalRequirementDirectoryApiService,
     ProfessionalRoadmapCandidateService,
     ProfessionalRoadmapGenerationService,
     ProfessionalProfileCompletionService,
-    LocalEvidenceStorageAdapter,
+    ProfessionalRequirementDirectoryApiService,
     { provide: EVIDENCE_STORAGE, useExisting: LocalEvidenceStorageAdapter },
     {
       provide: PROFESSIONAL_PROVISIONING_API,
@@ -145,16 +147,16 @@ import "@professional/enums/professional-register.enum";
     ProfessionalSettingsService,
     ProfessionalCalendarService,
     ProfessionalOverviewService,
-    ProfessionalPaymentsService,
-    ProfessionalCredentialService,
-    PROFESSIONAL_PROVISIONING_API,
     PROFESSIONAL_COMPLIANCE_API,
-    ProfessionalRequirementDirectoryApiService,
-    PROFESSIONAL_REQUIREMENT_DIRECTORY_API,
+    ProfessionalPaymentsService,
+    PROFESSIONAL_PROVISIONING_API,
+    ProfessionalCredentialService,
     ProfessionalRoadmapChatService,
     ProfessionalRoadmapDraftService,
     ProfessionalCertificatesService,
     ProfessionalProfileCompletionService,
+    PROFESSIONAL_REQUIREMENT_DIRECTORY_API,
+    ProfessionalRequirementDirectoryApiService,
   ],
 })
 export class ProfessionalModule {}

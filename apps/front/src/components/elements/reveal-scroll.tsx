@@ -4,6 +4,8 @@ import { useEffect, useRef, useState } from "react";
 import { TRevealOnScrollProps } from "@/types/element.types";
 import { cn } from "@/lib/utils";
 
+type TRevealPhase = "static" | "hidden" | "shown";
+
 const getHiddenClass = (direction: TRevealOnScrollProps["direction"]) => {
   switch (direction) {
     case "left":
@@ -25,20 +27,18 @@ export const RevealOnScroll = ({
   direction = "up",
 }: TRevealOnScrollProps) => {
   const ref = useRef<HTMLDivElement | null>(null);
-  const [visible, setVisible] = useState(false);
+  const [phase, setPhase] = useState<TRevealPhase>("static");
 
   useEffect(() => {
     const node = ref.current;
-    if (!node) return;
-    if (typeof window === "undefined") return;
-    if (!("IntersectionObserver" in window)) {
-      setVisible(true);
-      return;
-    }
+    if (!node || !("IntersectionObserver" in window)) return;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    if (node.getBoundingClientRect().top < window.innerHeight) return;
+    setPhase("hidden");
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (!entry?.isIntersecting) return;
-        setVisible(true);
+        setPhase("shown");
         observer.unobserve(entry.target);
       },
       {
@@ -55,12 +55,14 @@ export const RevealOnScroll = ({
   return (
     <div
       ref={ref}
-      style={{ transitionDelay: visible ? `${delay}ms` : "0ms" }}
+      onFocus={() =>
+        setPhase((current) => (current === "hidden" ? "shown" : current))
+      }
+      style={{ transitionDelay: phase === "shown" ? `${delay}ms` : "0ms" }}
       className={cn(
-        "will-change-transform transition-all duration-700 ease-out",
-        visible
-          ? "translate-x-0 translate-y-0 opacity-100"
-          : `${getHiddenClass(direction)} opacity-0`,
+        phase === "hidden" && `${getHiddenClass(direction)} opacity-0`,
+        phase === "shown" &&
+          "translate-x-0 translate-y-0 opacity-100 transition-all duration-700 ease-out will-change-transform",
         className,
       )}
     >

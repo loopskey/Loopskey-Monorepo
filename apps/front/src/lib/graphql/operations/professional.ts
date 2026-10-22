@@ -1,5 +1,5 @@
 import * as Types from "@/lib/graphql/base";
-import { TypedDocumentString } from "@/lib/graphql/base";
+import { TypedDocumentString } from "@/lib/graphql/document";
 export type ProfessionalPageInfoFieldsFragment = { __typename?: 'ProfessionalPageInfo', nextCursor?: string | null, hasNextPage: boolean };
 
 export type ProfessionalSettingsFieldsFragment = { __typename?: 'ProfessionalSettings', id: string, theme: Types.Theme, userId: string, updatedAt: string, createdAt: string, interfaceLanguage: Types.AppLanguage };
@@ -360,6 +360,13 @@ export type UnenrollRoadmapMutationVariables = Types.Exact<{
 
 export type UnenrollRoadmapMutation = { __typename?: 'Mutation', unenrollRoadmap: boolean };
 
+export type StartRoadmapEditMutationVariables = Types.Exact<{
+  roadmapId: Types.Scalars['ID']['input'];
+}>;
+
+
+export type StartRoadmapEditMutation = { __typename?: 'Mutation', startRoadmapEdit: { __typename?: 'ProfessionalRoadmapDraft', id: string } };
+
 export type RetryRoadmapGenerationMutationVariables = Types.Exact<{
   draftId: Types.Scalars['ID']['input'];
 }>;
@@ -372,7 +379,7 @@ export type ProfessionalRoadmapGenerationStatusQueryVariables = Types.Exact<{
 }>;
 
 
-export type ProfessionalRoadmapGenerationStatusQuery = { __typename?: 'Query', professionalRoadmapGeneration?: { __typename?: 'ProfessionalRoadmapGeneration', id: string, goal?: string | null, status: Types.RoadmapDraftStatus, updatedAt: string, failure?: { __typename?: 'RoadmapGenerationFailure', code: Types.RoadmapGenerationFailureCode, recoveryActions: Array<Types.RoadmapGenerationRecoveryAction> } | null } | null };
+export type ProfessionalRoadmapGenerationStatusQuery = { __typename?: 'Query', professionalRoadmapGeneration?: { __typename?: 'ProfessionalRoadmapGeneration', id: string, goal?: string | null, status: Types.RoadmapDraftStatus, replacesRoadmapId?: string | null, updatedAt: string, failure?: { __typename?: 'RoadmapGenerationFailure', code: Types.RoadmapGenerationFailureCode, recoveryActions: Array<Types.RoadmapGenerationRecoveryAction> } | null } | null };
 
 export type ProfessionalRoadmapRecommendationsQueryVariables = Types.Exact<{
   enrollmentId?: Types.InputMaybe<Types.Scalars['ID']['input']>;
@@ -2848,6 +2855,13 @@ export const UnenrollRoadmapDocument = /*#__PURE__*/ new TypedDocumentString(`
   unenrollRoadmap(enrollmentId: $enrollmentId)
 }
     `) as unknown as TypedDocumentString<UnenrollRoadmapMutation, UnenrollRoadmapMutationVariables>;
+export const StartRoadmapEditDocument = /*#__PURE__*/ new TypedDocumentString(`
+    mutation StartRoadmapEdit($roadmapId: ID!) {
+  startRoadmapEdit(roadmapId: $roadmapId) {
+    id
+  }
+}
+    `) as unknown as TypedDocumentString<StartRoadmapEditMutation, StartRoadmapEditMutationVariables>;
 export const RetryRoadmapGenerationDocument = /*#__PURE__*/ new TypedDocumentString(`
     mutation RetryRoadmapGeneration($draftId: ID!) {
   requestRoadmapGeneration(draftId: $draftId) {
@@ -2862,6 +2876,7 @@ export const ProfessionalRoadmapGenerationStatusDocument = /*#__PURE__*/ new Typ
     id
     goal
     status
+    replacesRoadmapId
     updatedAt
     failure {
       code

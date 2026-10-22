@@ -11,24 +11,47 @@ import {
   YouTubeChannelSortField,
 } from "@/lib/graphql/base";
 import { TLandingContentKind, TLandingTab } from "@/types/landing-module.types";
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { TLandingContentItem } from "@/types/landing-module.types";
+import {
+  humanizeEnumValue,
+  translateWithFallback,
+} from "@/utils/function-helper";
 import { LANDING_HUB_TAKE } from "@/utils/constant";
 import { useI18n } from "@/hooks/useI18n";
+
+import type { I18nContextValue } from "@/types/providers.types";
+
+import {
+  LANDING_SHELF_KINDS,
+  LANDING_SHELF_SIZE,
+  getNextLandingKind,
+} from "@/utils/landing-shelf.constant";
 
 import * as PodcastApi from "@/lib/rtk/endpoints/podcast.api";
 import * as YouTubeApi from "@/lib/rtk/endpoints/youtube.api";
 import * as CourseApi from "@/lib/rtk/endpoints/course.api";
 import * as EventApi from "@/lib/rtk/endpoints/event.api";
 
-const shuffleItems = <T>(items: T[]) => {
+const pickShelfItems = <T>(items: T[]) => {
   const cloned = [...items];
   for (let index = cloned.length - 1; index > 0; index--) {
     const randomIndex = Math.floor(Math.random() * (index + 1));
     [cloned[index], cloned[randomIndex]] = [cloned[randomIndex], cloned[index]];
   }
-  return cloned;
+  return cloned.slice(0, LANDING_SHELF_SIZE);
 };
+
+const categoryLabel = (
+  t: I18nContextValue["t"],
+  prefix: string,
+  value: string,
+) =>
+  translateWithFallback(
+    t,
+    `content.enums.${prefix}.${value}`,
+    humanizeEnumValue(value),
+  );
 
 export const getLandingViewAllHref = (tab: TLandingContentKind) => {
   if (tab === "course") return "/content";
@@ -40,29 +63,26 @@ export const getLandingViewAllHref = (tab: TLandingContentKind) => {
 export const useLandingFeatured = () => {
   const { t } = useI18n();
   const [activeTab, setActiveTab] = useState<TLandingContentKind>("course");
-  const [hoveredItemId, setHoveredItemId] = useState<string | null>(null);
+  const autoAdvancedRef = useRef(false);
+  const skippedTabsRef = useRef(0);
 
   const tabs = useMemo<TLandingTab[]>(
     () => [
       {
         value: "course",
         label: t("landing.learningHub.tabs.courses"),
-        description: t("landing.learningHub.tabs.coursesDescription"),
       },
       {
         value: "event",
         label: t("landing.learningHub.tabs.events"),
-        description: t("landing.learningHub.tabs.eventsDescription"),
       },
       {
         value: "podcast",
         label: t("landing.learningHub.tabs.podcasts"),
-        description: t("landing.learningHub.tabs.podcastsDescription"),
       },
       {
         value: "youtube",
         label: t("landing.learningHub.tabs.youtube"),
-        description: t("landing.learningHub.tabs.youtubeDescription"),
       },
     ],
     [t],
@@ -129,7 +149,7 @@ export const useLandingFeatured = () => {
   );
 
   const courseItems = useMemo<TLandingContentItem[]>(() => {
-    return shuffleItems(
+    return pickShelfItems(
       coursesQuery.data?.items.map((course) => ({
         id: course.id,
         kind: "course",
@@ -140,7 +160,8 @@ export const useLandingFeatured = () => {
         isFree: course.isFree,
         currency: course.currency,
         imageUrl: course.imageUrl,
-        category: course.category,
+        category: categoryLabel(t, "courseCategory", course.category),
+        categoryKey: course.category,
         price: course.price ?? null,
         ratingCount: course.ratingCount,
         description: course.description,
@@ -158,7 +179,7 @@ export const useLandingFeatured = () => {
   }, [coursesQuery.data, t]);
 
   const eventItems = useMemo<TLandingContentItem[]>(() => {
-    return shuffleItems(
+    return pickShelfItems(
       eventsQuery.data?.items.map((event) => ({
         id: event.id,
         kind: "event",
@@ -168,7 +189,8 @@ export const useLandingFeatured = () => {
         isFree: event.isFree,
         imageUrl: event.imageUrl,
         currency: event.currency,
-        category: event.category,
+        category: categoryLabel(t, "eventCategory", event.category),
+        categoryKey: event.category,
         price: event.price ?? null,
         ratingCount: event.ratingCount,
         description: event.description,
@@ -185,7 +207,7 @@ export const useLandingFeatured = () => {
   }, [eventsQuery.data, t]);
 
   const podcastItems = useMemo<TLandingContentItem[]>(() => {
-    return shuffleItems(
+    return pickShelfItems(
       podcastsQuery.data?.items.map((podcast) => ({
         id: podcast.id,
         kind: "podcast",
@@ -193,7 +215,8 @@ export const useLandingFeatured = () => {
         title: podcast.title,
         rating: podcast.rating,
         status: podcast.status,
-        category: podcast.category,
+        category: categoryLabel(t, "podcastCategory", podcast.category),
+        categoryKey: podcast.category,
         imageUrl: podcast.imageUrl,
         description: podcast.description,
         ratingCount: podcast.ratingCount,
@@ -209,7 +232,7 @@ export const useLandingFeatured = () => {
   }, [podcastsQuery.data, t]);
 
   const youtubeItems = useMemo<TLandingContentItem[]>(() => {
-    return shuffleItems(
+    return pickShelfItems(
       youtubeQuery.data?.items.map((channel) => ({
         id: channel.id,
         kind: "youtube",
@@ -217,7 +240,8 @@ export const useLandingFeatured = () => {
         title: channel.title,
         status: channel.status,
         rating: channel.rating,
-        category: channel.category,
+        category: categoryLabel(t, "youtubeCategory", channel.category),
+        categoryKey: channel.category,
         imageUrl: channel.imageUrl,
         description: channel.description,
         ratingCount: channel.ratingCount,
@@ -239,47 +263,54 @@ export const useLandingFeatured = () => {
     return youtubeItems;
   }, [activeTab, courseItems, eventItems, podcastItems, youtubeItems]);
 
-  const isLoading =
-    activeTab === "course"
-      ? coursesQuery.isLoading || coursesQuery.isFetching
-      : activeTab === "event"
-        ? eventsQuery.isLoading || eventsQuery.isFetching
-        : activeTab === "podcast"
-          ? podcastsQuery.isLoading || podcastsQuery.isFetching
-          : youtubeQuery.isLoading || youtubeQuery.isFetching;
+  const activeQuery = {
+    course: coursesQuery,
+    event: eventsQuery,
+    podcast: podcastsQuery,
+    youtube: youtubeQuery,
+  }[activeTab];
 
-  const totalCount =
-    activeTab === "course"
-      ? coursesQuery.data?.totalCount
-      : activeTab === "event"
-        ? eventsQuery.data?.totalCount
-        : activeTab === "podcast"
-          ? podcastsQuery.data?.totalCount
-          : youtubeQuery.data?.totalCount;
+  const isLoading = activeQuery.isLoading || activeQuery.isFetching;
+  const isError = activeQuery.isError;
+  const totalCount = activeQuery.data?.totalCount;
+  const refetch = activeQuery.refetch;
+
+  const selectTab = useCallback((tab: TLandingContentKind) => {
+    autoAdvancedRef.current = false;
+    skippedTabsRef.current = 0;
+    setActiveTab(tab);
+  }, []);
+
+  const goToNextTab = useCallback(() => {
+    autoAdvancedRef.current = true;
+    setActiveTab((current) => getNextLandingKind(current));
+  }, []);
 
   useEffect(() => {
-    setHoveredItemId(null);
-  }, [activeTab]);
-
-  const spotlight = useMemo(() => {
-    if (!items.length) return null;
-    if (hoveredItemId) {
-      const hovered = items.find((item) => item.id === hoveredItemId);
-      if (hovered) return hovered;
+    if (!autoAdvancedRef.current || isLoading) return;
+    if (items.length) {
+      skippedTabsRef.current = 0;
+      return;
     }
-    return items[0];
-  }, [items, hoveredItemId]);
+    skippedTabsRef.current += 1;
+    if (skippedTabsRef.current >= LANDING_SHELF_KINDS.length) {
+      autoAdvancedRef.current = false;
+      return;
+    }
+    setActiveTab((current) => getNextLandingKind(current));
+  }, [items, isLoading]);
 
   return {
     t,
     tabs,
     items,
-    spotlight,
+    isError,
+    refetch,
     activeTab,
     totalCount,
     isLoading,
-    setActiveTab,
-    setHoveredItemId,
+    selectTab,
+    goToNextTab,
     viewAllHref: getLandingViewAllHref(activeTab),
   };
 };

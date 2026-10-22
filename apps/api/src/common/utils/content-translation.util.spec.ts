@@ -158,6 +158,7 @@ const makeStore = (parent: TranslationParent | null) => {
   const touched: string[] = [];
   const store: TranslationStore<null> = {
     transaction: (work) => work(null),
+    lockParent: async () => {},
     findParent: async () => parent,
     findTranslation: async (_tx, parentId, locale) =>
       [...rows.values()].find(
@@ -378,6 +379,32 @@ describe("setContentTranslationPublication", () => {
     await expect(publish(store, true, 5)).rejects.toBeInstanceOf(
       ConflictException,
     );
+  });
+
+  it("refuses to publish the language the original is already written in", async () => {
+    const { store, touched } = makeStore({ ...parent, sourceLanguage: "fr" });
+    await save(store);
+    await expect(publish(store, true, 1)).rejects.toMatchObject({
+      response: { code: ContentTranslationError.SOURCE_LANGUAGE_IS_TRANSLATED },
+    });
+    expect(touched).toEqual([]);
+  });
+
+  it("publishes a translation into a language the original is not written in", async () => {
+    const { store } = makeStore({ ...parent, sourceLanguage: "en-GB" });
+    await save(store);
+    await expect(publish(store, true, 1)).resolves.toMatchObject({
+      isPublished: true,
+    });
+  });
+
+  it("withdraws a translation whatever the original language is", async () => {
+    const { store } = makeStore({ ...parent, sourceLanguage: "fr" });
+    await save(store);
+    store.update(null, "t1", 1, { isPublished: true, actorId: owner.id });
+    await expect(publish(store, false, 2)).resolves.toMatchObject({
+      isPublished: false,
+    });
   });
 });
 

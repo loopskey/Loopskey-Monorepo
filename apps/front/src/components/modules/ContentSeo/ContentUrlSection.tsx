@@ -8,13 +8,23 @@ import { Input } from "@ui/input";
 import { Label } from "@ui/label";
 
 import type { useContentUrlEditor } from "@/hooks/useContentUrlEditor";
+import type { PublicPageKind } from "@/lib/content-catalog/public-path";
+
+import RetiredSlugRecovery from "@modules/ContentSeo/RetiredSlugRecovery";
 
 type TContentUrlSectionProps = {
+  kind: PublicPageKind;
   contentId: string;
+  canRecoverRetiredSlugs?: boolean;
   editor: ReturnType<typeof useContentUrlEditor>;
 };
 
-const ContentUrlSection = ({ contentId, editor }: TContentUrlSectionProps) => {
+const ContentUrlSection = ({
+  kind,
+  editor,
+  contentId,
+  canRecoverRetiredSlugs = false,
+}: TContentUrlSectionProps) => {
   const { t, query, settings, previews } = editor;
   const fieldId = (name: string) => `content-url-${contentId}-${name}`;
   const retired = settings?.retiredSlugs ?? [];
@@ -103,6 +113,14 @@ const ContentUrlSection = ({ contentId, editor }: TContentUrlSectionProps) => {
                 {t("contentSeo.url.retired.note")}
               </p>
             </div>
+          )}
+
+          {canRecoverRetiredSlugs && (
+            <RetiredSlugRecovery
+              kind={kind}
+              editor={editor}
+              contentId={contentId}
+            />
           )}
 
           {editor.isDirty && (

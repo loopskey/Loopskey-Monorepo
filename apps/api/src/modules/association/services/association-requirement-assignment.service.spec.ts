@@ -68,6 +68,10 @@ const setup = (
     syncAssignedRequirements: jest.fn().mockResolvedValue(undefined),
     hasRecordedActivity: jest.fn().mockResolvedValue(false),
     removeRequirementLinks: jest.fn().mockResolvedValue(2),
+    replaceContentRecipients: jest.fn().mockResolvedValue(undefined),
+    replaceMemberContent: jest.fn().mockResolvedValue(undefined),
+    removeContentLinks: jest.fn().mockResolvedValue(0),
+    reassignContentRequirement: jest.fn().mockResolvedValue(true),
   };
 
   const notifications = {

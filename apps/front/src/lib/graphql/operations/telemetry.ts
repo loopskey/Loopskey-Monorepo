@@ -1,5 +1,5 @@
 import * as Types from "@/lib/graphql/base";
-import { TypedDocumentString } from "@/lib/graphql/base";
+import { TypedDocumentString } from "@/lib/graphql/document";
 export type RecordTelemetryMutationVariables = Types.Exact<{
   input: Types.TelemetryBatchInput;
 }>;
@@ -12,7 +12,7 @@ export type SearchHealthReportQueryVariables = Types.Exact<{
 }>;
 
 
-export type SearchHealthReportQuery = { __typename?: 'Query', searchHealthReport: { __typename?: 'SearchHealthReport', from: string, to: string, days: number, daysWithData: number, minimumSamples: number, isCollecting: boolean, vitals: Array<{ __typename?: 'SearchHealthVitalSegment', metric: Types.TelemetryMetric, device: Types.TelemetryDevice, template: Types.TelemetryRouteTemplate, locale: Types.TelemetryLocale, samples: number, p75: number, status: Types.SearchHealthVitalStatus }>, conversions: Array<{ __typename?: 'SearchHealthConversionRow', event: Types.TelemetryConversionEvent, contentKind: Types.TelemetryContentKind, role: Types.TelemetryRegistrationRole, attribution: Types.TelemetryAttribution, count: number }>, intake: Array<{ __typename?: 'SearchHealthIntakeRow', kind: Types.TelemetryIntakeKind, outcome: Types.TelemetryIntakeOutcome, count: number }> } };
+export type SearchHealthReportQuery = { __typename?: 'Query', searchHealthReport: { __typename?: 'SearchHealthReport', from: string, to: string, days: number, daysWithData: number, minimumSamples: number, isCollecting: boolean, collection: { __typename?: 'SearchHealthCollection', apiEnabled: boolean, vitalsSampleRate: number, retentionDays: number, dedupWindowHours: number, notices: Array<Types.SearchHealthNotice> }, vitals: Array<{ __typename?: 'SearchHealthVitalSegment', metric: Types.TelemetryMetric, device: Types.TelemetryDevice, template: Types.TelemetryRouteTemplate, locale: Types.TelemetryLocale, samples: number, p75: number, status: Types.SearchHealthVitalStatus }>, conversions: Array<{ __typename?: 'SearchHealthConversionRow', event: Types.TelemetryConversionEvent, contentKind: Types.TelemetryContentKind, role: Types.TelemetryRegistrationRole, attribution: Types.TelemetryAttribution, locale: Types.TelemetryLocale, count: number }>, intake: Array<{ __typename?: 'SearchHealthIntakeRow', kind: Types.TelemetryIntakeKind, outcome: Types.TelemetryIntakeOutcome, count: number }> } };
 
 
 export const RecordTelemetryDocument = /*#__PURE__*/ new TypedDocumentString(`
@@ -32,6 +32,13 @@ export const SearchHealthReportDocument = /*#__PURE__*/ new TypedDocumentString(
     daysWithData
     minimumSamples
     isCollecting
+    collection {
+      apiEnabled
+      vitalsSampleRate
+      retentionDays
+      dedupWindowHours
+      notices
+    }
     vitals {
       metric
       device
@@ -46,6 +53,7 @@ export const SearchHealthReportDocument = /*#__PURE__*/ new TypedDocumentString(
       contentKind
       role
       attribution
+      locale
       count
     }
     intake {

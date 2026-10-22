@@ -58,14 +58,19 @@ export class AssociationMemberCertificateEntity {
 @ObjectType(AssociationGqlObjectNames.ASSOCIATION_MEMBER_CONTENT_COMPLETION)
 export class AssociationMemberContentCompletionEntity {
   @Field() title: string;
+  @Field() isLate: boolean;
+  @Field() submittedAt: Date;
   @Field(() => ID) id: string;
   @Field() activityDate: Date;
   @Field() isExternal: boolean;
   @Field(() => Float) credits: number;
   @Field(() => ID) activityId: string;
   @Field(() => String, { nullable: true }) provider: string | null;
+  @Field(() => Float, { nullable: true }) creditedAmount: number | null;
   @Field(() => Float, { nullable: true }) indicativeCredits: number | null;
   @Field(() => ContentType, { nullable: true }) contentType: ContentType | null;
+  @Field(() => AssociationAttributionState, { nullable: true })
+  completionState: AssociationAttributionState | null;
 }
 
 @ObjectType(AssociationGqlObjectNames.ASSOCIATION_MEMBER_PROFILE)
@@ -96,6 +101,7 @@ export class AssociationActivityRequirementEntity {
 @ObjectType(AssociationGqlObjectNames.ASSOCIATION_MEMBER_ACTIVITY)
 export class AssociationMemberActivityEntity {
   @Field() date: Date;
+  @Field() submittedAt: Date;
   @Field() title: string;
   @Field() isLate: boolean;
   @Field(() => ID) id: string;

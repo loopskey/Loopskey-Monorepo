@@ -39,6 +39,7 @@ export type TContentCardItem = {
   isFree?: boolean | null;
   imageUrl?: string | null;
   category?: string | null;
+  categoryKey?: string | null;
   description?: string | null;
   metaPrimary?: string | null;
   metaSecondary?: string | null;
@@ -190,6 +191,7 @@ export type TDetailSidebarProps = {
   facts: TDetailFact[];
   summary?: ReactNode;
   imageUrl?: string | null;
+  category?: string | null;
 };
 
 export type TDetailSectionProps = {

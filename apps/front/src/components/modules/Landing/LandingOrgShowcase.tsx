@@ -18,7 +18,7 @@ const LandingOrganization = () => {
     <section className="relative overflow-x-clip px-4 py-16 sm:px-6 lg:px-8">
       <div className="pointer-events-none absolute inset-0 -z-10"></div>
 
-      <div className="mx-auto grid max-w-7xl gap-10 rounded-lg border bg-muted-foreground p-6 text-white shadow-md md:p-10 xl:grid-cols-[1.05fr_0.95fr] xl:items-center">
+      <div className="mx-auto grid max-w-7xl gap-10 rounded-lg border bg-foreground p-6 text-white shadow-md md:p-10 xl:grid-cols-[1.05fr_0.95fr] xl:items-center">
         <RevealOnScroll direction="left">
           <div>
             <span className="inline-flex w-fit items-center rounded-full border border-white/15 bg-white/10 px-4 py-2 text-xs font-semibold uppercase tracking-widest text-primary-foreground/80">
@@ -83,7 +83,7 @@ const LandingOrganization = () => {
             <div className="relative z-10">
               <div className="flex items-start justify-between gap-4">
                 <div>
-                  <p className="text-xs text-primary-foreground/60">
+                  <p className="text-xs text-primary-foreground/75">
                     {t("landing.organization.dashboard.eyebrow")}
                   </p>
 
@@ -91,7 +91,7 @@ const LandingOrganization = () => {
                     {t("landing.organization.dashboard.title")}
                   </p>
                 </div>
-                <span className="rounded-full border border-brand-orange/30 bg-brand-orange/10 px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-brand-orange-text">
+                <span className="rounded-full border border-brand-orange/30 bg-brand-orange/10 px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-primary-foreground">
                   {t("landing.organization.dashboard.status")}
                 </span>
               </div>
@@ -102,7 +102,7 @@ const LandingOrganization = () => {
                     key={stat.key}
                     className="rounded-md border border-white/10 bg-white/[0.06] p-4"
                   >
-                    <p className="text-xs text-primary-foreground/55">
+                    <p className="text-xs text-primary-foreground/75">
                       {stat.label}
                     </p>
                     <p className="mt-2 text-2xl font-bold text-white">
@@ -163,7 +163,7 @@ const LandingOrganization = () => {
                         </p>
                       </div>
 
-                      <span className="text-sm font-bold text-brand-orange-text">
+                      <span className="text-sm font-bold text-primary-foreground">
                         {topic.percentage}%
                       </span>
                     </div>

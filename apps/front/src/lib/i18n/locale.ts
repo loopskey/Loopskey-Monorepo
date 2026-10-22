@@ -1,4 +1,4 @@
-import { AppLanguage } from "@/lib/graphql/base";
+import type { AppLanguage } from "@/lib/graphql/base";
 
 export type PublicLocale = "en" | "fr";
 
@@ -74,8 +74,8 @@ export const switchLocalePath = (
   return localizePath(`${unprefixed}${search}`, locale);
 };
 
-export const toApiLanguage = (locale: PublicLocale) =>
-  locale === "fr" ? AppLanguage.Fr : AppLanguage.En;
+export const toApiLanguage = (locale: PublicLocale): AppLanguage =>
+  locale === "fr" ? "FR" : "EN";
 
 export const fromApiLanguage = (language: AppLanguage): PublicLocale =>
-  language === AppLanguage.Fr ? "fr" : "en";
+  language === "FR" ? "fr" : "en";

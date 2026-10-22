@@ -1,5 +1,5 @@
 import { ProfessionalRequirementDirectoryApiService } from "@professional/application/professional-requirement-directory-api.service";
-import { ForbiddenException, NotFoundException } from "@nestjs/common";
+import { BadRequestException, ForbiddenException } from "@nestjs/common";
 import { ProfessionalPduActivityFilterInput } from "@professional/dtos/professional-pdu-activity-filter.input";
 import { LEARNING_ACTIVITY_CHANGED_EVENT } from "@professional/public/professional-compliance-api.events";
 import { PDUCompletionStatus, PDUStatus } from "@prisma/client";
@@ -7,18 +7,25 @@ import { ProfessionalPaginationInput } from "@professional/dtos/professional-pag
 import { LearningActivityChangeKind } from "@professional/public/professional-compliance-api.events";
 import { Inject, Injectable, Logger } from "@nestjs/common";
 import { ContentType, Prisma, Role } from "@prisma/client";
-import { type EvidenceStoragePort } from "@professional/storage/evidence-storage.port";
 import { exclusiveRequirementLink } from "@professional/utils/pdu-requirement-link.util";
 import { ProfessionalMessageCode } from "@professional/enums/message-code.enum";
 import { CreatePduActivityInput } from "@professional/dtos/create-pdu-activity.input";
 import { UpdatePduActivityInput } from "@professional/dtos/update-pdu-activity.input";
 import { UpsertPduTargetInput } from "@professional/dtos/upsert-pdu-target.input";
+import { TContentLinkCheck } from "../types/professional-pdu.types";
+import { NotFoundException } from "@nestjs/common";
 import { EVIDENCE_STORAGE } from "@professional/storage/evidence-storage.port";
+import { TActivityWrite } from "../types/professional-pdu.types";
 import { OutboxService } from "@infrastructure/outbox/outbox.service";
 import { PrismaService } from "@prisma/prisma.service";
 import { TUser } from "@common/types/user.types";
 
+import { type EvidenceStoragePort } from "@professional/storage/evidence-storage.port";
+import { type PduRequirementLink } from "@professional/utils/pdu-requirement-link.util";
+
 const MONTHS_PER_YEAR = 12;
+
+const FUTURE_DATE_TOLERANCE_MS = 24 * 60 * 60 * 1000;
 
 const COUNTED_STATUS: Prisma.EnumPDUStatusFilter = { not: PDUStatus.REJECTED };
 
@@ -134,6 +141,44 @@ export class ProfessionalPduService {
       throw new NotFoundException(
         ProfessionalMessageCode.PDU_ACTIVITY_ASSOCIATION_REQUIREMENT_NOT_ASSIGNED,
       );
+  }
+
+  private assertNotInFuture(date: Date) {
+    if (date.getTime() > Date.now() + FUTURE_DATE_TOLERANCE_MS)
+      throw new BadRequestException({
+        code: ProfessionalMessageCode.PDU_ACTIVITY_DATE_IN_FUTURE,
+        message: ProfessionalMessageCode.PDU_ACTIVITY_DATE_IN_FUTURE,
+      });
+  }
+
+  private async assertContentLink(
+    tx: Prisma.TransactionClient,
+    userId: string,
+    check: TContentLinkCheck,
+  ) {
+    const link = await this.requirementDirectory.lockContentLink(
+      tx,
+      userId,
+      check.learningContentId,
+    );
+    if (!link) {
+      if (!check.mustExist) return;
+      throw new NotFoundException({
+        code: ProfessionalMessageCode.PDU_ACTIVITY_LEARNING_CONTENT_NOT_AVAILABLE,
+        message:
+          ProfessionalMessageCode.PDU_ACTIVITY_LEARNING_CONTENT_NOT_AVAILABLE,
+      });
+    }
+    if (
+      link.requirementId &&
+      check.requirementId &&
+      link.requirementId !== check.requirementId
+    )
+      throw new BadRequestException({
+        code: ProfessionalMessageCode.PDU_ACTIVITY_LEARNING_CONTENT_REQUIREMENT_MISMATCH,
+        message:
+          ProfessionalMessageCode.PDU_ACTIVITY_LEARNING_CONTENT_REQUIREMENT_MISMATCH,
+      });
   }
 
   async pduReport(user: TUser, year = new Date().getFullYear()) {
@@ -382,19 +427,21 @@ export class ProfessionalPduService {
 
   async createPduActivity(user: TUser, input: CreatePduActivityInput) {
     this.assertProfessional(user);
+    const { date, contentId, contentType, ...rest } = input;
+    const occurredAt = new Date(date);
+    this.assertNotInFuture(occurredAt);
     if (input.cpdPlanId) await this.assertOwnedPlan(user, input.cpdPlanId);
     if (input.associationRequirementId)
       await this.assertAssignedAssociationRequirement(
         user,
         input.associationRequirementId,
       );
-    const { date, contentId, contentType, ...rest } = input;
-    const data = {
+    const data: TActivityWrite = {
       ...rest,
       ...exclusiveRequirementLink(input),
       contentId,
       contentType,
-      date: new Date(date),
+      date: occurredAt,
     };
 
     const dedupWhere = this.contentDedupWhere(
@@ -403,36 +450,15 @@ export class ProfessionalPduService {
       input.associationLearningContentId,
     );
 
-    if (!dedupWhere)
-      return this.prismaService.$transaction(async (tx) => {
-        const created = await tx.pDUActivity.create({
-          data: { userId: user.id, ...data },
-          include: { evidenceFiles: true },
-        });
-        return this.announceActivity(
-          tx,
-          created,
-          LearningActivityChangeKind.CREATED,
-        );
-      });
+    if (!dedupWhere) return this.createActivity(user.id, data);
 
     const existing = await this.prismaService.pDUActivity.findFirst({
       where: { userId: user.id, ...dedupWhere },
       select: { id: true },
     });
-    if (existing) return this.updateContentActivity(existing.id, data);
+    if (existing) return this.updateContentActivity(user.id, existing.id, data);
     try {
-      return await this.prismaService.$transaction(async (tx) => {
-        const created = await tx.pDUActivity.create({
-          data: { userId: user.id, ...data },
-          include: { evidenceFiles: true },
-        });
-        return this.announceActivity(
-          tx,
-          created,
-          LearningActivityChangeKind.CREATED,
-        );
-      });
+      return await this.createActivity(user.id, data);
     } catch (error) {
       if (!isUniqueViolation(error)) throw error;
       this.logger.warn("Recovered a concurrent content-linked PDU activity", {
@@ -445,18 +471,45 @@ export class ProfessionalPduService {
         where: { userId: user.id, ...dedupWhere },
         select: { id: true },
       });
-      return this.updateContentActivity(winner.id, data);
+      return this.updateContentActivity(user.id, winner.id, data);
     }
   }
 
+  private async createActivity(userId: string, data: TActivityWrite) {
+    return this.prismaService.$transaction(async (tx) => {
+      if (data.associationLearningContentId)
+        await this.assertContentLink(tx, userId, {
+          mustExist: true,
+          requirementId: data.associationRequirementId,
+          learningContentId: data.associationLearningContentId,
+        });
+      const created = await tx.pDUActivity.create({
+        data: { userId, ...data },
+        include: { evidenceFiles: true },
+      });
+      return this.announceActivity(
+        tx,
+        created,
+        LearningActivityChangeKind.CREATED,
+      );
+    });
+  }
+
   private async updateContentActivity(
+    userId: string,
     activityId: string,
-    data: Prisma.PDUActivityUncheckedUpdateInput,
+    data: TActivityWrite,
   ) {
     return this.prismaService.$transaction(async (tx) => {
+      if (data.associationLearningContentId)
+        await this.assertContentLink(tx, userId, {
+          mustExist: true,
+          requirementId: data.associationRequirementId,
+          learningContentId: data.associationLearningContentId,
+        });
       const updated = await tx.pDUActivity.update({
         where: { id: activityId },
-        data,
+        data: { ...data, status: PDUStatus.PENDING, reviewNote: null },
         include: { evidenceFiles: { orderBy: { createdAt: "asc" } } },
       });
       return this.announceActivity(
@@ -467,22 +520,59 @@ export class ProfessionalPduService {
     });
   }
 
+  private contentLinkCheckFor(
+    current: {
+      associationRequirementId: string | null;
+      associationLearningContentId: string | null;
+    },
+    input: UpdatePduActivityInput,
+    requirementLink: PduRequirementLink,
+  ): TContentLinkCheck | null {
+    const requirementId =
+      requirementLink.associationRequirementId === undefined
+        ? current.associationRequirementId
+        : requirementLink.associationRequirementId;
+
+    if (input.associationLearningContentId)
+      return {
+        requirementId,
+        mustExist: true,
+        learningContentId: input.associationLearningContentId,
+      };
+
+    const learningContentId =
+      input.associationLearningContentId === undefined
+        ? current.associationLearningContentId
+        : null;
+    const hasRequirementChanged =
+      requirementLink.associationRequirementId !== undefined &&
+      requirementLink.associationRequirementId !==
+        current.associationRequirementId;
+    if (!learningContentId || !hasRequirementChanged) return null;
+
+    return { requirementId, learningContentId, mustExist: false };
+  }
+
   async updatePduActivity(user: TUser, input: UpdatePduActivityInput) {
     this.assertProfessional(user);
     const { activityId, date, ...rest } = input;
     const current = await this.findOwnedActivity(user, activityId);
+    if (date) this.assertNotInFuture(new Date(date));
     if (input.cpdPlanId) await this.assertOwnedPlan(user, input.cpdPlanId);
     if (input.associationRequirementId)
       await this.assertAssignedAssociationRequirement(
         user,
         input.associationRequirementId,
       );
+    const requirementLink = exclusiveRequirementLink(input);
+    const linkCheck = this.contentLinkCheckFor(current, input, requirementLink);
     return this.prismaService.$transaction(async (tx) => {
+      if (linkCheck) await this.assertContentLink(tx, user.id, linkCheck);
       const updated = await tx.pDUActivity.update({
         where: { id: activityId },
         data: {
           ...rest,
-          ...exclusiveRequirementLink(input),
+          ...requirementLink,
           ...(date ? { date: new Date(date) } : {}),
           ...(current.status === PDUStatus.PENDING
             ? {}

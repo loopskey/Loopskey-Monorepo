@@ -965,10 +965,18 @@ export class EventRepository {
   translationStore(): TranslationStore<Prisma.TransactionClient> {
     return {
       transaction: (work) => this.prisma.$transaction((tx) => work(tx)),
+      lockParent: async (tx, eventId) => {
+        await tx.$queryRaw`SELECT 1 FROM "Event" WHERE "id" = ${eventId} FOR UPDATE`;
+      },
       findParent: (tx, eventId) =>
         tx.event.findUnique({
           where: { id: eventId },
-          select: { id: true, providerId: true, deletedAt: true },
+          select: {
+            id: true,
+            providerId: true,
+            deletedAt: true,
+            sourceLanguage: true,
+          },
         }),
       findTranslation: (tx, eventId, locale) =>
         tx.eventTranslation.findUnique({

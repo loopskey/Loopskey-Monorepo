@@ -77,6 +77,7 @@ const draftRow = (overrides: Record<string, unknown> = {}) => ({
   cpdPlanId: null,
   requiredCredits: null,
   completedCredits: null,
+  replacesRoadmapId: null,
   ...overrides,
 });
 
@@ -120,6 +121,16 @@ const buildHarness = (options: {
   generate?: jest.Mock;
   activitySum?: number | null;
   subjectTerms?: { id: string; label: string; group?: { key: string } }[];
+  previousSteps?: {
+    id: string;
+    contentId: string | null;
+    contentType: string | null;
+  }[];
+  createdSteps?: {
+    id: string;
+    contentId: string | null;
+    contentType: string | null;
+  }[];
 }) => {
   const tx = {
     roadmapDraft: {
@@ -132,7 +143,17 @@ const buildHarness = (options: {
   // The roadmap and the enrollment are written through the owning modules'
   // contracts, so the assertions target those rather than Prisma delegates.
   const catalog = {
-    createGeneratedRoadmap: jest.fn().mockResolvedValue({ id: "roadmap-1" }),
+    createGeneratedRoadmap: jest.fn().mockResolvedValue({
+      id: "roadmap-1",
+      steps: options.createdSteps ?? [],
+    }),
+    roadmaps: jest
+      .fn()
+      .mockResolvedValue(
+        options.previousSteps
+          ? [{ id: "roadmap-old", phases: [{ steps: options.previousSteps }] }]
+          : [],
+      ),
   };
   const engagement = {
     createRoadmapEnrollment: jest.fn().mockResolvedValue(undefined),
@@ -479,6 +500,47 @@ describe("ProfessionalRoadmapGenerationService", () => {
         where: { id: "draft-1", status: RoadmapDraftStatus.GENERATING },
         data: { status: RoadmapDraftStatus.COMPLETED, failureReason: null },
       });
+    });
+
+    it("replaces the roadmap an edit started from and carries progress on content that is still present", async () => {
+      const harness = buildHarness({
+        draft: generatingDraft({ replacesRoadmapId: "roadmap-old" }),
+        previousSteps: [
+          { id: "old-1", contentId: "course-1", contentType: "COURSE" },
+          { id: "old-2", contentId: "course-9", contentType: "COURSE" },
+        ],
+        createdSteps: [
+          { id: "new-1", contentId: "course-1", contentType: "COURSE" },
+          { id: "new-2", contentId: "course-3", contentType: "COURSE" },
+        ],
+      });
+
+      await harness.service.runGeneration("draft-1");
+
+      expect(harness.catalog.roadmaps).toHaveBeenCalledWith(["roadmap-old"]);
+      expect(harness.engagement.createRoadmapEnrollment).toHaveBeenCalledWith(
+        expect.objectContaining({
+          draftId: "draft-1",
+          roadmapId: "roadmap-1",
+          replaces: {
+            roadmapId: "roadmap-old",
+            stepCount: 2,
+            carriedSteps: [{ fromStepId: "old-1", toStepId: "new-1" }],
+          },
+        }),
+        expect.anything(),
+      );
+    });
+
+    it("replaces nothing and reads no earlier roadmap for a plain draft", async () => {
+      const harness = buildHarness({ draft: generatingDraft() });
+
+      await harness.service.runGeneration("draft-1");
+
+      expect(harness.catalog.roadmaps).not.toHaveBeenCalled();
+      expect(
+        harness.engagement.createRoadmapEnrollment.mock.calls[0][0].replaces,
+      ).toBeUndefined();
     });
 
     it("adds the enrollment without unenrolling the user's other roadmaps", async () => {

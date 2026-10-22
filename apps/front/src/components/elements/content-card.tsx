@@ -73,6 +73,7 @@ const ContentCard = ({
         kind={item.kind}
         title={item.title}
         imageUrl={item.imageUrl}
+        category={item.categoryKey}
         sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, (max-width: 1280px) 33vw, 25vw"
         className="-z-30 transition-transform duration-500 group-hover:scale-105 motion-reduce:transition-none"
       />
@@ -188,10 +189,7 @@ const ContentCard = ({
           </span>
         </Link>
       ) : (
-        <span
-          aria-disabled
-          className={cn(CTA_CLASS_NAME, "bg-white/15 text-white/60")}
-        >
+        <span className={cn(CTA_CLASS_NAME, "bg-white/15 text-white/75")}>
           {t("content.card.viewDetails")}
         </span>
       )}

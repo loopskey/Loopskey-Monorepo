@@ -20,6 +20,7 @@ export const RoadmapGenerationStatus = ({
   t,
   goal,
   status,
+  isEdit,
   failure,
   draftId,
   onRetry,
@@ -66,6 +67,12 @@ export const RoadmapGenerationStatus = ({
               : t(`${key}.genericFailure.description`)}
           </p>
 
+          {isEdit ? (
+            <p className="mt-2 max-w-md text-sm font-medium leading-6">
+              {t(`${key}.edit.unchanged`)}
+            </p>
+          ) : null}
+
           <div className="mt-6 flex flex-wrap justify-center gap-3">
             {isNoContent ? (
               <Button asChild radius="xl">
@@ -107,7 +114,9 @@ export const RoadmapGenerationStatus = ({
         </div>
 
         <h2 className="mt-4 text-xl font-medium">
-          {t(`${key}.generating.title`)}
+          {t(
+            isEdit ? `${key}.edit.generatingTitle` : `${key}.generating.title`,
+          )}
         </h2>
 
         {goal ? (
@@ -123,7 +132,7 @@ export const RoadmapGenerationStatus = ({
         </p>
 
         <p className="mt-4 text-xs text-muted-foreground">
-          {t(`${key}.generating.step`)}
+          {t(isEdit ? `${key}.edit.generatingStep` : `${key}.generating.step`)}
         </p>
       </div>
     </GlassCard>

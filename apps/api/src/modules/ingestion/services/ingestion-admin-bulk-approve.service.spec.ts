@@ -15,8 +15,10 @@ describe("IngestionAdminService.approveItems", () => {
   const podcastUpdateMany = jest.fn();
   const youTubeUpdateMany = jest.fn();
   const appendMany = jest.fn();
+  const auditCreateMany = jest.fn();
 
   const tx = {
+    auditLog: { createMany: auditCreateMany },
     $queryRaw: txQueryRaw,
     course: { updateMany: courseUpdateMany },
     event: { updateMany: eventUpdateMany },
@@ -91,6 +93,17 @@ describe("IngestionAdminService.approveItems", () => {
         catalogId: "catalog-item-1",
       },
     });
+    expect(auditCreateMany).toHaveBeenCalledTimes(1);
+    expect(auditCreateMany.mock.calls[0][0].data).toEqual(
+      ["item-1", "item-2", "item-3"].map((id) =>
+        expect.objectContaining({
+          actorId: "admin-1",
+          action: "INGESTION_ITEM_APPROVED",
+          entityType: "IngestionItem",
+          entityId: id,
+        }),
+      ),
+    );
   });
 
   it("reports how many items were approved and how many are still waiting", async () => {
@@ -113,7 +126,29 @@ describe("IngestionAdminService.approveItems", () => {
 
     expect(courseUpdateMany).not.toHaveBeenCalled();
     expect(appendMany).not.toHaveBeenCalled();
+    expect(auditCreateMany).not.toHaveBeenCalled();
   });
+
+  it.each([
+    ["the queue", {}],
+    ["a selection", { itemIds: ["item-1"] }],
+  ])(
+    "never bulk approves an item held for review from %s",
+    async (_, input) => {
+      await service.approveItems("admin-1", input);
+
+      const { sql, values } = claimSql();
+      expect(sql).toContain('NOT c."reviewReasons" && ARRAY[');
+      expect(values).toEqual(
+        expect.arrayContaining([
+          "PLACEHOLDER_CONTENT",
+          "PLACEHOLDER_URL",
+          "PREVIOUSLY_REJECTED",
+        ]),
+      );
+      expect(values).not.toContain("MISSING_DESCRIPTION");
+    },
+  );
 
   it("claims only pending items that have a catalogue row, in bounded chunks, skipping rows another admin holds", async () => {
     await service.approveItems("admin-1", {});

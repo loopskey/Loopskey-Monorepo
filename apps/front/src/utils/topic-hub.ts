@@ -1,27 +1,14 @@
 import { ContentUrlMessageCode } from "@loopskey/api-contracts/error-codes";
 import { TopicHubMessageCode } from "@loopskey/api-contracts/error-codes";
 import { TOPIC_HUB_LIMITS } from "@loopskey/api-contracts/validation";
-import { ContentUrlKind } from "@/lib/graphql/base";
+import { ContentUrlKind, CourseCategory } from "@/lib/graphql/base";
 
 import type { AdminTopicHubFieldsFragment } from "@/lib/graphql/operations/topic-hub";
 import type { ContentKind } from "@/lib/content-catalog/detail-path";
 
 export const HUB_LIMITS = TOPIC_HUB_LIMITS;
 
-export const HUB_CATEGORIES = [
-  "CPD",
-  "OTHER",
-  "DESIGN",
-  "FINANCE",
-  "BUSINESS",
-  "EDUCATION",
-  "MARKETING",
-  "TECHNOLOGY",
-  "LEADERSHIP",
-  "COMPLIANCE",
-  "HEALTHCARE",
-  "ENGINEERING",
-] as const;
+export const HUB_CATEGORIES = Object.values(CourseCategory);
 
 export const REFERENCE_KINDS = [
   ContentUrlKind.Course,

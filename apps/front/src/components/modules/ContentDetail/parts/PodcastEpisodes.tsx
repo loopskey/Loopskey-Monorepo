@@ -28,7 +28,7 @@ const PodcastEpisodes = ({ episodes }: TPodcastEpisodesProps) => {
               <p className="text-xs font-semibold text-primary">
                 {t("contentDetails.episodes.episode")} {episode.episodeNumber}
               </p>
-              <h4 className="mt-0.5 font-medium">{episode.title}</h4>
+              <h3 className="mt-0.5 font-medium">{episode.title}</h3>
 
               {episode.description && (
                 <p className="mt-1 line-clamp-2 text-sm text-muted-foreground">

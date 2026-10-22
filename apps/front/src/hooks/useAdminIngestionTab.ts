@@ -329,6 +329,7 @@ export const useAdminIngestionTab = () => {
     IngestionItemState.Pending,
   );
   const [reviewSearch, setReviewSearchState] = useState("");
+  const [reviewHeld, setReviewHeldState] = useState(false);
   const [reviewCursorStack, setReviewCursorStack] = useState<string[]>([]);
   const debouncedReviewSearch = useDebouncedValue(
     reviewSearch.trim(),
@@ -340,6 +341,7 @@ export const useAdminIngestionTab = () => {
       filter: {
         sourceId: reviewSourceId === ALL ? undefined : reviewSourceId,
         state: reviewState,
+        heldForReview: reviewHeld || undefined,
         search:
           debouncedReviewSearch.length >= SEARCH_MIN_LENGTH
             ? debouncedReviewSearch
@@ -347,7 +349,13 @@ export const useAdminIngestionTab = () => {
       },
       pagination: { take: PAGE_SIZE, cursor: reviewCursorStack.at(-1) },
     }),
-    [reviewSourceId, reviewState, debouncedReviewSearch, reviewCursorStack],
+    [
+      reviewSourceId,
+      reviewState,
+      reviewHeld,
+      debouncedReviewSearch,
+      reviewCursorStack,
+    ],
   );
 
   const reviewQuery = API.useIngestionItemsQuery(reviewVariables);
@@ -381,6 +389,10 @@ export const useAdminIngestionTab = () => {
   };
   const setReviewSearch = (value: string) => {
     setReviewSearchState(value);
+    resetReviewPagination();
+  };
+  const setReviewHeld = (value: boolean) => {
+    setReviewHeldState(value);
     resetReviewPagination();
   };
   const reviewNextPage = () => {
@@ -593,6 +605,8 @@ export const useAdminIngestionTab = () => {
     setReviewState,
     reviewSearch,
     setReviewSearch,
+    reviewHeld,
+    setReviewHeld,
     reviewNextPage,
     reviewPreviousPage,
     reviewPage: reviewCursorStack.length + 1,

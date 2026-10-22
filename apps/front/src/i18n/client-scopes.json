@@ -1,0 +1,48 @@
+{
+  "shell": [
+    "authPages.common.genericError",
+    "common",
+    "contentDetails.common.retry",
+    "contentDetails.common.unavailableDescription",
+    "contentDetails.common.unavailableTitle",
+    "contentDetails.common.variantMissing",
+    "contentDetails.common.viewOriginal",
+    "footer.links.associations",
+    "footer.links.organizations",
+    "footer.links.professionals",
+    "footer.links.solutionContentProviders",
+    "footer.scrollToTop",
+    "navigation",
+    "notFound",
+    "userMenu"
+  ],
+  "landing": [
+    "content",
+    "landing",
+    "providerDashboard.promotions.statuses",
+    "providerDashboard.promotions.types"
+  ],
+  "catalog": [
+    "content",
+    "providerDashboard.promotions.statuses",
+    "providerDashboard.promotions.types"
+  ],
+  "detail": [
+    "content",
+    "contentDetails",
+    "providerDashboard.createEvent.enums.deliveryMode",
+    "providerDashboard.promotions.statuses",
+    "providerDashboard.promotions.types"
+  ],
+  "editorial": ["content.card"],
+  "about": ["aboutPage"],
+  "contact": ["contactPage"],
+  "faq": [
+    "faqPage",
+    "providerDashboard.promotions.statuses",
+    "providerDashboard.promotions.types"
+  ],
+  "privacy": ["privacyPage"],
+  "services": ["servicesPage"],
+  "terms": ["termsPage"]
+}

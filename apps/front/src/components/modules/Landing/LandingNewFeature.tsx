@@ -1,16 +1,16 @@
-"use client";
-
 import { ArrowRight, Map, Milestone, Route, UsersRound } from "lucide-react";
 import { ROADMAP_TAB_HREF } from "@/utils/roadmap-navigation.util";
+import { loadTranslator } from "@/i18n/dictionaries";
 import { RevealOnScroll } from "@elements/reveal-scroll";
 import { GlassCard } from "@elements/glass-card";
-import { useI18n } from "@/hooks/useI18n";
 import { Button } from "@ui/button";
 
 import Link from "@elements/localized-link";
 
-const LandingNewFeature = () => {
-  const { t } = useI18n();
+import type { PublicLocale } from "@/lib/i18n/locale";
+
+const LandingNewFeature = async ({ locale }: { locale: PublicLocale }) => {
+  const { t } = await loadTranslator(locale);
 
   const cards = [
     {

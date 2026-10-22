@@ -7,8 +7,11 @@ import { TelemetryRating } from "@telemetry/enums/telemetry-register.enum";
 import { requestContext } from "@infrastructure/observability/request-context";
 import { bucketIndexOf } from "@telemetry/utils/telemetry-metric.util";
 import { ConfigService } from "@nestjs/config";
+import { isSampledOut } from "@telemetry/utils/telemetry-sampling.util";
+import { sampleRateOf } from "@telemetry/utils/telemetry-sampling.util";
 import { createHash } from "crypto";
 import { ratingOf } from "@telemetry/utils/telemetry-metric.util";
+import { SinkGate } from "@telemetry/utils/telemetry-sink-gate.util";
 import { utcDay } from "@telemetry/utils/telemetry-day.util";
 
 import type { ConversionDimensions } from "@telemetry/services/telemetry-aggregate.repository";
@@ -25,6 +28,9 @@ export type TelemetryAcknowledgement = {
 
 const UNKNOWN_CLIENT = "unknown";
 const SLOW_SINK_MS = 750;
+const SHED_LOG_INTERVAL_MS = 30_000;
+
+const SINK_LIMITS = { concurrency: 2, queueLength: 100, waitMs: 1500 };
 
 const IP_POLICY = {
   scope: "public.telemetry:ip",
@@ -43,9 +49,6 @@ const GLOBAL_SUBJECT = "all";
 const dedupKeyOf = (kind: P.TelemetryIntakeKind, id: string) =>
   createHash("sha256").update(`${kind}:${id}`).digest("hex").slice(0, 32);
 
-const clampRate = (value: number) =>
-  Number.isFinite(value) ? Math.min(1, Math.max(0, value)) : 1;
-
 const firstOccurrences = <TEvent extends { id: string }>(events: TEvent[]) => {
   const seen = new Set<string>();
   const unique: TEvent[] = [];
@@ -60,6 +63,8 @@ const firstOccurrences = <TEvent extends { id: string }>(events: TEvent[]) => {
 @Injectable()
 export class TelemetryIntakeService {
   private readonly logger = new Logger(TelemetryIntakeService.name);
+  private readonly sinkGate = new SinkGate(SINK_LIMITS);
+  private lastShedLogAt = 0;
 
   constructor(
     private readonly repository: TelemetryAggregateRepository,
@@ -107,14 +112,18 @@ export class TelemetryIntakeService {
 
     const startedAt = performance.now();
     try {
-      const outcome = await this.repository.record({
-        day,
-        countsIntake: true,
-        vitals: uniqueVitals.map((vital) => this.vitalEvent(vital)),
-        conversions: uniqueConversions.map((event) =>
-          this.conversionEvent(event),
-        ),
-      });
+      const gated = await this.sinkGate.run(() =>
+        this.repository.record({
+          day,
+          countsIntake: true,
+          vitals: uniqueVitals.map((vital) => this.vitalEvent(vital)),
+          conversions: uniqueConversions.map((event) =>
+            this.conversionEvent(event),
+          ),
+        }),
+      );
+      if (gated.shed) return await this.shed(day, batch, received);
+      const outcome = gated.value;
       await this.countBestEffort(day, [
         [
           P.TelemetryIntakeKind.VITAL,
@@ -151,6 +160,27 @@ export class TelemetryIntakeService {
     }
   }
 
+  private async shed(
+    day: Date,
+    batch: TelemetryBatchInput,
+    received: number,
+  ): Promise<TelemetryAcknowledgement> {
+    this.warnWhenShedding();
+    await this.countDropped(day, batch, P.TelemetryIntakeOutcome.SINK_FAILED);
+    return { accepted: 0, dropped: received };
+  }
+
+  private warnWhenShedding() {
+    const now = Date.now();
+    if (now - this.lastShedLogAt < SHED_LOG_INTERVAL_MS) return;
+    this.lastShedLogAt = now;
+    this.logger.warn("Telemetry sink is saturated, dropping batches", {
+      correlationId: requestContext.correlationId(),
+      inFlight: this.sinkGate.inFlight,
+      queued: this.sinkGate.queued,
+    });
+  }
+
   private async spendAllowance(clientAddress?: string) {
     try {
       return await this.rateLimits.spendAll([
@@ -168,10 +198,10 @@ export class TelemetryIntakeService {
 
   private sampleVitals(vitals: TelemetryBatchInput["vitals"]) {
     if (vitals.length === 0) return vitals;
-    const rate = clampRate(
-      Number(this.config.get<string>("TELEMETRY_VITALS_SAMPLE_RATE", "1")),
+    const rate = sampleRateOf(
+      this.config.get<string>("TELEMETRY_VITALS_SAMPLE_RATE"),
     );
-    return rate >= 1 || Math.random() < rate ? vitals : [];
+    return isSampledOut(rate, Math.random()) ? [] : vitals;
   }
 
   private isSane(vital: TelemetryBatchInput["vitals"][number]) {

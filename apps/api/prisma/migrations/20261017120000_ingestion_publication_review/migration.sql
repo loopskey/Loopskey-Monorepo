@@ -1,0 +1,9 @@
+-- CreateEnum
+CREATE TYPE "IngestionReviewReason" AS ENUM ('PLACEHOLDER_CONTENT', 'PLACEHOLDER_URL', 'PREVIOUSLY_REJECTED', 'MISSING_DESCRIPTION');
+
+-- AlterEnum
+ALTER TYPE "AuditAction" ADD VALUE 'INGESTION_ITEM_APPROVED';
+ALTER TYPE "AuditAction" ADD VALUE 'INGESTION_ITEM_REJECTED';
+
+-- AlterTable
+ALTER TABLE "IngestionItem" ADD COLUMN "reviewReasons" "IngestionReviewReason"[] NOT NULL DEFAULT ARRAY[]::"IngestionReviewReason"[];

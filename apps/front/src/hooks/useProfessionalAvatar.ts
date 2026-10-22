@@ -2,7 +2,7 @@
 
 import { ProfessionalMessageCode } from "@loopskey/api-contracts/error-codes";
 import { useCallback, useState } from "react";
-import { refreshAccessToken } from "@/lib/rtk/graphqlBaseQuery";
+import { refreshAccessToken } from "@/lib/graphql/request";
 import { professionalApi } from "@/lib/rtk/endpoints/professional.api";
 import { useDispatch } from "react-redux";
 import { useI18n } from "@/hooks/useI18n";
@@ -176,9 +176,9 @@ export const useProfessionalAvatar = () => {
     progress,
     isRemoving,
     isUploading,
+    retryUpload,
     uploadAvatar,
     removeAvatar,
-    retryUpload,
     canRetry: Boolean(pendingFile) && !isUploading,
   };
 };

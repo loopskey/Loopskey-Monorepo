@@ -3,6 +3,7 @@
 import { useProfessionalContentCompletionQuery } from "@/lib/rtk/endpoints/professional.api";
 import { AssignedContentDetailDialog } from "@modules/ProfessionalDashboard/parts/assigned-content-detail-dialog";
 import { activityTypeForContentType } from "@/utils/professional-requirement.helper";
+import { ContentCompletionStatus } from "@modules/ProfessionalDashboard/parts/content-completion-status";
 import { MarkAsCompletedDialog } from "@modules/ContentDetail/parts/MarkAsCompletedDialog";
 import { getContentTypeStyle } from "@/utils/content-type-style";
 import { contentDetailHref } from "@/utils/professional-requirement.helper";
@@ -15,6 +16,7 @@ import { Badge } from "@ui/badge";
 import type { TRequirementLearningContentProps } from "@/types/professional-requirement.types";
 import type { TAssociationRequirementContent } from "@/types/professional-requirement.types";
 import type { I18nContextValue } from "@/types/providers.types";
+import type { TContentRow } from "@/types/professional-requirement.types";
 
 import Link from "next/link";
 
@@ -85,18 +87,11 @@ const ViewAction = ({
 const ContentRow = ({
   t,
   content,
+  onViewExternal,
+  onMarkComplete,
   associationName,
   requirementKeyValue,
-  onMarkComplete,
-  onViewExternal,
-}: {
-  t: I18nContextValue["t"];
-  content: TAssociationRequirementContent;
-  requirementKeyValue: string;
-  associationName: string | null;
-  onMarkComplete: (content: TAssociationRequirementContent) => void;
-  onViewExternal: (content: TAssociationRequirementContent) => void;
-}) => {
+}: TContentRow) => {
   const style = getContentTypeStyle(content.contentType);
   const TypeIcon = style.icon;
 
@@ -119,17 +114,13 @@ const ContentRow = ({
             <p className="truncate text-sm font-medium" title={content.title}>
               {content.title || "—"}
             </p>
-            {content.isCompleted ? (
-              <Badge className="border-transparent bg-success-soft px-1.5 py-0 text-[10px] text-success-soft-foreground">
-                {t(`${KEY}.completed`)}
-              </Badge>
-            ) : null}
             {content.isAvailable ? null : (
               <Badge variant="secondary" className="px-1.5 py-0 text-[10px]">
                 {t(`${KEY}.unavailable`)}
               </Badge>
             )}
           </div>
+          <ContentCompletionStatus content={content} />
           {linkLabel ? (
             <p className="truncate text-xs text-primary">{linkLabel}</p>
           ) : null}
@@ -207,10 +198,10 @@ export const RequirementLearningContent = ({
                 t={t}
                 key={content.id}
                 content={content}
-                associationName={associationName}
-                requirementKeyValue={requirementKeyValue}
                 onMarkComplete={setCompleting}
+                associationName={associationName}
                 onViewExternal={setViewingExternal}
+                requirementKeyValue={requirementKeyValue}
               />
             ))}
           </ul>

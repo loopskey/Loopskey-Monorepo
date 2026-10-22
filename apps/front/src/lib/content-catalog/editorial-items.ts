@@ -61,6 +61,7 @@ export const toEditorialCardItems = (
         category: item.category
           ? categoryLabel(dictionary, kind, item.category)
           : null,
+        categoryKey: item.category ?? null,
       },
     ];
   });

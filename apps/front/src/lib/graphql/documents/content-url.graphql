@@ -19,6 +19,12 @@ mutation ChangeContentSlug($input: ChangeContentSlugInput!) {
   }
 }
 
+mutation AttachRetiredContentSlug($input: AttachRetiredContentSlugInput!) {
+  attachRetiredContentSlug(input: $input) {
+    ...ContentUrlSettingsFields
+  }
+}
+
 # ================ Public ==============
 query ResolveContentUrl($kind: ContentUrlKind!, $slug: String!) {
   resolveContentUrl(kind: $kind, slug: $slug) {

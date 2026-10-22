@@ -1,16 +1,17 @@
 export enum TelemetryGqlObjectNames {
   ACK = "TelemetryAck",
   REPORT = "SearchHealthReport",
+  INTAKE_ROW = "SearchHealthIntakeRow",
+  COLLECTION = "SearchHealthCollection",
   VITAL_SEGMENT = "SearchHealthVitalSegment",
   CONVERSION_ROW = "SearchHealthConversionRow",
-  INTAKE_ROW = "SearchHealthIntakeRow",
 }
 
 export enum TelemetryGqlInputNames {
   BATCH = "TelemetryBatchInput",
   VITAL = "TelemetryVitalInput",
-  CONVERSION = "TelemetryConversionInput",
   REPORT = "SearchHealthReportInput",
+  CONVERSION = "TelemetryConversionInput",
 }
 
 export enum TelemetryGqlQueryNames {
@@ -24,15 +25,16 @@ export enum TelemetryGqlMutationNames {
 export enum TelemetryGqlEnumNames {
   METRIC = "TelemetryMetric",
   DEVICE = "TelemetryDevice",
-  ROUTE_TEMPLATE = "TelemetryRouteTemplate",
   LOCALE = "TelemetryLocale",
-  CONVERSION_EVENT = "TelemetryConversionEvent",
-  CONTENT_KIND = "TelemetryContentKind",
-  REGISTRATION_ROLE = "TelemetryRegistrationRole",
-  ATTRIBUTION = "TelemetryAttribution",
+  RATING = "TelemetryRating",
+  NOTICE = "SearchHealthNotice",
   INTAKE_KIND = "TelemetryIntakeKind",
+  ATTRIBUTION = "TelemetryAttribution",
+  CONTENT_KIND = "TelemetryContentKind",
+  VITAL_STATUS = "SearchHealthVitalStatus",
+  ROUTE_TEMPLATE = "TelemetryRouteTemplate",
   INTAKE_OUTCOME = "TelemetryIntakeOutcome",
   NAVIGATION_TYPE = "TelemetryNavigationType",
-  RATING = "TelemetryRating",
-  VITAL_STATUS = "SearchHealthVitalStatus",
+  CONVERSION_EVENT = "TelemetryConversionEvent",
+  REGISTRATION_ROLE = "TelemetryRegistrationRole",
 }

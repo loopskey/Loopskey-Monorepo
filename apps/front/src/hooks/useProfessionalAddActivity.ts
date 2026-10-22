@@ -6,13 +6,16 @@ import { CreditType, PduCategory, PduSource } from "@/lib/graphql/base";
 import { useRouter, useSearchParams } from "next/navigation";
 import { usePduEvidenceUpload } from "@/hooks/usePduEvidenceUpload";
 import { PduCompletionStatus } from "@/lib/graphql/base";
+import { pduActivityErrorKey } from "@/utils/pdu-activity-error.util";
+import { getAuthErrorCode } from "@/utils/graphql-error.util";
+import { reportingYearOf } from "@/utils/completion-date.util";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { useI18n } from "@/hooks/useI18n";
 import { notify } from "@/hooks/notify";
 
-import * as API from "@/lib/rtk/endpoints/professional.api";
 import * as CpdAPI from "@/lib/rtk/endpoints/cpd-plan.api";
+import * as API from "@/lib/rtk/endpoints/professional.api";
 import * as SC from "@/lib/validations/pdu-activity.schema";
 import * as C from "@/utils/pdu.constant";
 import * as R from "@/utils/professional-requirement.helper";
@@ -245,7 +248,7 @@ export const useProfessionalAddActivity = () => {
 
   useEffect(() => {
     if (reportingYearTouched.current || !dateCompleted) return;
-    const derived = new Date(dateCompleted).getFullYear();
+    const derived = reportingYearOf(dateCompleted);
     if (Number.isFinite(derived)) form.setValue("reportingYear", derived);
   }, [dateCompleted, form]);
 
@@ -382,9 +385,9 @@ export const useProfessionalAddActivity = () => {
         return;
       }
       await runUpload(targetId);
-    } catch {
+    } catch (error: unknown) {
       setStage("idle");
-      notify.error(t("authPages.common.genericError"));
+      notify.error(t(pduActivityErrorKey(getAuthErrorCode(error))));
     }
   });
 

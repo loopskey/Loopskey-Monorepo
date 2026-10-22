@@ -1,28 +1,39 @@
 "use client";
 
-import { getAuthHrefForSolutionHref, solutionEntries } from "@utils/constant";
-import { getSolutionHrefForRole, siteLinks } from "@utils/constant";
-import { HEADER_CONTAINER_CLASS_NAME } from "@utils/constant";
-import { LanguageToggleBtn } from "@elements/language-switcher";
+import { getSolutionHrefForRole, siteLinks } from "@/utils/site-navigation";
+import { HEADER_CONTAINER_CLASS_NAME } from "@/utils/site-navigation";
+import { getAuthHrefForSolutionHref } from "@/utils/site-navigation";
 import { RoleMenuSection } from "@layouts/parts/role-menu-section";
+import { solutionEntries } from "@/utils/site-navigation";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
 import { useActiveRole } from "@/providers/active-role-provider";
 import { RoleStrip } from "@layouts/parts/role-strip";
 import { useHeader } from "@hooks/useHeader";
-import { UserMenu } from "@layouts/parts/user-menu";
 import { Menu, X } from "lucide-react";
 import { Button } from "@ui/button";
 import { Logo } from "@layouts/parts/logo";
 import { cn } from "@lib/utils";
 
+import type { ReactNode } from "react";
+
+import dynamic from "next/dynamic";
 import Link from "@elements/localized-link";
+
+const PublicUserMenu = dynamic(() => import("@layouts/parts/public-user-menu"));
 
 const MOBILE_NAV_STAGGER_MS = 50;
 
-const Header = () => {
+type THeaderProps = {
+  languageControl: ReactNode;
+};
+
+const MOBILE_NAV_ID = "header-mobile-navigation";
+
+const Header = ({ languageControl }: THeaderProps) => {
   const {
     t,
     navItems,
+    menuToggle,
     isScrolled,
     showRoleStrip,
     isMobileOpen,
@@ -31,6 +42,7 @@ const Header = () => {
     isActiveNavItem,
     closeMobileMenu,
     toggleMobileMenu,
+    dismissMobileMenu,
   } = useHeader();
   const { activeRoleHref } = useActiveRole();
   const activeRole = solutionEntries.find(
@@ -66,8 +78,11 @@ const Header = () => {
       {showRoleStrip && <RoleStrip lockedHref={authenticatedRoleHref} />}
 
       <div className={HEADER_CONTAINER_CLASS_NAME}>
-        <Logo />
-        <nav className="hidden items-center gap-1 lg:flex">
+        <Logo label={t("navigation.homeLink")} />
+        <nav
+          aria-label={t("navigation.primary")}
+          className="hidden items-center gap-1 lg:flex"
+        >
           {navItems.map((item) => {
             const isActive = isActiveNavItem(item.href);
             return (
@@ -90,9 +105,9 @@ const Header = () => {
         </nav>
 
         <div className="hidden items-center gap-2 lg:flex">
-          <LanguageToggleBtn />
+          {languageControl}
           {isAuthenticated ? (
-            <UserMenu />
+            <PublicUserMenu />
           ) : (
             <Button asChild size="lg" radius="full">
               <Link href={joinHref}>{joinLabel}</Link>
@@ -101,12 +116,15 @@ const Header = () => {
         </div>
 
         <div className="flex items-center gap-2 lg:hidden">
-          <LanguageToggleBtn />
+          {languageControl}
           <Button
             size="icon"
             type="button"
             radius="full"
             variant="outline"
+            ref={menuToggle}
+            aria-expanded={isMobileOpen}
+            aria-controls={MOBILE_NAV_ID}
             aria-label={
               isMobileOpen
                 ? t("navigation.closeMenu")
@@ -138,7 +156,7 @@ const Header = () => {
             "fixed inset-0 top-16 z-40 bg-foreground/20 transition-opacity duration-300",
             isMobileOpen ? "opacity-100" : "opacity-0",
           )}
-          onClick={closeMobileMenu}
+          onClick={dismissMobileMenu}
         />
 
         <div
@@ -149,7 +167,11 @@ const Header = () => {
               : "-translate-y-3 scale-95 opacity-0",
           )}
         >
-          <nav className="flex flex-col gap-2">
+          <nav
+            id={MOBILE_NAV_ID}
+            aria-label={t("navigation.primary")}
+            className="flex flex-col gap-2"
+          >
             {navItems.map((item, index) => {
               const isActive = isActiveNavItem(item.href);
               return (
@@ -203,7 +225,7 @@ const Header = () => {
               )}
             >
               {isAuthenticated ? (
-                <UserMenu variant="inline" onNavigate={closeMobileMenu} />
+                <PublicUserMenu variant="inline" onNavigate={closeMobileMenu} />
               ) : (
                 <Button
                   asChild

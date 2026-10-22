@@ -1,5 +1,6 @@
 import { CourseStatus, IngestionContentKind } from "@prisma/client";
 import { IngestionItemState, Role, UserStatus } from "@prisma/client";
+import { AuditAction, IngestionReviewReason } from "@prisma/client";
 import { INestApplication } from "@nestjs/common";
 import { PrismaService } from "@prisma/prisma.service";
 
@@ -75,13 +76,15 @@ describe("Ingestion review (concurrency e2e)", () => {
     });
   };
 
-  const createSource = async (): Promise<TIngestionSourceContext> => {
+  const createSource = async (
+    autoPublish = false,
+  ): Promise<TIngestionSourceContext> => {
     const source = await prisma.ingestionSource.create({
       data: {
         slug: `${SLUG_PREFIX}-${unique()}`,
         name: "Review queue source",
         kind: IngestionContentKind.COURSE,
-        autoPublish: false,
+        autoPublish,
         fieldMap: FIELD_MAP,
       },
     });
@@ -274,6 +277,138 @@ describe("Ingestion review (concurrency e2e)", () => {
     });
     expect(backInQueue.state).toBe(IngestionItemState.PENDING);
     expect(backInQueue.rejectionReason).toBeNull();
+  }, 120000);
+
+  const itemFor = (sourceId: string, externalId: string) =>
+    prisma.ingestionItem.findUniqueOrThrow({
+      where: { sourceId_externalId: { sourceId, externalId } },
+    });
+
+  const statusOf = async (catalogId: string | null) =>
+    (await prisma.course.findUniqueOrThrow({ where: { id: catalogId! } }))
+      .status;
+
+  it("holds placeholder probes from an auto-publishing source and publishes legitimate courses with ambiguous words or other languages", async () => {
+    const source = await createSource(true);
+    const probes = [
+      rawItem({ title: "probe", description: "connectivity probe" }),
+      rawItem({
+        title: "probe via tunnel",
+        description: "tunnel connectivity probe",
+      }),
+    ];
+    const genuine = [
+      rawItem({
+        title: "Software Testing Fundamentals",
+        description:
+          "Learn how to plan, design and automate tests for modern software.",
+      }),
+      rawItem({
+        title: "Gestion de projet agile",
+        description:
+          "Une introduction complète à la gestion de projet agile en équipe.",
+      }),
+    ];
+
+    for (const item of [...probes, ...genuine]) await submitOne(source, item);
+
+    for (const probe of probes) {
+      const item = await itemFor(source.sourceId, probe.external_course_id);
+      expect(item.state).toBe(IngestionItemState.PENDING);
+      expect(item.reviewReasons).toContain(
+        IngestionReviewReason.PLACEHOLDER_CONTENT,
+      );
+      expect(await statusOf(item.catalogId)).toBe(CourseStatus.DRAFT);
+    }
+    for (const course of genuine) {
+      const item = await itemFor(source.sourceId, course.external_course_id);
+      expect(item.state).toBe(IngestionItemState.ACCEPTED);
+      expect(item.reviewReasons).toEqual([]);
+      expect(await statusOf(item.catalogId)).toBe(CourseStatus.PUBLISHED);
+    }
+
+    const bulk = await admin.approveItems(adminUserId, {
+      sourceId: source.sourceId,
+    });
+    expect(bulk.approvedCount).toBe(0);
+    for (const probe of probes)
+      expect(
+        (await itemFor(source.sourceId, probe.external_course_id)).state,
+      ).toBe(IngestionItemState.PENDING);
+  }, 120000);
+
+  it("withdraws a published record idempotently with an audit trail, and keeps it withdrawn when the source re-sends changed content", async () => {
+    const source = await createSource(true);
+    const live = rawItem({
+      title: "Applied Statistics",
+      description: "A practical course on applied statistics for analysts.",
+    });
+    await submitOne(source, live);
+    const published = await itemFor(source.sourceId, live.external_course_id);
+    expect(await statusOf(published.catalogId)).toBe(CourseStatus.PUBLISHED);
+
+    const reason = "Connectivity probe published by mistake.";
+    const results = await runTogether(2, () =>
+      admin.rejectItem(adminUserId, published.id, reason),
+    );
+    expect(fulfilled(results)).toHaveLength(2);
+    expect(await statusOf(published.catalogId)).toBe(CourseStatus.DRAFT);
+    const audits = await prisma.auditLog.findMany({
+      where: {
+        entityType: "IngestionItem",
+        entityId: published.id,
+        action: AuditAction.INGESTION_ITEM_REJECTED,
+      },
+    });
+    expect(audits.length).toBeGreaterThanOrEqual(1);
+    expect(audits[0].actorId).toBe(adminUserId);
+
+    await submitOne(source, { ...live, description: `${live.description} v2` });
+    const resent = await itemFor(source.sourceId, live.external_course_id);
+    expect(resent.state).toBe(IngestionItemState.PENDING);
+    expect(resent.reviewReasons).toContain(
+      IngestionReviewReason.PREVIOUSLY_REJECTED,
+    );
+    expect(await statusOf(resent.catalogId)).toBe(CourseStatus.DRAFT);
+
+    const bulk = await admin.approveItems(adminUserId, {
+      itemIds: [resent.id],
+    });
+    expect(bulk.approvedCount).toBe(0);
+
+    await admin.approveItem(adminUserId, resent.id);
+    expect(await statusOf(resent.catalogId)).toBe(CourseStatus.PUBLISHED);
+    expect(
+      await prisma.auditLog.count({
+        where: {
+          entityId: resent.id,
+          action: AuditAction.INGESTION_ITEM_APPROVED,
+        },
+      }),
+    ).toBe(1);
+  }, 120000);
+
+  it("lets only one of a concurrent approval and withdrawal win, leaving item and catalogue in agreement", async () => {
+    const source = await createSource();
+    const raw = rawItem();
+    await submitOne(source, raw);
+    const pending = await itemFor(source.sourceId, raw.external_course_id);
+
+    const results = await runTogether(2, (index) =>
+      index === 0
+        ? admin.approveItem(adminUserId, pending.id)
+        : admin.rejectItem(adminUserId, pending.id, "Withdrawn during review."),
+    );
+
+    expect(fulfilled(results)).toHaveLength(1);
+    const after = await itemFor(source.sourceId, raw.external_course_id);
+    const status = await statusOf(after.catalogId);
+    if (after.state === IngestionItemState.ACCEPTED)
+      expect(status).toBe(CourseStatus.PUBLISHED);
+    else {
+      expect(after.state).toBe(IngestionItemState.REJECTED);
+      expect(status).toBe(CourseStatus.DRAFT);
+    }
   }, 120000);
 
   it("never lets the key secret or its hash reach an admin response", async () => {

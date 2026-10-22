@@ -41,7 +41,7 @@ const TopicHubUrl = ({
     slug: hub.slug,
     isEnabled: isOpen,
   });
-  return <ContentUrlSection contentId={hub.id} editor={editor} />;
+  return <ContentUrlSection kind="topic" contentId={hub.id} editor={editor} />;
 };
 
 const TopicHubEditorDialog = ({

@@ -39,7 +39,7 @@ const YouTubeVideos = ({ videos }: TYouTubeVideosProps) => {
             </div>
 
             <div className="p-4">
-              <h4 className="line-clamp-2 font-medium">{video.title}</h4>
+              <h3 className="line-clamp-2 font-medium">{video.title}</h3>
 
               {video.description && (
                 <p className="mt-1.5 line-clamp-2 text-sm text-muted-foreground">

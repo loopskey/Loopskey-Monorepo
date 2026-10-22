@@ -38,7 +38,7 @@ const EventSchedule = ({ items, timeZone }: TEventScheduleProps) => {
                 </p>
 
                 <div className="min-w-0">
-                  <h4 className="font-medium">{item.title}</h4>
+                  <h3 className="font-medium">{item.title}</h3>
 
                   {item.description && (
                     <p className="mt-1 text-sm leading-6 text-muted-foreground">

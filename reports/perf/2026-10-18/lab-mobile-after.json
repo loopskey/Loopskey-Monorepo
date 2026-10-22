@@ -1,0 +1,1350 @@
+{
+  "tool": "scripts/perf-lab.mjs",
+  "kind": "lab",
+  "caution": "Lab samples under DevTools throttling on one machine. Not field data: they do not establish p75 LCP, INP or CLS, and TBT is not INP.",
+  "generatedAt": "2026-10-18T15:11:04.613Z",
+  "commit": "767109071bbe20f2205e7772b55f4b238fb2c0a9",
+  "dirty": true,
+  "baseUrl": "http://127.0.0.1:3217",
+  "note": "after: production build of feature/seo-17-mobile-performance (working tree), NEXT_PUBLIC_GRAPHQL_URL pointing at the fixture API, next start; fixture API 0 ms",
+  "profile": {
+    "name": "mobile",
+    "description": "Moto G Power class device: 412x823 at DPR 1.75, 4x CPU slowdown, 150 ms RTT, 1.6 Mbps down, 750 Kbps up (Lighthouse mobile values, applied as DevTools throttling)",
+    "viewport": {
+      "width": 412,
+      "height": 823,
+      "deviceScaleFactor": 1.75,
+      "mobile": true
+    },
+    "userAgent": "Mozilla/5.0 (Linux; Android 11; moto g power (2022)) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Mobile Safari/537.36",
+    "cpuSlowdown": 4,
+    "network": {
+      "latencyMs": 150,
+      "downloadKbps": 1638.4,
+      "uploadKbps": 750
+    }
+  },
+  "machine": {
+    "platform": "win32 10.0.26300",
+    "cpu": "11th Gen Intel(R) Core(TM) i5-1145G7 @ 2.60GHz",
+    "cores": 8,
+    "memoryGiB": 16,
+    "node": "v24.18.0"
+  },
+  "runsPerRoute": 5,
+  "targets": {
+    "lcpMs": 2500,
+    "cls": 0.1,
+    "tbtMs": 200
+  },
+  "method": {
+    "isolation": "new headless Chrome and empty profile per sample (cold cache)",
+    "benchmark": "benchmarkIndex is the Lighthouse ultradumbBenchmark score (string building for 500 ms) measured unthrottled on about:blank before each sample; it shows how fast this machine is before the fixed slowdown is applied",
+    "settle": "load event, then 2000 ms without network and 5000 ms without a long task, capped at 45000 ms",
+    "tbt": "sum of long-task time over 50 ms between FCP and a longtask-based TTI (last long task before a 5 s quiet window); an approximation of Lighthouse TBT",
+    "transfer": "encoded bytes per request; script-first-load is parser-initiated, script-deferred is requested by script (dynamic imports), prefetch is router prefetch or lowest-priority script"
+  },
+  "routes": {
+    "home": {
+      "path": "/",
+      "summary": {
+        "samples": 5,
+        "benchmarkIndex": {
+          "median": 14826,
+          "min": 11844,
+          "max": 24934
+        },
+        "ttfbMs": {
+          "median": 71,
+          "min": 31,
+          "max": 87
+        },
+        "fcpMs": {
+          "median": 2552,
+          "min": 1568,
+          "max": 2712
+        },
+        "lcpMs": {
+          "median": 2552,
+          "min": 2036,
+          "max": 2732
+        },
+        "cls": {
+          "median": 0,
+          "min": 0,
+          "max": 0
+        },
+        "tbtMs": {
+          "median": 1775,
+          "min": 1409,
+          "max": 1962
+        },
+        "meetsTargets": {
+          "lcp": false,
+          "cls": true,
+          "tbt": false
+        }
+      },
+      "failedAttempts": [],
+      "samples": [
+        {
+          "chrome": "Chrome/155.0.8059.80",
+          "benchmarkIndex": 24934,
+          "status": 200,
+          "lang": "en",
+          "ttfbMs": 31,
+          "fcpMs": 1568,
+          "lcpMs": 2300,
+          "lcpElement": "img",
+          "lcpResource": "/_next/image",
+          "cls": 0,
+          "tbtMs": 1697,
+          "longTasks": 18,
+          "longestTasks": [
+            {
+              "startMs": 2817,
+              "durationMs": 600
+            },
+            {
+              "startMs": 5184,
+              "durationMs": 344
+            },
+            {
+              "startMs": 5616,
+              "durationMs": 255
+            },
+            {
+              "startMs": 4795,
+              "durationMs": 211
+            },
+            {
+              "startMs": 4467,
+              "durationMs": 197
+            }
+          ],
+          "transferKib": {
+            "document": 32.1,
+            "css": 24.5,
+            "image": 30.2,
+            "script-first-load": 243.8,
+            "other": 32.9,
+            "api": 16.5,
+            "prefetch": 51,
+            "script-deferred": 75.7
+          },
+          "requests": {
+            "document": 1,
+            "css": 1,
+            "image": 3,
+            "script-first-load": 18,
+            "other": 2,
+            "api": 8,
+            "prefetch": 17,
+            "script-deferred": 10
+          },
+          "deferredScriptKibBeforeLcp": 0
+        },
+        {
+          "chrome": "Chrome/155.0.8059.80",
+          "benchmarkIndex": 14826,
+          "status": 200,
+          "lang": "en",
+          "ttfbMs": 87,
+          "fcpMs": 2584,
+          "lcpMs": 2600,
+          "lcpElement": "img",
+          "lcpResource": "/_next/image",
+          "cls": 0,
+          "tbtMs": 1409,
+          "longTasks": 10,
+          "longestTasks": [
+            {
+              "startMs": 4887,
+              "durationMs": 557
+            },
+            {
+              "startMs": 2763,
+              "durationMs": 506
+            },
+            {
+              "startMs": 4465,
+              "durationMs": 188
+            },
+            {
+              "startMs": 4187,
+              "durationMs": 144
+            },
+            {
+              "startMs": 5514,
+              "durationMs": 132
+            }
+          ],
+          "transferKib": {
+            "document": 32.1,
+            "css": 24.5,
+            "image": 30.1,
+            "script-first-load": 243.8,
+            "other": 32.9,
+            "api": 16.5,
+            "prefetch": 51,
+            "script-deferred": 75.7
+          },
+          "requests": {
+            "document": 1,
+            "css": 1,
+            "image": 3,
+            "script-first-load": 18,
+            "other": 2,
+            "api": 8,
+            "prefetch": 17,
+            "script-deferred": 10
+          },
+          "deferredScriptKibBeforeLcp": 0
+        },
+        {
+          "chrome": "Chrome/155.0.8059.80",
+          "benchmarkIndex": 22668,
+          "status": 200,
+          "lang": "en",
+          "ttfbMs": 54,
+          "fcpMs": 2020,
+          "lcpMs": 2036,
+          "lcpElement": "img",
+          "lcpResource": "/_next/image",
+          "cls": 0,
+          "tbtMs": 1942,
+          "longTasks": 12,
+          "longestTasks": [
+            {
+              "startMs": 2087,
+              "durationMs": 552
+            },
+            {
+              "startMs": 4569,
+              "durationMs": 547
+            },
+            {
+              "startMs": 5205,
+              "durationMs": 333
+            },
+            {
+              "startMs": 4051,
+              "durationMs": 299
+            },
+            {
+              "startMs": 3709,
+              "durationMs": 181
+            }
+          ],
+          "transferKib": {
+            "document": 32.1,
+            "css": 24.5,
+            "image": 30.1,
+            "script-first-load": 243.8,
+            "other": 32.9,
+            "api": 16.5,
+            "prefetch": 51,
+            "script-deferred": 75.7
+          },
+          "requests": {
+            "document": 1,
+            "css": 1,
+            "image": 3,
+            "script-first-load": 18,
+            "other": 2,
+            "api": 8,
+            "prefetch": 17,
+            "script-deferred": 10
+          },
+          "deferredScriptKibBeforeLcp": 0
+        },
+        {
+          "chrome": "Chrome/155.0.8059.80",
+          "benchmarkIndex": 11844,
+          "status": 200,
+          "lang": "en",
+          "ttfbMs": 75,
+          "fcpMs": 2712,
+          "lcpMs": 2732,
+          "lcpElement": "img",
+          "lcpResource": "/_next/image",
+          "cls": 0,
+          "tbtMs": 1775,
+          "longTasks": 16,
+          "longestTasks": [
+            {
+              "startMs": 5220,
+              "durationMs": 672
+            },
+            {
+              "startMs": 2805,
+              "durationMs": 372
+            },
+            {
+              "startMs": 4726,
+              "durationMs": 326
+            },
+            {
+              "startMs": 4070,
+              "durationMs": 145
+            },
+            {
+              "startMs": 3195,
+              "durationMs": 128
+            }
+          ],
+          "transferKib": {
+            "document": 32.1,
+            "css": 24.5,
+            "image": 30.1,
+            "script-first-load": 243.8,
+            "other": 32.9,
+            "api": 16.5,
+            "prefetch": 51,
+            "script-deferred": 75.7
+          },
+          "requests": {
+            "document": 1,
+            "css": 1,
+            "image": 3,
+            "script-first-load": 18,
+            "other": 2,
+            "api": 8,
+            "prefetch": 17,
+            "script-deferred": 10
+          },
+          "deferredScriptKibBeforeLcp": 0
+        },
+        {
+          "chrome": "Chrome/155.0.8059.80",
+          "benchmarkIndex": 12956,
+          "status": 200,
+          "lang": "en",
+          "ttfbMs": 71,
+          "fcpMs": 2552,
+          "lcpMs": 2552,
+          "lcpElement": "img",
+          "lcpResource": "/_next/image",
+          "cls": 0,
+          "tbtMs": 1962,
+          "longTasks": 13,
+          "longestTasks": [
+            {
+              "startMs": 2672,
+              "durationMs": 903
+            },
+            {
+              "startMs": 5513,
+              "durationMs": 364
+            },
+            {
+              "startMs": 5043,
+              "durationMs": 280
+            },
+            {
+              "startMs": 4649,
+              "durationMs": 224
+            },
+            {
+              "startMs": 5954,
+              "durationMs": 199
+            }
+          ],
+          "transferKib": {
+            "document": 32.1,
+            "css": 24.5,
+            "image": 30.1,
+            "script-first-load": 243.8,
+            "other": 32.9,
+            "api": 16.5,
+            "prefetch": 51,
+            "script-deferred": 75.7
+          },
+          "requests": {
+            "document": 1,
+            "css": 1,
+            "image": 3,
+            "script-first-load": 18,
+            "other": 2,
+            "api": 8,
+            "prefetch": 17,
+            "script-deferred": 10
+          },
+          "deferredScriptKibBeforeLcp": 0
+        }
+      ]
+    },
+    "catalog": {
+      "path": "/content",
+      "summary": {
+        "samples": 5,
+        "benchmarkIndex": {
+          "median": 12392,
+          "min": 10930,
+          "max": 22438
+        },
+        "ttfbMs": {
+          "median": 48,
+          "min": 40,
+          "max": 53
+        },
+        "fcpMs": {
+          "median": 1968,
+          "min": 1780,
+          "max": 2960
+        },
+        "lcpMs": {
+          "median": 2184,
+          "min": 1944,
+          "max": 3224
+        },
+        "cls": {
+          "median": 0,
+          "min": 0,
+          "max": 0
+        },
+        "tbtMs": {
+          "median": 554,
+          "min": 444,
+          "max": 642
+        },
+        "meetsTargets": {
+          "lcp": true,
+          "cls": true,
+          "tbt": false
+        }
+      },
+      "failedAttempts": [],
+      "samples": [
+        {
+          "chrome": "Chrome/155.0.8059.80",
+          "benchmarkIndex": 15416,
+          "status": 200,
+          "lang": "en",
+          "ttfbMs": 53,
+          "fcpMs": 2036,
+          "lcpMs": 2252,
+          "lcpElement": "div",
+          "lcpResource": "/content-art-course.svg",
+          "cls": 0,
+          "tbtMs": 594,
+          "longTasks": 7,
+          "longestTasks": [
+            {
+              "startMs": 2092,
+              "durationMs": 371
+            },
+            {
+              "startMs": 2536,
+              "durationMs": 186
+            },
+            {
+              "startMs": 3315,
+              "durationMs": 116
+            },
+            {
+              "startMs": 3080,
+              "durationMs": 89
+            },
+            {
+              "startMs": 3656,
+              "durationMs": 72
+            }
+          ],
+          "transferKib": {
+            "document": 17.8,
+            "css": 24.5,
+            "script-first-load": 191.2,
+            "image": 8.2,
+            "other": 32.9,
+            "api": 0.5,
+            "prefetch": 55.2,
+            "script-deferred": 74.1
+          },
+          "requests": {
+            "document": 1,
+            "css": 1,
+            "script-first-load": 15,
+            "image": 2,
+            "other": 2,
+            "api": 1,
+            "prefetch": 22,
+            "script-deferred": 9
+          },
+          "deferredScriptKibBeforeLcp": 0
+        },
+        {
+          "chrome": "Chrome/155.0.8059.80",
+          "benchmarkIndex": 22438,
+          "status": 200,
+          "lang": "en",
+          "ttfbMs": 40,
+          "fcpMs": 1780,
+          "lcpMs": 1944,
+          "lcpElement": "div",
+          "lcpResource": "/content-art-course.svg",
+          "cls": 0,
+          "tbtMs": 554,
+          "longTasks": 9,
+          "longestTasks": [
+            {
+              "startMs": 1853,
+              "durationMs": 375
+            },
+            {
+              "startMs": 2851,
+              "durationMs": 128
+            },
+            {
+              "startMs": 3217,
+              "durationMs": 109
+            },
+            {
+              "startMs": 2615,
+              "durationMs": 104
+            },
+            {
+              "startMs": 3144,
+              "durationMs": 70
+            }
+          ],
+          "transferKib": {
+            "document": 17.8,
+            "css": 24.5,
+            "script-first-load": 191.2,
+            "image": 8.2,
+            "other": 32.9,
+            "api": 0.5,
+            "prefetch": 55.2,
+            "script-deferred": 74.1
+          },
+          "requests": {
+            "document": 1,
+            "css": 1,
+            "script-first-load": 15,
+            "image": 2,
+            "other": 2,
+            "api": 1,
+            "prefetch": 22,
+            "script-deferred": 9
+          },
+          "deferredScriptKibBeforeLcp": 0
+        },
+        {
+          "chrome": "Chrome/155.0.8059.80",
+          "benchmarkIndex": 10930,
+          "status": 200,
+          "lang": "en",
+          "ttfbMs": 52,
+          "fcpMs": 2960,
+          "lcpMs": 3224,
+          "lcpElement": "div",
+          "lcpResource": "/content-art-course.svg",
+          "cls": 0,
+          "tbtMs": 642,
+          "longTasks": 9,
+          "longestTasks": [
+            {
+              "startMs": 3038,
+              "durationMs": 474
+            },
+            {
+              "startMs": 3519,
+              "durationMs": 132
+            },
+            {
+              "startMs": 4263,
+              "durationMs": 118
+            },
+            {
+              "startMs": 2509,
+              "durationMs": 91
+            },
+            {
+              "startMs": 4101,
+              "durationMs": 77
+            }
+          ],
+          "transferKib": {
+            "document": 17.8,
+            "css": 24.5,
+            "script-first-load": 191.2,
+            "image": 8.2,
+            "other": 32.9,
+            "api": 0.5,
+            "prefetch": 55.2,
+            "script-deferred": 74.1
+          },
+          "requests": {
+            "document": 1,
+            "css": 1,
+            "script-first-load": 15,
+            "image": 2,
+            "other": 2,
+            "api": 1,
+            "prefetch": 22,
+            "script-deferred": 9
+          },
+          "deferredScriptKibBeforeLcp": 0
+        },
+        {
+          "chrome": "Chrome/155.0.8059.80",
+          "benchmarkIndex": 12380,
+          "status": 200,
+          "lang": "en",
+          "ttfbMs": 48,
+          "fcpMs": 1792,
+          "lcpMs": 1960,
+          "lcpElement": "div",
+          "lcpResource": "/content-art-course.svg",
+          "cls": 0,
+          "tbtMs": 444,
+          "longTasks": 6,
+          "longestTasks": [
+            {
+              "startMs": 908,
+              "durationMs": 523
+            },
+            {
+              "startMs": 1897,
+              "durationMs": 389
+            },
+            {
+              "startMs": 2686,
+              "durationMs": 105
+            },
+            {
+              "startMs": 2481,
+              "durationMs": 88
+            },
+            {
+              "startMs": 2960,
+              "durationMs": 61
+            }
+          ],
+          "transferKib": {
+            "document": 17.8,
+            "css": 24.5,
+            "script-first-load": 191.2,
+            "image": 8.2,
+            "other": 32.9,
+            "api": 0.5,
+            "prefetch": 55.2,
+            "script-deferred": 74.1
+          },
+          "requests": {
+            "document": 1,
+            "css": 1,
+            "script-first-load": 15,
+            "image": 2,
+            "other": 2,
+            "api": 1,
+            "prefetch": 22,
+            "script-deferred": 9
+          },
+          "deferredScriptKibBeforeLcp": 0
+        },
+        {
+          "chrome": "Chrome/155.0.8059.80",
+          "benchmarkIndex": 12392,
+          "status": 200,
+          "lang": "en",
+          "ttfbMs": 45,
+          "fcpMs": 1968,
+          "lcpMs": 2184,
+          "lcpElement": "div",
+          "lcpResource": "/content-art-course.svg",
+          "cls": 0,
+          "tbtMs": 476,
+          "longTasks": 9,
+          "longestTasks": [
+            {
+              "startMs": 2089,
+              "durationMs": 298
+            },
+            {
+              "startMs": 2926,
+              "durationMs": 120
+            },
+            {
+              "startMs": 2389,
+              "durationMs": 112
+            },
+            {
+              "startMs": 3394,
+              "durationMs": 86
+            },
+            {
+              "startMs": 3185,
+              "durationMs": 80
+            }
+          ],
+          "transferKib": {
+            "document": 17.8,
+            "css": 24.5,
+            "script-first-load": 191.2,
+            "image": 8.2,
+            "other": 32.9,
+            "api": 0.5,
+            "prefetch": 55.2,
+            "script-deferred": 74.1
+          },
+          "requests": {
+            "document": 1,
+            "css": 1,
+            "script-first-load": 15,
+            "image": 2,
+            "other": 2,
+            "api": 1,
+            "prefetch": 22,
+            "script-deferred": 9
+          },
+          "deferredScriptKibBeforeLcp": 0
+        }
+      ]
+    },
+    "course": {
+      "path": "/courses/fixture-course",
+      "summary": {
+        "samples": 5,
+        "benchmarkIndex": {
+          "median": 13036,
+          "min": 11814,
+          "max": 16190
+        },
+        "ttfbMs": {
+          "median": 42,
+          "min": 37,
+          "max": 45
+        },
+        "fcpMs": {
+          "median": 1736,
+          "min": 1608,
+          "max": 2144
+        },
+        "lcpMs": {
+          "median": 1920,
+          "min": 1860,
+          "max": 2324
+        },
+        "cls": {
+          "median": 0,
+          "min": 0,
+          "max": 0
+        },
+        "tbtMs": {
+          "median": 687,
+          "min": 514,
+          "max": 930
+        },
+        "meetsTargets": {
+          "lcp": true,
+          "cls": true,
+          "tbt": false
+        }
+      },
+      "failedAttempts": [],
+      "samples": [
+        {
+          "chrome": "Chrome/155.0.8059.80",
+          "benchmarkIndex": 13036,
+          "status": 200,
+          "lang": "en",
+          "ttfbMs": 45,
+          "fcpMs": 1736,
+          "lcpMs": 1920,
+          "lcpElement": "div",
+          "lcpResource": "/content-art-course.svg",
+          "cls": 0,
+          "tbtMs": 930,
+          "longTasks": 6,
+          "longestTasks": [
+            {
+              "startMs": 1879,
+              "durationMs": 444
+            },
+            {
+              "startMs": 2502,
+              "durationMs": 186
+            },
+            {
+              "startMs": 2796,
+              "durationMs": 183
+            },
+            {
+              "startMs": 3286,
+              "durationMs": 179
+            },
+            {
+              "startMs": 3141,
+              "durationMs": 142
+            }
+          ],
+          "transferKib": {
+            "document": 16.9,
+            "css": 24.5,
+            "script-first-load": 224.3,
+            "image": 8.2,
+            "other": 32.9,
+            "api": 0.5,
+            "prefetch": 72.2,
+            "script-deferred": 74.1
+          },
+          "requests": {
+            "document": 1,
+            "css": 1,
+            "script-first-load": 18,
+            "image": 2,
+            "other": 2,
+            "api": 1,
+            "prefetch": 33,
+            "script-deferred": 9
+          },
+          "deferredScriptKibBeforeLcp": 0
+        },
+        {
+          "chrome": "Chrome/155.0.8059.80",
+          "benchmarkIndex": 14154,
+          "status": 200,
+          "lang": "en",
+          "ttfbMs": 40,
+          "fcpMs": 1672,
+          "lcpMs": 1888,
+          "lcpElement": "div",
+          "lcpResource": "/content-art-course.svg",
+          "cls": 0,
+          "tbtMs": 514,
+          "longTasks": 6,
+          "longestTasks": [
+            {
+              "startMs": 1798,
+              "durationMs": 344
+            },
+            {
+              "startMs": 2359,
+              "durationMs": 156
+            },
+            {
+              "startMs": 2947,
+              "durationMs": 109
+            },
+            {
+              "startMs": 2690,
+              "durationMs": 99
+            },
+            {
+              "startMs": 4182,
+              "durationMs": 55
+            }
+          ],
+          "transferKib": {
+            "document": 16.9,
+            "css": 24.5,
+            "script-first-load": 224.3,
+            "image": 8.2,
+            "other": 32.9,
+            "api": 0.5,
+            "prefetch": 70.1,
+            "script-deferred": 74.1
+          },
+          "requests": {
+            "document": 1,
+            "css": 1,
+            "script-first-load": 18,
+            "image": 2,
+            "other": 2,
+            "api": 1,
+            "prefetch": 33,
+            "script-deferred": 9
+          },
+          "deferredScriptKibBeforeLcp": 0
+        },
+        {
+          "chrome": "Chrome/155.0.8059.80",
+          "benchmarkIndex": 16190,
+          "status": 200,
+          "lang": "en",
+          "ttfbMs": 37,
+          "fcpMs": 1840,
+          "lcpMs": 2060,
+          "lcpElement": "div",
+          "lcpResource": "/content-art-course.svg",
+          "cls": 0,
+          "tbtMs": 523,
+          "longTasks": 6,
+          "longestTasks": [
+            {
+              "startMs": 1953,
+              "durationMs": 353
+            },
+            {
+              "startMs": 2617,
+              "durationMs": 143
+            },
+            {
+              "startMs": 2945,
+              "durationMs": 126
+            },
+            {
+              "startMs": 2782,
+              "durationMs": 72
+            },
+            {
+              "startMs": 4175,
+              "durationMs": 65
+            }
+          ],
+          "transferKib": {
+            "document": 16.9,
+            "css": 24.5,
+            "script-first-load": 224.3,
+            "image": 8.2,
+            "other": 32.9,
+            "api": 0.5,
+            "prefetch": 68,
+            "script-deferred": 74.1
+          },
+          "requests": {
+            "document": 1,
+            "css": 1,
+            "script-first-load": 18,
+            "image": 2,
+            "other": 2,
+            "api": 1,
+            "prefetch": 33,
+            "script-deferred": 9
+          },
+          "deferredScriptKibBeforeLcp": 0
+        },
+        {
+          "chrome": "Chrome/155.0.8059.80",
+          "benchmarkIndex": 11814,
+          "status": 200,
+          "lang": "en",
+          "ttfbMs": 42,
+          "fcpMs": 2144,
+          "lcpMs": 2324,
+          "lcpElement": "div",
+          "lcpResource": "/content-art-course.svg",
+          "cls": 0,
+          "tbtMs": 687,
+          "longTasks": 7,
+          "longestTasks": [
+            {
+              "startMs": 2235,
+              "durationMs": 370
+            },
+            {
+              "startMs": 2981,
+              "durationMs": 155
+            },
+            {
+              "startMs": 3170,
+              "durationMs": 153
+            },
+            {
+              "startMs": 3383,
+              "durationMs": 124
+            },
+            {
+              "startMs": 3511,
+              "durationMs": 124
+            }
+          ],
+          "transferKib": {
+            "document": 16.9,
+            "css": 24.5,
+            "script-first-load": 224.3,
+            "image": 8.2,
+            "other": 32.9,
+            "api": 0.5,
+            "prefetch": 74.3,
+            "script-deferred": 74.1
+          },
+          "requests": {
+            "document": 1,
+            "css": 1,
+            "script-first-load": 18,
+            "image": 2,
+            "other": 2,
+            "api": 1,
+            "prefetch": 33,
+            "script-deferred": 9
+          },
+          "deferredScriptKibBeforeLcp": 0
+        },
+        {
+          "chrome": "Chrome/155.0.8059.80",
+          "benchmarkIndex": 12830,
+          "status": 200,
+          "lang": "en",
+          "ttfbMs": 42,
+          "fcpMs": 1608,
+          "lcpMs": 1860,
+          "lcpElement": "div",
+          "lcpResource": "/content-art-course.svg",
+          "cls": 0,
+          "tbtMs": 817,
+          "longTasks": 6,
+          "longestTasks": [
+            {
+              "startMs": 1789,
+              "durationMs": 537
+            },
+            {
+              "startMs": 3220,
+              "durationMs": 153
+            },
+            {
+              "startMs": 2511,
+              "durationMs": 130
+            },
+            {
+              "startMs": 2805,
+              "durationMs": 107
+            },
+            {
+              "startMs": 2922,
+              "durationMs": 100
+            }
+          ],
+          "transferKib": {
+            "document": 16.9,
+            "css": 24.5,
+            "script-first-load": 224.3,
+            "image": 8.2,
+            "other": 32.9,
+            "api": 0.5,
+            "prefetch": 72.2,
+            "script-deferred": 74.1
+          },
+          "requests": {
+            "document": 1,
+            "css": 1,
+            "script-first-load": 18,
+            "image": 2,
+            "other": 2,
+            "api": 1,
+            "prefetch": 33,
+            "script-deferred": 9
+          },
+          "deferredScriptKibBeforeLcp": 0
+        }
+      ]
+    },
+    "about": {
+      "path": "/about",
+      "summary": {
+        "samples": 5,
+        "benchmarkIndex": {
+          "median": 12364,
+          "min": 11770,
+          "max": 14256
+        },
+        "ttfbMs": {
+          "median": 12,
+          "min": 10,
+          "max": 14
+        },
+        "fcpMs": {
+          "median": 1856,
+          "min": 1708,
+          "max": 1908
+        },
+        "lcpMs": {
+          "median": 1856,
+          "min": 1708,
+          "max": 1908
+        },
+        "cls": {
+          "median": 0,
+          "min": 0,
+          "max": 0
+        },
+        "tbtMs": {
+          "median": 497,
+          "min": 442,
+          "max": 601
+        },
+        "meetsTargets": {
+          "lcp": true,
+          "cls": true,
+          "tbt": false
+        }
+      },
+      "failedAttempts": [],
+      "samples": [
+        {
+          "chrome": "Chrome/155.0.8059.80",
+          "benchmarkIndex": 12364,
+          "status": 200,
+          "lang": "en",
+          "ttfbMs": 14,
+          "fcpMs": 1856,
+          "lcpMs": 1856,
+          "lcpElement": "h1",
+          "lcpResource": null,
+          "cls": 0,
+          "tbtMs": 445,
+          "longTasks": 4,
+          "longestTasks": [
+            {
+              "startMs": 2063,
+              "durationMs": 450
+            },
+            {
+              "startMs": 2992,
+              "durationMs": 80
+            },
+            {
+              "startMs": 2672,
+              "durationMs": 62
+            },
+            {
+              "startMs": 2929,
+              "durationMs": 53
+            }
+          ],
+          "transferKib": {
+            "document": 16.2,
+            "css": 24.5,
+            "script-first-load": 180.1,
+            "image": 6.4,
+            "other": 32.9,
+            "api": 0.5,
+            "prefetch": 54,
+            "script-deferred": 67
+          },
+          "requests": {
+            "document": 1,
+            "css": 1,
+            "script-first-load": 14,
+            "image": 1,
+            "other": 2,
+            "api": 1,
+            "prefetch": 19,
+            "script-deferred": 8
+          },
+          "deferredScriptKibBeforeLcp": 0
+        },
+        {
+          "chrome": "Chrome/155.0.8059.80",
+          "benchmarkIndex": 14256,
+          "status": 200,
+          "lang": "en",
+          "ttfbMs": 10,
+          "fcpMs": 1760,
+          "lcpMs": 1760,
+          "lcpElement": "h1",
+          "lcpResource": null,
+          "cls": 0,
+          "tbtMs": 442,
+          "longTasks": 6,
+          "longestTasks": [
+            {
+              "startMs": 1961,
+              "durationMs": 371
+            },
+            {
+              "startMs": 2538,
+              "durationMs": 114
+            },
+            {
+              "startMs": 3061,
+              "durationMs": 74
+            },
+            {
+              "startMs": 2781,
+              "durationMs": 65
+            },
+            {
+              "startMs": 3957,
+              "durationMs": 60
+            }
+          ],
+          "transferKib": {
+            "document": 16.2,
+            "css": 24.5,
+            "script-first-load": 180.1,
+            "image": 6.4,
+            "other": 32.9,
+            "api": 0.5,
+            "prefetch": 54,
+            "script-deferred": 67
+          },
+          "requests": {
+            "document": 1,
+            "css": 1,
+            "script-first-load": 14,
+            "image": 1,
+            "other": 2,
+            "api": 1,
+            "prefetch": 19,
+            "script-deferred": 8
+          },
+          "deferredScriptKibBeforeLcp": 0
+        },
+        {
+          "chrome": "Chrome/155.0.8059.80",
+          "benchmarkIndex": 11770,
+          "status": 200,
+          "lang": "en",
+          "ttfbMs": 13,
+          "fcpMs": 1708,
+          "lcpMs": 1708,
+          "lcpElement": "h1",
+          "lcpResource": null,
+          "cls": 0,
+          "tbtMs": 519,
+          "longTasks": 4,
+          "longestTasks": [
+            {
+              "startMs": 1727,
+              "durationMs": 490
+            },
+            {
+              "startMs": 2898,
+              "durationMs": 89
+            },
+            {
+              "startMs": 2579,
+              "durationMs": 76
+            },
+            {
+              "startMs": 2831,
+              "durationMs": 64
+            }
+          ],
+          "transferKib": {
+            "document": 16.2,
+            "css": 24.5,
+            "script-first-load": 180.1,
+            "image": 6.4,
+            "other": 32.9,
+            "api": 0.5,
+            "prefetch": 54,
+            "script-deferred": 67
+          },
+          "requests": {
+            "document": 1,
+            "css": 1,
+            "script-first-load": 14,
+            "image": 1,
+            "other": 2,
+            "api": 1,
+            "prefetch": 19,
+            "script-deferred": 8
+          },
+          "deferredScriptKibBeforeLcp": 0
+        },
+        {
+          "chrome": "Chrome/155.0.8059.80",
+          "benchmarkIndex": 14220,
+          "status": 200,
+          "lang": "en",
+          "ttfbMs": 12,
+          "fcpMs": 1908,
+          "lcpMs": 1908,
+          "lcpElement": "h1",
+          "lcpResource": null,
+          "cls": 0,
+          "tbtMs": 601,
+          "longTasks": 3,
+          "longestTasks": [
+            {
+              "startMs": 2113,
+              "durationMs": 510
+            },
+            {
+              "startMs": 3042,
+              "durationMs": 177
+            },
+            {
+              "startMs": 2957,
+              "durationMs": 64
+            }
+          ],
+          "transferKib": {
+            "document": 16.2,
+            "css": 24.5,
+            "script-first-load": 180.1,
+            "image": 6.4,
+            "other": 32.9,
+            "api": 0.5,
+            "prefetch": 54,
+            "script-deferred": 67
+          },
+          "requests": {
+            "document": 1,
+            "css": 1,
+            "script-first-load": 14,
+            "image": 1,
+            "other": 2,
+            "api": 1,
+            "prefetch": 19,
+            "script-deferred": 8
+          },
+          "deferredScriptKibBeforeLcp": 0
+        },
+        {
+          "chrome": "Chrome/155.0.8059.80",
+          "benchmarkIndex": 11956,
+          "status": 200,
+          "lang": "en",
+          "ttfbMs": 11,
+          "fcpMs": 1876,
+          "lcpMs": 1876,
+          "lcpElement": "h1",
+          "lcpResource": null,
+          "cls": 0,
+          "tbtMs": 497,
+          "longTasks": 5,
+          "longestTasks": [
+            {
+              "startMs": 2055,
+              "durationMs": 472
+            },
+            {
+              "startMs": 2798,
+              "durationMs": 83
+            },
+            {
+              "startMs": 3120,
+              "durationMs": 81
+            },
+            {
+              "startMs": 3203,
+              "durationMs": 57
+            },
+            {
+              "startMs": 3427,
+              "durationMs": 54
+            }
+          ],
+          "transferKib": {
+            "document": 16.2,
+            "css": 24.5,
+            "script-first-load": 180.1,
+            "image": 6.4,
+            "other": 32.9,
+            "api": 0.5,
+            "prefetch": 54,
+            "script-deferred": 67
+          },
+          "requests": {
+            "document": 1,
+            "css": 1,
+            "script-first-load": 14,
+            "image": 1,
+            "other": 2,
+            "api": 1,
+            "prefetch": 19,
+            "script-deferred": 8
+          },
+          "deferredScriptKibBeforeLcp": 0
+        }
+      ]
+    }
+  },
+  "chrome": "Chrome/155.0.8059.80"
+}

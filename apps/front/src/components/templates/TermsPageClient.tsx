@@ -266,7 +266,7 @@ const TermsPage = () => {
       <section className="px-4 pb-28">
         <div className="mx-auto max-w-7xl">
           <RevealOnScroll direction="up">
-            <div className="relative overflow-hidden rounded-lg border border-primary/20 bg-muted-foreground p-8 text-white shadow-md md:p-10">
+            <div className="relative overflow-hidden rounded-lg border border-primary/20 bg-foreground p-8 text-white shadow-md md:p-10">
 
               <div className="relative z-10 grid gap-8 lg:grid-cols-[1fr_auto] lg:items-center">
                 <div>
@@ -279,7 +279,7 @@ const TermsPage = () => {
                     {t("termsPage.cta.title")}
                   </h2>
 
-                  <p className="mt-4 max-w-2xl text-lg leading-relaxed text-muted-foreground">
+                  <p className="mt-4 max-w-2xl text-lg leading-relaxed text-white/80">
                     {t("termsPage.cta.description")}
                   </p>
                 </div>

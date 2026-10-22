@@ -1,6 +1,7 @@
 import { AssociationRequirementAssignmentService } from "@association/services/association-requirement-assignment.service";
 import { BadRequestException, ConflictException } from "@nestjs/common";
 import { Injectable, Logger, NotFoundException } from "@nestjs/common";
+import { AssociationLateSubmissionPolicy } from "@prisma/client";
 import { AssociationComplianceService } from "@association/services/association-compliance.service";
 import { AssociationRequirementStatus } from "@prisma/client";
 import { AssociationPaginationInput } from "@association/dtos/association-pagination.input";
@@ -76,6 +77,16 @@ type LockedRequirement = {
   id: string;
   status: AssociationRequirementStatus;
 };
+
+type AttributionRules = {
+  status: AssociationRequirementStatus;
+  reportingEnd: Date | null;
+  gracePeriodDays: number;
+  lateSubmissionPolicy: AssociationLateSubmissionPolicy;
+};
+
+const calendarDay = (value: Date | null) =>
+  value ? value.toISOString().slice(0, 10) : null;
 
 const project = ({ targets, _count, ...requirement }: RequirementRecord) => ({
   ...requirement,
@@ -325,51 +336,77 @@ export class AssociationRequirementService {
   ) {
     const { requirementId, ...patch } = input;
     const association = await this.access.requireOwned(user);
-    await this.require(association.id, requirementId);
+    const current = await this.require(association.id, requirementId);
 
-    return project(
-      await this.prisma.associationRequirement.update({
-        where: { id: requirementId },
-        data: {
-          ...(patch.reportingStart !== undefined
-            ? { reportingStart: patch.reportingStart }
-            : {}),
-          ...(patch.reportingEnd !== undefined
-            ? { reportingEnd: patch.reportingEnd }
-            : {}),
-          ...(patch.submissionWindow !== undefined
-            ? { submissionWindow: patch.submissionWindow }
-            : {}),
-          ...(patch.gracePeriodDays !== undefined
-            ? { gracePeriodDays: patch.gracePeriodDays }
-            : {}),
-          ...(patch.lateSubmissionPolicy !== undefined
-            ? { lateSubmissionPolicy: patch.lateSubmissionPolicy }
-            : {}),
-          ...(patch.renewalCondition !== undefined
-            ? { renewalCondition: patch.renewalCondition }
-            : {}),
-        },
-        select: REQUIREMENT_SELECT,
-      }),
+    this.refuseReportingStartMove(current, patch.reportingStart);
+
+    const updated = await this.prisma.associationRequirement.update({
+      where: { id: requirementId },
+      data: {
+        ...(patch.reportingStart !== undefined
+          ? { reportingStart: patch.reportingStart }
+          : {}),
+        ...(patch.reportingEnd !== undefined
+          ? { reportingEnd: patch.reportingEnd }
+          : {}),
+        ...(patch.submissionWindow !== undefined
+          ? { submissionWindow: patch.submissionWindow }
+          : {}),
+        ...(patch.gracePeriodDays !== undefined
+          ? { gracePeriodDays: patch.gracePeriodDays }
+          : {}),
+        ...(patch.lateSubmissionPolicy !== undefined
+          ? { lateSubmissionPolicy: patch.lateSubmissionPolicy }
+          : {}),
+        ...(patch.renewalCondition !== undefined
+          ? { renewalCondition: patch.renewalCondition }
+          : {}),
+      },
+      select: REQUIREMENT_SELECT,
+    });
+
+    if (this.changesAttribution(current, updated))
+      await this.compliance.recomputeRequirement(requirementId);
+
+    return project(updated);
+  }
+
+  private refuseReportingStartMove(
+    current: {
+      status: AssociationRequirementStatus;
+      reportingStart: Date | null;
+    },
+    next: Date | null | undefined,
+  ) {
+    if (current.status === AssociationRequirementStatus.DRAFT) return;
+    if (next === undefined) return;
+    if (calendarDay(next) === calendarDay(current.reportingStart)) return;
+
+    throw new BadRequestException({
+      code: AssociationMessageCode.REQUIREMENT_IMMUTABLE_FIELD,
+      message: "A published requirement cannot change reportingStart.",
+      fields: ["reportingStart"],
+    });
+  }
+
+  private changesAttribution(
+    before: AttributionRules,
+    after: AttributionRules,
+  ) {
+    if (after.status !== AssociationRequirementStatus.PUBLISHED) return false;
+    return (
+      calendarDay(before.reportingEnd) !== calendarDay(after.reportingEnd) ||
+      before.gracePeriodDays !== after.gracePeriodDays ||
+      before.lateSubmissionPolicy !== after.lateSubmissionPolicy
     );
   }
 
-  /**
-   * Audience targets are written from client-supplied ids, so ownership and
-   * member status are the correctness boundary, not a preflight. `FOR SHARE`
-   * reads the newest committed row and holds it until this transaction commits,
-   * so a deactivation racing the save either loses the row to us and happens
-   * after our targets land, or wins and is seen here. Ordering by id keeps two
-   * concurrent saves over the same roster from deadlocking.
-   */
   private async lockOwnedActiveMembers(
     tx: Prisma.TransactionClient,
     associationId: string,
     memberIds: string[],
   ) {
     const unique = [...new Set(memberIds)];
-
     const rows = await tx.$queryRaw<{ id: string; status: string }[]>(
       Prisma.sql`SELECT "id", "status" FROM "AssociationMember"
         WHERE "id" IN (${Prisma.join(unique)})

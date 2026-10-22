@@ -1,24 +1,21 @@
 "use client";
 
 import { useCallback, useMemo, useRef, useState } from "react";
-import { contactInquiryTypes, companyEmail } from "@/utils/constant";
-import { useSubmitContactInquiryMutation } from "@/lib/rtk/endpoints/support.api";
-import { ContactInquiryMessageCode } from "@loopskey/api-contracts/error-codes";
-import { ContactInquiryType } from "@/lib/graphql/base";
-import { getAuthErrorCode } from "@/utils/auth-error";
+import { SubmitContactInquiryDocument } from "@/lib/graphql/operations/support";
+import { ContactInquiryMessageCode } from "@loopskey/api-contracts/error-codes/support";
+import { DEFAULT_CONTACT_INQUIRY } from "@/utils/contact-inquiry.constant";
+import { contactInquiryTypes } from "@/utils/contact-inquiry.constant";
+import { executeWithRefresh } from "@/lib/graphql/request";
+import { contactFormSchema } from "@/lib/validations/contact.schema";
+import { getAuthErrorCode } from "@/utils/graphql-error.util";
+import { companyEmail } from "@/utils/site-navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { useI18n } from "@/hooks/useI18n";
 import { notify } from "@/hooks/notify";
-import { z } from "zod";
 
-export type ContactFormValues = {
-  email: string;
-  message: string;
-  fullName: string;
-  organization: string;
-  inquiryType: ContactInquiryType;
-};
+import type { SubmitContactInquiryMutation } from "@/lib/graphql/operations/support";
+import type { TContactFormValues } from "@/lib/validations/contact.schema";
 
 const newIdempotencyKey = () =>
   typeof crypto !== "undefined" && "randomUUID" in crypto
@@ -27,47 +24,20 @@ const newIdempotencyKey = () =>
 
 export const useContactPage = () => {
   const { t } = useI18n();
-  const [submitContactInquiry, { isLoading }] =
-    useSubmitContactInquiryMutation();
   const [submitError, setSubmitError] = useState<string | null>(null);
 
   const idempotencyKey = useRef(newIdempotencyKey());
 
-  const schema = useMemo(
-    () =>
-      z.object({
-        fullName: z
-          .string()
-          .trim()
-          .min(2, t("contactPage.validation.fullNameRequired")),
-        email: z
-          .string()
-          .trim()
-          .email(t("contactPage.validation.emailInvalid")),
-        organization: z.string().trim(),
-        inquiryType: z.nativeEnum(ContactInquiryType, {
-          message: t(
-            "contactPage.validation.inquiryTypeRequired",
-            {},
-            "Please choose an inquiry type.",
-          ),
-        }),
-        message: z
-          .string()
-          .trim()
-          .min(10, t("contactPage.validation.messageRequired")),
-      }),
-    [t],
-  );
+  const schema = useMemo(() => contactFormSchema(t), [t]);
 
-  const form = useForm<ContactFormValues>({
+  const form = useForm<TContactFormValues>({
     resolver: zodResolver(schema),
     mode: "onChange",
     defaultValues: {
       fullName: "",
       email: "",
       organization: "",
-      inquiryType: ContactInquiryType.GeneralQuestion,
+      inquiryType: DEFAULT_CONTACT_INQUIRY,
       message: "",
     },
   });
@@ -111,16 +81,24 @@ export const useContactPage = () => {
   const submitContactForm = form.handleSubmit(async (values) => {
     setSubmitError(null);
     try {
-      const result = await submitContactInquiry({
-        fullName: values.fullName,
-        email: values.email,
-        organization: values.organization?.trim()
-          ? values.organization.trim()
-          : undefined,
-        inquiryType: values.inquiryType,
-        message: values.message,
-        idempotencyKey: idempotencyKey.current,
-      }).unwrap();
+      const response = await executeWithRefresh({
+        document: SubmitContactInquiryDocument,
+        variables: {
+          input: {
+            fullName: values.fullName,
+            email: values.email,
+            organization: values.organization?.trim()
+              ? values.organization.trim()
+              : undefined,
+            inquiryType: values.inquiryType,
+            message: values.message,
+            idempotencyKey: idempotencyKey.current,
+          },
+        },
+      });
+      if ("error" in response) throw response.error;
+      const result = (response.data as SubmitContactInquiryMutation)
+        .submitContactInquiry;
       if (!result?.success)
         throw new Error("Contact inquiry was not accepted.");
       notify.success(t("contactPage.form.successTitle"));
@@ -170,6 +148,6 @@ export const useContactPage = () => {
     submitContactForm,
     inquiryTypeOptions,
     fallbackEmail: companyEmail,
-    isSubmitting: isLoading || form.formState.isSubmitting,
+    isSubmitting: form.formState.isSubmitting,
   };
 };

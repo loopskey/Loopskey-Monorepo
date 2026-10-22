@@ -18,6 +18,7 @@ const eslintConfig = [
     ignores: [
       "src/lib/graphql/generated.ts",
       "src/lib/graphql/base.ts",
+      "src/lib/graphql/document.ts",
       "src/lib/graphql/operations/**",
       ".next/**",
     ],

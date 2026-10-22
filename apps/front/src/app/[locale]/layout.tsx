@@ -1,19 +1,13 @@
+import { PUBLIC_LOCALES, isPublicLocale } from "@/lib/i18n/locale";
+import { SITE_DESCRIPTION, SITE_NAME } from "@/lib/site/page-metadata";
+import { siteOpenGraph, siteTwitter } from "@/lib/site/page-metadata";
+import { isIndexableDeployment } from "@/lib/site/deployment-env";
 import { RouteLocaleProvider } from "@/providers/route-locale-provider";
-import { StoreProvider } from "@/providers/rtk-provider";
+import { SITE_METADATA_BASE } from "@/lib/site/site-url";
 import { AppToaster } from "@elements/app-toaster";
 import { ReactNode } from "react";
-import { Metadata } from "next";
+import { Metadata, Viewport } from "next";
 import { notFound } from "next/navigation";
-
-import { isIndexableDeployment } from "@/lib/site/deployment-env";
-import { SITE_METADATA_BASE } from "@/lib/site/site-url";
-import { PUBLIC_LOCALES, isPublicLocale } from "@/lib/i18n/locale";
-import {
-  SITE_DESCRIPTION,
-  SITE_NAME,
-  siteOpenGraph,
-  siteTwitter,
-} from "@/lib/site/page-metadata";
 
 import "../globals.css";
 
@@ -22,7 +16,11 @@ type TRootLayoutProps = {
   params: Promise<{ locale: string }>;
 };
 
+const THEME_COLOR = "#010080";
+
 export const dynamicParams = false;
+
+export const viewport: Viewport = { themeColor: THEME_COLOR };
 
 export const generateStaticParams = () =>
   PUBLIC_LOCALES.map((locale) => ({ locale }));
@@ -59,10 +57,8 @@ export default async function RootLayout({
   return (
     <html lang={locale}>
       <body className="min-h-screen bg-background text-foreground antialiased">
-        <StoreProvider>
-          <AppToaster />
-          <RouteLocaleProvider locale={locale}>{children}</RouteLocaleProvider>
-        </StoreProvider>
+        <AppToaster />
+        <RouteLocaleProvider locale={locale}>{children}</RouteLocaleProvider>
       </body>
     </html>
   );

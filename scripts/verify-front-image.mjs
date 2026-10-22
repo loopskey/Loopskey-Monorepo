@@ -8,8 +8,9 @@
 //     --front-production <image> --front-staging <image> --api-image <image> \
 //     [--courses 12053] [--site-origin https://www.matrix.invalid] [--policy-only] [--keep]
 //
-// The images are built with --build-arg NEXT_PUBLIC_SITE_URL=<site-origin> and
-// DEPLOYMENT_ENV=production or staging. Everything runs on a private Docker
+// The images are built with --build-arg NEXT_PUBLIC_SITE_URL=<site-origin>,
+// SITE_CANONICAL_HOST_ALIASES=<site-origin host without www.>,
+// SITE_HTTPS_REDIRECT=true and DEPLOYMENT_ENV=production or staging. Everything runs on a private Docker
 // network and a throw-away database; nothing here touches a real deployment.
 import { spawnSync } from "node:child_process";
 import { dirname, resolve } from "node:path";
@@ -43,6 +44,7 @@ const FRONT_STAGING = args["front-staging"];
 const API_IMAGE = args["api-image"];
 const COURSES = Number.parseInt(args.courses ?? "12053", 10);
 const SITE_ORIGIN = args["site-origin"] ?? "https://www.matrix.invalid";
+const ALIAS_HOST = new URL(SITE_ORIGIN).hostname.replace(/^www\./, "");
 const RUN = `matrix${Date.now().toString(36)}`;
 const NETWORK = `${RUN}-net`;
 
@@ -233,15 +235,26 @@ const policyMatrix = async () => {
   await rejected(
     "changed-https-redirect",
     FRONT_PRODUCTION,
-    ["SITE_HTTPS_REDIRECT=true"],
+    ["SITE_HTTPS_REDIRECT=false"],
     "REDIRECT_MISMATCH",
   );
   await rejected(
     "changed-host-aliases",
     FRONT_PRODUCTION,
-    ["SITE_CANONICAL_HOST_ALIASES=matrix.invalid"],
+    [`SITE_CANONICAL_HOST_ALIASES=other.${ALIAS_HOST}`],
     "REDIRECT_MISMATCH",
   );
+  for (const [name, aliases] of [
+    ["alias-with-scheme", `https://${ALIAS_HOST}`],
+    ["alias-with-port", `${ALIAS_HOST}:8443`],
+    ["alias-is-canonical", new URL(SITE_ORIGIN).hostname],
+  ])
+    await rejected(
+      name,
+      FRONT_PRODUCTION,
+      [`SITE_CANONICAL_HOST_ALIASES=${aliases}`],
+      "ALIASES_INVALID",
+    );
 
   for (const [name, image, environment] of [
     ["prod-built-prod-runtime", FRONT_PRODUCTION, "production"],
@@ -542,6 +555,18 @@ const smokeChecks = async (
     "the smoke profile passes inside the production container",
     inside.status === 0 && !/^SKIP/m.test(inside.stdout),
     inside.stdout.slice(-600),
+  );
+  const hosts = docker([
+    "exec",
+    productionContainer,
+    "sh",
+    "-c",
+    'node scripts/seo-audit.mjs --base-url http://127.0.0.1:3000 --site-origin "$NEXT_PUBLIC_SITE_URL" --environment "$DEPLOYMENT_ENV" --profile hosts --alias-hosts "$SITE_CANONICAL_HOST_ALIASES" --https-redirect "$SITE_HTTPS_REDIRECT"',
+  ]);
+  check(
+    "alias, HTTPS, locale and hostile-host redirects pass inside the production container",
+    hosts.status === 0 && !/^SKIP/m.test(hosts.stdout),
+    hosts.stdout.slice(-900),
   );
 
   const audit = (port, environment) =>

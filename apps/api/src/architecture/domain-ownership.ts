@@ -119,6 +119,7 @@ export const MODEL_OWNERSHIP = {
   RoadmapChatMessage: BOUNDED_CONTEXTS.PROFESSIONAL_DEVELOPMENT,
   ProfessionalAssociationRequirementLink:
     BOUNDED_CONTEXTS.PROFESSIONAL_DEVELOPMENT,
+  ProfessionalAssociationContentLink: BOUNDED_CONTEXTS.PROFESSIONAL_DEVELOPMENT,
 
   // Organization Management
   Organization: BOUNDED_CONTEXTS.ORGANIZATION_MANAGEMENT,
