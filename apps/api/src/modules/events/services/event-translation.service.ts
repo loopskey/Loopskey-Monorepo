@@ -12,6 +12,7 @@ import { requestContext } from "@infrastructure/observability/request-context";
 import { localizeRecord } from "@utils/content-translation.util";
 import { AppLanguage } from "@prisma/client";
 
+import type { TLocalizableEvent } from "@events/types/event-translation.types";
 import type { TranslationActor } from "@utils/content-translation.util";
 import type { TranslationRow } from "@utils/content-translation.util";
 
@@ -72,7 +73,7 @@ export class EventTranslationService {
     return row;
   }
 
-  async localizeOne<TEvent extends LocalizableEvent>(
+  async localizeOne<TEvent extends TLocalizableEvent>(
     event: TEvent,
     locale: AppLanguage | null | undefined,
   ) {
@@ -92,7 +93,7 @@ export class EventTranslationService {
     };
   }
 
-  async localizeMany<TEvent extends LocalizableEvent>(
+  async localizeMany<TEvent extends TLocalizableEvent>(
     events: TEvent[],
     locale: AppLanguage | null | undefined,
   ) {
