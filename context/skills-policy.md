@@ -22,22 +22,37 @@ otherwise, the overrides below win.
 ## Selection
 
 Use the skill the task matches. Do not load all of them for a small change.
+Design and UI skills (the frontend row and everything below it in this table)
+never load for backend, API, database, or other non-UI work.
 
-| Task                                                    | Load, in order                                                          |
-| ------------------------------------------------------- | ----------------------------------------------------------------------- |
-| Any non-trivial code change                             | `ponytail`                                                              |
-| Cross-module change, unfamiliar area, architecture work | `graphify` (query first), then `ponytail`                               |
-| Frontend page, component, layout, or styling change     | `ui-ux-pro-max`, `design-system`, `ui-styling`, then `frontend-design`  |
-| Public landing page or marketing surface                | the frontend row, plus `design-taste-frontend`                          |
-| Redesign explicitly requested                           | the frontend row, plus `design-taste-frontend` section 11               |
-| Code touching auth, permissions, uploads, input, files  | `security-review` before finishing                                      |
-| Authorized pentest of a running instance                | `web-app-penetration-testing`                                           |
-| Trivial edit (copy, one class, rename)                  | none                                                                    |
+| Task                                                        | Load, in order                                                         |
+| ------------------------------------------------------------ | ----------------------------------------------------------------------- |
+| Any non-trivial code change                                 | `ponytail`                                                              |
+| Cross-module change, unfamiliar area, architecture work      | `graphify` (query first), then `ponytail`                              |
+| Frontend page, component, layout, or styling change          | `ui-ux-pro-max`, `design-system`, `ui-styling`, then `frontend-design` |
+| A screenshot, mockup, Figma export, or reference image was supplied | `image-to-code`, then the frontend row to implement it           |
+| Public landing page or marketing surface                    | the frontend row, plus `design-taste-frontend`                         |
+| Redesign explicitly requested                                | the frontend row, plus `design-taste-frontend` section 11              |
+| Finishing any UI feature or component, before calling it done | `web-design-guidelines` as a review step; fix what it reports        |
+| Code touching auth, permissions, uploads, input, files       | `security-review` before finishing                                     |
+| Authorized pentest of a running instance                    | `web-app-penetration-testing`                                          |
+| Trivial edit (copy, one class, rename)                       | none                                                                    |
 
 Sources: `design-taste-frontend` is `leonxlnx/taste-skill`, `frontend-design` is
-`anthropics/skills`, `ponytail` is `dietrichgebert/ponytail`, `graphify` is
-`graphify-labs/graphify`, `web-app-penetration-testing` is `usestrix/strix`.
-`security-review` is built into Claude Code as `/security-review`.
+`anthropics/skills`, `image-to-code` is `leonxlnx/imagegen-skills`,
+`web-design-guidelines` is `vercel-labs/agent-skills`, `ponytail` is
+`dietrichgebert/ponytail`, `graphify` is `graphify-labs/graphify`,
+`web-app-penetration-testing` is `usestrix/strix`. `security-review` is built
+into Claude Code as `/security-review`.
+
+`image-to-code` expects to be able to generate its own reference images first;
+nothing in this project connects an image-generation tool, so that step is
+skipped and the skill goes straight to analyzing the image you supplied.
+
+When UI rules conflict: your explicit instructions first, then `DESIGN.md`,
+then `web-design-guidelines` (correctness and accessibility), then
+`design-taste-frontend` or `frontend-design` (aesthetics) — and the repository
+overrides below always win over any of them.
 
 ## Repository overrides
 
@@ -68,6 +83,11 @@ These apply even where a skill instructs the opposite.
 
 One system, already in place. Extend it; never add a second.
 
+- `DESIGN.md` at the repo root (currently modeled on Linear) is aesthetic
+  inspiration, read before new UI work for direction on hierarchy, density, and
+  restraint. It is not a token source: map anything it suggests onto the real
+  tokens below instead of hard-coding one of its colors, and where the two
+  disagree, this project's tokens win.
 - Tokens: `apps/front/src/app/globals.css`. Colors are CSS variables in
   `:root` (oklch), exposed to Tailwind through `@theme inline`. Radius derives
   from `--radius`. Semantic families exist for success, warning, destructive,
