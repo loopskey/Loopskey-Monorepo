@@ -1,11 +1,11 @@
 "use client";
 
-import { EventStatus, ProviderDashboardRange } from "@/lib/graphql/base";
 import { PromotionRequestStatus } from "@/lib/graphql/base";
+import { EventStatus } from "@/lib/graphql/base";
 import { useMemo } from "react";
 import { useI18n } from "@hooks/useI18n";
 
-import * as API from "@/lib/rtk/endpoints/provider.api";
+import type * as TAPI from "@/lib/graphql/operations/provider";
 import * as L from "lucide-react";
 
 const providerBenefits = [
@@ -57,41 +57,30 @@ const clampPercentage = (value?: number | null) => {
   return Math.max(0, Math.min(100, Number(safeValue.toFixed(1))));
 };
 
-export const useLandingProviderShowcase = () => {
+type QueryState<TData> = { data?: TData; isFetching: boolean; error?: unknown };
+
+export type ProviderQueryStates = {
+  overview: QueryState<TAPI.ProviderOverviewQuery["providerOverview"]>;
+  analytics: QueryState<TAPI.ProviderAnalyticsQuery["providerAnalytics"]>;
+  events: QueryState<TAPI.ProviderEventsTableQuery["providerEventsTable"]>;
+  promotions: QueryState<
+    TAPI.ProviderPromotionRequestsQuery["providerPromotionRequests"]
+  >;
+};
+
+export const useLandingProviderShowcase = (queries?: ProviderQueryStates) => {
   const { t } = useI18n();
 
-  const rangeVariables = useMemo(
-    () => ({
-      input: {
-        range: ProviderDashboardRange.Last_30Days,
-      },
-    }),
-    [],
-  );
-
-  const eventsVariables = useMemo(
-    () => ({
-      pagination: {
-        take: 50,
-      },
-    }),
-    [],
-  );
-
-  const promotionsVariables = useMemo(
-    () => ({
-      pagination: {
-        take: 50,
-      },
-    }),
-    [],
-  );
-
-  const overviewQuery = API.useProviderOverviewQuery(rangeVariables);
-  const analyticsQuery = API.useProviderAnalyticsQuery(rangeVariables);
-  const eventsQuery = API.useProviderEventsTableQuery(eventsVariables);
-  const promotionsQuery =
-    API.useProviderPromotionRequestsQuery(promotionsVariables);
+  const overviewQuery: ProviderQueryStates["overview"] = queries?.overview ?? {
+    isFetching: false,
+  };
+  const analyticsQuery: ProviderQueryStates["analytics"] =
+    queries?.analytics ?? { isFetching: false };
+  const eventsQuery: ProviderQueryStates["events"] = queries?.events ?? {
+    isFetching: false,
+  };
+  const promotionsQuery: ProviderQueryStates["promotions"] =
+    queries?.promotions ?? { isFetching: false };
 
   const overview = overviewQuery.data;
   const analytics = analyticsQuery.data;

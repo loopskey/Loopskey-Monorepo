@@ -1,4 +1,17 @@
-import { TLandingHeroContentKind } from "@/types/landing-module.types";
+export {
+  LANDING_HUB_TAKE,
+  HERO_SEARCH_TAKE,
+  HERO_SEARCH_MIN_LENGTH,
+  HERO_CATEGORY_TAKE,
+  getKindHrefPrefix,
+  HERO_SPLIT_STAGGER_MS,
+  HERO_SPLIT_DURATION_S,
+  SEARCH_DEBOUNCE_MS,
+  fallbackStats,
+  fallbackCompliance,
+  fallbackFeatures,
+} from "./landing-public.constant";
+
 import { TSelectedRange } from "@/types/professional-dashboard.types";
 import { TSelectOption } from "@/types/content-module.types";
 import { TServiceItem } from "@/types/pages.types";
@@ -27,20 +40,6 @@ export const enumOptions = <T extends Record<string, string>>(
 };
 
 // =============== Landing ================
-export const LANDING_HUB_TAKE = 20;
-
-export const HERO_SEARCH_TAKE = 12;
-
-export const HERO_SEARCH_MIN_LENGTH = 3;
-
-export const HERO_CATEGORY_TAKE = 8;
-
-export const getKindHrefPrefix = (kind: TLandingHeroContentKind) => {
-  if (kind === "course") return "/courses";
-  if (kind === "event") return "/events";
-  if (kind === "podcast") return "/podcasts";
-  return "/youtube";
-};
 
 // ============== Roadmap Landing ================
 export const milestones = [
@@ -93,54 +92,6 @@ export const statusConfig = {
 } as const;
 
 // ============= Landing Org ===============
-export const fallbackStats = [
-  {
-    key: "teamMembers",
-    value: "1,248",
-  },
-  {
-    key: "cpdCompliant",
-    value: "94%",
-  },
-  {
-    key: "avgGrowth",
-    value: "+31%",
-  },
-];
-
-export const fallbackCompliance = [
-  {
-    key: "compliant",
-    value: 94,
-  },
-  {
-    key: "atRisk",
-    value: 18,
-  },
-  {
-    key: "nonCompliant",
-    value: 6,
-  },
-];
-
-export const fallbackFeatures = [
-  {
-    key: "teamProgress",
-    icon: L.Users2,
-  },
-  {
-    key: "cpdCompliance",
-    icon: L.ShieldCheck,
-  },
-  {
-    key: "skillAnalytics",
-    icon: L.BarChart3,
-  },
-  {
-    key: "learningAssignments",
-    icon: L.ClipboardList,
-  },
-];
 
 // ============= Charts =================
 export const CHART_COLORS = [
@@ -159,7 +110,6 @@ export const PAGE_SIZE = 10;
 export const DASHBOARD_MENU_BUTTON_ID = "dashboard-menu-button";
 
 export const DEFAULT_PAGE = 1;
-export const SEARCH_DEBOUNCE_MS = 350;
 
 export const FALLBACK_CURRENCY = "USD";
 
@@ -409,5 +359,3 @@ export const NATIVE_PICKER_TYPES = [
 ] as const;
 
 // ============== Hero Split Text Animation ==============
-export const HERO_SPLIT_STAGGER_MS = 25;
-export const HERO_SPLIT_DURATION_S = 0.9;

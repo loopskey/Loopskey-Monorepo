@@ -1,0 +1,42 @@
+{
+  "origin": null,
+  "reviewedBy": null,
+  "reviewedAt": null,
+  "editorial": { "topic": null, "provider": null, "frenchCourse": null },
+  "legacy": [
+    {
+      "slug": "risk-management-in-projects",
+      "disposition": "UNRESOLVED",
+      "targetPath": null,
+      "evidence": null,
+      "reviewedBy": null
+    },
+    {
+      "slug": "client-relationship-management-3",
+      "disposition": "UNRESOLVED",
+      "targetPath": null,
+      "evidence": null,
+      "reviewedBy": null
+    },
+    {
+      "slug": "stakeholder-management",
+      "disposition": "UNRESOLVED",
+      "targetPath": null,
+      "evidence": null,
+      "reviewedBy": null
+    },
+    {
+      "slug": "coursera-jvq5nhtgee2jhw516rtnyq",
+      "disposition": "UNRESOLVED",
+      "targetPath": null,
+      "evidence": null,
+      "reviewedBy": null
+    }
+  ],
+  "searchConsole": {
+    "owner": null,
+    "verifiedAt": null,
+    "sitemapSubmitted": false,
+    "performanceExport": null
+  }
+}

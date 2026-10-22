@@ -4,6 +4,7 @@
 .claude
 .playwright-mcp
 .turbo
+.tmp
 .worktrees
 .vscode
 node_modules

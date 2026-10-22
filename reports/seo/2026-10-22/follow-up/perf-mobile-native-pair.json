@@ -1,0 +1,1367 @@
+{
+  "tool": "scripts/perf-lab.mjs",
+  "kind": "lab",
+  "caution": "Lab samples under DevTools throttling on one machine. Not field data: they do not establish p75 LCP, INP or CLS, and TBT is not INP.",
+  "generatedAt": "2026-10-22T17:37:06.311Z",
+  "commit": "b39e3a6fc9dfabfc04d75471ddd070e2a5b8f662",
+  "dirty": true,
+  "baseUrl": "http://localhost:5722",
+  "note": "Both production builds run natively with the same installed Next 16.4 and Node on this host, identical deterministic API at port 5718, alternating cold profiles. Before standalone artifact extracted from baseline image; no build, lint or test jobs run concurrently. Field data is unavailable.",
+  "profile": {
+    "name": "mobile",
+    "description": "Moto G Power class device: 412x823 at DPR 1.75, 4x CPU slowdown, 150 ms RTT, 1.6 Mbps down, 750 Kbps up (Lighthouse mobile values, applied as DevTools throttling)",
+    "viewport": {
+      "width": 412,
+      "height": 823,
+      "deviceScaleFactor": 1.75,
+      "mobile": true
+    },
+    "userAgent": "Mozilla/5.0 (Linux; Android 11; moto g power (2022)) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Mobile Safari/537.36",
+    "cpuSlowdown": 4,
+    "network": {
+      "latencyMs": 150,
+      "downloadKbps": 1638.4,
+      "uploadKbps": 750
+    }
+  },
+  "machine": {
+    "platform": "win32 10.0.26300",
+    "cpu": "11th Gen Intel(R) Core(TM) i5-1145G7 @ 2.60GHz",
+    "cores": 8,
+    "memoryGiB": 16,
+    "node": "v24.18.0"
+  },
+  "runsPerRoute": 5,
+  "targets": {
+    "lcpMs": 2500,
+    "cls": 0.1,
+    "tbtMs": 200
+  },
+  "method": {
+    "isolation": "new headless Chrome and empty profile per sample (cold cache)",
+    "benchmark": "benchmarkIndex is the Lighthouse ultradumbBenchmark score (string building for 500 ms) measured unthrottled on about:blank before each sample; it shows how fast this machine is before the fixed slowdown is applied",
+    "settle": "load event, then 2000 ms without network and 5000 ms without a long task, capped at 45000 ms",
+    "tbt": "sum of long-task time over 50 ms between FCP and a longtask-based TTI (last long task before a 5 s quiet window); an approximation of Lighthouse TBT",
+    "transfer": "encoded bytes per request; script-first-load is parser-initiated, script-deferred is requested by script (dynamic imports), prefetch is router prefetch or lowest-priority script"
+  },
+  "routes": {
+    "home": {
+      "path": "/",
+      "summary": {
+        "samples": 5,
+        "benchmarkIndex": {
+          "median": 10874,
+          "min": 6600,
+          "max": 13932
+        },
+        "ttfbMs": {
+          "median": 73,
+          "min": 53,
+          "max": 88
+        },
+        "fcpMs": {
+          "median": 2536,
+          "min": 2104,
+          "max": 3312
+        },
+        "lcpMs": {
+          "median": 2556,
+          "min": 2120,
+          "max": 3328
+        },
+        "cls": {
+          "median": 0,
+          "min": 0,
+          "max": 0
+        },
+        "tbtMs": {
+          "median": 1106,
+          "min": 928,
+          "max": 1249
+        },
+        "meetsTargets": {
+          "lcp": false,
+          "cls": true,
+          "tbt": false
+        }
+      },
+      "failedAttempts": [],
+      "samples": [
+        {
+          "chrome": "Chrome/155.0.8059.80",
+          "benchmarkIndex": 13932,
+          "status": 200,
+          "lang": "en",
+          "ttfbMs": 53,
+          "fcpMs": 2720,
+          "lcpMs": 2720,
+          "lcpElement": "img",
+          "lcpResource": "/_next/image",
+          "cls": 0,
+          "tbtMs": 1024,
+          "longTasks": 10,
+          "longestTasks": [
+            {
+              "startMs": 2758,
+              "durationMs": 392
+            },
+            {
+              "startMs": 4883,
+              "durationMs": 270
+            },
+            {
+              "startMs": 4378,
+              "durationMs": 168
+            },
+            {
+              "startMs": 4051,
+              "durationMs": 160
+            },
+            {
+              "startMs": 3690,
+              "durationMs": 133
+            }
+          ],
+          "transferKib": {
+            "document": 33.4,
+            "css": 24.8,
+            "image": 26.5,
+            "script-first-load": 232,
+            "other": 3,
+            "api": 7.6,
+            "prefetch": 50.6,
+            "script-deferred": 74.3
+          },
+          "requests": {
+            "document": 1,
+            "css": 1,
+            "image": 3,
+            "script-first-load": 17,
+            "other": 2,
+            "api": 3,
+            "prefetch": 17,
+            "script-deferred": 10
+          },
+          "deferredScriptKibBeforeLcp": 0
+        },
+        {
+          "chrome": "Chrome/155.0.8059.80",
+          "benchmarkIndex": 10874,
+          "status": 200,
+          "lang": "en",
+          "ttfbMs": 73,
+          "fcpMs": 2536,
+          "lcpMs": 2556,
+          "lcpElement": "img",
+          "lcpResource": "/_next/image",
+          "cls": 0,
+          "tbtMs": 1106,
+          "longTasks": 12,
+          "longestTasks": [
+            {
+              "startMs": 2644,
+              "durationMs": 489
+            },
+            {
+              "startMs": 4683,
+              "durationMs": 246
+            },
+            {
+              "startMs": 4299,
+              "durationMs": 193
+            },
+            {
+              "startMs": 3156,
+              "durationMs": 156
+            },
+            {
+              "startMs": 5029,
+              "durationMs": 98
+            }
+          ],
+          "transferKib": {
+            "document": 33.4,
+            "css": 24.8,
+            "image": 26.5,
+            "script-first-load": 232,
+            "other": 3,
+            "api": 7.6,
+            "prefetch": 50.6,
+            "script-deferred": 74.3
+          },
+          "requests": {
+            "document": 1,
+            "css": 1,
+            "image": 3,
+            "script-first-load": 17,
+            "other": 2,
+            "api": 3,
+            "prefetch": 17,
+            "script-deferred": 10
+          },
+          "deferredScriptKibBeforeLcp": 0
+        },
+        {
+          "chrome": "Chrome/155.0.8059.80",
+          "benchmarkIndex": 10062,
+          "status": 200,
+          "lang": "en",
+          "ttfbMs": 74,
+          "fcpMs": 3312,
+          "lcpMs": 3328,
+          "lcpElement": "img",
+          "lcpResource": "/_next/image",
+          "cls": 0,
+          "tbtMs": 928,
+          "longTasks": 10,
+          "longestTasks": [
+            {
+              "startMs": 3383,
+              "durationMs": 412
+            },
+            {
+              "startMs": 5408,
+              "durationMs": 205
+            },
+            {
+              "startMs": 5026,
+              "durationMs": 146
+            },
+            {
+              "startMs": 3811,
+              "durationMs": 131
+            },
+            {
+              "startMs": 4811,
+              "durationMs": 126
+            }
+          ],
+          "transferKib": {
+            "document": 33.4,
+            "css": 24.8,
+            "image": 26.5,
+            "script-first-load": 232,
+            "other": 3,
+            "api": 7.6,
+            "prefetch": 50.6,
+            "script-deferred": 74.3
+          },
+          "requests": {
+            "document": 1,
+            "css": 1,
+            "image": 3,
+            "script-first-load": 17,
+            "other": 2,
+            "api": 3,
+            "prefetch": 17,
+            "script-deferred": 10
+          },
+          "deferredScriptKibBeforeLcp": 0
+        },
+        {
+          "chrome": "Chrome/155.0.8059.80",
+          "benchmarkIndex": 10992,
+          "status": 200,
+          "lang": "en",
+          "ttfbMs": 63,
+          "fcpMs": 2104,
+          "lcpMs": 2120,
+          "lcpElement": "img",
+          "lcpResource": "/_next/image",
+          "cls": 0,
+          "tbtMs": 1109,
+          "longTasks": 11,
+          "longestTasks": [
+            {
+              "startMs": 2178,
+              "durationMs": 382
+            },
+            {
+              "startMs": 3962,
+              "durationMs": 224
+            },
+            {
+              "startMs": 4363,
+              "durationMs": 222
+            },
+            {
+              "startMs": 2939,
+              "durationMs": 159
+            },
+            {
+              "startMs": 3211,
+              "durationMs": 130
+            }
+          ],
+          "transferKib": {
+            "document": 33.4,
+            "css": 24.8,
+            "image": 26.5,
+            "script-first-load": 232,
+            "other": 3,
+            "api": 7.6,
+            "prefetch": 50.6,
+            "script-deferred": 74.3
+          },
+          "requests": {
+            "document": 1,
+            "css": 1,
+            "image": 3,
+            "script-first-load": 17,
+            "other": 2,
+            "api": 3,
+            "prefetch": 17,
+            "script-deferred": 10
+          },
+          "deferredScriptKibBeforeLcp": 0
+        },
+        {
+          "chrome": "Chrome/155.0.8059.80",
+          "benchmarkIndex": 6600,
+          "status": 200,
+          "lang": "en",
+          "ttfbMs": 88,
+          "fcpMs": 2292,
+          "lcpMs": 2292,
+          "lcpElement": "img",
+          "lcpResource": "/_next/image",
+          "cls": 0,
+          "tbtMs": 1249,
+          "longTasks": 11,
+          "longestTasks": [
+            {
+              "startMs": 2336,
+              "durationMs": 511
+            },
+            {
+              "startMs": 3659,
+              "durationMs": 237
+            },
+            {
+              "startMs": 4801,
+              "durationMs": 201
+            },
+            {
+              "startMs": 4473,
+              "durationMs": 181
+            },
+            {
+              "startMs": 3220,
+              "durationMs": 169
+            }
+          ],
+          "transferKib": {
+            "document": 33.4,
+            "css": 24.8,
+            "image": 26.5,
+            "script-first-load": 232,
+            "other": 3,
+            "api": 7.6,
+            "prefetch": 50.6,
+            "script-deferred": 74.3
+          },
+          "requests": {
+            "document": 1,
+            "css": 1,
+            "image": 3,
+            "script-first-load": 17,
+            "other": 2,
+            "api": 3,
+            "prefetch": 17,
+            "script-deferred": 10
+          },
+          "deferredScriptKibBeforeLcp": 0
+        }
+      ],
+      "comparison": {
+        "baseUrl": "http://localhost:5723",
+        "summary": {
+          "samples": 5,
+          "benchmarkIndex": {
+            "median": 10642,
+            "min": 9946,
+            "max": 13078
+          },
+          "ttfbMs": {
+            "median": 117,
+            "min": 69,
+            "max": 941
+          },
+          "fcpMs": {
+            "median": 2540,
+            "min": 2344,
+            "max": 2928
+          },
+          "lcpMs": {
+            "median": 2556,
+            "min": 2360,
+            "max": 2960
+          },
+          "cls": {
+            "median": 0,
+            "min": 0,
+            "max": 0
+          },
+          "tbtMs": {
+            "median": 1398,
+            "min": 1123,
+            "max": 1762
+          },
+          "meetsTargets": {
+            "lcp": false,
+            "cls": true,
+            "tbt": false
+          }
+        },
+        "failedAttempts": [],
+        "samples": [
+          {
+            "chrome": "Chrome/155.0.8059.80",
+            "benchmarkIndex": 9946,
+            "status": 200,
+            "lang": "en",
+            "ttfbMs": 941,
+            "fcpMs": 2928,
+            "lcpMs": 2960,
+            "lcpElement": "img",
+            "lcpResource": "/_next/image",
+            "cls": 0,
+            "tbtMs": 1398,
+            "longTasks": 15,
+            "longestTasks": [
+              {
+                "startMs": 3103,
+                "durationMs": 443
+              },
+              {
+                "startMs": 5257,
+                "durationMs": 358
+              },
+              {
+                "startMs": 4745,
+                "durationMs": 241
+              },
+              {
+                "startMs": 5616,
+                "durationMs": 150
+              },
+              {
+                "startMs": 4174,
+                "durationMs": 147
+              }
+            ],
+            "transferKib": {
+              "document": 33.3,
+              "css": 24.8,
+              "image": 26.5,
+              "script-first-load": 236.4,
+              "other": 3,
+              "api": 16.5,
+              "prefetch": 50.6,
+              "script-deferred": 76.1
+            },
+            "requests": {
+              "document": 1,
+              "css": 1,
+              "image": 3,
+              "script-first-load": 17,
+              "other": 2,
+              "api": 8,
+              "prefetch": 17,
+              "script-deferred": 10
+            },
+            "deferredScriptKibBeforeLcp": 0
+          },
+          {
+            "chrome": "Chrome/155.0.8059.80",
+            "benchmarkIndex": 10642,
+            "status": 200,
+            "lang": "en",
+            "ttfbMs": 117,
+            "fcpMs": 2344,
+            "lcpMs": 2360,
+            "lcpElement": "img",
+            "lcpResource": "/_next/image",
+            "cls": 0,
+            "tbtMs": 1415,
+            "longTasks": 13,
+            "longestTasks": [
+              {
+                "startMs": 2410,
+                "durationMs": 388
+              },
+              {
+                "startMs": 4509,
+                "durationMs": 316
+              },
+              {
+                "startMs": 5101,
+                "durationMs": 290
+              },
+              {
+                "startMs": 3731,
+                "durationMs": 203
+              },
+              {
+                "startMs": 4238,
+                "durationMs": 165
+              }
+            ],
+            "transferKib": {
+              "document": 33.3,
+              "css": 24.8,
+              "image": 26.5,
+              "script-first-load": 236.4,
+              "other": 3,
+              "api": 16.5,
+              "prefetch": 50.6,
+              "script-deferred": 76.1
+            },
+            "requests": {
+              "document": 1,
+              "css": 1,
+              "image": 3,
+              "script-first-load": 17,
+              "other": 2,
+              "api": 8,
+              "prefetch": 17,
+              "script-deferred": 10
+            },
+            "deferredScriptKibBeforeLcp": 0
+          },
+          {
+            "chrome": "Chrome/155.0.8059.80",
+            "benchmarkIndex": 10000,
+            "status": 200,
+            "lang": "en",
+            "ttfbMs": 118,
+            "fcpMs": 2540,
+            "lcpMs": 2556,
+            "lcpElement": "img",
+            "lcpResource": "/_next/image",
+            "cls": 0,
+            "tbtMs": 1262,
+            "longTasks": 12,
+            "longestTasks": [
+              {
+                "startMs": 4639,
+                "durationMs": 450
+              },
+              {
+                "startMs": 2587,
+                "durationMs": 359
+              },
+              {
+                "startMs": 4241,
+                "durationMs": 209
+              },
+              {
+                "startMs": 3979,
+                "durationMs": 157
+              },
+              {
+                "startMs": 3577,
+                "durationMs": 131
+              }
+            ],
+            "transferKib": {
+              "document": 33.3,
+              "css": 24.8,
+              "image": 26.5,
+              "script-first-load": 236.4,
+              "other": 3,
+              "api": 16.5,
+              "prefetch": 50.6,
+              "script-deferred": 76.1
+            },
+            "requests": {
+              "document": 1,
+              "css": 1,
+              "image": 3,
+              "script-first-load": 17,
+              "other": 2,
+              "api": 8,
+              "prefetch": 17,
+              "script-deferred": 10
+            },
+            "deferredScriptKibBeforeLcp": 0
+          },
+          {
+            "chrome": "Chrome/155.0.8059.80",
+            "benchmarkIndex": 13078,
+            "status": 200,
+            "lang": "en",
+            "ttfbMs": 71,
+            "fcpMs": 2388,
+            "lcpMs": 2388,
+            "lcpElement": "img",
+            "lcpResource": "/_next/image",
+            "cls": 0,
+            "tbtMs": 1762,
+            "longTasks": 13,
+            "longestTasks": [
+              {
+                "startMs": 2457,
+                "durationMs": 531
+              },
+              {
+                "startMs": 5122,
+                "durationMs": 437
+              },
+              {
+                "startMs": 4358,
+                "durationMs": 291
+              },
+              {
+                "startMs": 3032,
+                "durationMs": 241
+              },
+              {
+                "startMs": 4041,
+                "durationMs": 185
+              }
+            ],
+            "transferKib": {
+              "document": 33.3,
+              "css": 24.8,
+              "image": 26.5,
+              "script-first-load": 236.4,
+              "other": 3,
+              "api": 16.5,
+              "prefetch": 50.6,
+              "script-deferred": 76.1
+            },
+            "requests": {
+              "document": 1,
+              "css": 1,
+              "image": 3,
+              "script-first-load": 17,
+              "other": 2,
+              "api": 8,
+              "prefetch": 17,
+              "script-deferred": 10
+            },
+            "deferredScriptKibBeforeLcp": 0
+          },
+          {
+            "chrome": "Chrome/155.0.8059.80",
+            "benchmarkIndex": 10668,
+            "status": 200,
+            "lang": "en",
+            "ttfbMs": 69,
+            "fcpMs": 2900,
+            "lcpMs": 2900,
+            "lcpElement": "img",
+            "lcpResource": "/_next/image",
+            "cls": 0,
+            "tbtMs": 1123,
+            "longTasks": 10,
+            "longestTasks": [
+              {
+                "startMs": 2701,
+                "durationMs": 568
+              },
+              {
+                "startMs": 4904,
+                "durationMs": 310
+              },
+              {
+                "startMs": 4405,
+                "durationMs": 305
+              },
+              {
+                "startMs": 3770,
+                "durationMs": 222
+              },
+              {
+                "startMs": 4228,
+                "durationMs": 93
+              }
+            ],
+            "transferKib": {
+              "document": 33.3,
+              "css": 24.8,
+              "image": 26.5,
+              "script-first-load": 236.4,
+              "other": 3,
+              "api": 16.5,
+              "prefetch": 50.6,
+              "script-deferred": 76.1
+            },
+            "requests": {
+              "document": 1,
+              "css": 1,
+              "image": 3,
+              "script-first-load": 17,
+              "other": 2,
+              "api": 8,
+              "prefetch": 17,
+              "script-deferred": 10
+            },
+            "deferredScriptKibBeforeLcp": 0
+          }
+        ]
+      }
+    },
+    "catalog": {
+      "path": "/content",
+      "summary": {
+        "samples": 5,
+        "benchmarkIndex": {
+          "median": 9142,
+          "min": 7758,
+          "max": 9976
+        },
+        "ttfbMs": {
+          "median": 76,
+          "min": 65,
+          "max": 85
+        },
+        "fcpMs": {
+          "median": 1864,
+          "min": 1692,
+          "max": 2224
+        },
+        "lcpMs": {
+          "median": 1984,
+          "min": 1808,
+          "max": 2408
+        },
+        "cls": {
+          "median": 0,
+          "min": 0,
+          "max": 0
+        },
+        "tbtMs": {
+          "median": 467,
+          "min": 447,
+          "max": 524
+        },
+        "meetsTargets": {
+          "lcp": true,
+          "cls": true,
+          "tbt": false
+        }
+      },
+      "failedAttempts": [],
+      "samples": [
+        {
+          "chrome": "Chrome/155.0.8059.80",
+          "benchmarkIndex": 9870,
+          "status": 200,
+          "lang": "en",
+          "ttfbMs": 85,
+          "fcpMs": 1692,
+          "lcpMs": 1808,
+          "lcpElement": "div",
+          "lcpResource": "/category-art-accounting.svg",
+          "cls": 0,
+          "tbtMs": 524,
+          "longTasks": 9,
+          "longestTasks": [
+            {
+              "startMs": 1784,
+              "durationMs": 294
+            },
+            {
+              "startMs": 2082,
+              "durationMs": 149
+            },
+            {
+              "startMs": 1410,
+              "durationMs": 124
+            },
+            {
+              "startMs": 2599,
+              "durationMs": 121
+            },
+            {
+              "startMs": 3099,
+              "durationMs": 86
+            }
+          ],
+          "transferKib": {
+            "document": 20.3,
+            "css": 24.8,
+            "script-first-load": 188.9,
+            "image": 4.6,
+            "other": 3,
+            "api": 0.5,
+            "prefetch": 54.7,
+            "script-deferred": 72.7
+          },
+          "requests": {
+            "document": 1,
+            "css": 1,
+            "script-first-load": 15,
+            "image": 2,
+            "other": 2,
+            "api": 1,
+            "prefetch": 22,
+            "script-deferred": 9
+          },
+          "deferredScriptKibBeforeLcp": 0
+        },
+        {
+          "chrome": "Chrome/155.0.8059.80",
+          "benchmarkIndex": 7758,
+          "status": 200,
+          "lang": "en",
+          "ttfbMs": 65,
+          "fcpMs": 1804,
+          "lcpMs": 1936,
+          "lcpElement": "div",
+          "lcpResource": "/category-art-accounting.svg",
+          "cls": 0,
+          "tbtMs": 510,
+          "longTasks": 8,
+          "longestTasks": [
+            {
+              "startMs": 1841,
+              "durationMs": 291
+            },
+            {
+              "startMs": 2137,
+              "durationMs": 121
+            },
+            {
+              "startMs": 2495,
+              "durationMs": 119
+            },
+            {
+              "startMs": 2738,
+              "durationMs": 116
+            },
+            {
+              "startMs": 1518,
+              "durationMs": 107
+            }
+          ],
+          "transferKib": {
+            "document": 20.3,
+            "css": 24.8,
+            "script-first-load": 188.9,
+            "image": 4.6,
+            "other": 3,
+            "api": 0.5,
+            "prefetch": 56.7,
+            "script-deferred": 72.7
+          },
+          "requests": {
+            "document": 1,
+            "css": 1,
+            "script-first-load": 15,
+            "image": 2,
+            "other": 2,
+            "api": 1,
+            "prefetch": 22,
+            "script-deferred": 9
+          },
+          "deferredScriptKibBeforeLcp": 0
+        },
+        {
+          "chrome": "Chrome/155.0.8059.80",
+          "benchmarkIndex": 9142,
+          "status": 200,
+          "lang": "en",
+          "ttfbMs": 82,
+          "fcpMs": 1864,
+          "lcpMs": 2032,
+          "lcpElement": "div",
+          "lcpResource": "/category-art-accounting.svg",
+          "cls": 0,
+          "tbtMs": 466,
+          "longTasks": 5,
+          "longestTasks": [
+            {
+              "startMs": 1948,
+              "durationMs": 413
+            },
+            {
+              "startMs": 1527,
+              "durationMs": 132
+            },
+            {
+              "startMs": 2363,
+              "durationMs": 123
+            },
+            {
+              "startMs": 2819,
+              "durationMs": 78
+            },
+            {
+              "startMs": 2702,
+              "durationMs": 52
+            }
+          ],
+          "transferKib": {
+            "document": 20.3,
+            "css": 24.8,
+            "script-first-load": 188.9,
+            "image": 4.6,
+            "other": 3,
+            "api": 0.5,
+            "prefetch": 54.7,
+            "script-deferred": 72.7
+          },
+          "requests": {
+            "document": 1,
+            "css": 1,
+            "script-first-load": 15,
+            "image": 2,
+            "other": 2,
+            "api": 1,
+            "prefetch": 22,
+            "script-deferred": 9
+          },
+          "deferredScriptKibBeforeLcp": 0
+        },
+        {
+          "chrome": "Chrome/155.0.8059.80",
+          "benchmarkIndex": 9976,
+          "status": 200,
+          "lang": "en",
+          "ttfbMs": 76,
+          "fcpMs": 1868,
+          "lcpMs": 1984,
+          "lcpElement": "div",
+          "lcpResource": "/category-art-accounting.svg",
+          "cls": 0,
+          "tbtMs": 467,
+          "longTasks": 6,
+          "longestTasks": [
+            {
+              "startMs": 1901,
+              "durationMs": 291
+            },
+            {
+              "startMs": 2611,
+              "durationMs": 139
+            },
+            {
+              "startMs": 2863,
+              "durationMs": 137
+            },
+            {
+              "startMs": 1547,
+              "durationMs": 109
+            },
+            {
+              "startMs": 2197,
+              "durationMs": 100
+            }
+          ],
+          "transferKib": {
+            "document": 20.3,
+            "css": 24.8,
+            "script-first-load": 188.9,
+            "image": 4.6,
+            "other": 3,
+            "api": 0.5,
+            "prefetch": 54.7,
+            "script-deferred": 72.7
+          },
+          "requests": {
+            "document": 1,
+            "css": 1,
+            "script-first-load": 15,
+            "image": 2,
+            "other": 2,
+            "api": 1,
+            "prefetch": 22,
+            "script-deferred": 9
+          },
+          "deferredScriptKibBeforeLcp": 0
+        },
+        {
+          "chrome": "Chrome/155.0.8059.80",
+          "benchmarkIndex": 8016,
+          "status": 200,
+          "lang": "en",
+          "ttfbMs": 74,
+          "fcpMs": 2224,
+          "lcpMs": 2408,
+          "lcpElement": "div",
+          "lcpResource": "/category-art-accounting.svg",
+          "cls": 0,
+          "tbtMs": 447,
+          "longTasks": 7,
+          "longestTasks": [
+            {
+              "startMs": 2278,
+              "durationMs": 310
+            },
+            {
+              "startMs": 2641,
+              "durationMs": 123
+            },
+            {
+              "startMs": 3156,
+              "durationMs": 108
+            },
+            {
+              "startMs": 1834,
+              "durationMs": 91
+            },
+            {
+              "startMs": 3418,
+              "durationMs": 81
+            }
+          ],
+          "transferKib": {
+            "document": 20.3,
+            "css": 24.8,
+            "script-first-load": 188.9,
+            "image": 4.6,
+            "other": 3,
+            "api": 0.5,
+            "prefetch": 54.7,
+            "script-deferred": 72.7
+          },
+          "requests": {
+            "document": 1,
+            "css": 1,
+            "script-first-load": 15,
+            "image": 2,
+            "other": 2,
+            "api": 1,
+            "prefetch": 22,
+            "script-deferred": 9
+          },
+          "deferredScriptKibBeforeLcp": 0
+        }
+      ],
+      "comparison": {
+        "baseUrl": "http://localhost:5723",
+        "summary": {
+          "samples": 5,
+          "benchmarkIndex": {
+            "median": 9876,
+            "min": 8886,
+            "max": 12766
+          },
+          "ttfbMs": {
+            "median": 64,
+            "min": 41,
+            "max": 111
+          },
+          "fcpMs": {
+            "median": 1788,
+            "min": 1724,
+            "max": 2008
+          },
+          "lcpMs": {
+            "median": 1956,
+            "min": 1932,
+            "max": 2124
+          },
+          "cls": {
+            "median": 0,
+            "min": 0,
+            "max": 0
+          },
+          "tbtMs": {
+            "median": 494,
+            "min": 368,
+            "max": 606
+          },
+          "meetsTargets": {
+            "lcp": true,
+            "cls": true,
+            "tbt": false
+          }
+        },
+        "failedAttempts": [],
+        "samples": [
+          {
+            "chrome": "Chrome/155.0.8059.80",
+            "benchmarkIndex": 10964,
+            "status": 200,
+            "lang": "en",
+            "ttfbMs": 64,
+            "fcpMs": 2008,
+            "lcpMs": 2124,
+            "lcpElement": "div",
+            "lcpResource": "/category-art-accounting.svg",
+            "cls": 0,
+            "tbtMs": 403,
+            "longTasks": 7,
+            "longestTasks": [
+              {
+                "startMs": 2033,
+                "durationMs": 301
+              },
+              {
+                "startMs": 2907,
+                "durationMs": 127
+              },
+              {
+                "startMs": 2343,
+                "durationMs": 109
+              },
+              {
+                "startMs": 1616,
+                "durationMs": 92
+              },
+              {
+                "startMs": 1719,
+                "durationMs": 69
+              }
+            ],
+            "transferKib": {
+              "document": 18.6,
+              "css": 24.8,
+              "script-first-load": 191.9,
+              "image": 4.6,
+              "other": 3,
+              "api": 0.5,
+              "prefetch": 54.7,
+              "script-deferred": 74.5
+            },
+            "requests": {
+              "document": 1,
+              "css": 1,
+              "script-first-load": 15,
+              "image": 2,
+              "other": 2,
+              "api": 1,
+              "prefetch": 22,
+              "script-deferred": 9
+            },
+            "deferredScriptKibBeforeLcp": 0
+          },
+          {
+            "chrome": "Chrome/155.0.8059.80",
+            "benchmarkIndex": 12766,
+            "status": 200,
+            "lang": "en",
+            "ttfbMs": 41,
+            "fcpMs": 1780,
+            "lcpMs": 1932,
+            "lcpElement": "div",
+            "lcpResource": "/category-art-accounting.svg",
+            "cls": 0,
+            "tbtMs": 368,
+            "longTasks": 7,
+            "longestTasks": [
+              {
+                "startMs": 1838,
+                "durationMs": 300
+              },
+              {
+                "startMs": 1441,
+                "durationMs": 115
+              },
+              {
+                "startMs": 2715,
+                "durationMs": 110
+              },
+              {
+                "startMs": 2144,
+                "durationMs": 76
+              },
+              {
+                "startMs": 2440,
+                "durationMs": 71
+              }
+            ],
+            "transferKib": {
+              "document": 18.6,
+              "css": 24.8,
+              "script-first-load": 191.9,
+              "image": 4.6,
+              "other": 3,
+              "api": 0.5,
+              "prefetch": 54.7,
+              "script-deferred": 74.5
+            },
+            "requests": {
+              "document": 1,
+              "css": 1,
+              "script-first-load": 15,
+              "image": 2,
+              "other": 2,
+              "api": 1,
+              "prefetch": 22,
+              "script-deferred": 9
+            },
+            "deferredScriptKibBeforeLcp": 0
+          },
+          {
+            "chrome": "Chrome/155.0.8059.80",
+            "benchmarkIndex": 8886,
+            "status": 200,
+            "lang": "en",
+            "ttfbMs": 111,
+            "fcpMs": 1724,
+            "lcpMs": 1956,
+            "lcpElement": "div",
+            "lcpResource": "/category-art-accounting.svg",
+            "cls": 0,
+            "tbtMs": 585,
+            "longTasks": 6,
+            "longestTasks": [
+              {
+                "startMs": 1960,
+                "durationMs": 415
+              },
+              {
+                "startMs": 3127,
+                "durationMs": 112
+              },
+              {
+                "startMs": 1719,
+                "durationMs": 96
+              },
+              {
+                "startMs": 2736,
+                "durationMs": 94
+              },
+              {
+                "startMs": 2574,
+                "durationMs": 92
+              }
+            ],
+            "transferKib": {
+              "document": 18.6,
+              "css": 24.8,
+              "script-first-load": 191.9,
+              "image": 4.6,
+              "other": 3,
+              "api": 0.5,
+              "prefetch": 54.7,
+              "script-deferred": 74.5
+            },
+            "requests": {
+              "document": 1,
+              "css": 1,
+              "script-first-load": 15,
+              "image": 2,
+              "other": 2,
+              "api": 1,
+              "prefetch": 22,
+              "script-deferred": 9
+            },
+            "deferredScriptKibBeforeLcp": 0
+          },
+          {
+            "chrome": "Chrome/155.0.8059.80",
+            "benchmarkIndex": 9540,
+            "status": 200,
+            "lang": "en",
+            "ttfbMs": 77,
+            "fcpMs": 1788,
+            "lcpMs": 1988,
+            "lcpElement": "div",
+            "lcpResource": "/category-art-accounting.svg",
+            "cls": 0,
+            "tbtMs": 606,
+            "longTasks": 6,
+            "longestTasks": [
+              {
+                "startMs": 2077,
+                "durationMs": 430
+              },
+              {
+                "startMs": 1519,
+                "durationMs": 224
+              },
+              {
+                "startMs": 2512,
+                "durationMs": 181
+              },
+              {
+                "startMs": 3142,
+                "durationMs": 113
+              },
+              {
+                "startMs": 2949,
+                "durationMs": 68
+              }
+            ],
+            "transferKib": {
+              "document": 18.6,
+              "css": 24.8,
+              "script-first-load": 191.9,
+              "image": 4.6,
+              "other": 3,
+              "api": 0.5,
+              "prefetch": 54.7,
+              "script-deferred": 74.5
+            },
+            "requests": {
+              "document": 1,
+              "css": 1,
+              "script-first-load": 15,
+              "image": 2,
+              "other": 2,
+              "api": 1,
+              "prefetch": 22,
+              "script-deferred": 9
+            },
+            "deferredScriptKibBeforeLcp": 0
+          },
+          {
+            "chrome": "Chrome/155.0.8059.80",
+            "benchmarkIndex": 9876,
+            "status": 200,
+            "lang": "en",
+            "ttfbMs": 64,
+            "fcpMs": 1800,
+            "lcpMs": 1948,
+            "lcpElement": "div",
+            "lcpResource": "/category-art-accounting.svg",
+            "cls": 0,
+            "tbtMs": 494,
+            "longTasks": 8,
+            "longestTasks": [
+              {
+                "startMs": 1872,
+                "durationMs": 435
+              },
+              {
+                "startMs": 2801,
+                "durationMs": 93
+              },
+              {
+                "startMs": 2599,
+                "durationMs": 87
+              },
+              {
+                "startMs": 1441,
+                "durationMs": 86
+              },
+              {
+                "startMs": 1551,
+                "durationMs": 82
+              }
+            ],
+            "transferKib": {
+              "document": 18.6,
+              "css": 24.8,
+              "script-first-load": 191.9,
+              "image": 4.6,
+              "other": 3,
+              "api": 0.5,
+              "prefetch": 54.7,
+              "script-deferred": 74.5
+            },
+            "requests": {
+              "document": 1,
+              "css": 1,
+              "script-first-load": 15,
+              "image": 2,
+              "other": 2,
+              "api": 1,
+              "prefetch": 22,
+              "script-deferred": 9
+            },
+            "deferredScriptKibBeforeLcp": 0
+          }
+        ]
+      }
+    }
+  },
+  "compareUrl": "http://localhost:5723",
+  "chrome": "Chrome/155.0.8059.80"
+}

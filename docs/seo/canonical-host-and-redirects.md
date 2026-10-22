@@ -25,18 +25,18 @@ on the apex, and a plain-HTTP apex request takes two hops to reach `www`.
 
 Only one layer owns each redirect. Pick one row and leave the other layer off.
 
-| Redirect                   | Option A: nginx owns it                                                | Option B: the frontend owns it                                                |
-| -------------------------- | ---------------------------------------------------------------------- | ----------------------------------------------------------------------------- |
-| apex HTTPS to `www`        | `server_name loopskey.com` returns 308                                 | nginx passes the apex through; set `SITE_CANONICAL_HOST_ALIASES=loopskey.com` |
-| HTTP to HTTPS (both hosts) | port 80 returns 308 straight to `https://www.loopskey.com$request_uri` | not available; nginx must still redirect HTTP                                 |
-| `/en` prefix               | never; the frontend owns it                                            | the frontend                                                                  |
+| Redirect                   | Option A: nginx owns it                                                | Option B: the frontend owns it                                                              |
+| -------------------------- | ---------------------------------------------------------------------- | ------------------------------------------------------------------------------------------- |
+| apex HTTPS to `www`        | `server_name loopskey.com` returns 308                                 | nginx passes the apex through; a canonical `www` host includes its apex alias automatically |
+| HTTP to HTTPS (both hosts) | port 80 returns 308 straight to `https://www.loopskey.com$request_uri` | not available; nginx must still redirect HTTP                                               |
+| `/en` prefix               | never; the frontend owns it                                            | the frontend                                                                                |
 
 Leave `SITE_HTTPS_REDIRECT=false` for the current nginx topology. Turn it on only
 when TLS terminates upstream, `X-Forwarded-Proto` is set on every request, and
 nothing in front redirects HTTP itself. A proxy that forwards the wrong scheme
 turns it into a redirect loop.
 
-Option B is the smaller change: it needs one repository variable and a rebuild,
+Option B is the smaller change: the implicit www/apex pair needs a rebuild,
 and the frontend's smoke check then proves the redirect on every deployment.
 Option A keeps the redirect working even when the frontend is down. Either way,
 the port 80 server block must send HTTP apex requests straight to
@@ -77,12 +77,14 @@ supply its own values for them.
 
 ### Option B: the frontend
 
-1. Set the repository variable `SITE_CANONICAL_HOST_ALIASES` to `loopskey.com`.
-   Use a bare hostname: no scheme, no port, no path, and never the canonical
-   host itself. The build, the image's policy record and the container start-up
-   all reject anything else (`ALIASES_INVALID`).
-2. Set the same value in the server `.env.docker`. The container refuses to start
-   when the runtime value differs from the one the image was built with.
+1. With `NEXT_PUBLIC_SITE_URL=https://www.loopskey.com`, `loopskey.com` is now
+   included automatically. `SITE_CANONICAL_HOST_ALIASES=loopskey.com` remains
+   valid but is optional. Additional aliases must be bare hostnames: no scheme,
+   port or path, and never the canonical host itself. Invalid aliases are
+   rejected by the build and image policy (`ALIASES_INVALID`).
+2. If extra aliases are configured, set the same value in the server
+   `.env.docker`. The container compares the normalized alias set, including
+   the implicit apex, against its build policy and refuses mismatches.
 3. In the nginx `server` block for `loopskey.com:443`, proxy to the frontend
    exactly as for `www`, with the same three headers.
 4. Release. The image is rebuilt with the new value; restarting is not enough.

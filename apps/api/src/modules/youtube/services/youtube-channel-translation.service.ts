@@ -1,3 +1,4 @@
+import { presentContentText } from "@utils/content-text.util";
 import { SetYouTubeChannelTranslationPublicationInput } from "@youtube/dtos/set-youtube-channel-translation-publication.input";
 import { ForbiddenException, Injectable, Logger } from "@nestjs/common";
 import { SaveYouTubeChannelTranslationInput } from "@youtube/dtos/save-youtube-channel-translation.input";
@@ -171,7 +172,7 @@ export class YouTubeChannelTranslationService {
     channel: TChannel,
     locale: AppLanguage | null | undefined,
   ) {
-    if (!locale) return channel;
+    if (!locale) return presentContentText(channel);
     const published = await this.readPublished([channel.id]);
     const presentation = localizeRecord(
       channel,
@@ -189,7 +190,8 @@ export class YouTubeChannelTranslationService {
     channels: TChannel[],
     locale: AppLanguage | null | undefined,
   ) {
-    if (!locale || channels.length === 0) return channels;
+    if (channels.length === 0) return channels;
+    if (!locale) return channels.map(presentContentText);
     const ids = channels.map((channel) => channel.id);
     const [published, sources] = await Promise.all([
       this.readPublished(ids),

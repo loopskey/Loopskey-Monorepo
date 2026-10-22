@@ -13,7 +13,9 @@
 // SITE_HTTPS_REDIRECT=true and DEPLOYMENT_ENV=production or staging. Everything runs on a private Docker
 // network and a throw-away database; nothing here touches a real deployment.
 import { spawnSync } from "node:child_process";
-import { dirname, resolve } from "node:path";
+import { mkdtempSync, readFileSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const HERE = dirname(fileURLToPath(import.meta.url));
@@ -103,8 +105,8 @@ const startContainer = (name, image, extra = [], command = []) => {
   return `${RUN}-${name}`;
 };
 
-const hostPortOf = (container) => {
-  const result = docker(["port", container, "3000/tcp"]);
+const hostPortOf = (container, containerPort = 3000) => {
+  const result = docker(["port", container, `${containerPort}/tcp`]);
   const match = result.stdout.match(/:(\d+)\s*$/m);
   if (!match) throw new Error(`no published port for ${container}`);
   return Number(match[1]);
@@ -607,6 +609,150 @@ const smokeChecks = async (
   );
 };
 
+const ACCEPTANCE_NAMESPACE = "seo21m";
+
+const acceptanceChecks = async (apiContainer, productionPort, stagingPort) => {
+  section("Full acceptance: the fixture matrix against both containers");
+  const work = mkdtempSync(join(tmpdir(), "seo-acceptance-"));
+  for (const file of ["seed-seo-fixtures.cjs", "seed-sitemap-fixture.cjs"]) {
+    const copied = docker([
+      "cp",
+      resolve(HERE, file),
+      `${apiContainer}:/tmp/${file}`,
+    ]);
+    if (copied.status !== 0)
+      throw new Error(`could not copy ${file}: ${copied.stderr}`);
+  }
+  const seeded = docker(
+    [
+      "exec",
+      "-e",
+      "NODE_PATH=/app/node_modules",
+      "-e",
+      "NODE_ENV=test",
+      apiContainer,
+      "node",
+      "/tmp/seed-seo-fixtures.cjs",
+      ACCEPTANCE_NAMESPACE,
+      "--origin",
+      SITE_ORIGIN,
+      "--out",
+      "/tmp/seo-fixtures.json",
+    ],
+    { timeout: 300_000 },
+  );
+  check(
+    "the fixture matrix seeds all four kinds, translations, an excluded page, a historic slug, hubs and a provider",
+    seeded.status === 0 && seeded.stdout.includes("seo-fixtures.seeded"),
+    `${seeded.stdout}${seeded.stderr}`.slice(0, 400),
+  );
+  const staged = join(work, "staging-fixtures.json");
+  docker(["cp", `${apiContainer}:/tmp/seo-fixtures.json`, staged]);
+  const stagingManifest = JSON.parse(readFileSync(staged, "utf8"));
+  const productionManifest = join(work, "production-fixtures.json");
+  writeFileSync(
+    productionManifest,
+    JSON.stringify({
+      version: stagingManifest.version,
+      environment: "production",
+      origin: stagingManifest.origin,
+      reviewedAt: new Date().toISOString().slice(0, 10),
+      fixtures: stagingManifest.fixtures,
+    }),
+  );
+  const config = JSON.parse(
+    readFileSync(resolve(HERE, "seo-audit.config.json"), "utf8"),
+  );
+  config.limits.maxBodyBytes = 16 * 1024 * 1024;
+  const configPath = join(work, "audit-config.json");
+  writeFileSync(configPath, JSON.stringify(config));
+
+  const apiUrl = `http://127.0.0.1:${hostPortOf(apiContainer, 5700)}/graphql`;
+  const audit = (port, environment, manifest, extra = []) =>
+    spawnSync(
+      process.execPath,
+      [
+        resolve(HERE, "seo-audit.mjs"),
+        "--base-url",
+        `http://127.0.0.1:${port}`,
+        "--site-origin",
+        SITE_ORIGIN,
+        "--environment",
+        environment,
+        "--profile",
+        "full",
+        "--fixtures",
+        manifest,
+        "--config",
+        configPath,
+        "--require-all",
+        ...extra,
+      ],
+      { encoding: "utf8", maxBuffer: 16 * 1024 * 1024 },
+    );
+
+  const production = audit(productionPort, "production", productionManifest, [
+    "--api-url",
+    apiUrl,
+    "--out",
+    join(work, "full-production.json"),
+  ]);
+  check(
+    "the production container passes the full profile with every fixture, with no skip",
+    production.status === 0 && !/^SKIP/m.test(production.stdout),
+    production.stdout.slice(-1200),
+  );
+  const staging = audit(stagingPort, "staging", staged, [
+    "--out",
+    join(work, "full-staging.json"),
+  ]);
+  check(
+    "the staging container passes the full profile as an unindexable site",
+    staging.status === 0 && !/^SKIP/m.test(staging.stdout),
+    staging.stdout.slice(-1200),
+  );
+  const injected = audit(stagingPort, "production", productionManifest, [
+    "--api-url",
+    apiUrl,
+  ]);
+  check(
+    "the staging container audited as production fails the full profile on noindex",
+    injected.status === 1 && injected.stdout.includes("NOINDEX_UNEXPECTED"),
+    injected.stdout.slice(0, 600),
+  );
+  const wrongOrigin = spawnSync(
+    process.execPath,
+    [
+      resolve(HERE, "seo-audit.mjs"),
+      "--check-fixtures",
+      "--fixtures",
+      productionManifest,
+      "--environment",
+      "production",
+      "--site-origin",
+      "https://other.matrix.invalid",
+    ],
+    { encoding: "utf8" },
+  );
+  check(
+    "a manifest for another origin is refused",
+    wrongOrigin.status === 1,
+    wrongOrigin.stderr.slice(0, 300),
+  );
+  const report = JSON.parse(
+    readFileSync(join(work, "full-production.json"), "utf8"),
+  );
+  check(
+    "the report records the schema, the coverage of all four kinds and a complete sitemap",
+    report.schemaVersion === 2 &&
+      ["course", "event", "podcast", "youtube"].every(
+        (kind) => report.coverage.kinds[kind]?.state === "positive",
+      ) &&
+      report.coverage.sitemap?.complete === true,
+    JSON.stringify(report.coverage).slice(0, 400),
+  );
+};
+
 const outageChecks = async (apiContainer, productionPort) => {
   section("Upstream outage");
   docker(["stop", apiContainer]);
@@ -697,7 +843,11 @@ const fixtureStack = async () => {
   const api = startContainer(
     "api",
     API_IMAGE,
-    Object.entries(apiEnv).flatMap(([key, value]) => ["-e", `${key}=${value}`]),
+    [
+      "-p",
+      "127.0.0.1::5700",
+      ...Object.entries(apiEnv).flatMap(([key, value]) => ["-e", `${key}=${value}`]),
+    ],
     [
       "sh",
       "-c",
@@ -788,6 +938,7 @@ const main = async () => {
     await reconcileSitemap(productionPort);
     await stagingChecks(stagingPort);
     await smokeChecks(production, productionPort, stagingPort);
+    await acceptanceChecks(api, productionPort, stagingPort);
     await outageChecks(api, productionPort);
   } finally {
     if (failures.length > 0 || args.keep) {

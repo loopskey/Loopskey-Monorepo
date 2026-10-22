@@ -1,18 +1,23 @@
 "use client";
 
-import { fallbackFeatures, fallbackStats } from "@utils/constant";
-import { useOrganizationOverviewQuery } from "@lib/rtk/endpoints/org-dashboard.api";
 import { formatNumber, formatPercent } from "@utils/function-helper";
-import { fallbackCompliance } from "@utils/constant";
+import { fallbackCompliance } from "@utils/landing-public.constant";
+import { fallbackFeatures } from "@utils/landing-public.constant";
+import { fallbackStats } from "@utils/landing-public.constant";
 import { useMemo } from "react";
 import { useI18n } from "@hooks/useI18n";
 
-export const useLandingOrganizationShowcase = () => {
-  const { t } = useI18n();
+import type { OrganizationOverviewQuery } from "@/lib/graphql/operations/org-dashboard";
 
-  const overviewQuery = useOrganizationOverviewQuery(undefined, {
-    refetchOnMountOrArgChange: false,
-  });
+export type OrganizationQueryState = {
+  data?: OrganizationOverviewQuery["organizationOverview"];
+  isFetching: boolean;
+};
+
+export const useLandingOrganizationShowcase = (
+  overviewQuery: OrganizationQueryState = { isFetching: false },
+) => {
+  const { t } = useI18n();
 
   const overview = overviewQuery.data;
   const summary = overview?.summary;
