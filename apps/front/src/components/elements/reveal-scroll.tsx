@@ -32,6 +32,7 @@ export const RevealOnScroll = ({
   useEffect(() => {
     const node = ref.current;
     if (!node || !("IntersectionObserver" in window)) return;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
     if (node.getBoundingClientRect().top < window.innerHeight) return;
     setPhase("hidden");
     const observer = new IntersectionObserver(
@@ -54,6 +55,9 @@ export const RevealOnScroll = ({
   return (
     <div
       ref={ref}
+      onFocus={() =>
+        setPhase((current) => (current === "hidden" ? "shown" : current))
+      }
       style={{ transitionDelay: phase === "shown" ? `${delay}ms` : "0ms" }}
       className={cn(
         phase === "hidden" && `${getHiddenClass(direction)} opacity-0`,

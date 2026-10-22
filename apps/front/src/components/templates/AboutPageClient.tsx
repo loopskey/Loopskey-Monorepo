@@ -256,7 +256,12 @@ const AboutPage = () => {
           </div>
         </RevealOnScroll>
 
-        <div className="mt-12 overflow-x-auto pb-4">
+        <div
+          tabIndex={0}
+          role="region"
+          aria-label={t("aboutPage.timeline.title")}
+          className="mt-12 overflow-x-auto pb-4 outline-none focus-visible:ring-2 focus-visible:ring-ring"
+        >
           <div className="relative min-w-[900px]">
             <div className="absolute left-0 right-0 top-12 h-px bg-gradient-to-r from-primary/10 via-primary to-primary/10" />
             <div className="grid grid-cols-4 gap-5">

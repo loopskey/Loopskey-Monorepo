@@ -256,9 +256,9 @@ const FaqPage = () => {
                                   {t(`faqPage.categories.${item.category}`)}
                                 </Badge>
 
-                                <h3 className="mt-3 text-lg font-semibold leading-7 text-foreground">
+                                <h2 className="mt-3 text-lg font-semibold leading-7 text-foreground">
                                   {item.question}
-                                </h3>
+                                </h2>
                               </div>
                             </div>
 
@@ -299,9 +299,9 @@ const FaqPage = () => {
                     <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-md bg-primary/10 text-primary">
                       <L.HelpCircle className="h-6 w-6" />
                     </div>
-                    <h3 className="mt-5 text-xl font-semibold text-foreground">
+                    <h2 className="mt-5 text-xl font-semibold text-foreground">
                       {t("faqPage.empty.title")}
-                    </h3>
+                    </h2>
                     <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-muted-foreground">
                       {t("faqPage.empty.description")}
                     </p>
@@ -323,7 +323,7 @@ const FaqPage = () => {
       <section className="px-4 pb-28">
         <div className="mx-auto max-w-7xl">
           <RevealOnScroll direction="up">
-            <div className="relative overflow-hidden rounded-lg border border-primary/20 bg-muted-foreground p-8 text-white shadow-md md:p-10">
+            <div className="relative overflow-hidden rounded-lg border border-primary/20 bg-foreground p-8 text-white shadow-md md:p-10">
               <div className="relative z-10 grid gap-8 lg:grid-cols-[1fr_auto] lg:items-center">
                 <div>
                   <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-4 py-2 text-xs font-semibold uppercase tracking-widest text-white/80">
@@ -335,7 +335,7 @@ const FaqPage = () => {
                     {t("faqPage.cta.title")}
                   </h2>
 
-                  <p className="mt-4 max-w-2xl text-lg leading-relaxed text-muted-foreground">
+                  <p className="mt-4 max-w-2xl text-lg leading-relaxed text-white/80">
                     {t("faqPage.cta.description")}
                   </p>
                 </div>

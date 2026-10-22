@@ -34,7 +34,7 @@ export const RoleStrip = ({ lockedHref }: TRoleStripProps) => {
 
           if (isDisabled)
             return (
-              <span key={entry.href} aria-disabled className={className}>
+              <span key={entry.href} className={className}>
                 {t(entry.roleLabelKey)}
               </span>
             );

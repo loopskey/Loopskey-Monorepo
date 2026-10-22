@@ -556,6 +556,7 @@
       "pdu": "PDU",
       "pduValue": "{{count}} PDU",
       "registerNow": "S’inscrire maintenant",
+      "schedule": "Programme",
       "speaker": "Intervenant"
     },
     "goToContent": {
@@ -1146,15 +1147,18 @@
     "contact": "Contact",
     "content": "Contenu",
     "faq": "FAQ",
+    "homeLink": "Accueil LoopsKey",
     "openMenu": "Ouvrir le menu",
-    "services": "Services"
+    "primary": "Principale",
+    "services": "Services",
+    "skipToContent": "Aller au contenu principal"
   },
   "notFound": {
     "backHome": "Retour à l’accueil",
     "badge": "Page introuvable",
+    "browseCatalog": "Parcourir tout le contenu",
     "description": "La page que vous recherchez a peut-être été déplacée, renommée ou n’est plus disponible.",
     "emailTitle": "Besoin d’aide ?",
-    "goBack": "Retour",
     "supportText": "Dites-nous ce que vous cherchiez.",
     "supportTitle": "Contacter le support",
     "title": "Cette page semble être hors du parcours"

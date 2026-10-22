@@ -71,12 +71,16 @@ const LinkList = ({
             <span
               key={locale}
               lang={locale}
-              aria-disabled="true"
               title={t("common.languageSwitcher.unavailable")}
-              className={cn(itemClass, "cursor-not-allowed opacity-50")}
-              aria-label={`${name}: ${t(`common.languageSwitcher.unavailable`)}`}
+              className={cn(
+                itemClass,
+                "cursor-not-allowed text-muted-foreground line-through",
+              )}
             >
               {locale.toUpperCase()}
+              <span className="sr-only">
+                {` ${name}: ${t("common.languageSwitcher.unavailable")}`}
+              </span>
             </span>
           );
 

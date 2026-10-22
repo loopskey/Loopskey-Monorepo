@@ -97,16 +97,26 @@ export const LanguageMenu = ({
               ) : (
                 <span
                   lang={locale}
-                  aria-disabled="true"
                   aria-current={isCurrent ? "true" : undefined}
                   title={
                     isAvailable
                       ? undefined
                       : t("common.languageSwitcher.unavailable")
                   }
-                  className={cn(ITEM_CLASS, "pointer-events-none opacity-50")}
+                  className={cn(
+                    ITEM_CLASS,
+                    "pointer-events-none",
+                    isCurrent
+                      ? "font-semibold"
+                      : "text-muted-foreground line-through",
+                  )}
                 >
                   {name}
+                  {!isAvailable && (
+                    <span className="sr-only">
+                      {`: ${t("common.languageSwitcher.unavailable")}`}
+                    </span>
+                  )}
                 </span>
               )}
             </li>

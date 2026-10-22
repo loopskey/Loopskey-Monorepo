@@ -6,9 +6,14 @@ import Link from "@elements/localized-link";
 type LogoProps = {
   variant?: "default" | "onPrimary";
   className?: string;
+  label?: string;
 };
 
-export const Logo = ({ variant = "default", className }: LogoProps) => {
+export const Logo = ({
+  variant = "default",
+  className,
+  label = "LoopsKey",
+}: LogoProps) => {
   const isOnPrimary = variant === "onPrimary";
 
   return (
@@ -16,7 +21,7 @@ export const Logo = ({ variant = "default", className }: LogoProps) => {
       <Image
         width={567}
         height={193}
-        alt="Loopskey-logo"
+        alt={label}
         className="h-10 w-auto md:h-11"
         src={isOnPrimary ? "/Loopskey.svg" : "/Loopskey-light.svg"}
       />

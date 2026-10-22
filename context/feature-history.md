@@ -150,6 +150,7 @@ into this index and do not rewrite previous records.
 - [`seo-15-publication-quality-and-probe-cleanup`](feature-runs/active/seo-15-publication-quality-and-probe-cleanup.md) — PR [#312](https://github.com/loopskey/Loopskey-Monorepo/pull/312)
 - [`seo-16-legacy-url-reconciliation-and-recovery`](feature-runs/active/seo-16-legacy-url-reconciliation-and-recovery.md) — PR [#313](https://github.com/loopskey/Loopskey-Monorepo/pull/313)
 - [`seo-17-mobile-rendering-and-javascript-budgets`](feature-runs/active/seo-17-mobile-rendering-and-javascript-budgets.md) — PR [#314](https://github.com/loopskey/Loopskey-Monorepo/pull/314)
+- [`seo-18-public-accessibility-and-navigation-quality`](feature-runs/active/seo-18-public-accessibility-and-navigation-quality.md) — PR [#315](https://github.com/loopskey/Loopskey-Monorepo/pull/315)
 - [`landing-learning-shelf`](feature-runs/active/landing-learning-shelf.md) — PR [#316](https://github.com/loopskey/Loopskey-Monorepo/pull/316)
 - [`roadmap-edit-regenerate`](feature-runs/active/roadmap-edit-regenerate.md) — PR [#317](https://github.com/loopskey/Loopskey-Monorepo/pull/317)
 - [`seo-20-operational-search-measurement-and-ownership`](feature-runs/active/seo-20-operational-search-measurement-and-ownership.md) — PR [#318](https://github.com/loopskey/Loopskey-Monorepo/pull/318)

@@ -2654,7 +2654,10 @@
     "contact": "Contact",
     "faq": "FAQ",
     "openMenu": "Ouvrir le menu",
-    "closeMenu": "Fermer le menu"
+    "closeMenu": "Fermer le menu",
+    "primary": "Principale",
+    "homeLink": "Accueil LoopsKey",
+    "skipToContent": "Aller au contenu principal"
   },
   "dashboardShell": {
     "navLabel": "Navigation du tableau de bord",
@@ -3317,7 +3320,8 @@
       "endsAt": "Se termine le {{date}}",
       "speaker": "Intervenant",
       "pdu": "PDU",
-      "pduValue": "{{count}} PDU"
+      "pduValue": "{{count}} PDU",
+      "schedule": "Programme"
     },
     "podcast": {
       "badge": "Podcast",
@@ -3425,7 +3429,10 @@
         "subscribers": "{{count}} abonnés",
         "videos": "{{count}} vidéos",
         "upcoming": "À venir"
-      }
+      },
+      "previousSlide": "Diapositive précédente",
+      "nextSlide": "Diapositive suivante",
+      "goToSlide": "Aller à la diapositive {{index}}"
     },
     "hero": {
       "badge": "Apprentissage professionnel propulsé par l’IA",
@@ -3707,10 +3714,10 @@
     "title": "Cette page semble être hors du parcours",
     "description": "La page que vous recherchez a peut-être été déplacée, renommée ou n’est plus disponible.",
     "backHome": "Retour à l’accueil",
-    "goBack": "Retour",
     "emailTitle": "Besoin d’aide ?",
     "supportTitle": "Contacter le support",
-    "supportText": "Dites-nous ce que vous cherchiez."
+    "supportText": "Dites-nous ce que vous cherchiez.",
+    "browseCatalog": "Parcourir tout le contenu"
   },
   "dashboard": {
     "sidebar": {

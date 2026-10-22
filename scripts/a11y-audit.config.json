@@ -1,0 +1,66 @@
+{
+  "profiles": {
+    "mobile": {
+      "description": "360x740 at DPR 2 with touch emulation, the narrowest width the public layout supports",
+      "viewport": {
+        "width": 360,
+        "height": 740,
+        "deviceScaleFactor": 2,
+        "mobile": true
+      },
+      "userAgent": "Mozilla/5.0 (Linux; Android 11; moto g power (2022)) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Mobile Safari/537.36"
+    },
+    "desktop": {
+      "description": "1350x940 at DPR 1, no touch emulation",
+      "viewport": {
+        "width": 1350,
+        "height": 940,
+        "deviceScaleFactor": 1,
+        "mobile": false
+      },
+      "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36"
+    }
+  },
+  "routes": {
+    "home": "/",
+    "catalog": "/content",
+    "catalog-events": "/content?tab=events",
+    "course": "/courses/fixture-course",
+    "event": "/events/fixture-event",
+    "podcast": "/podcasts/fixture-podcast",
+    "youtube": "/youtube/fixture-channel",
+    "topic": "/topics/fixture-topic",
+    "provider": "/providers/fixture-provider",
+    "about": "/about",
+    "static": "/cookies",
+    "contact": "/contact",
+    "faq": "/faq",
+    "missing": "/no-such-page-a11y-probe"
+  },
+  "representative": [
+    "home",
+    "catalog",
+    "course",
+    "topic",
+    "provider",
+    "about",
+    "contact",
+    "missing"
+  ],
+  "locales": ["en", "fr"],
+  "tags": [
+    "wcag2a",
+    "wcag2aa",
+    "wcag21a",
+    "wcag21aa",
+    "wcag22aa",
+    "best-practice"
+  ],
+  "menuToggleLabels": {
+    "en": ["Open menu", "Close menu"],
+    "fr": ["Ouvrir le menu", "Fermer le menu"]
+  },
+  "menuRoute": "home",
+  "minTargetPx": 24,
+  "preferredTargetPx": 44
+}

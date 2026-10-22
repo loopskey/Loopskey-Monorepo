@@ -56,7 +56,10 @@ const LandingHero = () => {
             {t("landing.hero.badge")}
           </div>
 
-          <h1 className="max-w-4xl text-3xl font-bold leading-[1.5] tracking-tight sm:text-3xl lg:text-4xl xl:text-4xl">
+          <h1
+            aria-label={`${titleLine1} ${titleLine2} ${titleLine3}`}
+            className="max-w-4xl text-3xl font-bold leading-[1.5] tracking-tight sm:text-3xl lg:text-4xl xl:text-4xl"
+          >
             <SplitText
               tag="span"
               text={titleLine1}

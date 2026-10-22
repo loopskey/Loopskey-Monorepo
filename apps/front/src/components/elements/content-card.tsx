@@ -189,10 +189,7 @@ const ContentCard = ({
           </span>
         </Link>
       ) : (
-        <span
-          aria-disabled
-          className={cn(CTA_CLASS_NAME, "bg-white/15 text-white/60")}
-        >
+        <span className={cn(CTA_CLASS_NAME, "bg-white/15 text-white/75")}>
           {t("content.card.viewDetails")}
         </span>
       )}

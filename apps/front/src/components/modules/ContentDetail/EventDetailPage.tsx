@@ -191,7 +191,7 @@ const EventDetailPage = ({ event, breadcrumbs }: TEventDetailPageProps) => {
       )}
 
       {event.scheduleItems && event.scheduleItems.length > 0 && (
-        <DetailSection title={t("contentDetails.tabs.schedule")}>
+        <DetailSection title={t("contentDetails.event.schedule")}>
           <EventSchedule
             timeZone={event.timezone}
             items={event.scheduleItems}

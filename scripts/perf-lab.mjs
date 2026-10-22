@@ -92,7 +92,7 @@ const BENCHMARK = `(() => {
   return Math.round(iterations / ((Date.now() - start) / 1000));
 })()`;
 
-const parseArgs = (argv) => {
+export const parseArgs = (argv) => {
   const flags = new Set(["--self-test", "--help"]);
   const values = {};
   for (let index = 0; index < argv.length; index += 1) {
@@ -189,7 +189,7 @@ const chromeCandidates = () =>
     "/usr/bin/chromium-browser",
   ].filter(Boolean);
 
-const findChrome = () => {
+export const findChrome = () => {
   const found = chromeCandidates().find((candidate) => existsSync(candidate));
   if (!found) throw new Error("Chrome was not found. Set CHROME_PATH.");
   return found;
@@ -208,7 +208,7 @@ const withLimit = (promise, ms, label) => {
   return Promise.race([promise, limit]).finally(() => clearTimeout(timer));
 };
 
-const launchChrome = async (chromePath) => {
+export const launchChrome = async (chromePath) => {
   const profileDir = await mkdtemp(join(tmpdir(), "perf-lab-"));
   const child = spawn(
     chromePath,
@@ -249,7 +249,7 @@ const launchChrome = async (chromePath) => {
   return { port, close };
 };
 
-const connect = (url) =>
+export const connect = (url, commandLimitMs = COMMAND_LIMIT_MS) =>
   new Promise((resolveConnect, rejectConnect) => {
     const socket = new WebSocket(url);
     const pending = new Map();
@@ -277,7 +277,7 @@ const connect = (url) =>
             const timer = setTimeout(() => {
               pending.delete(id);
               rejectSend(new Error(`${method} timed out`));
-            }, COMMAND_LIMIT_MS);
+            }, commandLimitMs);
             pending.set(id, {
               resolve: (value) => {
                 clearTimeout(timer);
@@ -297,7 +297,7 @@ const connect = (url) =>
       });
   });
 
-const pageTarget = async (port) => {
+export const pageTarget = async (port) => {
   const targets = await (
     await fetch(`http://127.0.0.1:${port}/json/list`)
   ).json();
@@ -497,7 +497,7 @@ const summarize = (samples, targets) => {
   };
 };
 
-const gitState = () => {
+export const gitState = () => {
   try {
     const commit = execFileSync("git", ["rev-parse", "HEAD"], {
       encoding: "utf8",
