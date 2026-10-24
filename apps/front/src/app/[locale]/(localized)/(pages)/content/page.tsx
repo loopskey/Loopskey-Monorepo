@@ -226,7 +226,7 @@ const ContentPage = async ({ params, searchParams }: TContentPageProps) => {
       >
         {page.items.length > 0 ? (
           <>
-            <ContentResults page={page} />
+            <ContentResults page={page} locale={locale} />
             {(nextHref || previousHref) && (
               <ContentCatalogPagination
                 nextHref={nextHref}

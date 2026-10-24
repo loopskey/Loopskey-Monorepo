@@ -1,15 +1,12 @@
+import { BadRequestException, ConflictException } from "@nestjs/common";
+import { ForbiddenException, NotFoundException } from "@nestjs/common";
 import { AppLanguage, Prisma, Role } from "@prisma/client";
-import {
-  BadRequestException,
-  ConflictException,
-  ForbiddenException,
-  NotFoundException,
-} from "@nestjs/common";
+import { presentContentText } from "./content-text.util";
 
 export enum ContentTranslationError {
-  VERSION_CONFLICT = "CONTENT_TRANSLATION_VERSION_CONFLICT",
-  INCOMPLETE = "CONTENT_TRANSLATION_INCOMPLETE",
   NOT_FOUND = "CONTENT_TRANSLATION_NOT_FOUND",
+  INCOMPLETE = "CONTENT_TRANSLATION_INCOMPLETE",
+  VERSION_CONFLICT = "CONTENT_TRANSLATION_VERSION_CONFLICT",
   SOURCE_LANGUAGE_IS_TRANSLATED = "CONTENT_TRANSLATION_SOURCE_LANGUAGE_IS_TRANSLATED",
 }
 
@@ -56,9 +53,9 @@ export type PublishedTranslation = Partial<TranslationFields> & {
 
 export type LocalizedPresentation<TRecord> = {
   record: TRecord;
-  contentLanguage: AppLanguage | null;
-  availableLocales: AppLanguage[];
   isRequestedAvailable: boolean;
+  availableLocales: AppLanguage[];
+  contentLanguage: AppLanguage | null;
 };
 
 export const normalizeSourceLanguage = (
@@ -156,7 +153,7 @@ export const localizeRecord = <
 
   if (translation)
     return {
-      record: overlay(record, translation),
+      record: presentContentText(overlay(record, translation)),
       contentLanguage: locale,
       availableLocales,
       isRequestedAvailable: true,
@@ -165,7 +162,7 @@ export const localizeRecord = <
   const isRequestedAvailable =
     locale === AppLanguage.EN ? true : availableLocales.includes(locale);
   return {
-    record,
+    record: presentContentText(record),
     contentLanguage: variants.source,
     availableLocales,
     isRequestedAvailable,

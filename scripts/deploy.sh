@@ -198,7 +198,7 @@ SMOKE_LOG="$BACKUP_DIR/smoke-$STAMP.log"
 
 run_smoke() {
   "${DC[@]}" exec -T front sh -c \
-    'node scripts/seo-audit.mjs --base-url http://127.0.0.1:3000 --site-origin "$NEXT_PUBLIC_SITE_URL" --environment "$DEPLOYMENT_ENV" --profile smoke && node scripts/seo-audit.mjs --base-url http://127.0.0.1:3000 --site-origin "$NEXT_PUBLIC_SITE_URL" --environment "$DEPLOYMENT_ENV" --profile hosts --alias-hosts "$SITE_CANONICAL_HOST_ALIASES" --https-redirect "$SITE_HTTPS_REDIRECT"'
+    'node scripts/seo-audit.mjs --base-url http://127.0.0.1:3000 --site-origin "$NEXT_PUBLIC_SITE_URL" --environment "$DEPLOYMENT_ENV" --profile smoke && node scripts/seo-audit.mjs --base-url http://127.0.0.1:3000 --site-origin "$NEXT_PUBLIC_SITE_URL" --environment "$DEPLOYMENT_ENV" --profile hosts --alias-hosts "$SITE_CANONICAL_HOST_ALIASES" --https-redirect "$SITE_HTTPS_REDIRECT" && node scripts/production-seo-check.mjs --base-url http://127.0.0.1:3000 --site-origin "$NEXT_PUBLIC_SITE_URL" --environment "$DEPLOYMENT_ENV"'
 }
 
 log "Smoke check of the public site"

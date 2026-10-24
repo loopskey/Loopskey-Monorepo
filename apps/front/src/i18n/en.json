@@ -1118,9 +1118,7 @@
       {
         "id": "how-we-use-information",
         "title": "How We Use Information",
-        "paragraphs": [
-          "We use your information to:"
-        ],
+        "paragraphs": ["We use your information to:"],
         "bullets": [
           "Create and manage user accounts.",
           "Personalize learning recommendations and AI roadmaps.",
@@ -1353,9 +1351,7 @@
       {
         "id": "acceptable-use",
         "title": "Acceptable Use",
-        "paragraphs": [
-          "You agree not to:"
-        ],
+        "paragraphs": ["You agree not to:"],
         "bullets": [
           "Use the platform for unlawful, harmful, or fraudulent purposes.",
           "Upload malware, scrape data, or attempt to bypass security measures.",
@@ -1411,9 +1407,7 @@
       {
         "id": "contact",
         "title": "Contact Information",
-        "paragraphs": [
-          "For questions about these Terms, contact us:"
-        ],
+        "paragraphs": ["For questions about these Terms, contact us:"],
         "contactItems": [
           {
             "label": "Email",
@@ -3656,11 +3650,15 @@
       "stats": {
         "monthlyLearners": "Active learners",
         "providerReach": "Countries reached",
-        "conversionLift": "Avg. lift"
+        "conversionLift": "Avg. lift",
+        "totalEvents": "Published events",
+        "totalRegistrations": "Registrations",
+        "conversionRate": "Conversion rate"
       },
       "funnel": {
         "publish": "Published content visibility",
         "match": "AI learner matching",
+        "promote": "Promoted events",
         "convert": "Registration conversion"
       },
       "dashboard": {
@@ -3675,6 +3673,7 @@
         "analyticsDescription": "Understand views, interest, registrations, and content momentum in one place.",
         "demoData": "Demo data",
         "noTopEvent": "No top event yet",
+        "fallbackProvider": "Provider workspace",
         "topEventTitle": "Top performing event",
         "revenue": "Revenue",
         "rating": "Rating",

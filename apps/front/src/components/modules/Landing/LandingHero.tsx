@@ -1,6 +1,7 @@
 "use client";
 
-import { HERO_SPLIT_DURATION_S, HERO_SPLIT_STAGGER_MS } from "@utils/constant";
+import { HERO_SPLIT_STAGGER_MS } from "@utils/landing-public.constant";
+import { HERO_SPLIT_DURATION_S } from "@utils/landing-public.constant";
 import { SplitText, countChars } from "@elements/split-text";
 import { ArrowRight, Sparkles } from "lucide-react";
 import { useLandingHeroSearch } from "@/hooks/useLandingHero";

@@ -119,15 +119,20 @@ const parseHostAlias = (alias: string): string => {
 
 const parseHostAliases = (): readonly string[] => {
   const configured = process.env.SITE_CANONICAL_HOST_ALIASES?.trim();
-  if (!configured) return [];
+  const wwwAlias =
+    !allowsLocalhostOrigin && siteOrigin.hostname.startsWith("www.")
+      ? siteOrigin.hostname.slice(4)
+      : null;
 
-  const aliases = configured
+  const aliases = (configured ?? "")
     .split(",")
     .map((entry) => entry.trim().toLowerCase())
     .filter((entry) => entry.length > 0)
     .map(parseHostAlias);
 
-  return [...new Set(aliases)];
+  return [
+    ...new Set([...aliases, ...(wwwAlias ? [parseHostAlias(wwwAlias)] : [])]),
+  ];
 };
 
 export const CANONICAL_HOST_ALIASES = parseHostAliases();

@@ -341,11 +341,84 @@ describe("Content translations (e2e)", () => {
     );
   });
 
+  it("decodes existing public content without rewriting its stored identity", async () => {
+    const subject = configs()[0];
+    const row = await subject.create(70, ownerId, "en");
+    await prisma.course.update({
+      where: { id: row.id },
+      data: {
+        title: "Apply &amp; Interpret",
+        description: "Theory &#38; practice",
+        learnings: ["A &amp; B"],
+        requirements: ["C &amp; D"],
+      },
+    });
+    const response = await gql(
+      `query P($slug: String!) {
+      courseBySlug(slug: $slug) { id slug title description learnings requirements }
+    }`,
+      { slug: row.slug },
+    );
+    expect(response.body.errors).toBeUndefined();
+    expect(response.body.data.courseBySlug).toMatchObject({
+      id: row.id,
+      slug: row.slug,
+      title: "Apply & Interpret",
+      description: "Theory & practice",
+      learnings: ["A & B"],
+      requirements: ["C & D"],
+    });
+    expect(
+      (await prisma.course.findUniqueOrThrow({ where: { id: row.id } })).title,
+    ).toBe("Apply &amp; Interpret");
+  });
+
   describe.each(["course", "event", "podcast", "youtube"] as Kind[])(
     "%s",
     (kind) => {
       const config = () =>
         configs().find((candidate) => candidate.kind === kind)!;
+
+      it("presents decoded text in public detail and list queries with or without a locale", async () => {
+        const subject = config();
+        const row = await subject.create(71, ownerId, "en");
+        const data = {
+          title: `${token} Apply &amp; Interpret`,
+          description: "Theory &#38; practice",
+        };
+        const where = { id: row.id };
+        if (kind === "course") await prisma.course.update({ where, data });
+        else if (kind === "event") await prisma.event.update({ where, data });
+        else if (kind === "podcast")
+          await prisma.podcast.update({ where, data });
+        else await prisma.youTubeChannel.update({ where, data });
+
+        for (const locale of [undefined, "EN"]) {
+          const detail = await gql(bySlugDocument(subject), {
+            slug: row.slug,
+            locale,
+          });
+          expect(detail.body.errors).toBeUndefined();
+          expect(detail.body.data[subject.bySlug]).toMatchObject({
+            id: row.id,
+            title: `${token} Apply & Interpret`,
+            description: "Theory & practice",
+          });
+          const listing = await gql(listDocument(subject), {
+            filter: { search: `${token} Apply` },
+            locale,
+          });
+          expect(listing.body.errors).toBeUndefined();
+          expect(listing.body.data[subject.list].items).toEqual(
+            expect.arrayContaining([
+              expect.objectContaining({
+                id: row.id,
+                title: `${token} Apply & Interpret`,
+              }),
+            ]),
+          );
+        }
+      });
 
       it("rejects anonymous and non-provider callers", async () => {
         const subject = config();

@@ -1,0 +1,69 @@
+{
+  "environment": "localhost production build with deterministic GraphQL fixtures",
+  "publicRoutes": [
+    {
+      "path": "/content",
+      "status": 200,
+      "lang": "en",
+      "cards": 6
+    },
+    {
+      "path": "/fr/content",
+      "status": 200,
+      "lang": "fr",
+      "cards": 6
+    },
+    {
+      "path": "/courses/fixture-course",
+      "status": 200,
+      "lang": "en"
+    },
+    {
+      "path": "/fr/courses/fixture-course",
+      "status": 404,
+      "lang": "fr",
+      "reason": "Fixture has no published French variant"
+    },
+    {
+      "path": "/",
+      "status": 200,
+      "lang": "en"
+    },
+    {
+      "path": "/fr",
+      "status": 200,
+      "lang": "fr"
+    }
+  ],
+  "anonymousPrivateDashboardCalls": 0,
+  "pageErrors": [],
+  "missingTranslationKeys": false,
+  "mobile": {
+    "width": 360,
+    "horizontalOverflow": false,
+    "keyboardFirstFocus": "Skip to main content"
+  },
+  "roles": [
+    {
+      "role": "PROVIDER",
+      "privateOperations": [
+        "ProviderOverview",
+        "ProviderAnalytics",
+        "ProviderEventsTable",
+        "ProviderPromotionRequests"
+      ]
+    },
+    {
+      "role": "ORGANIZATION",
+      "privateOperations": [
+        "OrganizationOverview"
+      ]
+    }
+  ],
+  "providerStates": {
+    "success": true,
+    "errorDemoBadge": true,
+    "loadingPendingQueries": 4,
+    "emptyTopEventMessage": true
+  }
+}

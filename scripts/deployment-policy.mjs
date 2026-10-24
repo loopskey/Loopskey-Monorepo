@@ -105,8 +105,14 @@ export const policyFromEnvironment = (env) => {
       ),
     );
 
-  const hostAliases = normalizeAliases(env.SITE_CANONICAL_HOST_ALIASES);
   const canonicalHostname = origin ? new URL(origin).hostname : "";
+  const wwwAlias =
+    environment !== "development" && canonicalHostname.startsWith("www.")
+      ? canonicalHostname.slice(4)
+      : "";
+  const hostAliases = normalizeAliases(
+    [env.SITE_CANONICAL_HOST_ALIASES, wwwAlias].filter(Boolean).join(","),
+  );
   if (
     hostAliases.some(
       (alias) => !HOSTNAME_PATTERN.test(alias) || alias === canonicalHostname,
@@ -384,7 +390,21 @@ const selfTest = () => {
   );
   expect(
     "changed host aliases are rejected",
-    against({ SITE_CANONICAL_HOST_ALIASES: "" }).includes("REDIRECT_MISMATCH"),
+    against({ SITE_CANONICAL_HOST_ALIASES: "legacy.example.test" }).includes(
+      "REDIRECT_MISMATCH",
+    ),
+  );
+  expect(
+    "www counterpart does not depend on an optional variable",
+    against({ SITE_CANONICAL_HOST_ALIASES: "" }).length === 0,
+  );
+  expect(
+    "a bare hostname does not invent a www alias",
+    policyFromEnvironment({
+      ...productionEnvironment,
+      NEXT_PUBLIC_SITE_URL: "https://example.test",
+      SITE_CANONICAL_HOST_ALIASES: "",
+    }).policy.hostAliases.length === 0,
   );
 
   const stagingBuilt = policyFromEnvironment({
