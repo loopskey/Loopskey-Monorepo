@@ -4,7 +4,7 @@
 - Model: Standard development — a bounded, reversible frontend asset change with no data or API contract impact.
 - Branch: `feature/browser-favicon-visibility`
 - Base: `b39e3a6fc9dfabfc04d75471ddd070e2a5b8f662`
-- Status: `Ready`
+- Status: `Submitted`
 
 ## Acceptance
 
@@ -26,6 +26,6 @@
 
 ## Submission
 
-- Commit:
-- PR:
-- CI:
+- Commit: `5a7fd76109eb7374f58bca8befce8e9463b01b08`
+- PR: [#323](https://github.com/loopskey/Loopskey-Monorepo/pull/323)
+- CI: queued for the metadata commit
