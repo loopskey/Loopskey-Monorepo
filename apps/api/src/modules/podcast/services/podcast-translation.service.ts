@@ -3,6 +3,7 @@ import { SetPodcastTranslationPublicationInput } from "@podcast/dtos/set-podcast
 import { SavePodcastTranslationInput } from "@podcast/dtos/save-podcast-translation.input";
 import { AppLanguage, Prisma } from "@prisma/client";
 import { publicContentChange } from "@utils/public-content-change.util";
+import { presentContentText } from "@utils/content-text.util";
 import { PodcastMessageCode } from "@podcast/enums/message-code.enum";
 import { LocalizablePodcast } from "@podcast/types/podcast-service.types";
 import { NotFoundException } from "@nestjs/common";
@@ -169,7 +170,7 @@ export class PodcastTranslationService {
     podcast: TPodcast,
     locale: AppLanguage | null | undefined,
   ) {
-    if (!locale) return podcast;
+    if (!locale) return presentContentText(podcast);
     const published = await this.readPublished([podcast.id]);
     const presentation = localizeRecord(
       podcast,
@@ -187,7 +188,8 @@ export class PodcastTranslationService {
     podcasts: TPodcast[],
     locale: AppLanguage | null | undefined,
   ) {
-    if (!locale || podcasts.length === 0) return podcasts;
+    if (podcasts.length === 0) return podcasts;
+    if (!locale) return podcasts.map(presentContentText);
     const ids = podcasts.map((podcast) => podcast.id);
     const [published, sources] = await Promise.all([
       this.readPublished(ids),

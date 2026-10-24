@@ -1,32 +1,27 @@
 "use client";
 
 import {
-  CourseSortField,
-  EventSortDirection,
-  EventSortField,
-  PodcastSortDirection,
-  PodcastSortField,
   SortDirection,
-  YouTubeChannelSortDirection,
+  EventSortField,
+  CourseSortField,
+  PodcastSortField,
+  EventSortDirection,
+  PodcastSortDirection,
   YouTubeChannelSortField,
+  YouTubeChannelSortDirection,
 } from "@/lib/graphql/base";
-import { TLandingContentKind, TLandingTab } from "@/types/landing-module.types";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { TLandingContentKind, TLandingTab } from "@/types/landing-module.types";
+import { translateWithFallback } from "@/utils/function-helper";
+import { LANDING_SHELF_KINDS } from "@/utils/landing-shelf.constant";
 import { TLandingContentItem } from "@/types/landing-module.types";
-import {
-  humanizeEnumValue,
-  translateWithFallback,
-} from "@/utils/function-helper";
-import { LANDING_HUB_TAKE } from "@/utils/constant";
+import { LANDING_SHELF_SIZE } from "@/utils/landing-shelf.constant";
+import { getNextLandingKind } from "@/utils/landing-shelf.constant";
+import { humanizeEnumValue } from "@/utils/function-helper";
+import { LANDING_HUB_TAKE } from "@/utils/landing-public.constant";
 import { useI18n } from "@/hooks/useI18n";
 
 import type { I18nContextValue } from "@/types/providers.types";
-
-import {
-  LANDING_SHELF_KINDS,
-  LANDING_SHELF_SIZE,
-  getNextLandingKind,
-} from "@/utils/landing-shelf.constant";
 
 import * as PodcastApi from "@/lib/rtk/endpoints/podcast.api";
 import * as YouTubeApi from "@/lib/rtk/endpoints/youtube.api";

@@ -23,6 +23,7 @@
 - `NEXT_PUBLIC_SITE_URL=https://loopskey.com npm.cmd run build --workspace front` — pass; existing TopicHubs upstream configuration messages during static generation
 - `npm.cmd run bundle-report --workspace front -- --check-targets --check-ceilings` — pass; all 23 budgeted public routes passed
 - Production browser check: English and French home routes and icon endpoints — pass
+- CI on `1e8f77eb` failed only at `npm audit --omit=dev --audit-level=critical` (locked `next` 16.4.0, newly advisory-flagged). Merged `origin/develop` (`fca93896`, which carries the `next` 16.4.3 lockfile bump from PR #322); the audit command now exits 0 locally. The only merge conflict was `context/feature-history.md` (both entries kept).
 
 ## Submission
 

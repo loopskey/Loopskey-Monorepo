@@ -1,13 +1,15 @@
-import { AppLanguage, Prisma } from "@prisma/client";
 import { ForbiddenException, Injectable, Logger } from "@nestjs/common";
-import { NotFoundException } from "@nestjs/common";
-import { CourseMessageCode } from "@course/enums/message-code.enum";
-import { PrismaService } from "@prisma/prisma.service";
-import { publicContentChange } from "@utils/public-content-change.util";
-import { requestContext } from "@infrastructure/observability/request-context";
-import { SaveCourseTranslationInput } from "@course/dtos/save-course-translation.input";
 import { SetCourseTranslationPublicationInput } from "@course/dtos/set-course-translation-publication.input";
 import { SetCourseSourceLanguageInput } from "@course/dtos/set-course-source-language.input";
+import { SaveCourseTranslationInput } from "@course/dtos/save-course-translation.input";
+import { AppLanguage, Prisma } from "@prisma/client";
+import { publicContentChange } from "@utils/public-content-change.util";
+import { presentContentText } from "@utils/content-text.util";
+import { TLocalizableCourse } from "@course/types/course-translation";
+import { NotFoundException } from "@nestjs/common";
+import { CourseMessageCode } from "@course/enums/message-code.enum";
+import { requestContext } from "@infrastructure/observability/request-context";
+import { PrismaService } from "@prisma/prisma.service";
 import {
   authorizeTranslationParent,
   listContentTranslations,
@@ -19,12 +21,10 @@ import {
   sourceLanguageIsTranslated,
 } from "@utils/content-translation.util";
 
-import type {
-  PublishedTranslation,
-  TranslationActor,
-  TranslationRow,
-  TranslationStore,
-} from "@utils/content-translation.util";
+import type { PublishedTranslation } from "@utils/content-translation.util";
+import type { TranslationStore } from "@utils/content-translation.util";
+import type { TranslationActor } from "@utils/content-translation.util";
+import type { TranslationRow } from "@utils/content-translation.util";
 
 const translationSelect = {
   id: true,
@@ -38,12 +38,6 @@ const translationSelect = {
   version: true,
   updatedAt: true,
 } as const;
-
-type LocalizableCourse = {
-  id: string;
-  title: string;
-  sourceLanguage?: string | null;
-};
 
 @Injectable()
 export class CourseTranslationService {
@@ -271,11 +265,11 @@ export class CourseTranslationService {
     return row;
   }
 
-  async localizeOne<TCourse extends LocalizableCourse>(
+  async localizeOne<TCourse extends TLocalizableCourse>(
     course: TCourse,
     locale: AppLanguage | null | undefined,
   ) {
-    if (!locale) return course;
+    if (!locale) return presentContentText(course);
     const published = await this.readPublished([course.id]);
     const presentation = localizeRecord(
       course,
@@ -289,11 +283,12 @@ export class CourseTranslationService {
     };
   }
 
-  async localizeMany<TCourse extends LocalizableCourse>(
+  async localizeMany<TCourse extends TLocalizableCourse>(
     courses: TCourse[],
     locale: AppLanguage | null | undefined,
   ) {
-    if (!locale || courses.length === 0) return courses;
+    if (courses.length === 0) return courses;
+    if (!locale) return courses.map(presentContentText);
     const ids = courses.map((course) => course.id);
     const [published, sources] = await Promise.all([
       this.readPublished(ids),

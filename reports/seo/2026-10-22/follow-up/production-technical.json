@@ -1,0 +1,40 @@
+{
+  "environment": "production",
+  "classification": "read-only",
+  "sourceSha": null,
+  "requests": 9,
+  "sitemapUrls": 12087,
+  "completeHandoffEvaluated": false,
+  "results": [
+    {
+      "id": "sitemap",
+      "status": "pass"
+    },
+    {
+      "id": "probe-catalog",
+      "status": "fail",
+      "note": "Known probes must not be linked in the public catalog"
+    },
+    {
+      "id": "withdrawn:/courses/crawler-ingest-4c8b043ae6d9cee62fc4edd8",
+      "status": "fail",
+      "note": "Expected withdrawn 404 and absence from sitemap; received 200"
+    },
+    {
+      "id": "withdrawn:/courses/crawler-ingest-616e0bc13633115ede949ec5",
+      "status": "fail",
+      "note": "Expected withdrawn 404 and absence from sitemap; received 200"
+    },
+    {
+      "id": "canonical-host:/",
+      "status": "fail",
+      "note": "Alias must permanently redirect directly to the canonical URL and preserve the query"
+    },
+    {
+      "id": "canonical-host:/content?tab=events",
+      "status": "fail",
+      "note": "Alias must permanently redirect directly to the canonical URL and preserve the query"
+    }
+  ],
+  "passed": false
+}
