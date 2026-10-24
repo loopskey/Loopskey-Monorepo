@@ -32,6 +32,7 @@
 - Operator handoff: `docs/seo/production-remediation.md` and `production-remediation.handoff.json`; Persian delivery evidence: `reports/seo/2026-10-22/follow-up/HANDOFF.fa.md`.
 - User confirmed no provider identity or historic URL evidence is currently available; complete the tools/workflow and retain these as owner-review items.
 - Production cleanup and deployment remain pending; this PR does not mutate production.
+- CI run on `c9eecb2a` failed only at `npm audit --omit=dev --audit-level=critical`: a newly published critical advisory covers `next` 16.0.0–16.4.0 (locked 16.4.0). The branch changed no dependencies; develop passed earlier the same day, before the advisory. Fixed with a lockfile-only in-range bump to `next` 16.4.3 (`package.json` unchanged); the audit command now exits 0 locally. Remaining high/moderate advisories (apollo, graphql-tools, sanitize-html, xlsx, uuid) are below the gate threshold and out of scope.
 
 ## Submission
 
