@@ -2,6 +2,7 @@
 
 import { getEvidenceFileUrl, getEvidenceUploadUrl } from "@/utils/pdu.constant";
 import { requestFile, saveBlobAs } from "@/utils/file-request.util";
+import { scheduleProgressResync } from "@/utils/progress-resync.util";
 import { useCallback, useState } from "react";
 import { TPduEvidenceFile } from "@/types/professional-dashboard.types";
 import { professionalApi } from "@/lib/rtk/endpoints/professional.api";
@@ -24,6 +25,7 @@ export const usePduEvidenceUpload = () => {
   const [isRemoving, setIsRemoving] = useState(false);
   const invalidatePdu = useCallback(() => {
     dispatch(professionalApi.util.invalidateTags(["ProfessionalPdu"]));
+    scheduleProgressResync(dispatch);
   }, [dispatch]);
 
   const uploadEvidence = useCallback(

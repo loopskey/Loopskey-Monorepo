@@ -8,9 +8,9 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { ContentType, PduCategory } from "@/lib/graphql/base";
 import { AssociationAudienceKind } from "@/lib/graphql/base";
 import { AssociationMemberStatus } from "@/lib/graphql/base";
-import { getAuthErrorCode } from "@utils/auth-error";
 import { SEARCH_DEBOUNCE_MS } from "@utils/constant";
 import { useDebouncedValue } from "@hooks/useDebounced";
+import { getAuthErrorCode } from "@utils/auth-error";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { useI18n } from "@hooks/useI18n";
@@ -161,7 +161,10 @@ export const useAssociationLearningContent = () => {
 
   const memberAddQuery = API.useAssociationMembersQuery(
     {
-      filter: { search: debouncedMemberAddSearch.trim() || undefined },
+      filter: {
+        status: AssociationMemberStatus.Active,
+        search: debouncedMemberAddSearch.trim() || undefined,
+      },
       pagination: { take: MEMBER_PICKER_SIZE },
     },
     {
@@ -203,7 +206,10 @@ export const useAssociationLearningContent = () => {
 
   const assignMemberQuery = API.useAssociationMembersQuery(
     {
-      filter: { search: debouncedAssignSearch.trim() || undefined },
+      filter: {
+        status: AssociationMemberStatus.Active,
+        search: debouncedAssignSearch.trim() || undefined,
+      },
       pagination: { take: MEMBER_PICKER_SIZE },
     },
     { skip: !isWizard && !isAssign },
@@ -277,13 +283,11 @@ export const useAssociationLearningContent = () => {
 
   const assignMemberOptions = useMemo(
     () =>
-      (assignMemberQuery.data?.items ?? [])
-        .filter((member) => member.status !== AssociationMemberStatus.Inactive)
-        .map((member) => ({
-          value: member.id,
-          label: member.fullName ?? member.email ?? member.id,
-          hint: member.memberNumber ?? member.email ?? "",
-        })),
+      (assignMemberQuery.data?.items ?? []).map((member) => ({
+        value: member.id,
+        label: member.fullName ?? member.email ?? member.id,
+        hint: member.memberNumber ?? member.email ?? "",
+      })),
     [assignMemberQuery.data?.items],
   );
 
@@ -297,11 +301,7 @@ export const useAssociationLearningContent = () => {
   const memberAddOptions = useMemo(() => {
     const targeted = new Set(members.map((member) => member.id));
     return (memberAddQuery.data?.items ?? [])
-      .filter(
-        (member) =>
-          member.status !== AssociationMemberStatus.Inactive &&
-          !targeted.has(member.id),
-      )
+      .filter((member) => !targeted.has(member.id))
       .map((member) => ({
         value: member.id,
         label: member.fullName ?? member.email ?? member.id,
