@@ -1,4 +1,5 @@
 import { baseApi } from "@/lib/rtk/baseApi";
+import { scheduleProgressResync } from "@/utils/progress-resync.util";
 
 import type * as TAPI from "@/lib/graphql/generated";
 import * as API from "@/lib/graphql/operations/professional";
@@ -556,6 +557,12 @@ export const professionalApi = baseApi.injectEndpoints({
         response: TAPI.CreateProfessionalPduActivityMutation,
       ) => response.createProfessionalPduActivity,
       invalidatesTags: ["ProfessionalPdu", "ProfessionalOverview"],
+      onQueryStarted(_arg, { dispatch, queryFulfilled }) {
+        return queryFulfilled.then(
+          () => scheduleProgressResync(dispatch),
+          () => undefined,
+        );
+      },
     }),
 
     updateProfessionalPduActivity: builder.mutation<
@@ -570,6 +577,12 @@ export const professionalApi = baseApi.injectEndpoints({
         response: TAPI.UpdateProfessionalPduActivityMutation,
       ) => response.updateProfessionalPduActivity,
       invalidatesTags: ["ProfessionalPdu", "ProfessionalOverview"],
+      onQueryStarted(_arg, { dispatch, queryFulfilled }) {
+        return queryFulfilled.then(
+          () => scheduleProgressResync(dispatch),
+          () => undefined,
+        );
+      },
     }),
 
     deleteProfessionalPduActivity: builder.mutation<
@@ -584,6 +597,12 @@ export const professionalApi = baseApi.injectEndpoints({
         response: TAPI.DeleteProfessionalPduActivityMutation,
       ) => response.deleteProfessionalPduActivity,
       invalidatesTags: ["ProfessionalPdu", "ProfessionalOverview"],
+      onQueryStarted(_arg, { dispatch, queryFulfilled }) {
+        return queryFulfilled.then(
+          () => scheduleProgressResync(dispatch),
+          () => undefined,
+        );
+      },
     }),
 
     upsertProfessionalPduTarget: builder.mutation<

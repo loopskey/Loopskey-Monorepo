@@ -110,7 +110,10 @@ export const useAssociationMembersTab = () => {
 
   const assignPickerQuery = API.useAssociationMembersQuery(
     {
-      filter: { search: debouncedAssignPickerSearch.trim() || undefined },
+      filter: {
+        status: AssociationMemberStatus.Active,
+        search: debouncedAssignPickerSearch.trim() || undefined,
+      },
       pagination: { take: ASSIGN_PICKER_SIZE },
     },
     { skip: !isAssignPickerOpen },
@@ -182,13 +185,11 @@ export const useAssociationMembersTab = () => {
 
   const assignPickerOptions = useMemo(
     () =>
-      (assignPickerQuery.data?.items ?? [])
-        .filter((member) => member.status !== AssociationMemberStatus.Inactive)
-        .map((member) => ({
-          value: member.id,
-          label: member.fullName ?? member.email ?? member.id,
-          hint: member.memberNumber ?? member.email ?? "",
-        })),
+      (assignPickerQuery.data?.items ?? []).map((member) => ({
+        value: member.id,
+        label: member.fullName ?? member.email ?? member.id,
+        hint: member.memberNumber ?? member.email ?? "",
+      })),
     [assignPickerQuery.data?.items],
   );
 
