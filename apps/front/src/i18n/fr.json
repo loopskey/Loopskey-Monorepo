@@ -2831,7 +2831,6 @@
       "title": "Définissez votre mot de passe",
       "description": "Le compte de votre organisation a été approuvé. Créez un mot de passe sécurisé pour l'activer.",
       "descriptionNamed": "Le compte de {{organizationName}} a été approuvé. Créez un mot de passe sécurisé pour l'activer.",
-      "checking": "Vérification de votre lien d'activation...",
       "submit": "Activer le compte",
       "activating": "Activation du compte...",
       "successTitle": "Votre compte est actif. Connectez-vous avec votre nouveau mot de passe.",
@@ -3380,11 +3379,6 @@
     }
   },
   "landing": {
-    "topicGuides": {
-      "title": "Guides thématiques",
-      "subtitle": "Commencez par des conseils sélectionnés, puis explorez les formations recommandées.",
-      "read": "Lire le guide"
-    },
     "meta": {
       "title": "LoopsKey — apprentissage professionnel et suivi CPD propulsés par l’IA",
       "description": "Découvrez des cours, événements, podcasts et chaînes YouTube, créez un parcours de développement propulsé par l’IA et suivez votre conformité CPD et PDU au même endroit."
@@ -3445,14 +3439,15 @@
     },
     "hero": {
       "badge": "Apprentissage professionnel propulsé par l’IA",
-      "titleLine1": "Votre parcours de",
-      "titleLine2": "développement professionnel",
-      "dashboardCta": "Accéder au tableau de bord",
-      "titleLine3": "au même endroit",
-      "subtitleLine1": "Votre parcours, votre choix — l’IA de LoopsKey,",
-      "subtitleLine2": "adaptée à vos objectifs.",
-      "primaryCta": "Explorer les contenus",
-      "secondaryCta": "Créer un compte",
+      "titleLead": "Votre apprentissage et vos certifications,",
+      "titleHighlight": "réunis au même endroit",
+      "subtitle": "Explorez des cours en ligne, des événements et des podcasts, gérez vos certifications et suivez vos crédits — sur une seule plateforme propulsée par l’IA.",
+      "planNote": "Fonctionnalités essentielles gratuites pour les professionnels",
+      "exploreLearning": "Explorer les contenus",
+      "sampleCard": {
+        "title": "Project Management Professional",
+        "credits": "{{earned}} crédits sur {{total}}"
+      },
       "searchPlaceholder": "Rechercher des cours, événements, podcasts et chaînes YouTube...",
       "exploreButton": "Explorer",
       "exploreTitle": "Explorer par catégorie",
@@ -3463,12 +3458,6 @@
       "viewAll": "Tout voir",
       "viewItem": "Voir",
       "noResults": "Aucun contenu correspondant trouvé. Essayez un autre mot-clé ou une autre catégorie.",
-      "aiCardTitle": "Apprentissage guidé par l’IA",
-      "aiCardText": "Des parcours personnalisés pour chaque objectif",
-      "progressCardTitle": "Suivez votre progression",
-      "progressCardText": "CPD, compétences, certificats et preuves d’apprentissage",
-      "skills": "Compétences",
-      "professionals": "professionnels",
       "categories": {
         "technologyCourses": "Cours de technologie",
         "businessCourses": "Cours de business",
@@ -3488,239 +3477,202 @@
         "videos": "{{count}} vidéos"
       }
     },
-    "popularCategories": {
-      "badge": "Catégories populaires",
-      "title": "Découvrez ce que les professionnels apprennent",
-      "subtitle": "Explorez les catégories les plus performantes selon les notes, les avis et l’activité d’apprentissage sur LoopsKey.",
-      "itemsCount": "{{count}} éléments",
-      "courses": "Cours",
-      "events": "Événements",
-      "podcasts": "Podcasts",
-      "youtube": "YouTube"
+    "actions": {
+      "createAccount": "Créer un compte gratuit",
+      "getStarted": "Commencer",
+      "dashboard": "Accéder à votre tableau de bord",
+      "buildRoadmap": "Créer ma feuille de route",
+      "roadmapForProfessionals": "Feuilles de route pour les professionnels"
     },
-    "newFeature": {
-      "badge": "Nouvelle fonctionnalité",
-      "title": "Parcours d’apprentissage",
-      "description": "Naviguez dans votre parcours d’apprentissage grâce à des roadmaps conçues par des experts. Suivez des chemins structurés du niveau débutant au niveau avancé.",
-      "ctaTitle": "Commencez votre parcours dès aujourd’hui",
-      "ctaText": "Choisissez parmi différents parcours créés par des experts du secteur. Que vous commenciez de zéro ou que vous souhaitiez renforcer vos compétences, nos roadmaps vous guident à chaque étape.",
-      "ctaButton": "Explorer les roadmaps",
-      "cards": {
-        "structured": {
-          "title": "Progression structurée",
-          "text": "Des parcours clairs, étape par étape, conçus par des experts du secteur."
+    "sample": {
+      "label": "Exemple",
+      "dataLabel": "Données d’exemple"
+    },
+    "highlights": {
+      "label": "LoopsKey en bref",
+      "items": {
+        "catalog": {
+          "title": "Catalogue d’apprentissage",
+          "text": "Cours, événements et plus, réunis dans une seule recherche"
         },
-        "community": {
-          "title": "Approche communautaire",
-          "text": "Apprenez avec d’autres professionnels suivant le même parcours et partagez vos expériences."
+        "formats": {
+          "title": "4 formats",
+          "text": "Cours, événements, podcasts et chaînes YouTube"
         },
-        "progress": {
-          "title": "Suivi de progression",
-          "text": "Suivez votre avancement et célébrez vos étapes importantes."
+        "certifications": {
+          "title": "Certifications",
+          "text": "Crédits et renouvellements suivis"
+        }
+      }
+    },
+    "steps": {
+      "badge": "Fonctionnement",
+      "title": "Comment fonctionne LoopsKey",
+      "items": {
+        "addGoal": {
+          "title": "Ajoutez vos certifications",
+          "text": "Indiquez ce que vous détenez et ce que vous visez."
+        },
+        "getPlan": {
+          "title": "Recevez votre plan d’apprentissage",
+          "text": "L’IA recommande des cours et des événements adaptés à vos objectifs."
+        },
+        "trackCredits": {
+          "title": "Consignez vos apprentissages et suivez vos crédits",
+          "text": "Enregistrez ce que vous terminez et suivez votre progression vers vos renouvellements."
         }
       }
     },
     "services": {
-      "badge": "Services LoopsKey",
-      "title": "Tout pour votre développement professionnel",
-      "subtitle": "LoopsKey réunit la découverte de contenus, le suivi CPD, les outils fournisseurs, les recommandations et l’analytique dans une plateforme intelligente.",
+      "badge": "Plateforme",
+      "title": "Votre développement professionnel sur une seule plateforme",
+      "viewAll": "Découvrir tous les services",
       "items": {
-        "cpdManagement": {
-          "title": "Gestion CPD",
-          "text": "Restez aligné avec votre profession grâce à une gestion simple de votre développement professionnel continu. Suivez vos progrès, planifiez vos apprentissages et gardez une longueur d’avance."
+        "certificationManagement": {
+          "title": "Gestion des certifications",
+          "text": "Crédits et dates de renouvellement pour chaque certification."
         },
-        "contentAggregation": {
-          "title": "Agrégation de contenus d’apprentissage",
-          "text": "Découvrez facilement des opportunités d’apprentissage mondiales. Notre IA agrège webinaires, séminaires et sessions d’experts en un seul endroit."
+        "learningCatalog": {
+          "title": "Un seul catalogue d’apprentissage",
+          "text": "Cours, événements, podcasts et chaînes YouTube au même endroit."
         },
-        "personalizedDashboard": {
-          "title": "Tableau de bord personnalisé",
-          "text": "Accédez à un tableau de bord adapté à vos objectifs, avec événements à venir, cours enregistrés et recommandations personnalisées."
+        "aiRecommendations": {
+          "title": "Recommandations IA",
+          "text": "Des apprentissages adaptés à votre rôle et à vos objectifs."
         },
-        "professionalsConnection": {
-          "title": "Connexion des professionnels",
-          "text": "Élargissez vos possibilités en accédant à des opportunités de formation de qualité partout dans le monde."
-        },
-        "recommendations": {
-          "title": "Recommandations intelligentes",
-          "text": "Profitez du tagging par IA et de la recherche avancée pour recevoir des recommandations adaptées à votre expertise et à vos intérêts."
-        },
-        "providerSolutions": {
-          "title": "Solutions pour fournisseurs de contenu",
-          "text": "Partagez vos webinaires, cours et événements avec un réseau mondial de professionnels en quête de formation continue."
-        },
-        "hrAssociations": {
-          "title": "RH et associations professionnelles",
-          "text": "Aidez vos équipes à accéder à des formations pertinentes et accréditées tout en maintenant leurs compétences à jour."
-        },
-        "dataAnalytics": {
-          "title": "Analyse de données",
-          "text": "Obtenez des insights exploitables avec LoopsKey Analytics. Suivez les tendances d’apprentissage et prenez des décisions basées sur les données."
+        "personalDashboard": {
+          "title": "Tableau de bord personnel",
+          "text": "Progression et événements à venir en un coup d’œil."
         }
       }
     },
     "roadmapShowcase": {
       "badge": "Feuille de route d’apprentissage IA",
-      "title": "Transformez vos objectifs de carrière en",
-      "highlight": "feuille de route",
-      "description": "LoopsKey transforme vos objectifs en une feuille de route vivante — en organisant les cours, événements et certifications dans le bon ordre avec des étapes réellement atteignables.",
-      "primaryAction": "Réserver une consultation",
-      "secondaryAction": "Explorer les services",
+      "title": "Pour les professionnels",
+      "headingLead": "Transformez votre objectif de carrière en",
+      "headingHighlight": "feuille de route d’apprentissage",
+      "description": "Fixez un objectif. L’IA planifie les cours, les événements et les examens pour l’atteindre.",
+      "learnMore": "En savoir plus",
       "benefits": {
-        "aiSequencing": "Séquençage guidé par les objectifs et construit par l’IA",
-        "eventSlotting": "Événements recommandés automatiquement intégrés",
-        "progressTracking": "Suivi en direct des progrès et du CPD",
-        "adaptiveRoadmap": "S’adapte à l’évolution de votre rôle et de vos compétences"
+        "aiSequencing": "Séquence d’apprentissage construite par l’IA",
+        "eventSlotting": "Événements intégrés automatiquement",
+        "progressTracking": "Progression et crédits suivis",
+        "adaptiveRoadmap": "S’adapte à l’évolution de vos objectifs"
       },
       "preview": {
-        "eyebrow": "Feuille de route",
-        "title": "Parcours vers Chartered Engineer",
-        "status": "En cours"
-      },
-      "status": {
-        "done": "Terminé",
-        "active": "En cours",
-        "upcoming": "À venir"
-      },
-      "milestones": {
-        "systemsEngineering": {
-          "title": "Fondamentaux de l’ingénierie des systèmes",
-          "meta": "8 modules · 24 points CPD"
+        "goalLabel": "Objectif",
+        "title": "Obtenir la certification PMP®",
+        "fromRole": "Analyste produit",
+        "toRole": "Chef de projet",
+        "careerPath": "Parcours : de {{from}} à {{to}}",
+        "stepsLabel": "Étapes de la feuille de route",
+        "status": {
+          "done": "Terminé",
+          "active": "En cours",
+          "upcoming": "À venir"
         },
-        "incoseSymposium": {
-          "title": "Symposium international INCOSE",
-          "meta": "Événement en direct · 12 juillet"
+        "steps": {
+          "fundamentals": {
+            "title": "Fondamentaux de la gestion de projet",
+            "meta": "Cours en ligne · {{count}} heures"
+          },
+          "agile": {
+            "title": "Essentiels Agile et Scrum",
+            "meta": "Webinaire en direct · {{date}}"
+          },
+          "risk": {
+            "title": "La gestion des risques en pratique",
+            "meta": "Recommandé par l’IA · {{count}} heures"
+          },
+          "exam": {
+            "title": "Examen PMP®",
+            "meta": "Objectif · {{date}}"
+          }
         },
-        "riskReliability": {
-          "title": "Risque et fiabilité avancés",
-          "meta": "Recommandé par l’IA · 16 h"
-        },
-        "charteredEngineer": {
-          "title": "Candidature Chartered Engineer",
-          "meta": "Étape d’objectif · T4"
+        "summary": {
+          "hours": "Heures de formation",
+          "progress": "Progression",
+          "next": "Prochaine étape"
         }
-      },
-      "metrics": {
-        "cpd": "Points CPD",
-        "progress": "Progression",
-        "next": "Prochaine étape"
       }
     },
     "organization": {
-      "eyebrow": "Pour les organisations",
-      "title": "Construisez une main-d'œuvre qui progresse durablement",
-      "description": "Offrez à chaque membre de l'équipe une feuille de route personnalisée, prouvez la conformité CPD en un clic et transformez l'apprentissage en résultats mesurables.",
-      "primaryAction": "Réserver une consultation",
-      "secondaryAction": "Explorer les services",
-      "stats": {
-        "teamMembers": "Membres de l'équipe",
-        "cpdCompliant": "Conformes CPD",
-        "avgGrowth": "Croissance moyenne"
-      },
-      "features": {
-        "teamProgress": "Progression d'équipe en un coup d'œil",
-        "cpdCompliance": "Conformité CPD automatisée",
-        "skillAnalytics": "Analyse des compétences",
-        "learningAssignments": "Affectations intelligentes"
-      },
-      "dashboard": {
-        "eyebrow": "Vue d'ensemble de l'équipe",
-        "title": "Équipe ingénierie · T3",
-        "status": "En direct",
-        "complianceTitle": "Conformité CPD par équipe"
-      },
-      "compliance": {
-        "compliant": "Conformes",
-        "atRisk": "À risque",
-        "nonCompliant": "Non conformes"
-      },
-      "topics": {
-        "aiRoadmaps": "Feuilles de route IA",
-        "compliance": "Formation conformité",
-        "leadership": "Compétences leadership"
-      }
-    },
-    "provider": {
-      "eyebrow": "Pour les fournisseurs de contenu",
-      "title": "Touchez des professionnels déjà en apprentissage",
-      "description": "Les organismes de formation, associations et éducateurs font confiance à LoopsKey pour présenter leurs meilleurs contenus à des apprenants motivés.",
-      "primaryAction": "Devenir fournisseur",
-      "secondaryAction": "Voir les services",
+      "badge": "Membres et contenus",
+      "title": "Pour les associations et les organisations",
+      "panelTitle": "Vos membres et vos contenus, réunis",
+      "description": "Ajoutez vos membres, publiez les contenus dont ils ont besoin et suivez leur progression.",
+      "contact": "Parler à notre équipe",
+      "associations": "Pour les associations",
       "benefits": {
-        "promoteEvents": {
-          "title": "Promouvoir vos événements",
-          "description": "Publiez des cours, conférences et webinaires auprès d'une audience mondiale de professionnels qualifiés."
+        "defineMembers": "Définissez vos membres",
+        "publishContent": "Publiez vos propres contenus",
+        "trackProgress": "Suivez la progression des membres",
+        "memberReports": "Rapports sur les membres"
+      },
+      "preview": {
+        "eyebrow": "Aperçu des membres",
+        "title": "Association · cycle annuel",
+        "stats": {
+          "members": "Membres",
+          "onTrack": "En bonne voie",
+          "published": "Contenus publiés"
         },
-        "reachPeople": {
-          "title": "Atteindre les bonnes personnes",
-          "description": "L'IA associe vos offres aux apprenants qui construisent activement des feuilles de route dans votre domaine."
+        "statusTitle": "Statut des membres",
+        "status": {
+          "onTrack": "En bonne voie",
+          "atRisk": "À risque",
+          "overdue": "En retard"
         },
-        "analytics": {
-          "title": "Analyses en temps réel",
-          "description": "Suivez les impressions, inscriptions et l'engagement des apprenants grâce à un tableau de bord clair."
-        },
-        "growAudience": {
-          "title": "Développer votre audience",
-          "description": "Fidélisez des apprenants réguliers et transformez des participants ponctuels en communauté."
+        "contentTitle": "Contenus les plus complétés",
+        "content": {
+          "ethics": "Mise à jour sur l’éthique professionnelle",
+          "standards": "Point sur les normes",
+          "leadership": "Fondamentaux du leadership"
         }
-      },
-      "stats": {
-        "monthlyLearners": "Apprenants actifs",
-        "providerReach": "Pays couverts",
-        "conversionLift": "Hausse moyenne",
-        "totalEvents": "Événements publiés",
-        "totalRegistrations": "Inscriptions",
-        "conversionRate": "Taux de conversion"
-      },
-      "funnel": {
-        "publish": "Visibilité du contenu publié",
-        "match": "Correspondance IA avec les apprenants",
-        "promote": "Événements promus",
-        "convert": "Conversion en inscriptions"
-      },
-      "dashboard": {
-        "eyebrow": "Console de croissance fournisseur",
-        "title": "Marketplace d'apprentissage professionnel",
-        "status": "En direct",
-        "funnelTitle": "Performance des campagnes",
-        "funnelDescription": "Suivez comment votre contenu passe de la découverte à l'inscription.",
-        "matchingTitle": "Correspondance basée sur l'IA",
-        "matchingDescription": "Vos événements apparaissent là où les professionnels planifient déjà leur prochaine étape.",
-        "analyticsTitle": "Données de performance claires",
-        "analyticsDescription": "Comprenez les vues, l'intérêt, les inscriptions et la dynamique de vos contenus au même endroit.",
-        "demoData": "Données démo",
-        "noTopEvent": "Aucun événement principal pour le moment",
-        "fallbackProvider": "Espace fournisseur",
-        "topEventTitle": "Événement le plus performant",
-        "revenue": "Revenus",
-        "rating": "Note",
-        "registrations": "Inscriptions"
       }
     },
-    "testimonials": {
-      "eyebrow": "Témoignages",
-      "title": "Une plateforme adoptée dans tout le secteur",
-      "description": "Des ingénieurs indépendants aux grandes organisations internationales et aux fournisseurs de formation.",
+    "audiences": {
+      "badge": "Pour qui",
+      "title": "Conçu pour les professionnels, les associations et les organisations",
       "items": {
-        "engineer": {
-          "quote": "LoopsKey a remplacé quatre tableurs et une douzaine d'onglets de navigateur. Mon CPD est enfin automatisé — et j'apprends les bonnes choses.",
-          "name": "Daniel Park",
-          "role": "Ingénieur systèmes senior · Siemens",
-          "tag": "Ingénieur"
+        "professional": {
+          "title": "Professionnels",
+          "points": [
+            "Feuille de route d’apprentissage personnelle",
+            "Suivi des certifications et des crédits",
+            "Certificats réunis au même endroit"
+          ],
+          "link": "Pour les professionnels"
+        },
+        "association": {
+          "title": "Associations",
+          "points": [
+            "Ajoutez et gérez vos membres",
+            "Publiez vos propres contenus",
+            "Suivez la progression des membres"
+          ],
+          "link": "Pour les associations"
         },
         "organization": {
-          "quote": "Nous l'avons déployé auprès de 1 800 ingénieurs. La conformité CPD est passée de 61 % à 94 % en un trimestre, et l'équipe L&D dispose enfin des analyses dont elle avait besoin.",
-          "name": "Maria Gonzalez",
-          "role": "Directrice des ressources humaines · TechCorp",
-          "tag": "Organisation"
-        },
-        "provider": {
-          "quote": "Publier nos programmes de certification sur LoopsKey a multiplié par quatre les inscriptions qualifiées. L'audience correspond exactement à notre cible.",
-          "name": "Aisha Nour",
-          "role": "Directrice des programmes · Global PM Institute",
-          "tag": "Fournisseur"
+          "title": "Organisations",
+          "points": [
+            "Tableau de bord de progression des équipes",
+            "Attribution de formations",
+            "Analyse des compétences"
+          ],
+          "link": "Pour les organisations"
         }
       }
+    },
+    "faq": {
+      "badge": "FAQ",
+      "title": "Questions fréquentes",
+      "seeAll": "Voir toutes les questions"
+    },
+    "finalCta": {
+      "title": "Prenez en main votre développement professionnel",
+      "description": "Créez votre compte et ajoutez votre première certification.",
+      "contact": "Parler à notre équipe"
     }
   },
   "notFound": {

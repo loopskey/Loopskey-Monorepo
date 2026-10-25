@@ -95,6 +95,7 @@ export type THeroSearchBoxProps = {
   value: string;
   placeholder: string;
   onClear: () => void;
+  clearLabel: string;
   exploreLabel: string;
   isExplorerOpen: boolean;
   onToggleExplorer: () => void;

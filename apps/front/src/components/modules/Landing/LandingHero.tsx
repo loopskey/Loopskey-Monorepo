@@ -1,13 +1,10 @@
 "use client";
 
-import { HERO_SPLIT_STAGGER_MS } from "@utils/landing-public.constant";
-import { HERO_SPLIT_DURATION_S } from "@utils/landing-public.constant";
-import { SplitText, countChars } from "@elements/split-text";
-import { ArrowRight, Sparkles } from "lucide-react";
+import { HERO_SAMPLE_CREDITS } from "@/utils/landing-sections.constant";
 import { useLandingHeroSearch } from "@/hooks/useLandingHero";
-import { useAuthSession } from "@/hooks/useAuthSession";
+import { siteLinks } from "@/utils/site-navigation";
 import { GlassCard } from "@elements/glass-card";
-import { Button } from "@ui/button";
+import { Sparkles } from "lucide-react";
 
 import HeroMiniResultSkeleton from "@modules/Landing/parts/HeroMiniResultSkeleton";
 import HeroCategoryExplorer from "@modules/Landing/parts/HeroCategoryExplorer";
@@ -15,6 +12,10 @@ import HeroMiniResultCard from "@modules/Landing/parts/HeroMiniResultCard";
 import HeroSearchBox from "@modules/Landing/parts/HeroSearchBox";
 import Image from "next/image";
 import Link from "@elements/localized-link";
+
+import LandingActionGroup from "./parts/LandingActionGroup";
+
+const TITLE_ID = "landing-hero-title";
 
 const LandingHero = () => {
   const {
@@ -34,99 +35,66 @@ const LandingHero = () => {
     hasSelectedCategory,
   } = useLandingHeroSearch();
 
-  const { isAuthenticated, dashboardHref } = useAuthSession();
-
   const shouldShowResults = hasSearch || hasSelectedCategory;
-
-  const titleLine1 = t("landing.hero.titleLine1");
-  const titleLine2 = t("landing.hero.titleLine2");
-  const titleLine3 = t("landing.hero.titleLine3");
-
-  const line2StartDelay = countChars(titleLine1) * HERO_SPLIT_STAGGER_MS;
-  const line3StartDelay =
-    line2StartDelay + countChars(titleLine2) * HERO_SPLIT_STAGGER_MS;
+  const creditShare = HERO_SAMPLE_CREDITS.earned / HERO_SAMPLE_CREDITS.total;
 
   return (
-    <section className="relative overflow-x-clip px-4 py-10 sm:px-6 lg:px-8">
-      <div className="pointer-events-none absolute inset-0 -z-10"></div>
-
-      <div className="mx-auto grid max-w-7xl items-center gap-10 lg:grid-cols-[1.05fr_0.95fr] px-4 sm:px-6 lg:px-8">
-        <div className="animate-in slide-in-from-bottom-5 duration-700">
-          <div className="mb-5 inline-flex items-center gap-2 rounded-full border px-4 py-2 text-sm font-bold text-primary shadow-sm">
-            <Sparkles className="h-4 w-4" />
+    <section
+      aria-labelledby={TITLE_ID}
+      className="relative overflow-x-clip bg-[radial-gradient(ellipse_at_top_right,var(--color-accent),transparent_55%)]"
+    >
+      <div className="mx-auto grid w-full max-w-7xl items-center gap-12 px-4 pb-12 pt-10 sm:px-6 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)] lg:px-8 lg:pb-16 lg:pt-16">
+        <div className="min-w-0">
+          <p className="inline-flex rounded-full bg-accent/70 px-3 py-1 text-xs font-semibold uppercase tracking-[0.16em] text-primary">
             {t("landing.hero.badge")}
-          </div>
-
-          <h1
-            aria-label={`${titleLine1} ${titleLine2} ${titleLine3}`}
-            className="max-w-4xl text-3xl font-bold leading-[1.5] tracking-tight sm:text-3xl lg:text-4xl xl:text-4xl"
-          >
-            <SplitText
-              tag="span"
-              text={titleLine1}
-              textAlign="left"
-              delay={HERO_SPLIT_STAGGER_MS}
-              duration={HERO_SPLIT_DURATION_S}
-              className="block text-brand-orange-large-text"
-            />
-            <SplitText
-              tag="span"
-              textAlign="left"
-              text={titleLine2}
-              startDelay={line2StartDelay}
-              delay={HERO_SPLIT_STAGGER_MS}
-              className="block text-brand-navy"
-              duration={HERO_SPLIT_DURATION_S}
-            />
-            <SplitText
-              tag="span"
-              text={titleLine3}
-              textAlign="left"
-              className="block text-brand-sky-large-text"
-              startDelay={line3StartDelay}
-              delay={HERO_SPLIT_STAGGER_MS}
-              duration={HERO_SPLIT_DURATION_S}
-            />
-          </h1>
-
-          <p className="mt-6 max-w-2xl text-base font-medium leading-8 text-muted-foreground sm:text-lg">
-            {t("landing.hero.subtitleLine1")}
-            <span className="block text-foreground">
-              {t("landing.hero.subtitleLine2")}
-            </span>
           </p>
 
-          <div className="mt-7 flex flex-col gap-3 sm:flex-row">
-            <Button asChild size="xl" radius="xl">
-              <Link href="/content">
-                {t("landing.hero.primaryCta")}
-                <ArrowRight className="h-4 w-4" />
-              </Link>
-            </Button>
+          <h1
+            id={TITLE_ID}
+            className="mt-6 text-balance text-4xl font-bold leading-[1.08] tracking-tight text-foreground sm:text-5xl lg:text-6xl"
+          >
+            <span className="block">{t("landing.hero.titleLead")}</span>{" "}
+            <span className="block text-primary">
+              {t("landing.hero.titleHighlight")}
+            </span>
+          </h1>
 
-            {isAuthenticated ? (
-              dashboardHref ? (
-                <Button asChild size="xl" radius="xl" variant="outline">
-                  <Link href={dashboardHref}>
-                    {t("landing.hero.dashboardCta")}
-                  </Link>
-                </Button>
-              ) : null
-            ) : (
-              <Button asChild size="xl" radius="xl" variant="outline">
-                <Link href="/auth/professional">
-                  {t("landing.hero.secondaryCta")}
-                </Link>
-              </Button>
-            )}
-          </div>
+          <p className="mt-6 max-w-xl text-base leading-7 text-muted-foreground sm:text-lg sm:leading-8">
+            {t("landing.hero.subtitle")}
+          </p>
 
-          <div className="mt-8 max-w-3xl space-y-4">
+          <LandingActionGroup
+            size="xl"
+            className="mt-8"
+            actions={[
+              {
+                kind: "session",
+                key: "account",
+                intent: "account",
+                variant: "primary",
+                withArrow: true,
+              },
+              {
+                kind: "link",
+                key: "explore",
+                href: siteLinks.content,
+                label: t("landing.hero.exploreLearning"),
+                variant: "outline",
+              },
+            ]}
+          />
+
+          <p className="mt-4 text-sm text-muted-foreground">
+            {t("landing.hero.planNote")}
+          </p>
+
+          <div className="mt-8 max-w-2xl space-y-4">
             <HeroSearchBox
               value={search}
               onChange={setSearch}
               onClear={clearSearch}
               isExplorerOpen={isExplorerOpen}
+              clearLabel={t("landing.hero.clear")}
               exploreLabel={t("landing.hero.exploreButton")}
               placeholder={t("landing.hero.searchPlaceholder")}
               onToggleExplorer={() => setIsExplorerOpen(!isExplorerOpen)}
@@ -162,7 +130,7 @@ const LandingHero = () => {
             ) : null}
 
             {shouldShowResults ? (
-              <div className="animate-in fade-in-0 slide-in-from-bottom-3 duration-500">
+              <div className="motion-safe:animate-in motion-safe:fade-in-0 motion-safe:slide-in-from-bottom-3 motion-safe:duration-500">
                 <div className="mb-3 flex items-center justify-between">
                   <h2 className="text-sm font-medium">
                     {hasSearch
@@ -171,7 +139,7 @@ const LandingHero = () => {
                   </h2>
 
                   <Link
-                    href="/content"
+                    href={siteLinks.content}
                     className="text-xs font-medium text-primary hover:underline"
                   >
                     {t("landing.hero.viewAll")}
@@ -205,16 +173,39 @@ const LandingHero = () => {
           </div>
         </div>
 
-        <div className="relative animate-in zoom-in-95 slide-in-from-bottom-6 duration-700 lg:min-h-[620px]">
-          <div className="relative mx-auto flex max-w-xl items-center justify-center [perspective:1400px]">
-            <div className="relative h-[420px] w-full sm:h-[520px] animate-[hero-float_5s_ease-in-out_infinite] transition-transform duration-700 lg:[transform:rotateY(-8deg)] lg:hover:[transform:rotateY(0deg)_scale(1.03)]">
-              <Image
-                fill
-                priority
-                src="/hero.png"
-                alt="LoopsKey professional learning"
-                sizes="(max-width: 1024px) 100vw, 520px"
-                className="object-contain drop-shadow-[0_35px_80px_rgba(37,99,235,0.22)]"
+        <div className="relative mx-auto w-full max-w-md sm:max-w-lg lg:max-w-xl">
+          <div className="relative aspect-[600/638] w-full">
+            <Image
+              fill
+              priority
+              alt=""
+              src="/hero.png"
+              sizes="(max-width: 640px) 90vw, (max-width: 1024px) 512px, 576px"
+              className="object-contain"
+            />
+          </div>
+
+          <div className="absolute bottom-2 left-0 w-64 max-w-[85%] rounded-xl border bg-card p-4 shadow-lg sm:bottom-6 sm:w-72">
+            <span className="inline-flex items-center gap-1 rounded-full bg-muted px-2 py-0.5 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+              <Sparkles aria-hidden className="size-3" />
+              {t("landing.sample.label")}
+            </span>
+            <p className="mt-2 text-sm font-semibold text-foreground">
+              {t("landing.hero.sampleCard.title")}
+            </p>
+            <p className="mt-1 text-xs text-muted-foreground">
+              {t("landing.hero.sampleCard.credits", {
+                earned: HERO_SAMPLE_CREDITS.earned,
+                total: HERO_SAMPLE_CREDITS.total,
+              })}
+            </p>
+            <div
+              aria-hidden
+              className="mt-3 h-1.5 overflow-hidden rounded-full bg-muted"
+            >
+              <div
+                className="h-full rounded-full bg-brand-orange"
+                style={{ width: `${creditShare * 100}%` }}
               />
             </div>
           </div>

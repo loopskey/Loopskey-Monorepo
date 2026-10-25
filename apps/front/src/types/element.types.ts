@@ -1,5 +1,5 @@
 import type { TextareaHTMLAttributes, InputHTMLAttributes } from "react";
-import type { HTMLAttributes, ReactNode, CSSProperties } from "react";
+import type { HTMLAttributes, ReactNode } from "react";
 import type { Control, FieldPath, FieldValues, Path } from "react-hook-form";
 import type { ExternalLearningProvider } from "@/lib/graphql/base";
 import type { CourseCategory } from "@/lib/graphql/base";
@@ -49,25 +49,6 @@ export type TGalaxyConfig = Omit<TGalaxyProps, "className" | "mouseTarget">;
 export type TGalaxyBackgroundProps = {
   className?: string;
   withBottomFade?: boolean;
-};
-
-// ================ Split Text ==================
-export type TSplitTextProps = {
-  text: string;
-  delay?: number;
-  duration?: number;
-  threshold?: number;
-  className?: string;
-  startDelay?: number;
-  to?: gsap.TweenVars;
-  rootMargin?: string;
-  from?: gsap.TweenVars;
-  inheritGradient?: boolean;
-  textAlign?: CSSProperties["textAlign"];
-  onLetterAnimationComplete?: () => void;
-  ease?: string | ((t: number) => number);
-  splitType?: "chars" | "words" | "lines" | "words, chars";
-  tag?: "h1" | "h2" | "h3" | "h4" | "h5" | "h6" | "p" | "span";
 };
 
 // ============== Required Mark ================
