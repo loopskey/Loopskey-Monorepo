@@ -213,6 +213,19 @@
     "save": "Save",
     "start": "Start",
     "view": "View",
+    "wizardStepper": {
+      "allSteps": "All steps",
+      "lastStep": "Last step",
+      "nextStep": "Next: {{title}}",
+      "status": {
+        "current": "Current step",
+        "done": "Completed",
+        "locked": "Locked",
+        "problem": "Needs attention",
+        "upcoming": "Not started"
+      },
+      "stepOf": "Step {{current}} of {{total}}"
+    },
     "yes": "Yes"
   },
   "contactPage": {

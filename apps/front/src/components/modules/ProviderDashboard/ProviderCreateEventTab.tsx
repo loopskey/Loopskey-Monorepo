@@ -2,9 +2,9 @@
 
 import { useProviderCreateEventTab } from "@hooks/useProviderCreateEventTab";
 import { FloatingTextareaField } from "@elements/floating-textarea";
-import { ProviderEventStepper } from "@modules/ProviderDashboard/parts/provider-event-stepper";
 import { FloatingSelectField } from "@elements/floating-select";
 import { FloatingInputField } from "@elements/floating-input";
+import { WizardStepper } from "@elements/wizard-stepper";
 import { isValidImageSrc } from "@utils/image-src.util";
 import { GlassCard } from "@elements/glass-card";
 import { Button } from "@ui/button";
@@ -102,10 +102,11 @@ const ProviderCreateEventTab = () => {
         </div>
       </section>
 
-      <ProviderEventStepper
+      <WizardStepper
         steps={steps}
-        activeStep={activeStep}
-        onChange={setActiveStep}
+        activeKey={activeStep}
+        onSelect={setActiveStep}
+        label={t("providerDashboard.createEvent.stepsLabel")}
       />
 
       <F.Form {...formRhf}>

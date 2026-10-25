@@ -1,9 +1,9 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { ProfessionalGoal } from "@/lib/graphql/base";
 import { useCertificationSearchQuery } from "@/lib/rtk/endpoints/cpd-plan.api";
 import { useDebouncedValue } from "@/hooks/useDebounced";
+import { ProfessionalGoal } from "@/lib/graphql/base";
 import { useRouter } from "next/navigation";
 import { useI18n } from "@/hooks/useI18n";
 import { notify } from "@/hooks/notify";
@@ -12,6 +12,8 @@ import * as PAPI from "@/lib/rtk/endpoints/professional.api";
 import * as C from "@/utils/professional-onboarding.constant";
 import * as T from "@/types/professional-onboarding.types";
 import * as TX from "@/types/professional-taxonomy.types";
+
+import type { TWizardStep } from "@/types/wizard-stepper.types";
 
 const CERTIFICATION_SEARCH_LIMIT = 8;
 
@@ -59,15 +61,15 @@ export const useProfessionalOnboarding = () => {
 
   const currentStep = steps[stepIndex];
 
-  const stepDescriptors: T.TOnboardingStepDescriptor[] = useMemo(
+  const stepDescriptors: TWizardStep<number>[] = useMemo(
     () =>
       steps.map((step, index) => ({
-        step,
-        index,
-        label: t(C.ONBOARDING_STEP_I18N_KEY[step]),
-        icon: C.ONBOARDING_STEP_ICON[step],
+        key: index,
+        isComplete: index < stepIndex,
+        isReachable: index <= stepIndex,
+        title: t(C.ONBOARDING_STEP_I18N_KEY[step]),
       })),
-    [steps, t],
+    [steps, t, stepIndex],
   );
 
   const goalOptions: T.TOnboardingGoalOption[] = useMemo(
@@ -217,6 +219,11 @@ export const useProfessionalOnboarding = () => {
     [],
   );
 
+  const goToStep = useCallback(
+    (index: number) => setStepIndex((current) => Math.min(current, index)),
+    [],
+  );
+
   const chooseGoal = useCallback((value: ProfessionalGoal) => {
     setGoal(value);
     if (value !== ProfessionalGoal.MaintainCertification) {
@@ -267,13 +274,13 @@ export const useProfessionalOnboarding = () => {
   }, [
     t,
     goal,
+    router,
     roleChoice,
     roleTermId,
-    router,
-    selectedSkills,
     manualName,
     manualIssuer,
     certification,
+    selectedSkills,
     completeOnboarding,
     wantsSuggestedSkills,
     isManualCertification,
@@ -303,31 +310,36 @@ export const useProfessionalOnboarding = () => {
   return {
     t,
     goal,
-    roleChoice,
-    setRoleChoice,
     steps,
     goNext,
     goBack,
     submit,
+    goToStep,
     stepIndex,
+    manualName,
     isLastStep,
     chooseGoal,
     goalOptions,
+    roleChoice,
     currentStep,
     isStepValid,
-    manualName,
+    confirmSkip,
     manualError,
+    toggleSkill,
     manualIssuer,
+    setRoleChoice,
     setManualName,
     certification,
     selectedSkills,
-    toggleSkill,
-    skillSuggestions,
+    openSkipConfirm,
     setManualIssuer,
     stepDescriptors,
+    skillSuggestions,
+    closeSkipConfirm,
+    isSkipConfirmOpen,
     certificationQuery,
-    selectCertification,
     clearCertification,
+    selectCertification,
     wantsSuggestedSkills,
     certificationOptions,
     cancelSuggestedSkills,
@@ -339,13 +351,9 @@ export const useProfessionalOnboarding = () => {
     saveManualCertification,
     openManualCertification,
     closeManualCertification,
-    confirmSkip,
-    openSkipConfirm,
-    closeSkipConfirm,
-    isSkipConfirmOpen,
-    isSkipping: dismissState.isLoading,
     isSaving: completeState.isLoading,
     maxSkills: C.ONBOARDING_MAX_SKILLS,
+    isSkipping: dismissState.isLoading,
     refetchCertifications: certificationSearch.refetch,
     isCertificationLoading: certificationSearch.isFetching,
     hasCertificationError: Boolean(certificationSearch.error),
