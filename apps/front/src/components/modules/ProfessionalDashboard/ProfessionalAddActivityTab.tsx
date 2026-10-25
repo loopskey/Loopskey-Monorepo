@@ -7,8 +7,8 @@ import { PDU_WIZARD_LAST_STEP } from "@/utils/pdu.constant";
 import { ActivityStepOutcome } from "@modules/ProfessionalDashboard/parts/activity-step-outcome";
 import { ActivityStepCredits } from "@modules/ProfessionalDashboard/parts/activity-step-credits";
 import { ActivityStepBasic } from "@modules/ProfessionalDashboard/parts/activity-step-basic";
-import { ActivityStepper } from "@modules/ProfessionalDashboard/parts/activity-stepper";
 import { ConfirmDialog } from "@elements/confirm-dialog";
+import { WizardStepper } from "@elements/wizard-stepper";
 import { GlassCard } from "@elements/glass-card";
 import { Button } from "@ui/button";
 import { Form } from "@ui/form";
@@ -100,7 +100,12 @@ const ProfessionalAddActivityTab = () => {
         </p>
       </div>
 
-      <ActivityStepper steps={steps} activeStep={step} onChange={goToStep} />
+      <WizardStepper
+        steps={steps}
+        activeKey={step}
+        onSelect={goToStep}
+        label={t(`${TRACKER}.addActivity.stepsLabel`)}
+      />
 
       <Form {...form}>
         <form onSubmit={onSubmit} noValidate>
@@ -144,8 +149,8 @@ const ProfessionalAddActivityTab = () => {
               <ActivityStepOutcome
                 t={t}
                 files={files}
-                control={form.control}
                 onEditStep={goToStep}
+                control={form.control}
                 values={form.getValues()}
                 existingFiles={existingFiles}
               />

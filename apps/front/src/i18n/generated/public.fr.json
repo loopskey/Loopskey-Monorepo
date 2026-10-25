@@ -213,6 +213,19 @@
     "save": "Enregistrer",
     "start": "Commencer",
     "view": "Voir",
+    "wizardStepper": {
+      "allSteps": "Toutes les étapes",
+      "lastStep": "Dernière étape",
+      "nextStep": "Suivante : {{title}}",
+      "status": {
+        "current": "Étape en cours",
+        "done": "Terminée",
+        "locked": "Verrouillée",
+        "problem": "À corriger",
+        "upcoming": "Non commencée"
+      },
+      "stepOf": "Étape {{current}} sur {{total}}"
+    },
     "yes": "Oui"
   },
   "contactPage": {

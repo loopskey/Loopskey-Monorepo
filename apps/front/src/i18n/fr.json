@@ -406,6 +406,19 @@
       "label": "Langue",
       "unavailable": "Non disponible dans cette langue"
     },
+    "wizardStepper": {
+      "stepOf": "Étape {{current}} sur {{total}}",
+      "allSteps": "Toutes les étapes",
+      "nextStep": "Suivante : {{title}}",
+      "lastStep": "Dernière étape",
+      "status": {
+        "upcoming": "Non commencée",
+        "current": "Étape en cours",
+        "done": "Terminée",
+        "locked": "Verrouillée",
+        "problem": "À corriger"
+      }
+    },
     "no": "Non",
     "yes": "Oui",
     "all": "Tous",
@@ -4940,7 +4953,7 @@
       "eyebrow": "Paramètres du fournisseur",
       "title": "Paramètres du fournisseur",
       "description": "Gérez le profil de votre organisation, vos préférences de notification et la sécurité de votre compte.",
-      "stepLabel": "Étape {{step}}",
+      "stepsLabel": "Étapes des paramètres",
       "steps": {
         "profile": {
           "title": "Profil de l’organisation",
@@ -5070,6 +5083,7 @@
       }
     },
     "createEvent": {
+      "stepsLabel": "Étapes de l'événement",
       "previous": "Précédent",
       "next": "Suivant",
       "eyebrow": "Créateur d’événement",
@@ -6320,6 +6334,17 @@
         "ANNUAL": "Annuel",
         "MULTI_YEAR": "Pluriannuel"
       },
+      "cycleHint": {
+        "ONE_TIME": "Une seule fois, sans renouvellement",
+        "ANNUAL": "Se renouvelle chaque année",
+        "MULTI_YEAR": "Se renouvelle tous les {{min}} à {{max}} ans"
+      },
+      "cycleSummary": {
+        "ONE_TIME": "Les membres le réalisent une fois, avant l'échéance. Il ne se renouvelle pas.",
+        "ANNUAL": "Un nouveau cycle s'ouvre automatiquement chaque année.",
+        "MULTI_YEAR": "Un nouveau cycle s'ouvre automatiquement tous les {{count}} ans.",
+        "MULTI_YEAR_PENDING": "Choisissez une durée pour voir quand les nouveaux cycles s'ouvrent."
+      },
       "audience": {
         "ALL_MEMBERS": "Tous les membres",
         "GROUP": "Un groupe",
@@ -6402,7 +6427,7 @@
         "reportingCycle": "Cycle de déclaration",
         "cycleLengthYears": "Durée du cycle en années",
         "cycleLengthOption": "{{count}} ans",
-        "cycleLengthHint": "Un cycle pluriannuel doit avoir une durée.",
+        "cycleLengthHint": "Durée de chaque cycle avant son renouvellement.",
         "evidencePolicy": "Justificatif",
         "audience": "À qui cela s'applique",
         "group": "Groupes",
@@ -6438,6 +6463,12 @@
           "review": "Tout vérifier, puis publier"
         },
         "detailsBody": "Enregistrée comme brouillon dès que vous continuez, rien n'est perdu si vous quittez.",
+        "sections": {
+          "details": "Exigence",
+          "schedule": "Cycle et échéance",
+          "audience": "Public concerné"
+        },
+        "stepLocked": "Disponible une fois le brouillon enregistré",
         "rulesBody": "Chaque règle ci-dessous est facultative. Configurez celles dont votre exigence a besoin.",
         "reviewBody": "Voici ce que verront les membres. La publication l'affecte à votre audience.",
         "saveAsDraft": "Enregistrer comme brouillon",
@@ -7907,7 +7938,6 @@
   "professionalOnboarding": {
     "eyebrow": "Bienvenue sur Loopskey",
     "title": "Configurez votre profil",
-    "stepLabel": "Étape {{current}} sur {{total}}",
     "stepsNav": "Étapes de configuration",
     "steps": {
       "goal": "Votre objectif",

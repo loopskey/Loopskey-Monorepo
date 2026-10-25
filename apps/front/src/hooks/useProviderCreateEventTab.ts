@@ -14,6 +14,10 @@ import { useRouter } from "next/navigation";
 import { useI18n } from "@hooks/useI18n";
 import { notify } from "@hooks/notify";
 
+import type { TWizardStep } from "@/types/wizard-stepper.types";
+
+const EVENT_STEP_KEYS = ["basic", "details", "pricing", "media"] as const;
+
 export const eventCategories = Object.values(EventCategory);
 
 export const eventTypes = [
@@ -113,38 +117,17 @@ export const useProviderCreateEventTab = () => {
   const [activeStep, setActiveStep] = useState(1);
   const [createEvent, createEventState] = useCreateEventMutation();
 
-  const steps = useMemo(
-    () => [
-      {
-        value: 1,
-        key: "basic",
-        title: t("providerDashboard.createEvent.steps.basic.title"),
-        description: t("providerDashboard.createEvent.steps.basic.description"),
-      },
-      {
-        value: 2,
-        key: "details",
-        title: t("providerDashboard.createEvent.steps.details.title"),
+  const steps: TWizardStep<number>[] = useMemo(
+    () =>
+      EVENT_STEP_KEYS.map((stepKey, index) => ({
+        key: index + 1,
+        isComplete: activeStep > index + 1,
+        title: t(`providerDashboard.createEvent.steps.${stepKey}.title`),
         description: t(
-          "providerDashboard.createEvent.steps.details.description",
+          `providerDashboard.createEvent.steps.${stepKey}.description`,
         ),
-      },
-      {
-        value: 3,
-        key: "pricing",
-        title: t("providerDashboard.createEvent.steps.pricing.title"),
-        description: t(
-          "providerDashboard.createEvent.steps.pricing.description",
-        ),
-      },
-      {
-        value: 4,
-        key: "media",
-        title: t("providerDashboard.createEvent.steps.media.title"),
-        description: t("providerDashboard.createEvent.steps.media.description"),
-      },
-    ],
-    [t],
+      })),
+    [t, activeStep],
   );
 
   const categoryOptions = useMemo(

@@ -33,19 +33,6 @@ export type TTopEventPoint = {
   conversionRate: number;
 };
 
-export type TProviderEventStep = {
-  key: string;
-  value: number;
-  title: string;
-  description: string;
-};
-
-export type TProviderEventStepper = {
-  activeStep: number;
-  steps: TProviderEventStep[];
-  onChange: (step: number) => void;
-};
-
 export type TStepperField = {
   label: string;
   className?: string;
