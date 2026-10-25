@@ -4,7 +4,7 @@
 - Model: `Standard development — bounded frontend change in established patterns (a query filter and a cache refetch); no contract, auth or data change.`
 - Branch: `feature/active-members-and-progress-sync`
 - Base: `1a3453950017bd08011ce2d7c24a4986a9b2e8b3`
-- Status: `Ready`
+- Status: `Submitted`
 
 ## Acceptance
 
@@ -22,6 +22,6 @@
 
 ## Submission
 
-- Commit:
-- PR:
-- CI:
+- Commit: 71f742cc
+- PR: https://github.com/loopskey/Loopskey-Monorepo/pull/328
+- CI: pending
