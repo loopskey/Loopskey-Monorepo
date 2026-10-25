@@ -4,7 +4,7 @@
 - Model: `High reasoning — changes how association credits are attributed, a GraphQL contract, and every authenticated upload path`
 - Branch: `feature/requirement-completion-and-date-range`
 - Base: `15b40c5ca155696ff05e7c14452170da6426d593`
-- Status: `Ready`
+- Status: `Submitted`
 
 ## Acceptance
 
@@ -31,6 +31,6 @@
 
 ## Submission
 
-- Commit:
-- PR:
-- CI:
+- Commit: 2ea594bf
+- PR: https://github.com/loopskey/Loopskey-Monorepo/pull/327
+- CI: pending
