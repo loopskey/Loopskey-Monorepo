@@ -4,7 +4,7 @@
 - Model: `Standard development — a bounded frontend refactor onto an existing shared component, with no auth, data, API or schema change`
 - Branch: `feature/unified-wizard-stepper`
 - Base: `209e17ee6f1b7c0720e52084b6f1353081fcbfb3`
-- Status: `Ready`
+- Status: `Submitted`
 
 ## Acceptance
 
@@ -28,6 +28,6 @@
 
 ## Submission
 
-- Commit:
-- PR:
-- CI:
+- Commit: `4fe7b320` — `feat(front): unify wizard steppers and redesign requirement cycle length`
+- PR: [#324](https://github.com/loopskey/Loopskey-Monorepo/pull/324)
+- CI: Pending

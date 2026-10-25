@@ -156,3 +156,4 @@ into this index and do not rewrite previous records.
 - [`seo-20-operational-search-measurement-and-ownership`](feature-runs/active/seo-20-operational-search-measurement-and-ownership.md) — PR [#318](https://github.com/loopskey/Loopskey-Monorepo/pull/318)
 - [`seo-production-follow-up`](feature-runs/active/seo-production-follow-up.md) — PR [#322](https://github.com/loopskey/Loopskey-Monorepo/pull/322)
 - [`browser-favicon-visibility`](feature-runs/active/browser-favicon-visibility.md) — PR [#323](https://github.com/loopskey/Loopskey-Monorepo/pull/323)
+- [`unified-wizard-stepper`](feature-runs/active/unified-wizard-stepper.md) — PR [#324](https://github.com/loopskey/Loopskey-Monorepo/pull/324)
