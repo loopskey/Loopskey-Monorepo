@@ -1,5 +1,6 @@
 "use client";
 
+import { RequirementExcludedActivities } from "@modules/ProfessionalDashboard/parts/requirement-excluded-activities";
 import { RequirementCategoryProgress } from "@modules/ProfessionalDashboard/parts/requirement-category-progress";
 import { RequirementLearningContent } from "@modules/ProfessionalDashboard/parts/requirement-learning-content";
 import { RequirementActivitiesTable } from "@modules/ProfessionalDashboard/parts/requirement-activities-table";
@@ -34,6 +35,7 @@ export const RequirementDetailView = ({
   isDetailLoading,
   requirementKeyValue,
   isActivitiesLoading,
+  excludedActivities = [],
 }: TRequirementDetailViewProps) => {
   if (isLoading) {
     return (
@@ -79,20 +81,26 @@ export const RequirementDetailView = ({
       <div className="grid gap-6 xl:grid-cols-2">
         <RequirementCategoryProgress
           t={t}
-          isLoading={isDetailLoading}
           categories={categories}
+          isLoading={isDetailLoading}
           creditLabel={t(`cpdProgress.creditTypes.${model.creditType}`)}
         />
         <RequirementLearningContent
           t={t}
           contents={content}
           isLoading={isDetailLoading}
-          requirementKeyValue={requirementKeyValue}
           associationName={model.associationName}
+          requirementKeyValue={requirementKeyValue}
         />
       </div>
 
-      <RequirementActivitiesTable t={t} isLoading={isActivitiesLoading} rows={activities} />
+      <RequirementActivitiesTable
+        t={t}
+        rows={activities}
+        isLoading={isActivitiesLoading}
+      />
+
+      <RequirementExcludedActivities t={t} activities={excludedActivities} />
 
       {model.source === "ASSOCIATION" ? (
         <p className="text-xs text-muted-foreground">{t(`${KEY}.managedBy`)}</p>

@@ -99,6 +99,14 @@ export const reportFilterSchema = z
       path: ["startDate"],
       message: "Custom range requires start and end date.",
     },
+  )
+  .refine(
+    (value) =>
+      !value.startDate || !value.endDate || value.endDate >= value.startDate,
+    {
+      path: ["endDate"],
+      message: "organizationDashboard.reports.filters.endBeforeStart",
+    },
   );
 
 export type TReportFilterForm = z.infer<typeof reportFilterSchema>;

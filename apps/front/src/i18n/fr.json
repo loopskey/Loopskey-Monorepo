@@ -339,7 +339,20 @@
       "loadError": "Nous n’avons pas pu charger vos exigences.",
       "retry": "Réessayer",
       "categoryCompleted": "Obtenus",
-      "categoryRequired": "Requis"
+      "categoryRequired": "Requis",
+      "acceptsWindow": "Compte les achèvements datés du {{from}} au {{until}}",
+      "acceptsFrom": "Compte les achèvements datés à partir du {{from}}",
+      "detailError": "Les détails de cette exigence n'ont pas pu être chargés.",
+      "excluded": {
+        "title": "Non comptabilisé pour cette exigence",
+        "description": "Ces activités sont liées à cette exigence mais n'ajoutent pas encore de crédits.",
+        "credits": "{{credits}} crédits",
+        "reason": {
+          "CREDIT_TYPE_MISMATCH": "Enregistrée dans un type de crédit différent de celui de l'exigence. Modifiez l'activité pour changer son type de crédit.",
+          "OUTSIDE_WINDOW": "Datée en dehors de la période acceptée par l'exigence. Vérifiez la date d'achèvement.",
+          "MISSING_EVIDENCE": "Nécessite un certificat ou un justificatif pour être comptabilisée. Ajoutez-en un à l'activité."
+        }
+      }
     },
     "fromAssociation": {
       "title": "De votre association",
@@ -461,7 +474,15 @@
       "GENERAL": "Général"
     },
     "required": "obligatoire",
-    "completionDateInFuture": "La date d'achèvement ne peut pas être dans le futur."
+    "completionDateInFuture": "La date d'achèvement ne peut pas être dans le futur.",
+    "fileRequest": {
+      "unauthorized": "Votre session a expiré. Reconnectez-vous, puis réessayez.",
+      "missing": "Ce fichier n'est plus disponible.",
+      "tooLarge": "Le fichier dépasse la taille acceptée par le serveur.",
+      "rejected": "Le serveur n'a pas accepté ce fichier. Vérifiez son type et sa taille.",
+      "network": "Le téléversement n'a pas pu joindre le serveur. Vérifiez votre connexion et réessayez.",
+      "generic": "Le fichier n'a pas pu être traité. Réessayez."
+    }
   },
   "servicesPage": {
     "meta": {
@@ -3299,7 +3320,18 @@
       "errors": {
         "contentNotAvailable": "Ce contenu ne vous est plus proposé par votre association : il ne peut pas être marqué comme terminé.",
         "requirementMismatch": "Ce contenu compte pour une autre exigence. Choisissez l'exigence à laquelle il est lié."
-      }
+      },
+      "requirementPanel": {
+        "countsToward": "Compte pour {{name}} · {{association}}",
+        "target": "Exigence : {{total}} {{credit}}",
+        "window": "Accepte les achèvements datés du {{from}} au {{until}}",
+        "windowOpen": "Accepte les achèvements datés à partir du {{from}}",
+        "locked": "Les champs définis par {{association}} sont verrouillés."
+      },
+      "dateOutsideWindow": "Choisissez une date entre le {{from}} et le {{until}} pour cette exigence.",
+      "dateAfterWindow": "Choisissez une date au plus tard le {{until}} pour cette exigence.",
+      "uploadFailedSaved": "Votre achèvement est enregistré, mais la preuve n'a pas été téléversée. {{reason}}",
+      "retryUpload": "Réessayer le téléversement"
     },
     "messages": {
       "actionFailed": "L’action a échoué. Veuillez réessayer.",
@@ -5150,7 +5182,8 @@
         "titleRequired": "Le titre de l’événement est obligatoire.",
         "descriptionRequired": "La description de l’événement est obligatoire.",
         "startDateRequired": "La date et l’heure de début sont obligatoires.",
-        "priceRequired": "Le prix doit être supérieur à zéro pour un événement payant."
+        "priceRequired": "Le prix doit être supérieur à zéro pour un événement payant.",
+        "endBeforeStart": "L'événement ne peut pas se terminer avant de commencer."
       },
       "enums": {
         "deliveryMode": {
@@ -5570,7 +5603,8 @@
         "department": "Département",
         "allDepartments": "Tous les départements",
         "startDate": "Date de début",
-        "endDate": "Date de fin"
+        "endDate": "Date de fin",
+        "endBeforeStart": "La date de fin ne peut pas précéder la date de début."
       },
       "ranges": {
         "CURRENT_YEAR": "Année en cours",
@@ -6492,12 +6526,7 @@
           "add": "Ajouter une catégorie",
           "remove": "Retirer {{name}}",
           "remainder": "Non catégorisé",
-          "overflow": "{{assigned}} crédits attribués, soit {{overflow}} de plus que les {{total}} de l'exigence.",
-          "summary": {
-            "total": "Total des crédits requis",
-            "categoryMinimum": "Minimum par catégorie",
-            "flexible": "Crédit flexible"
-          }
+          "overflow": "{{assigned}} crédits attribués, soit {{overflow}} de plus que les {{total}} de l'exigence."
         },
         "evidence": {
           "title": "Justificatifs",
@@ -6610,7 +6639,8 @@
         "categoryNameDuplicate": "Deux catégories ne peuvent pas porter le même nom.",
         "categoryMappingRequired": "Choisissez une catégorie d'apprentissage.",
         "categoryMappingDuplicate": "Deux catégories ne peuvent pas pointer vers la même catégorie PDU.",
-        "targetInactive": "Un des membres sélectionnés n'est plus actif. Vérifiez la sélection et enregistrez à nouveau."
+        "targetInactive": "Un des membres sélectionnés n'est plus actif. Vérifiez la sélection et enregistrez à nouveau.",
+        "reportingEndBeforeStart": "La période de déclaration ne peut pas se terminer avant de commencer."
       },
       "error": {
         "title": "Impossible de charger vos exigences",

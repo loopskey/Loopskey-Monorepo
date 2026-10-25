@@ -3,12 +3,19 @@
 import { rangeOrgReportOptions } from "@/utils/constant";
 import { FloatingSelectField } from "@elements/floating-select";
 import { FloatingInputField } from "@elements/floating-input";
+import { useDateRangeBounds } from "@/hooks/useDateRangeBounds";
 import { TOrgReportFilters } from "@/types/org-dashboard.types";
 import { GlassCard } from "@elements/glass-card";
 import { Form } from "@ui/form";
 
 export const OrgReportsFilters = ({ hook }: TOrgReportFilters) => {
   const { t, form, range, departmentOptions } = hook;
+
+  const { startMax, endMin } = useDateRangeBounds(
+    form.control,
+    "startDate",
+    "endDate",
+  );
 
   return (
     <GlassCard className="print:hidden">
@@ -35,6 +42,7 @@ export const OrgReportsFilters = ({ hook }: TOrgReportFilters) => {
             <>
               <FloatingInputField
                 type="date"
+                max={startMax}
                 name="startDate"
                 control={form.control}
                 label={t("organizationDashboard.reports.filters.startDate")}
@@ -42,6 +50,7 @@ export const OrgReportsFilters = ({ hook }: TOrgReportFilters) => {
 
               <FloatingInputField
                 type="date"
+                min={endMin}
                 name="endDate"
                 control={form.control}
                 label={t("organizationDashboard.reports.filters.endDate")}

@@ -1,4 +1,5 @@
 import { ContentType, CreditType, PDUCategory } from "@prisma/client";
+import { AssociationActivityExclusionReason } from "@association/enums/association-compliance.enum";
 import { Field, Float, ID, Int, ObjectType } from "@nestjs/graphql";
 import { AssociationCategoryProgressEntity } from "@association/entities/association-compliance.entity";
 import { AssociationAttributionState } from "@prisma/client";
@@ -23,6 +24,8 @@ export class AssociationMyRequirementEntity {
   @Field(() => CreditType) creditType: CreditType;
   @Field(() => Date, { nullable: true }) dueDate: Date | null;
   @Field(() => Date, { nullable: true }) cycleEnd: Date | null;
+  @Field(() => Date, { nullable: true }) acceptsFrom: Date | null;
+  @Field(() => Date, { nullable: true }) acceptsUntil: Date | null;
   @Field(() => Int, { nullable: true }) daysRemaining: number | null;
   @Field(() => String, { nullable: true }) description: string | null;
   @Field(() => AssociationComplianceBand) band: AssociationComplianceBand;
@@ -73,6 +76,18 @@ export class AssociationMyRequirementContentEntity {
   completionState: AssociationAttributionState | null;
 }
 
+@ObjectType(
+  AssociationGqlObjectNames.ASSOCIATION_MY_REQUIREMENT_EXCLUDED_ACTIVITY,
+)
+export class AssociationMyRequirementExcludedActivityEntity {
+  @Field() date: Date;
+  @Field() title: string;
+  @Field(() => ID) activityId: string;
+  @Field(() => Float) credits: number;
+  @Field(() => AssociationActivityExclusionReason)
+  reason: AssociationActivityExclusionReason;
+}
+
 @ObjectType(AssociationGqlObjectNames.ASSOCIATION_MY_REQUIREMENT_DETAIL)
 export class AssociationMyRequirementDetailEntity extends AssociationMyRequirementEntity {
   @Field(() => [AssociationCategoryProgressEntity])
@@ -81,6 +96,8 @@ export class AssociationMyRequirementDetailEntity extends AssociationMyRequireme
   activities: AssociationMyRequirementActivityEntity[];
   @Field(() => [AssociationMyRequirementContentEntity])
   learningContents: AssociationMyRequirementContentEntity[];
+  @Field(() => [AssociationMyRequirementExcludedActivityEntity])
+  excludedActivities: AssociationMyRequirementExcludedActivityEntity[];
 }
 
 @ObjectType(AssociationGqlObjectNames.ASSOCIATION_CONTENT_ENDORSEMENT)

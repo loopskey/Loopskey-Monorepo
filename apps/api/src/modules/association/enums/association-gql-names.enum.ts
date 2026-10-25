@@ -79,6 +79,7 @@ export enum AssociationGqlObjectNames {
   ASSOCIATION_MY_REQUIREMENT_DETAIL = "AssociationMyRequirementDetail",
   ASSOCIATION_MY_REQUIREMENT_ACTIVITY = "AssociationMyRequirementActivity",
   ASSOCIATION_MY_REQUIREMENT_CONTENT = "AssociationMyRequirementContent",
+  ASSOCIATION_MY_REQUIREMENT_EXCLUDED_ACTIVITY = "AssociationMyRequirementExcludedActivity",
   ASSOCIATION_CONTENT_ENDORSEMENT = "AssociationContentEndorsement",
   ASSOCIATION_MEMBER_CONTENT_COMPLETION = "AssociationMemberContentCompletion",
   ASSOCIATION_MEMBER_REQUIREMENT_EVIDENCE = "AssociationMemberRequirementEvidence",

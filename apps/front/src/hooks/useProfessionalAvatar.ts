@@ -4,6 +4,7 @@ import { ProfessionalMessageCode } from "@loopskey/api-contracts/error-codes";
 import { useCallback, useState } from "react";
 import { refreshAccessToken } from "@/lib/graphql/request";
 import { professionalApi } from "@/lib/rtk/endpoints/professional.api";
+import { requestFile } from "@/utils/file-request.util";
 import { useDispatch } from "react-redux";
 import { useI18n } from "@/hooks/useI18n";
 import { notify } from "@/hooks/notify";
@@ -155,11 +156,7 @@ export const useProfessionalAvatar = () => {
     setError(null);
     setIsRemoving(true);
     try {
-      const response = await fetch(C.AVATAR_ENDPOINT, {
-        method: "DELETE",
-        credentials: "include",
-      });
-      if (!response.ok) throw new Error(String(response.status));
+      await requestFile(C.AVATAR_ENDPOINT, { method: "DELETE" });
       refreshAvatarCaches();
       notify.success(t("professionalDashboard.profile.avatar.removed"));
     } catch {

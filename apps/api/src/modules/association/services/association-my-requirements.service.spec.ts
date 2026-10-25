@@ -4,6 +4,7 @@ import {
   AssociationAudienceKind,
   AssociationComplianceBand,
   AssociationEvidencePolicy,
+  AssociationLateSubmissionPolicy,
   AssociationLearningContentStatus,
   ContentType,
   CreditType,
@@ -13,6 +14,8 @@ import {
 import type { CatalogEndorsementApi } from "@landing/public/catalog-endorsement-api";
 import type { ProfessionalComplianceApi } from "@professional/public/professional-compliance-api";
 import type { PrismaService } from "@prisma/prisma.service";
+
+import { AssociationActivityExclusionReason } from "@association/enums/association-compliance.enum";
 
 import { AssociationMyRequirementsService } from "./association-my-requirements.service";
 
@@ -40,6 +43,11 @@ const assignment = (
     creditType: CreditType.CPD,
     evidencePolicy: AssociationEvidencePolicy.REQUIRED_NEEDS_REVIEW,
     totalRequiredCredits: 40,
+    deadline: day("2026-12-31"),
+    reportingStart: null,
+    reportingEnd: null,
+    gracePeriodDays: 0,
+    lateSubmissionPolicy: AssociationLateSubmissionPolicy.NOT_ACCEPTED,
     association: { id: "assoc-1", name: "Engineers Association" },
     categories: [
       {
@@ -105,6 +113,7 @@ const createService = () => {
   const activities = {
     activityDetailsForOwners: jest.fn().mockResolvedValue([]),
     contentCompletions: jest.fn().mockResolvedValue([]),
+    activitiesForMembers: jest.fn().mockResolvedValue([]),
   };
   const service = new AssociationMyRequirementsService(
     prisma as unknown as PrismaService,
@@ -160,6 +169,20 @@ describe("AssociationMyRequirementsService.list", () => {
     });
   });
 
+  it("reports the dates a completion must fall between to count", async () => {
+    const { service, prisma } = createService();
+    prisma.associationRequirementAssignment.findMany.mockResolvedValue([
+      assignment("a-1", "req-1"),
+    ]);
+
+    const [row] = await service.list("user-1");
+
+    expect(row).toMatchObject({
+      acceptsFrom: day("2026-01-01"),
+      acceptsUntil: day("2026-12-31"),
+    });
+  });
+
   it("puts a requirement with no deadline after those with one", async () => {
     const { service, prisma } = createService();
     prisma.associationRequirementAssignment.findMany.mockResolvedValue([
@@ -185,6 +208,65 @@ describe("AssociationMyRequirementsService.one", () => {
       prisma.associationRequirementAssignment.findMany.mock.calls[0][0].where;
     expect(where.requirement.id).toBe("req-x");
     expect(where.member.userId).toBe("user-1");
+  });
+
+  it("explains each linked activity the requirement did not count", async () => {
+    const { service, prisma, activities } = createService();
+    prisma.associationRequirementAssignment.findMany.mockResolvedValue([
+      assignment("a-1", "req-1"),
+    ]);
+    const logged = (id: string, overrides: Record<string, unknown> = {}) => ({
+      id,
+      title: `Activity ${id}`,
+      date: day("2026-03-01"),
+      status: "APPROVED",
+      userId: "user-1",
+      credits: 4,
+      category: PDUCategory.TECHNICAL,
+      creditType: CreditType.CPD,
+      hasEvidence: true,
+      cpdPlanId: null,
+      contentId: null,
+      contentType: null,
+      associationRequirementId: "req-1",
+      associationLearningContentId: null,
+      ...overrides,
+    });
+    activities.activitiesForMembers.mockResolvedValue([
+      logged("counted"),
+      logged("wrong-type", { creditType: CreditType.PDU }),
+      logged("too-early", { date: day("2025-12-01") }),
+      logged("no-file", { hasEvidence: false }),
+      logged("other-requirement", {
+        creditType: CreditType.PDU,
+        associationRequirementId: "req-2",
+      }),
+    ]);
+
+    const detail = await service.one("user-1", "req-1");
+
+    expect(activities.activitiesForMembers).toHaveBeenCalledWith({
+      userIds: ["user-1"],
+    });
+    expect(
+      detail.excludedActivities.map(({ activityId, reason }) => ({
+        activityId,
+        reason,
+      })),
+    ).toEqual([
+      {
+        activityId: "wrong-type",
+        reason: AssociationActivityExclusionReason.CREDIT_TYPE_MISMATCH,
+      },
+      {
+        activityId: "too-early",
+        reason: AssociationActivityExclusionReason.OUTSIDE_WINDOW,
+      },
+      {
+        activityId: "no-file",
+        reason: AssociationActivityExclusionReason.MISSING_EVIDENCE,
+      },
+    ]);
   });
 
   it("reports category progress from counted credits only", async () => {

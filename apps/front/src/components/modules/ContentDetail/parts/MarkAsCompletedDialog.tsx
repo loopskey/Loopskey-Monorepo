@@ -1,11 +1,10 @@
 "use client";
 
 import { CREDIT_TYPES, PDU_CATEGORIES } from "@/utils/pdu.constant";
+import { CheckCircle2, Loader2, Lock } from "lucide-react";
 import { TMarkAsCompletedDialogProps } from "@/types/content-module.types";
 import { ActivityEvidenceUpload } from "@modules/ProfessionalDashboard/parts/activity-evidence-upload";
 import { RequirementSelectField } from "@modules/ContentDetail/parts/requirement-select-field";
-import { CheckCircle2, Loader2 } from "lucide-react";
-import { latestCompletionDate } from "@/utils/completion-date.util";
 import { FloatingSelectField } from "@elements/floating-select";
 import { FloatingInputField } from "@elements/floating-input";
 import { useMarkAsCompleted } from "@/hooks/useMarkAsCompleted";
@@ -31,10 +30,14 @@ export const MarkAsCompletedDialog = ({
     t,
     form,
     files,
+    locks,
     onSubmit,
     isSaving,
+    dateBounds,
     evidenceError,
+    acceptedWindow,
     evidencePolicy,
+    isUploadPending,
     evidenceRequired,
     handleFilesChange,
     allowedCategories,
@@ -103,10 +106,10 @@ export const MarkAsCompletedDialog = ({
                   control={form.control}
                   options={requirementOptions}
                   noneValue={REQUIREMENT_NONE}
-                  disabled={isRequirementOptionsLoading}
+                  onValueChange={handleRequirementChange}
                   label={t(`${MODAL}.fields.requirement`)}
                   noneLabel={t(`${MODAL}.fields.requirementNone`)}
-                  onValueChange={handleRequirementChange}
+                  disabled={isRequirementOptionsLoading || locks.requirement}
                 />
 
                 {showInferredHint && (
@@ -123,13 +126,49 @@ export const MarkAsCompletedDialog = ({
                 )}
 
                 {selectedAssociation && (
-                  <p className="text-xs text-muted-foreground">
-                    {t(`${MODAL}.fields.evidencePolicy`, {
-                      policy: t(
-                        `cpdProgress.requirements.evidencePolicy.${evidencePolicy}`,
-                      ),
-                    })}
-                  </p>
+                  <div className="space-y-1.5 rounded-md border border-primary/20 bg-primary/5 p-3 text-xs text-muted-foreground">
+                    <p className="text-sm font-medium text-foreground">
+                      {t(`${MODAL}.requirementPanel.countsToward`, {
+                        name: selectedAssociation.name,
+                        association: selectedAssociation.associationName,
+                      })}
+                    </p>
+                    <p className="tabular-nums">
+                      {t(`${MODAL}.requirementPanel.target`, {
+                        total: selectedAssociation.requiredCredits,
+                        credit: t(
+                          `${TRACKER}.creditTypes.${selectedAssociation.creditType}`,
+                        ),
+                      })}
+                    </p>
+                    {acceptedWindow?.from ? (
+                      <p>
+                        {acceptedWindow.until
+                          ? t(
+                              `${MODAL}.requirementPanel.window`,
+                              acceptedWindow,
+                            )
+                          : t(`${MODAL}.requirementPanel.windowOpen`, {
+                              from: acceptedWindow.from,
+                            })}
+                      </p>
+                    ) : null}
+                    <p>
+                      {t(`${MODAL}.fields.evidencePolicy`, {
+                        policy: t(
+                          `cpdProgress.requirements.evidencePolicy.${evidencePolicy}`,
+                        ),
+                      })}
+                    </p>
+                    {locks.title ? (
+                      <p className="flex items-center gap-1.5">
+                        <Lock className="h-3 w-3 shrink-0" aria-hidden />
+                        {t(`${MODAL}.requirementPanel.locked`, {
+                          association: selectedAssociation.associationName,
+                        })}
+                      </p>
+                    ) : null}
+                  </div>
                 )}
               </div>
             ) : (
@@ -147,6 +186,7 @@ export const MarkAsCompletedDialog = ({
             <div className="grid gap-4 sm:grid-cols-2">
               <FloatingInputField
                 name="title"
+                readOnly={locks.title}
                 control={form.control}
                 className="sm:col-span-2"
                 label={t(`${MODAL}.fields.title`)}
@@ -162,13 +202,15 @@ export const MarkAsCompletedDialog = ({
               <FloatingInputField
                 control={form.control}
                 name="providerOrganizer"
+                readOnly={locks.provider}
                 label={t(`${MODAL}.fields.providerOrganizer`)}
               />
 
               <FloatingInputField
                 type="date"
                 name="dateCompleted"
-                max={latestCompletionDate()}
+                min={dateBounds.min}
+                max={dateBounds.max}
                 control={form.control}
                 label={t(`${MODAL}.fields.dateCompleted`)}
               />
@@ -176,6 +218,7 @@ export const MarkAsCompletedDialog = ({
               <FloatingSelectField
                 name="creditType"
                 control={form.control}
+                disabled={locks.creditType}
                 options={creditTypeOptions}
                 label={t(`${MODAL}.fields.creditType`)}
               />
@@ -185,12 +228,14 @@ export const MarkAsCompletedDialog = ({
                 type="number"
                 name="creditValue"
                 control={form.control}
+                readOnly={locks.credits}
                 label={t(`${MODAL}.fields.creditValue`)}
               />
 
               <FloatingSelectField
                 name="category"
                 control={form.control}
+                disabled={locks.category}
                 options={categoryOptions}
                 label={t(`${MODAL}.fields.category`)}
               />
@@ -265,7 +310,7 @@ export const MarkAsCompletedDialog = ({
 
               <Button radius="xl" type="submit" disabled={isSaving}>
                 {isSaving && <Loader2 className="h-4 w-4 animate-spin" />}
-                {t(`${MODAL}.save`)}
+                {t(isUploadPending ? `${MODAL}.retryUpload` : `${MODAL}.save`)}
               </Button>
             </D.DialogFooter>
           </form>

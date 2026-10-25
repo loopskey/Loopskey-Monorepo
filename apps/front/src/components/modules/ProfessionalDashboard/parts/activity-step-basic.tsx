@@ -1,7 +1,6 @@
 "use client";
 
 import { TActivityStepBasicProps } from "@/types/professional-dashboard.types";
-import { latestCompletionDate } from "@/utils/completion-date.util";
 import { FloatingSelectField } from "@elements/floating-select";
 import { FloatingInputField } from "@elements/floating-input";
 
@@ -12,6 +11,7 @@ const TRACKER = "professionalDashboard.cpdPduTracker";
 export const ActivityStepBasic = ({
   t,
   control,
+  dateBounds,
   activityTypeOptions,
 }: TActivityStepBasicProps) => (
   <div className="grid gap-5">
@@ -34,7 +34,8 @@ export const ActivityStepBasic = ({
       type="date"
       control={control}
       name="dateCompleted"
-      max={latestCompletionDate()}
+      min={dateBounds.min}
+      max={dateBounds.max}
       leftIcon={<L.CalendarDays className="h-4 w-4" />}
       label={t(`${TRACKER}.fields.dateCompleted`)}
     />

@@ -339,7 +339,20 @@
       "loadError": "We could not load your requirements.",
       "retry": "Try again",
       "categoryCompleted": "Completed",
-      "categoryRequired": "Required"
+      "categoryRequired": "Required",
+      "acceptsWindow": "Counts completions dated {{from}} to {{until}}",
+      "acceptsFrom": "Counts completions dated from {{from}}",
+      "detailError": "This requirement's details couldn't be loaded.",
+      "excluded": {
+        "title": "Not counted toward this requirement",
+        "description": "These activities are linked to this requirement but don't add credit yet.",
+        "credits": "{{credits}} credits",
+        "reason": {
+          "CREDIT_TYPE_MISMATCH": "Logged in a different credit type than this requirement uses. Edit the activity to change its credit type.",
+          "OUTSIDE_WINDOW": "Dated outside the period this requirement accepts. Check the completion date.",
+          "MISSING_EVIDENCE": "Needs a certificate or evidence file before it can count. Upload one to the activity."
+        }
+      }
     },
     "fromAssociation": {
       "title": "From your association",
@@ -461,7 +474,15 @@
       "GENERAL": "General"
     },
     "required": "required",
-    "completionDateInFuture": "The completion date cannot be in the future."
+    "completionDateInFuture": "The completion date cannot be in the future.",
+    "fileRequest": {
+      "unauthorized": "Your session has expired. Sign in again, then retry.",
+      "missing": "That file is no longer available.",
+      "tooLarge": "The file is larger than the server accepts.",
+      "rejected": "The server didn't accept this file. Check its type and size.",
+      "network": "The upload couldn't reach the server. Check your connection and try again.",
+      "generic": "The file couldn't be processed. Try again."
+    }
   },
   "servicesPage": {
     "meta": {
@@ -3295,7 +3316,18 @@
       "errors": {
         "contentNotAvailable": "This content is no longer offered to you by your association, so it cannot be marked complete.",
         "requirementMismatch": "This content counts toward a different requirement. Choose the requirement it is linked to."
-      }
+      },
+      "requirementPanel": {
+        "countsToward": "Counts toward {{name}} · {{association}}",
+        "target": "Requirement: {{total}} {{credit}}",
+        "window": "Accepts completions dated {{from}} to {{until}}",
+        "windowOpen": "Accepts completions dated from {{from}}",
+        "locked": "Fields set by {{association}} are locked."
+      },
+      "dateOutsideWindow": "Choose a date between {{from}} and {{until}} for this requirement.",
+      "dateAfterWindow": "Choose a date on or before {{until}} for this requirement.",
+      "uploadFailedSaved": "Your completion is saved, but the evidence was not uploaded. {{reason}}",
+      "retryUpload": "Retry upload"
     },
     "messages": {
       "loginRequired": "Please sign in to continue",
@@ -5147,7 +5179,8 @@
         "titleRequired": "Event title is required.",
         "descriptionRequired": "Event description is required.",
         "startDateRequired": "Start date and start time are required.",
-        "priceRequired": "Price must be greater than zero for paid events."
+        "priceRequired": "Price must be greater than zero for paid events.",
+        "endBeforeStart": "The event can't end before it starts."
       },
       "enums": {
         "deliveryMode": {
@@ -5567,7 +5600,8 @@
         "department": "Department",
         "allDepartments": "All departments",
         "startDate": "Start date",
-        "endDate": "End date"
+        "endDate": "End date",
+        "endBeforeStart": "The end date can't be before the start date."
       },
       "ranges": {
         "CURRENT_YEAR": "Current year",
@@ -6489,12 +6523,7 @@
           "add": "Add category",
           "remove": "Remove {{name}}",
           "remainder": "Uncategorised",
-          "overflow": "{{assigned}} credits allocated, {{overflow}} above the requirement's {{total}}.",
-          "summary": {
-            "total": "Total required Credits",
-            "categoryMinimum": "Category minimum",
-            "flexible": "Flexible credit"
-          }
+          "overflow": "{{assigned}} credits allocated, {{overflow}} above the requirement's {{total}}."
         },
         "evidence": {
           "title": "Evidence",
@@ -6607,7 +6636,8 @@
         "categoryNameDuplicate": "Two categories cannot share a name.",
         "categoryMappingRequired": "Choose a learning category.",
         "categoryMappingDuplicate": "Two categories cannot map to the same PDU category.",
-        "targetInactive": "One of the selected members is no longer active. Review the selection and save again."
+        "targetInactive": "One of the selected members is no longer active. Review the selection and save again.",
+        "reportingEndBeforeStart": "The reporting period can't end before it starts."
       },
       "error": {
         "title": "We could not load your requirements",

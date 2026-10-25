@@ -1,10 +1,13 @@
-import { associationReportDownloadUrl } from "@loopskey/api-contracts/upload";
+import {
+  AssociationReportFormat,
+  AssociationReportType,
+} from "@/lib/graphql/base";
 import { AssociationGeneratedReportState } from "@/lib/graphql/base";
-import { AssociationReportFormat, AssociationReportType } from "@/lib/graphql/base";
+import { associationReportDownloadUrl } from "@loopskey/api-contracts/upload";
 import { AssociationReportPeriod } from "@/lib/graphql/base";
-
-import { PDU_API_ORIGIN } from "@utils/pdu.constant";
+import { requestFile, saveBlobAs } from "@utils/file-request.util";
 import { formatReportDate } from "@utils/association-reports";
+import { PDU_API_ORIGIN } from "@utils/pdu.constant";
 
 import type { TAssociationReportKey } from "@utils/association-reports";
 
@@ -97,17 +100,8 @@ export const downloadAssociationReportExport = async (file: {
   id: string;
   fileName: string;
 }) => {
-  const response = await fetch(
+  const response = await requestFile(
     associationReportDownloadUrl(PDU_API_ORIGIN, file.id),
-    { credentials: "include" },
   );
-
-  if (!response.ok) throw new Error(`Download failed (${response.status})`);
-
-  const url = URL.createObjectURL(await response.blob());
-  const anchor = document.createElement("a");
-  anchor.href = url;
-  anchor.download = file.fileName;
-  anchor.click();
-  URL.revokeObjectURL(url);
+  saveBlobAs(await response.blob(), file.fileName);
 };

@@ -10,9 +10,10 @@ import type {
   TRequirementTone,
   TRequirementViewModel,
 } from "@/types/professional-requirement.types";
-import type { TCpdPlan, TCpdPlanProgress } from "@/types/cpd-plan.types";
-import { CPD_COMPLIANCE_META } from "@/utils/cpd-plan.constant";
 import { ContentType, PduSource } from "@/lib/graphql/base";
+import { CPD_COMPLIANCE_META } from "@/utils/cpd-plan.constant";
+
+import type { TCpdPlan, TCpdPlanProgress } from "@/types/cpd-plan.types";
 
 const KEY_PREFIX: Record<TRequirementSource, string> = {
   ASSOCIATION: "association",
@@ -248,9 +249,7 @@ export const deadlineText = (
 
 const MS_PER_DAY = 86_400_000;
 
-export const daysUntil = (
-  value: string | null | undefined,
-): number | null => {
+export const daysUntil = (value: string | null | undefined): number | null => {
   if (!value) return null;
   return Math.ceil((new Date(value).getTime() - Date.now()) / MS_PER_DAY);
 };
@@ -293,7 +292,8 @@ export const planToViewModel = (
     source: "PLAN",
     associationName: null,
     earnedCredits: progress?.earnedCredits ?? 0,
-    requiredCredits: progress?.totalRequiredCredits ?? plan.totalRequiredCredits,
+    requiredCredits:
+      progress?.totalRequiredCredits ?? plan.totalRequiredCredits,
     remainingCredits: progress?.remainingCredits ?? 0,
     percent: progress?.progressPercent ?? 0,
     dueDate,
@@ -303,6 +303,8 @@ export const planToViewModel = (
       ? `cpdProgress.compliance.${progress.complianceStatus}`
       : "cpdProgress.compliance.NOT_STARTED",
     evidence: null,
+    acceptsFrom: null,
+    acceptsUntil: null,
   };
 };
 
@@ -312,18 +314,20 @@ export const associationToViewModel = (
   const meta = BAND_META[summary.band] ?? BAND_META.NOT_STARTED;
 
   return {
-    key: requirementKey("ASSOCIATION", summary.requirementId),
     title: summary.name,
-    creditType: summary.creditType,
     source: "ASSOCIATION",
-    associationName: summary.associationName,
-    earnedCredits: summary.completedCredits,
-    requiredCredits: summary.requiredCredits,
-    remainingCredits: summary.remainingCredits,
-    percent: summary.percent,
-    dueDate: summary.dueDate ?? null,
-    daysRemaining: summary.daysRemaining ?? null,
     statusTone: meta.tone,
+    percent: summary.percent,
+    creditType: summary.creditType,
+    dueDate: summary.dueDate ?? null,
+    earnedCredits: summary.completedCredits,
+    associationName: summary.associationName,
+    acceptsFrom: summary.acceptsFrom ?? null,
+    requiredCredits: summary.requiredCredits,
+    acceptsUntil: summary.acceptsUntil ?? null,
+    remainingCredits: summary.remainingCredits,
+    daysRemaining: summary.daysRemaining ?? null,
+    key: requirementKey("ASSOCIATION", summary.requirementId),
     statusLabelKey: `cpdProgress.requirements.band.${summary.band}`,
     evidence: {
       labelKey: `cpdProgress.requirements.evidencePolicy.${summary.evidencePolicy}`,

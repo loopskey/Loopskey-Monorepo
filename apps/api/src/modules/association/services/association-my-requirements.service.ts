@@ -8,8 +8,10 @@ import { AssociationAudienceKind } from "@prisma/client";
 import { CATALOG_ENDORSEMENT_API } from "@landing/public/catalog-endorsement-api";
 import { AssociationMessageCode } from "@association/enums/association-message-code.enum";
 import { ContentType, Prisma } from "@prisma/client";
+import { acceptedWindow } from "@association/utils/compliance-attribution.util";
 import { daysRemaining } from "@association/utils/compliance-attribution.util";
 import { PrismaService } from "@prisma/prisma.service";
+import { exclusionFor } from "@association/utils/compliance-attribution.util";
 import { round2 } from "@association/utils/compliance-attribution.util";
 
 import { type ProfessionalComplianceApi } from "@professional/public/professional-compliance-api";
@@ -38,6 +40,11 @@ const ASSIGNMENT_SELECT = {
       creditType: true,
       evidencePolicy: true,
       totalRequiredCredits: true,
+      deadline: true,
+      reportingStart: true,
+      reportingEnd: true,
+      gracePeriodDays: true,
+      lateSubmissionPolicy: true,
       association: { select: { id: true, name: true } },
       categories: {
         orderBy: { order: "asc" },
@@ -117,6 +124,7 @@ const project = (row: AssignmentRow, now: Date) => ({
   isMissingEvidence: row.isMissingEvidence,
   cycleStart: row.cycleStart,
   cycleEnd: row.cycleEnd,
+  ...acceptedWindow(row.requirement, row),
 });
 
 const byDeadline = (
@@ -157,17 +165,20 @@ export class AssociationMyRequirementsService {
         code: AssociationMessageCode.REQUIREMENT_NOT_FOUND,
         message: "That requirement is not assigned to you.",
       });
-    const [categories, activities, learningContents] = await Promise.all([
-      this.categories(assignment),
-      this.loggedActivities(userId, assignment.id),
-      this.learningContents(userId, assignment),
-    ]);
+    const [categories, activities, learningContents, excludedActivities] =
+      await Promise.all([
+        this.categories(assignment),
+        this.loggedActivities(userId, assignment.id),
+        this.learningContents(userId, assignment),
+        this.excludedActivities(userId, assignment),
+      ]);
 
     return {
       ...project(assignment, new Date()),
       categories,
       activities,
       learningContents,
+      excludedActivities,
     };
   }
 
@@ -376,6 +387,36 @@ export class AssociationMyRequirementsService {
         },
       ];
     });
+  }
+
+  private async excludedActivities(userId: string, assignment: AssignmentRow) {
+    const activities = await this.activities.activitiesForMembers({
+      userIds: [userId],
+    });
+
+    return activities
+      .filter(
+        (activity) =>
+          activity.associationRequirementId === assignment.requirement.id,
+      )
+      .flatMap((activity) => {
+        const reason = exclusionFor(
+          activity,
+          assignment.requirement,
+          assignment,
+        );
+        if (!reason) return [];
+
+        return [
+          {
+            reason,
+            date: activity.date,
+            title: activity.title,
+            activityId: activity.id,
+            credits: activity.credits,
+          },
+        ];
+      });
   }
 
   private async learningContents(userId: string, assignment: AssignmentRow) {
