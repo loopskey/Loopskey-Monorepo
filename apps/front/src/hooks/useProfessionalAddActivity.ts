@@ -21,6 +21,8 @@ import * as C from "@/utils/pdu.constant";
 import * as R from "@/utils/professional-requirement.helper";
 import * as T from "@/types/professional-dashboard.types";
 
+import type { TWizardStep } from "@/types/wizard-stepper.types";
+
 const TRACKER = "professionalDashboard.cpdPduTracker";
 const TRACKER_HREF = "/dashboard/professional?tab=cpd-pdu-tracker";
 
@@ -422,14 +424,16 @@ export const useProfessionalAddActivity = () => {
   const returnTargetIsRequirements =
     R.resolveReturnTo(returnToParam) === R.RETURN_TO_REQUIREMENTS;
 
-  const steps: T.TPduWizardStep[] = useMemo(
+  const steps: TWizardStep<number>[] = useMemo(
     () =>
       [1, 2, 3, 4].map((value) => ({
-        value,
+        key: value,
         title: t(`${TRACKER}.addActivity.steps.${value}.title`),
         description: t(`${TRACKER}.addActivity.steps.${value}.description`),
+        isComplete: step > value,
+        isReachable: step >= value,
       })),
-    [t],
+    [t, step],
   );
   return {
     t,
@@ -443,22 +447,22 @@ export const useProfessionalAddActivity = () => {
     goToStep,
     onSubmit,
     isEditing,
-    isUploading,
     isRemoving,
+    isUploading,
     isSubmitted,
     retryUpload,
     goToTracker,
-    goToReturnTarget,
-    returnTargetIsRequirements,
     existingFiles,
     handleAddAnother,
+    goToReturnTarget,
     handleFilesChange,
-    activityTypeOptions,
     subCategoryOptions,
     requirementOptions,
+    activityTypeOptions,
     markReportingYearTouched,
     handleRemoveExistingFile,
     handleDownloadExistingFile,
+    returnTargetIsRequirements,
     hasUploadFailed: stage === "upload-failed",
     isLoadingActivity: isEditing && isLoadingActivity,
     isSaving: isCreating || isUpdating || isUploading,

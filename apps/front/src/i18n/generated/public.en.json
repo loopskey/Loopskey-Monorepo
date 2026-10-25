@@ -213,6 +213,19 @@
     "save": "Save",
     "start": "Start",
     "view": "View",
+    "wizardStepper": {
+      "allSteps": "All steps",
+      "lastStep": "Last step",
+      "nextStep": "Next: {{title}}",
+      "status": {
+        "current": "Current step",
+        "done": "Completed",
+        "locked": "Locked",
+        "problem": "Needs attention",
+        "upcoming": "Not started"
+      },
+      "stepOf": "Step {{current}} of {{total}}"
+    },
     "yes": "Yes"
   },
   "contactPage": {
@@ -288,14 +301,7 @@
   },
   "content": {
     "card": {
-      "attendees": "{{count}} attendees",
-      "episodes": "{{count}} episodes",
-      "listeners": "{{count}} listeners",
-      "minutes": "{{count}} min",
       "originalLanguage": "Original language",
-      "professionals": "{{count}} professionals",
-      "subscribers": "{{count}} subscribers",
-      "videos": "{{count}} videos",
       "viewDetails": "View details"
     },
     "empty": {
@@ -1119,6 +1125,7 @@
         "analyticsTitle": "Clear performance data",
         "demoData": "Demo data",
         "eyebrow": "Provider growth console",
+        "fallbackProvider": "Provider workspace",
         "funnelDescription": "Monitor how your content moves from discovery to registration.",
         "funnelTitle": "Campaign performance",
         "matchingDescription": "Your events appear where professionals are already planning their next step.",
@@ -1134,10 +1141,16 @@
       "eyebrow": "For content providers",
       "funnel": {
         "convert": "Registration conversion",
+        "promote": "Promoted events",
         "publish": "Published content visibility"
       },
       "primaryAction": "Become a provider",
       "secondaryAction": "View services",
+      "stats": {
+        "conversionRate": "Conversion rate",
+        "totalEvents": "Published events",
+        "totalRegistrations": "Registrations"
+      },
       "title": "Reach professionals actively learning"
     }
   },

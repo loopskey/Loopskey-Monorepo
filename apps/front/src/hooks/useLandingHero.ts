@@ -1,13 +1,15 @@
 "use client";
 
-import { HERO_SEARCH_MIN_LENGTH, HERO_SEARCH_TAKE } from "@utils/constant";
-import { HERO_CATEGORY_TAKE, SEARCH_DEBOUNCE_MS } from "@utils/constant";
 import { TLandingHeroContentKind } from "@/types/landing-module.types";
+import { HERO_SEARCH_MIN_LENGTH } from "@utils/landing-public.constant";
 import { TLandingHeroResultItem } from "@/types/landing-module.types";
 import { TLandingHeroCategory } from "@/types/landing-module.types";
+import { SEARCH_DEBOUNCE_MS } from "@utils/landing-public.constant";
+import { HERO_CATEGORY_TAKE } from "@utils/landing-public.constant";
 import { useMemo, useState } from "react";
-import { getKindHrefPrefix } from "@utils/constant";
+import { getKindHrefPrefix } from "@utils/landing-public.constant";
 import { useDebouncedValue } from "@hooks/useDebounced";
+import { HERO_SEARCH_TAKE } from "@utils/landing-public.constant";
 import { ContentType } from "@/lib/graphql/base";
 import { useI18n } from "@hooks/useI18n";
 

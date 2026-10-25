@@ -1,28 +1,20 @@
-import { AppLanguage } from "@prisma/client";
 import { ForbiddenException, Injectable, Logger } from "@nestjs/common";
+import { SetEventTranslationPublicationInput } from "@events/dtos/set-event-translation-publication.input";
+import { setContentTranslationPublication } from "@utils/content-translation.util";
+import { SaveEventTranslationInput } from "@events/dtos/save-event-translation.input";
+import { listContentTranslations } from "@utils/content-translation.util";
+import { saveContentTranslation } from "@utils/content-translation.util";
+import { presentContentText } from "@utils/content-text.util";
 import { NotFoundException } from "@nestjs/common";
 import { EventMessageCode } from "@events/enums/message-code.enum";
 import { EventRepository } from "@events/infrastructure/persistence/event.repository";
 import { requestContext } from "@infrastructure/observability/request-context";
-import { SaveEventTranslationInput } from "@events/dtos/save-event-translation.input";
-import { SetEventTranslationPublicationInput } from "@events/dtos/set-event-translation-publication.input";
-import {
-  listContentTranslations,
-  localizeRecord,
-  saveContentTranslation,
-  setContentTranslationPublication,
-} from "@utils/content-translation.util";
+import { localizeRecord } from "@utils/content-translation.util";
+import { AppLanguage } from "@prisma/client";
 
-import type {
-  TranslationActor,
-  TranslationRow,
-} from "@utils/content-translation.util";
-
-type LocalizableEvent = {
-  id: string;
-  title: string;
-  sourceLanguage?: string | null;
-};
+import type { TLocalizableEvent } from "@events/types/event-translation.types";
+import type { TranslationActor } from "@utils/content-translation.util";
+import type { TranslationRow } from "@utils/content-translation.util";
 
 @Injectable()
 export class EventTranslationService {
@@ -81,11 +73,11 @@ export class EventTranslationService {
     return row;
   }
 
-  async localizeOne<TEvent extends LocalizableEvent>(
+  async localizeOne<TEvent extends TLocalizableEvent>(
     event: TEvent,
     locale: AppLanguage | null | undefined,
   ) {
-    if (!locale) return event;
+    if (!locale) return presentContentText(event);
     const published = await this.repository.findPublishedTranslations([
       event.id,
     ]);
@@ -101,11 +93,12 @@ export class EventTranslationService {
     };
   }
 
-  async localizeMany<TEvent extends LocalizableEvent>(
+  async localizeMany<TEvent extends TLocalizableEvent>(
     events: TEvent[],
     locale: AppLanguage | null | undefined,
   ) {
-    if (!locale || events.length === 0) return events;
+    if (events.length === 0) return events;
+    if (!locale) return events.map(presentContentText);
     const ids = events.map((event) => event.id);
     const [published, sources] = await Promise.all([
       this.repository.findPublishedTranslations(ids),

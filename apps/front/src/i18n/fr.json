@@ -406,6 +406,19 @@
       "label": "Langue",
       "unavailable": "Non disponible dans cette langue"
     },
+    "wizardStepper": {
+      "stepOf": "Étape {{current}} sur {{total}}",
+      "allSteps": "Toutes les étapes",
+      "nextStep": "Suivante : {{title}}",
+      "lastStep": "Dernière étape",
+      "status": {
+        "upcoming": "Non commencée",
+        "current": "Étape en cours",
+        "done": "Terminée",
+        "locked": "Verrouillée",
+        "problem": "À corriger"
+      }
+    },
     "no": "Non",
     "yes": "Oui",
     "all": "Tous",
@@ -1118,9 +1131,7 @@
       {
         "id": "how-we-use-information",
         "title": "Comment nous utilisons les informations",
-        "paragraphs": [
-          "Nous utilisons vos informations pour :"
-        ],
+        "paragraphs": ["Nous utilisons vos informations pour :"],
         "bullets": [
           "Créer et gérer les comptes utilisateurs.",
           "Personnaliser les recommandations de formation et les feuilles de route générées par l’IA.",
@@ -1353,9 +1364,7 @@
       {
         "id": "acceptable-use",
         "title": "Utilisation acceptable",
-        "paragraphs": [
-          "Vous acceptez de ne pas :"
-        ],
+        "paragraphs": ["Vous acceptez de ne pas :"],
         "bullets": [
           "Utiliser la plateforme à des fins illégales, nuisibles ou frauduleuses.",
           "Téléverser des logiciels malveillants, extraire des données ou tenter de contourner les mesures de sécurité.",
@@ -3658,11 +3667,15 @@
       "stats": {
         "monthlyLearners": "Apprenants actifs",
         "providerReach": "Pays couverts",
-        "conversionLift": "Hausse moyenne"
+        "conversionLift": "Hausse moyenne",
+        "totalEvents": "Événements publiés",
+        "totalRegistrations": "Inscriptions",
+        "conversionRate": "Taux de conversion"
       },
       "funnel": {
         "publish": "Visibilité du contenu publié",
         "match": "Correspondance IA avec les apprenants",
+        "promote": "Événements promus",
         "convert": "Conversion en inscriptions"
       },
       "dashboard": {
@@ -3677,6 +3690,7 @@
         "analyticsDescription": "Comprenez les vues, l'intérêt, les inscriptions et la dynamique de vos contenus au même endroit.",
         "demoData": "Données démo",
         "noTopEvent": "Aucun événement principal pour le moment",
+        "fallbackProvider": "Espace fournisseur",
         "topEventTitle": "Événement le plus performant",
         "revenue": "Revenus",
         "rating": "Note",
@@ -4939,7 +4953,7 @@
       "eyebrow": "Paramètres du fournisseur",
       "title": "Paramètres du fournisseur",
       "description": "Gérez le profil de votre organisation, vos préférences de notification et la sécurité de votre compte.",
-      "stepLabel": "Étape {{step}}",
+      "stepsLabel": "Étapes des paramètres",
       "steps": {
         "profile": {
           "title": "Profil de l’organisation",
@@ -5069,6 +5083,7 @@
       }
     },
     "createEvent": {
+      "stepsLabel": "Étapes de l'événement",
       "previous": "Précédent",
       "next": "Suivant",
       "eyebrow": "Créateur d’événement",
@@ -6319,6 +6334,17 @@
         "ANNUAL": "Annuel",
         "MULTI_YEAR": "Pluriannuel"
       },
+      "cycleHint": {
+        "ONE_TIME": "Une seule fois, sans renouvellement",
+        "ANNUAL": "Se renouvelle chaque année",
+        "MULTI_YEAR": "Se renouvelle tous les {{min}} à {{max}} ans"
+      },
+      "cycleSummary": {
+        "ONE_TIME": "Les membres le réalisent une fois, avant l'échéance. Il ne se renouvelle pas.",
+        "ANNUAL": "Un nouveau cycle s'ouvre automatiquement chaque année.",
+        "MULTI_YEAR": "Un nouveau cycle s'ouvre automatiquement tous les {{count}} ans.",
+        "MULTI_YEAR_PENDING": "Choisissez une durée pour voir quand les nouveaux cycles s'ouvrent."
+      },
       "audience": {
         "ALL_MEMBERS": "Tous les membres",
         "GROUP": "Un groupe",
@@ -6401,7 +6427,7 @@
         "reportingCycle": "Cycle de déclaration",
         "cycleLengthYears": "Durée du cycle en années",
         "cycleLengthOption": "{{count}} ans",
-        "cycleLengthHint": "Un cycle pluriannuel doit avoir une durée.",
+        "cycleLengthHint": "Durée de chaque cycle avant son renouvellement.",
         "evidencePolicy": "Justificatif",
         "audience": "À qui cela s'applique",
         "group": "Groupes",
@@ -6437,6 +6463,12 @@
           "review": "Tout vérifier, puis publier"
         },
         "detailsBody": "Enregistrée comme brouillon dès que vous continuez, rien n'est perdu si vous quittez.",
+        "sections": {
+          "details": "Exigence",
+          "schedule": "Cycle et échéance",
+          "audience": "Public concerné"
+        },
+        "stepLocked": "Disponible une fois le brouillon enregistré",
         "rulesBody": "Chaque règle ci-dessous est facultative. Configurez celles dont votre exigence a besoin.",
         "reviewBody": "Voici ce que verront les membres. La publication l'affecte à votre audience.",
         "saveAsDraft": "Enregistrer comme brouillon",
@@ -7906,7 +7938,6 @@
   "professionalOnboarding": {
     "eyebrow": "Bienvenue sur Loopskey",
     "title": "Configurez votre profil",
-    "stepLabel": "Étape {{current}} sur {{total}}",
     "stepsNav": "Étapes de configuration",
     "steps": {
       "goal": "Votre objectif",

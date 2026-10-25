@@ -55,7 +55,7 @@ COPY --from=builder --chown=nextjs:nodejs /app/apps/front/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/apps/front/.next/static ./apps/front/.next/static
 COPY --from=builder --chown=nextjs:nodejs /app/apps/front/public ./apps/front/public
 COPY --from=builder --chown=nextjs:nodejs /app/deployment-policy.json ./deployment-policy.json
-COPY --from=builder --chown=nextjs:nodejs /app/scripts/deployment-policy.mjs /app/scripts/seo-audit.mjs /app/scripts/seo-audit.config.json ./scripts/
+COPY --from=builder --chown=nextjs:nodejs /app/scripts/deployment-policy.mjs /app/scripts/seo-audit.mjs /app/scripts/seo-audit.config.json /app/scripts/production-seo-check.mjs ./scripts/
 USER nextjs
 EXPOSE 3000
 # The start-up check refuses to serve when the runtime configuration disagrees

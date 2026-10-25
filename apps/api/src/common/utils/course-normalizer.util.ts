@@ -1,5 +1,6 @@
 import { CourseCategory, CourseLevel } from "@prisma/client";
 import { normalizeContentCategory } from "@utils/content-category.util";
+import { decodeContentText } from "./content-text.util";
 
 import sanitizeHtml from "sanitize-html";
 
@@ -12,10 +13,12 @@ export const cleanCourseOptionalText = (value?: string | null) => {
 };
 
 export const sanitizeCourseText = (value?: string | null) =>
-  sanitizeHtml(value?.trim() || "", {
-    allowedTags: [],
-    allowedAttributes: {},
-  });
+  decodeContentText(
+    sanitizeHtml(value?.trim() || "", {
+      allowedTags: [],
+      allowedAttributes: {},
+    }),
+  );
 
 export const cleanCourseDescription = (value?: string | null) =>
   sanitizeCourseText(value) || "No description provided.";

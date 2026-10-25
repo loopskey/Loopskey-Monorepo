@@ -292,3 +292,8 @@ export type TIconActionProps = {
   onClick?: () => void;
   variant?: "outline" | "cancel" | "destructive";
 };
+
+export type TFormSectionProps = {
+  title: string;
+  children: ReactNode;
+};

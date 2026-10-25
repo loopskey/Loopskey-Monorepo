@@ -57,6 +57,8 @@ node_modules
 /.claude/skills/ponytail/
 /.claude/skills/graphify/
 /.claude/skills/web-app-penetration-testing/
+/.claude/skills/image-to-code/
+/.claude/skills/web-design-guidelines/
 /graphify-out/
 /strix_runs/
 

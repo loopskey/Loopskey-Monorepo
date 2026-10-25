@@ -277,6 +277,7 @@ export type TAssociationRequirementsStats = TWithRequirementsHook;
 export type TAssociationRequirementsTable = TWithRequirementsHook;
 export type TAssociationRequirementWizard = TWithRequirementsHook;
 export type TAssociationRequirementDetailsStep = TWithRequirementsHook;
+export type TAssociationRequirementCycleField = TWithRequirementsHook;
 export type TAssociationRequirementRulesStep = TWithRequirementsHook;
 export type TAssociationRequirementReviewStep = TWithRequirementsHook;
 export type TAssociationRequirementDetailView = TWithRequirementsHook;

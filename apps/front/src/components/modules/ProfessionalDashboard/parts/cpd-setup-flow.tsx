@@ -6,8 +6,8 @@ import { CpdStepCategories } from "@modules/ProfessionalDashboard/parts/cpd-step
 import { CpdSetupFlowProps } from "@/types/cpd-plan.types";
 import { CpdStepReporting } from "@modules/ProfessionalDashboard/parts/cpd-step-reporting";
 import { useCpdPlanSetup } from "@/hooks/useCpdPlanSetup";
-import { ActivityStepper } from "@modules/ProfessionalDashboard/parts/activity-stepper";
 import { CpdStepEvidence } from "@modules/ProfessionalDashboard/parts/cpd-step-evidence";
+import { WizardStepper } from "@elements/wizard-stepper";
 import { GlassCard } from "@elements/glass-card";
 import { Button } from "@ui/button";
 
@@ -33,27 +33,29 @@ export const CpdSetupFlow = ({
   const {
     form,
     step,
-    goToStep,
     next,
     back,
     submit,
-    categories,
-    addCategory,
-    removeCategory,
-    targetTotal,
-    creditType,
     isDirty,
+    goToStep,
+    categories,
     isLastStep,
+    creditType,
+    addCategory,
+    targetTotal,
+    removeCategory,
   } = setupForm;
 
   const steps = useMemo(
     () =>
       [1, 2, 3, 4].map((value) => ({
-        value,
+        key: value,
         title: t(`cpdProgress.setup.step${value}.title`),
         description: t(`cpdProgress.setup.step${value}.description`),
+        isComplete: step > value,
+        isReachable: step >= value,
       })),
-    [t],
+    [t, step],
   );
 
   const handleCancel = () => {
@@ -81,7 +83,12 @@ export const CpdSetupFlow = ({
         </p>
       </div>
 
-      <ActivityStepper steps={steps} activeStep={step} onChange={goToStep} />
+      <WizardStepper
+        steps={steps}
+        activeKey={step}
+        onSelect={goToStep}
+        label={t("professionalDashboard.cpdPduTracker.addActivity.stepsLabel")}
+      />
 
       <GlassCard>
         <F.Form {...form}>
@@ -139,11 +146,7 @@ export const CpdSetupFlow = ({
               )}
 
               {isLastStep ? (
-                <Button
-                  radius="xl"
-                  type="submit"
-                  disabled={isSubmitting}
-                >
+                <Button radius="xl" type="submit" disabled={isSubmitting}>
                   {isSubmitting ? (
                     <L.Loader2 className="h-4 w-4 animate-spin" />
                   ) : (

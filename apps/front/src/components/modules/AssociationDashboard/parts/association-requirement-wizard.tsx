@@ -52,6 +52,7 @@ export const AssociationRequirementWizard = ({
           ),
           isComplete: index < activeIndex,
           isReachable: index === 0 || Boolean(requirementId),
+          lockedHint: t("associationDashboard.requirements.wizard.stepLocked"),
           hasProblem: stepsWithProblems.has(wizardStep),
         }))}
       />

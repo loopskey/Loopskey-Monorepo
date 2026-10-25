@@ -213,6 +213,19 @@
     "save": "Enregistrer",
     "start": "Commencer",
     "view": "Voir",
+    "wizardStepper": {
+      "allSteps": "Toutes les étapes",
+      "lastStep": "Dernière étape",
+      "nextStep": "Suivante : {{title}}",
+      "status": {
+        "current": "Étape en cours",
+        "done": "Terminée",
+        "locked": "Verrouillée",
+        "problem": "À corriger",
+        "upcoming": "Non commencée"
+      },
+      "stepOf": "Étape {{current}} sur {{total}}"
+    },
     "yes": "Oui"
   },
   "contactPage": {
@@ -288,14 +301,7 @@
   },
   "content": {
     "card": {
-      "attendees": "{{count}} participants",
-      "episodes": "{{count}} épisodes",
-      "listeners": "{{count}} auditeurs",
-      "minutes": "{{count}} min",
       "originalLanguage": "Langue d’origine",
-      "professionals": "{{count}} professionnels",
-      "subscribers": "{{count}} abonnés",
-      "videos": "{{count}} vidéos",
       "viewDetails": "Voir les détails"
     },
     "empty": {
@@ -1119,6 +1125,7 @@
         "analyticsTitle": "Données de performance claires",
         "demoData": "Données démo",
         "eyebrow": "Console de croissance fournisseur",
+        "fallbackProvider": "Espace fournisseur",
         "funnelDescription": "Suivez comment votre contenu passe de la découverte à l'inscription.",
         "funnelTitle": "Performance des campagnes",
         "matchingDescription": "Vos événements apparaissent là où les professionnels planifient déjà leur prochaine étape.",
@@ -1134,10 +1141,16 @@
       "eyebrow": "Pour les fournisseurs de contenu",
       "funnel": {
         "convert": "Conversion en inscriptions",
+        "promote": "Événements promus",
         "publish": "Visibilité du contenu publié"
       },
       "primaryAction": "Devenir fournisseur",
       "secondaryAction": "Voir les services",
+      "stats": {
+        "conversionRate": "Taux de conversion",
+        "totalEvents": "Événements publiés",
+        "totalRegistrations": "Inscriptions"
+      },
       "title": "Touchez des professionnels déjà en apprentissage"
     }
   },

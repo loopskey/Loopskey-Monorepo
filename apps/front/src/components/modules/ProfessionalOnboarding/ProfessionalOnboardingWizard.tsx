@@ -5,8 +5,8 @@ import { useProfessionalOnboarding } from "@/hooks/useProfessionalOnboarding";
 import { OnboardingSkillsStep } from "@modules/ProfessionalOnboarding/parts/onboarding-skills-step";
 import { OnboardingRoleStep } from "@modules/ProfessionalOnboarding/parts/onboarding-role-step";
 import { OnboardingGoalStep } from "@modules/ProfessionalOnboarding/parts/onboarding-goal-step";
-import { OnboardingStepper } from "@modules/ProfessionalOnboarding/parts/onboarding-stepper";
 import { useEffect, useRef } from "react";
+import { WizardStepper } from "@elements/wizard-stepper";
 import { GlassCard } from "@elements/glass-card";
 import { Button } from "@ui/button";
 
@@ -17,9 +17,9 @@ const ProfessionalOnboardingWizard = () => {
   const hook = useProfessionalOnboarding();
   const {
     t,
-    steps,
     goNext,
     goBack,
+    goToStep,
     isSaving,
     stepIndex,
     isLastStep,
@@ -48,12 +48,6 @@ const ProfessionalOnboardingWizard = () => {
           <h1 className="text-3xl font-medium tracking-tight">
             {t("professionalOnboarding.title")}
           </h1>
-          <p aria-live="polite" className="text-sm text-muted-foreground">
-            {t("professionalOnboarding.stepLabel", {
-              current: stepIndex + 1,
-              total: steps.length,
-            })}
-          </p>
         </div>
 
         <Button
@@ -67,9 +61,10 @@ const ProfessionalOnboardingWizard = () => {
         </Button>
       </header>
 
-      <OnboardingStepper
+      <WizardStepper
+        onSelect={goToStep}
+        activeKey={stepIndex}
         steps={stepDescriptors}
-        activeIndex={stepIndex}
         label={t("professionalOnboarding.stepsNav")}
       />
 

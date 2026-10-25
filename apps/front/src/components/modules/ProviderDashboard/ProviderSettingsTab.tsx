@@ -1,30 +1,18 @@
 "use client";
 
-import { BellRing, Building2, RefreshCcw, ShieldCheck } from "lucide-react";
 import { ProviderNotificationSettingsStep } from "@modules/ProviderDashboard/parts/provider-notif-settings-step";
 import { ProviderSecuritySettingsStep } from "@modules/ProviderDashboard/parts/provider-security-settings-step";
 import { ProviderProfileSettingsStep } from "@modules/ProviderDashboard/parts/provider-profile-settings-step";
 import { useProviderSettingsTab } from "@/hooks/useProviderSettingsTab";
+import { WizardStepper } from "@elements/wizard-stepper";
+import { RefreshCcw } from "lucide-react";
 import { GlassCard } from "@elements/glass-card";
 import { Button } from "@ui/button";
-import { cn } from "@/lib/utils";
 
-const steps = [
-  {
-    value: 1,
-    icon: Building2,
-    key: "profile",
-  },
-  {
-    value: 2,
-    icon: BellRing,
-    key: "notifications",
-  },
-  {
-    value: 3,
-    icon: ShieldCheck,
-    key: "security",
-  },
+const SETTINGS_STEPS = [
+  { key: 1, section: "profile" },
+  { key: 2, section: "notifications" },
+  { key: 3, section: "security" },
 ] as const;
 
 export const ProviderSettingsTab = () => {
@@ -60,59 +48,19 @@ export const ProviderSettingsTab = () => {
         </Button>
       </section>
 
-      <GlassCard>
-        <div className="grid gap-3 md:grid-cols-3">
-          {steps.map((step, index) => {
-            const Icon = step.icon;
-            const isActive = activeStep === step.value;
-            const isDone = activeStep > step.value;
-            return (
-              <button
-                key={step.value}
-                type="button"
-                onClick={() => setActiveStep(step.value)}
-                className={cn(
-                  "relative flex items-center gap-4 rounded-lg border p-4 text-left transition-all",
-                  isActive
-                    ? "border-primary bg-primary/10 shadow-lg shadow-primary/10"
-                    : "border-border hover:border-primary/40",
-                )}
-              >
-                <div
-                  className={cn(
-                    "flex h-11 w-11 items-center justify-center rounded-md",
-                    isActive || isDone
-                      ? "bg-primary text-primary-foreground"
-                      : "bg-muted text-muted-foreground",
-                  )}
-                >
-                  <Icon className="h-5 w-5" />
-                </div>
-
-                <div>
-                  <p className="text-xs font-medium text-muted-foreground">
-                    {t("providerDashboard.settings.stepLabel", {
-                      step: step.value,
-                    })}
-                  </p>
-                  <p className="font-medium">
-                    {t(`providerDashboard.settings.steps.${step.key}.title`)}
-                  </p>
-                  <p className="mt-1 line-clamp-1 text-xs text-muted-foreground">
-                    {t(
-                      `providerDashboard.settings.steps.${step.key}.description`,
-                    )}
-                  </p>
-                </div>
-
-                {index < steps.length - 1 && (
-                  <span className="pointer-events-none absolute -right-2 top-1/2 hidden h-4 w-4 -translate-y-1/2 rotate-45 border-r border-t border-border bg-background md:block" />
-                )}
-              </button>
-            );
-          })}
-        </div>
-      </GlassCard>
+      <WizardStepper
+        activeKey={activeStep}
+        onSelect={setActiveStep}
+        label={t("providerDashboard.settings.stepsLabel")}
+        steps={SETTINGS_STEPS.map((step) => ({
+          key: step.key,
+          isComplete: activeStep > step.key,
+          title: t(`providerDashboard.settings.steps.${step.section}.title`),
+          description: t(
+            `providerDashboard.settings.steps.${step.section}.description`,
+          ),
+        }))}
+      />
 
       <GlassCard>
         {activeStep === 1 && <ProviderProfileSettingsStep hook={hook} />}

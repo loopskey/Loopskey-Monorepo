@@ -406,6 +406,19 @@
       "label": "Language",
       "unavailable": "Not available in this language"
     },
+    "wizardStepper": {
+      "stepOf": "Step {{current}} of {{total}}",
+      "allSteps": "All steps",
+      "nextStep": "Next: {{title}}",
+      "lastStep": "Last step",
+      "status": {
+        "upcoming": "Not started",
+        "current": "Current step",
+        "done": "Completed",
+        "locked": "Locked",
+        "problem": "Needs attention"
+      }
+    },
     "no": "No",
     "all": "All",
     "yes": "Yes",
@@ -1118,9 +1131,7 @@
       {
         "id": "how-we-use-information",
         "title": "How We Use Information",
-        "paragraphs": [
-          "We use your information to:"
-        ],
+        "paragraphs": ["We use your information to:"],
         "bullets": [
           "Create and manage user accounts.",
           "Personalize learning recommendations and AI roadmaps.",
@@ -1353,9 +1364,7 @@
       {
         "id": "acceptable-use",
         "title": "Acceptable Use",
-        "paragraphs": [
-          "You agree not to:"
-        ],
+        "paragraphs": ["You agree not to:"],
         "bullets": [
           "Use the platform for unlawful, harmful, or fraudulent purposes.",
           "Upload malware, scrape data, or attempt to bypass security measures.",
@@ -1411,9 +1420,7 @@
       {
         "id": "contact",
         "title": "Contact Information",
-        "paragraphs": [
-          "For questions about these Terms, contact us:"
-        ],
+        "paragraphs": ["For questions about these Terms, contact us:"],
         "contactItems": [
           {
             "label": "Email",
@@ -3656,11 +3663,15 @@
       "stats": {
         "monthlyLearners": "Active learners",
         "providerReach": "Countries reached",
-        "conversionLift": "Avg. lift"
+        "conversionLift": "Avg. lift",
+        "totalEvents": "Published events",
+        "totalRegistrations": "Registrations",
+        "conversionRate": "Conversion rate"
       },
       "funnel": {
         "publish": "Published content visibility",
         "match": "AI learner matching",
+        "promote": "Promoted events",
         "convert": "Registration conversion"
       },
       "dashboard": {
@@ -3675,6 +3686,7 @@
         "analyticsDescription": "Understand views, interest, registrations, and content momentum in one place.",
         "demoData": "Demo data",
         "noTopEvent": "No top event yet",
+        "fallbackProvider": "Provider workspace",
         "topEventTitle": "Top performing event",
         "revenue": "Revenue",
         "rating": "Rating",
@@ -4938,7 +4950,7 @@
       "eyebrow": "Provider Settings",
       "title": "Provider Settings",
       "description": "Manage your organization profile, notification preferences, and account security.",
-      "stepLabel": "Step {{step}}",
+      "stepsLabel": "Settings steps",
       "steps": {
         "profile": {
           "title": "Organization Profile",
@@ -5068,6 +5080,7 @@
       }
     },
     "createEvent": {
+      "stepsLabel": "Event steps",
       "previous": "Previous",
       "next": "Next",
       "eyebrow": "Event builder",
@@ -6318,6 +6331,17 @@
         "ANNUAL": "Annual",
         "MULTI_YEAR": "Multi-year"
       },
+      "cycleHint": {
+        "ONE_TIME": "Runs once and does not renew",
+        "ANNUAL": "Renews every year",
+        "MULTI_YEAR": "Renews every {{min}} to {{max}} years"
+      },
+      "cycleSummary": {
+        "ONE_TIME": "Members complete it once, by the deadline. It does not renew.",
+        "ANNUAL": "A new cycle opens automatically every year.",
+        "MULTI_YEAR": "A new cycle opens automatically every {{count}} years.",
+        "MULTI_YEAR_PENDING": "Choose a length to see when new cycles open."
+      },
       "audience": {
         "ALL_MEMBERS": "All members",
         "GROUP": "A group",
@@ -6400,7 +6424,7 @@
         "reportingCycle": "Reporting cycle",
         "cycleLengthYears": "Cycle length in years",
         "cycleLengthOption": "{{count}} years",
-        "cycleLengthHint": "A multi-year cycle needs a length.",
+        "cycleLengthHint": "How long each cycle runs before it renews.",
         "evidencePolicy": "Evidence",
         "audience": "Who it applies to",
         "group": "Groups",
@@ -6436,6 +6460,12 @@
           "review": "Check everything, then publish"
         },
         "detailsBody": "Saved as a draft as soon as you continue, so nothing is lost if you leave.",
+        "sections": {
+          "details": "Requirement",
+          "schedule": "Cycle and deadline",
+          "audience": "Audience"
+        },
+        "stepLocked": "Available once the draft is saved",
         "rulesBody": "Every rule below is optional. Configure the ones your requirement needs.",
         "reviewBody": "This is what members will see. Publishing assigns it to your audience.",
         "saveAsDraft": "Save as Draft",
@@ -7906,7 +7936,6 @@
   "professionalOnboarding": {
     "eyebrow": "Welcome to Loopskey",
     "title": "Set up your profile",
-    "stepLabel": "Step {{current}} of {{total}}",
     "stepsNav": "Onboarding steps",
     "steps": {
       "goal": "Your goal",

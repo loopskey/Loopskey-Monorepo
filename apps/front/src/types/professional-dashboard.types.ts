@@ -121,18 +121,6 @@ export type TPduActivityFilters = {
   certificate: TPduActivityCertificateFilter;
 };
 
-export type TPduWizardStep = {
-  value: number;
-  title: string;
-  description: string;
-};
-
-export type TPduActivityStepperProps = {
-  activeStep: number;
-  steps: TPduWizardStep[];
-  onChange: (step: number) => void;
-};
-
 export type ProfessionalPaymentsData = NonNullable<
   API.ProfessionalPaymentsQuery["professionalPayments"]
 >;
