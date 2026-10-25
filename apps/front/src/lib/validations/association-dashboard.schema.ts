@@ -289,23 +289,34 @@ export const associationRequirementCategoriesSchema = z
     });
   });
 
-export const associationRequirementReportingSchema = z.object({
-  reportingStart: z.string().optional(),
-  reportingEnd: z.string().optional(),
-  submissionWindow: z.nativeEnum(AssociationSubmissionWindow),
-  gracePeriodDays: z.coerce
-    .number()
-    .int()
-    .refine(
-      (value) =>
-        (ASSOCIATION_GRACE_PERIOD_OPTIONS as readonly number[]).includes(
-          value,
-        ),
-      { message: "invalidGracePeriod" },
-    ),
-  lateSubmissionPolicy: z.nativeEnum(AssociationLateSubmissionPolicy),
-  renewalCondition: z.nativeEnum(AssociationRenewalCondition),
-});
+export const associationRequirementReportingSchema = z
+  .object({
+    reportingStart: z.string().optional(),
+    reportingEnd: z.string().optional(),
+    submissionWindow: z.nativeEnum(AssociationSubmissionWindow),
+    gracePeriodDays: z.coerce
+      .number()
+      .int()
+      .refine(
+        (value) =>
+          (ASSOCIATION_GRACE_PERIOD_OPTIONS as readonly number[]).includes(
+            value,
+          ),
+        { message: "invalidGracePeriod" },
+      ),
+    lateSubmissionPolicy: z.nativeEnum(AssociationLateSubmissionPolicy),
+    renewalCondition: z.nativeEnum(AssociationRenewalCondition),
+  })
+  .refine(
+    (values) =>
+      !values.reportingStart ||
+      !values.reportingEnd ||
+      values.reportingEnd >= values.reportingStart,
+    {
+      path: ["reportingEnd"],
+      message: `${REQUIREMENT_ERROR}.reportingEndBeforeStart`,
+    },
+  );
 
 export type TAssociationRequirementDetailsForm = z.input<
   typeof associationRequirementDetailsSchema

@@ -339,7 +339,20 @@
       "loadError": "We could not load your requirements.",
       "retry": "Try again",
       "categoryCompleted": "Completed",
-      "categoryRequired": "Required"
+      "categoryRequired": "Required",
+      "acceptsWindow": "Counts completions dated {{from}} to {{until}}",
+      "acceptsFrom": "Counts completions dated from {{from}}",
+      "detailError": "This requirement's details couldn't be loaded.",
+      "excluded": {
+        "title": "Not counted toward this requirement",
+        "description": "These activities are linked to this requirement but don't add credit yet.",
+        "credits": "{{credits}} credits",
+        "reason": {
+          "CREDIT_TYPE_MISMATCH": "Logged in a different credit type than this requirement uses. Edit the activity to change its credit type.",
+          "OUTSIDE_WINDOW": "Dated outside the period this requirement accepts. Check the completion date.",
+          "MISSING_EVIDENCE": "Needs a certificate or evidence file before it can count. Upload one to the activity."
+        }
+      }
     },
     "fromAssociation": {
       "title": "From your association",
@@ -461,7 +474,15 @@
       "GENERAL": "General"
     },
     "required": "required",
-    "completionDateInFuture": "The completion date cannot be in the future."
+    "completionDateInFuture": "The completion date cannot be in the future.",
+    "fileRequest": {
+      "unauthorized": "Your session has expired. Sign in again, then retry.",
+      "missing": "That file is no longer available.",
+      "tooLarge": "The file is larger than the server accepts.",
+      "rejected": "The server didn't accept this file. Check its type and size.",
+      "network": "The upload couldn't reach the server. Check your connection and try again.",
+      "generic": "The file couldn't be processed. Try again."
+    }
   },
   "servicesPage": {
     "meta": {
@@ -2827,7 +2848,6 @@
       "title": "Set your password",
       "description": "Your organization account has been approved. Create a secure password to activate your account.",
       "descriptionNamed": "The account for {{organizationName}} has been approved. Create a secure password to activate it.",
-      "checking": "Checking your activation link...",
       "submit": "Activate account",
       "activating": "Activating account...",
       "successTitle": "Your account is active. Sign in with your new password.",
@@ -3295,7 +3315,18 @@
       "errors": {
         "contentNotAvailable": "This content is no longer offered to you by your association, so it cannot be marked complete.",
         "requirementMismatch": "This content counts toward a different requirement. Choose the requirement it is linked to."
-      }
+      },
+      "requirementPanel": {
+        "countsToward": "Counts toward {{name}} · {{association}}",
+        "target": "Requirement: {{total}} {{credit}}",
+        "window": "Accepts completions dated {{from}} to {{until}}",
+        "windowOpen": "Accepts completions dated from {{from}}",
+        "locked": "Fields set by {{association}} are locked."
+      },
+      "dateOutsideWindow": "Choose a date between {{from}} and {{until}} for this requirement.",
+      "dateAfterWindow": "Choose a date on or before {{until}} for this requirement.",
+      "uploadFailedSaved": "Your completion is saved, but the evidence was not uploaded. {{reason}}",
+      "retryUpload": "Retry upload"
     },
     "messages": {
       "loginRequired": "Please sign in to continue",
@@ -3376,11 +3407,6 @@
     }
   },
   "landing": {
-    "topicGuides": {
-      "title": "Topic guides",
-      "subtitle": "Start with curated guidance, then explore the learning it recommends.",
-      "read": "Read the guide"
-    },
     "meta": {
       "title": "LoopsKey — AI-powered professional learning and CPD tracking",
       "description": "Discover courses, events, podcasts and YouTube channels, build an AI-powered development roadmap, and track CPD and PDU compliance in one place."
@@ -3441,16 +3467,17 @@
     },
     "hero": {
       "badge": "AI-powered professional learning",
-      "titleLine1": "Your Professional",
-      "titleLine2": "Development Journey",
-      "titleLine3": "All In One Place",
-      "subtitleLine1": "Your Path, Your Choice—LoopsKey's AI,",
-      "subtitleLine2": "Tailored for You.",
-      "primaryCta": "Explore learning",
-      "secondaryCta": "Create account",
+      "titleLead": "Your learning and certifications,",
+      "titleHighlight": "all in one place",
+      "subtitle": "Explore online courses, events and podcasts, manage your certifications and keep track of your credits — on one AI-powered platform.",
+      "planNote": "Core features are free for individual professionals",
+      "exploreLearning": "Explore learning",
+      "sampleCard": {
+        "title": "Project Management Professional",
+        "credits": "{{earned}} of {{total}} credits"
+      },
       "searchPlaceholder": "Search courses, events, podcasts, and YouTube channels...",
       "exploreButton": "Explore",
-      "dashboardCta": "Go to dashboard",
       "exploreTitle": "Explore by category",
       "selectedCategory": "Selected category",
       "clear": "Clear",
@@ -3459,12 +3486,6 @@
       "viewAll": "View all",
       "viewItem": "View",
       "noResults": "No matching content found. Try another keyword or category.",
-      "aiCardTitle": "AI-guided learning",
-      "aiCardText": "Personalized paths for every goal",
-      "progressCardTitle": "Track your growth",
-      "progressCardText": "CPD, skills, certificates, and learning evidence",
-      "skills": "Skills",
-      "professionals": "professionals",
       "categories": {
         "technologyCourses": "Technology courses",
         "businessCourses": "Business courses",
@@ -3484,239 +3505,202 @@
         "videos": "{{count}} videos"
       }
     },
-    "popularCategories": {
-      "badge": "Popular Categories",
-      "title": "Explore what professionals are learning",
-      "subtitle": "Discover high-performing categories based on ratings, reviews, and learning activity across LoopsKey.",
-      "itemsCount": "{{count}} items",
-      "courses": "Courses",
-      "events": "Events",
-      "podcasts": "Podcasts",
-      "youtube": "YouTube"
+    "actions": {
+      "createAccount": "Create free account",
+      "getStarted": "Get started",
+      "dashboard": "Go to your dashboard",
+      "buildRoadmap": "Build my roadmap",
+      "roadmapForProfessionals": "Roadmaps for professionals"
     },
-    "newFeature": {
-      "badge": "New Feature",
-      "title": "Learning Roadmaps",
-      "description": "Navigate your learning journey with expert-crafted roadmaps. Follow structured paths from beginner to advanced levels.",
-      "ctaTitle": "Start Your Journey Today",
-      "ctaText": "Choose from various learning paths curated by industry experts. Whether you're starting from scratch or advancing your skills, our roadmaps guide you every step of the way.",
-      "ctaButton": "Explore Roadmaps",
-      "cards": {
-        "structured": {
-          "title": "Structured Progress",
-          "text": "Clear, step-by-step learning paths designed by industry experts."
+    "sample": {
+      "label": "Sample",
+      "dataLabel": "Sample data"
+    },
+    "highlights": {
+      "label": "LoopsKey at a glance",
+      "items": {
+        "catalog": {
+          "title": "Learning catalog",
+          "text": "Courses, events and more in one searchable place"
         },
-        "community": {
-          "title": "Community Driven",
-          "text": "Learn alongside others following the same path and share experiences."
+        "formats": {
+          "title": "4 formats",
+          "text": "Courses, events, podcasts and YouTube channels"
         },
-        "progress": {
-          "title": "Track Progress",
-          "text": "Monitor your advancement and celebrate milestones along the way."
+        "certifications": {
+          "title": "Certifications",
+          "text": "Credits and renewals tracked"
+        }
+      }
+    },
+    "steps": {
+      "badge": "How it works",
+      "title": "How LoopsKey works",
+      "items": {
+        "addGoal": {
+          "title": "Add your certifications",
+          "text": "Tell us what you hold and what you’re working toward."
+        },
+        "getPlan": {
+          "title": "Get your learning plan",
+          "text": "AI recommends courses and events that fit your goals."
+        },
+        "trackCredits": {
+          "title": "Log learning and track credits",
+          "text": "Record what you complete and follow your progress toward renewals."
         }
       }
     },
     "services": {
-      "badge": "LoopsKey Services",
-      "title": "Everything you need for professional development",
-      "subtitle": "LoopsKey brings learning discovery, CPD tracking, provider tools, recommendations, and analytics into one intelligent platform.",
+      "badge": "Platform",
+      "title": "Your professional development in one platform",
+      "viewAll": "Explore all services",
       "items": {
-        "cpdManagement": {
-          "title": "CPD Management",
-          "text": "Stay in the loop with your profession by seamlessly managing your Continuous Professional Development (CPD). Track your progress, plan future learning, and stay ahead with ease."
+        "certificationManagement": {
+          "title": "Certification management",
+          "text": "Credits and renewal dates for every certification."
         },
-        "contentAggregation": {
-          "title": "Learning Content Aggregation",
-          "text": "Discover global learning opportunities effortlessly. Our AI aggregates webinars, seminars, and expert sessions, giving you access to diverse professional content in one place."
+        "learningCatalog": {
+          "title": "One learning catalog",
+          "text": "Courses, events, podcasts and YouTube channels in one place."
         },
-        "personalizedDashboard": {
-          "title": "Personalized Dashboard",
-          "text": "Access a tailored dashboard that highlights upcoming events, registered courses, and personalized recommendations aligned with your career goals."
+        "aiRecommendations": {
+          "title": "AI recommendations",
+          "text": "Learning matched to your role and goals."
         },
-        "professionalsConnection": {
-          "title": "Professionals Connection",
-          "text": "Expand your horizons by connecting with top-tier training and development opportunities worldwide, regardless of location or affiliation."
-        },
-        "recommendations": {
-          "title": "Intelligent Recommendations",
-          "text": "Leverage AI-driven tagging and advanced search to receive intelligent, personalized recommendations that match your expertise and interests."
-        },
-        "providerSolutions": {
-          "title": "Content Provider Solutions",
-          "text": "Unlock new opportunities as a content provider. Share your webinars, courses, and events with a global network of professionals seeking continuous education."
-        },
-        "hrAssociations": {
-          "title": "HR and Professional Associations",
-          "text": "Empower your workforce with accredited training opportunities. Streamline professional development and keep skills competitive in a fast-changing world."
-        },
-        "dataAnalytics": {
-          "title": "Data Analytics",
-          "text": "Gain actionable insights with LoopsKey analytics. Track learning trends, assess needs, and make data-driven decisions to stay ahead of the curve."
+        "personalDashboard": {
+          "title": "Personal dashboard",
+          "text": "Progress and upcoming events at a glance."
         }
       }
     },
     "roadmapShowcase": {
       "badge": "AI learning roadmap",
-      "title": "Turn career goals into a living",
-      "highlight": "roadmap",
-      "description": "LoopsKey turns your goals into a living roadmap — sequencing courses, events, and certifications in the right order with milestones you can actually hit.",
-      "primaryAction": "Book consultation",
-      "secondaryAction": "Explore services",
+      "title": "For professionals",
+      "headingLead": "Turn your career goal into a",
+      "headingHighlight": "learning roadmap",
+      "description": "Set a goal. AI plans the courses, events and exams to get you there.",
+      "learnMore": "Learn more",
       "benefits": {
-        "aiSequencing": "Goal-driven sequencing built by AI",
-        "eventSlotting": "Recommended events automatically slotted in",
-        "progressTracking": "Live progress and CPD tracking",
-        "adaptiveRoadmap": "Adapts as your role and skills evolve"
+        "aiSequencing": "AI-built learning sequence",
+        "eventSlotting": "Events slotted in automatically",
+        "progressTracking": "Progress and credits tracked",
+        "adaptiveRoadmap": "Adapts as your goals change"
       },
       "preview": {
-        "eyebrow": "Roadmap",
-        "title": "Path to Chartered Engineer",
-        "status": "In progress"
-      },
-      "status": {
-        "done": "Done",
-        "active": "In progress",
-        "upcoming": "Upcoming"
-      },
-      "milestones": {
-        "systemsEngineering": {
-          "title": "Foundations of Systems Engineering",
-          "meta": "8 modules · 24 CPD pts"
+        "goalLabel": "Goal",
+        "title": "Earn your PMP® certification",
+        "fromRole": "Product Analyst",
+        "toRole": "Project Manager",
+        "careerPath": "Career path: {{from}} to {{to}}",
+        "stepsLabel": "Roadmap steps",
+        "status": {
+          "done": "Done",
+          "active": "In progress",
+          "upcoming": "Upcoming"
         },
-        "incoseSymposium": {
-          "title": "INCOSE International Symposium",
-          "meta": "Live event · Jul 12"
+        "steps": {
+          "fundamentals": {
+            "title": "Project Management Fundamentals",
+            "meta": "Online course · {{count}} hours"
+          },
+          "agile": {
+            "title": "Agile & Scrum Essentials",
+            "meta": "Live webinar · {{date}}"
+          },
+          "risk": {
+            "title": "Risk Management in Practice",
+            "meta": "AI-recommended · {{count}} hours"
+          },
+          "exam": {
+            "title": "PMP® exam",
+            "meta": "Goal · {{date}}"
+          }
         },
-        "riskReliability": {
-          "title": "Advanced Risk & Reliability",
-          "meta": "AI-recommended · 16h"
-        },
-        "charteredEngineer": {
-          "title": "Chartered Engineer Application",
-          "meta": "Goal milestone · Q4"
+        "summary": {
+          "hours": "Training hours",
+          "progress": "Progress",
+          "next": "Next step"
         }
-      },
-      "metrics": {
-        "cpd": "CPD points",
-        "progress": "Progress",
-        "next": "Next milestone"
       }
     },
     "organization": {
-      "eyebrow": "For organizations",
-      "title": "Build a workforce that compounds",
-      "description": "Give every team member a personalized roadmap, prove CPD compliance in one click, and turn learning into measurable business outcomes.",
-      "primaryAction": "Book consultation",
-      "secondaryAction": "Explore services",
-      "stats": {
-        "teamMembers": "Team members",
-        "cpdCompliant": "CPD compliant",
-        "avgGrowth": "Avg. growth"
-      },
-      "features": {
-        "teamProgress": "Team progress at a glance",
-        "cpdCompliance": "Automated CPD compliance",
-        "skillAnalytics": "Workforce skill analytics",
-        "learningAssignments": "Smart learning assignments"
-      },
-      "dashboard": {
-        "eyebrow": "Workforce overview",
-        "title": "Engineering team · Q3",
-        "status": "Live",
-        "complianceTitle": "CPD compliance by team"
-      },
-      "compliance": {
-        "compliant": "Compliant",
-        "atRisk": "At risk",
-        "nonCompliant": "Non-compliant"
-      },
-      "topics": {
-        "aiRoadmaps": "AI learning roadmaps",
-        "compliance": "Compliance training",
-        "leadership": "Leadership skills"
-      }
-    },
-    "provider": {
-      "eyebrow": "For content providers",
-      "title": "Reach professionals actively learning",
-      "description": "Training companies, associations, and educators trust LoopsKey to put their best content in front of motivated learners.",
-      "primaryAction": "Become a provider",
-      "secondaryAction": "View services",
+      "badge": "Members & content",
+      "title": "For associations & organizations",
+      "panelTitle": "Your members and your content, together",
+      "description": "Add your members, publish the content they need and follow their progress.",
+      "contact": "Talk to our team",
+      "associations": "For associations",
       "benefits": {
-        "promoteEvents": {
-          "title": "Promote your events",
-          "description": "List courses, conferences, and webinars to a global audience of qualified professionals."
+        "defineMembers": "Define your members",
+        "publishContent": "Publish your own content",
+        "trackProgress": "Track member progress",
+        "memberReports": "Member reports"
+      },
+      "preview": {
+        "eyebrow": "Member overview",
+        "title": "Association · annual cycle",
+        "stats": {
+          "members": "Members",
+          "onTrack": "On track",
+          "published": "Published content"
         },
-        "reachPeople": {
-          "title": "Reach the right people",
-          "description": "AI matches your offerings to learners actively building roadmaps in your domain."
+        "statusTitle": "Member status",
+        "status": {
+          "onTrack": "On track",
+          "atRisk": "At risk",
+          "overdue": "Overdue"
         },
-        "analytics": {
-          "title": "Real-time analytics",
-          "description": "Track impressions, registrations, and learner engagement with a clean dashboard."
-        },
-        "growAudience": {
-          "title": "Grow your audience",
-          "description": "Build a following of returning learners and convert one-off attendees into a community."
+        "contentTitle": "Most-completed content",
+        "content": {
+          "ethics": "Professional ethics update",
+          "standards": "Standards briefing",
+          "leadership": "Leadership essentials"
         }
-      },
-      "stats": {
-        "monthlyLearners": "Active learners",
-        "providerReach": "Countries reached",
-        "conversionLift": "Avg. lift",
-        "totalEvents": "Published events",
-        "totalRegistrations": "Registrations",
-        "conversionRate": "Conversion rate"
-      },
-      "funnel": {
-        "publish": "Published content visibility",
-        "match": "AI learner matching",
-        "promote": "Promoted events",
-        "convert": "Registration conversion"
-      },
-      "dashboard": {
-        "eyebrow": "Provider growth console",
-        "title": "Professional learning marketplace",
-        "status": "Live",
-        "funnelTitle": "Campaign performance",
-        "funnelDescription": "Monitor how your content moves from discovery to registration.",
-        "matchingTitle": "AI-powered matching",
-        "matchingDescription": "Your events appear where professionals are already planning their next step.",
-        "analyticsTitle": "Clear performance data",
-        "analyticsDescription": "Understand views, interest, registrations, and content momentum in one place.",
-        "demoData": "Demo data",
-        "noTopEvent": "No top event yet",
-        "fallbackProvider": "Provider workspace",
-        "topEventTitle": "Top performing event",
-        "revenue": "Revenue",
-        "rating": "Rating",
-        "registrations": "Registrations"
       }
     },
-    "testimonials": {
-      "eyebrow": "Testimonials",
-      "title": "Trusted across the industry",
-      "description": "From individual engineers to global organizations and training providers.",
+    "audiences": {
+      "badge": "Who it’s for",
+      "title": "Built for professionals, associations and organizations",
       "items": {
-        "engineer": {
-          "quote": "LoopsKey replaced four spreadsheets and a dozen browser tabs. My CPD is finally on autopilot — and I'm learning the right things.",
-          "name": "Daniel Park",
-          "role": "Senior Systems Engineer · Siemens",
-          "tag": "Engineer"
+        "professional": {
+          "title": "Professionals",
+          "points": [
+            "Personal learning roadmap",
+            "Certification and credit tracking",
+            "Certificates in one place"
+          ],
+          "link": "For professionals"
+        },
+        "association": {
+          "title": "Associations",
+          "points": [
+            "Add and manage members",
+            "Publish your own content",
+            "Track member progress"
+          ],
+          "link": "For associations"
         },
         "organization": {
-          "quote": "We deployed across 1,800 engineers. CPD compliance jumped from 61% to 94% in one quarter and L&D finally has the analytics it needed.",
-          "name": "Maria Gonzalez",
-          "role": "Chief People Officer · TechCorp",
-          "tag": "Organization"
-        },
-        "provider": {
-          "quote": "Listing our certification programs on LoopsKey 4x'd qualified registrations. The audience is precisely who we want.",
-          "name": "Aisha Nour",
-          "role": "Director of Programs · Global PM Institute",
-          "tag": "Provider"
+          "title": "Organizations",
+          "points": [
+            "Team progress dashboard",
+            "Assign learning",
+            "Skills analytics"
+          ],
+          "link": "For organizations"
         }
       }
+    },
+    "faq": {
+      "badge": "FAQ",
+      "title": "Frequently asked questions",
+      "seeAll": "See all questions"
+    },
+    "finalCta": {
+      "title": "Take control of your professional growth",
+      "description": "Create your account and add your first certification.",
+      "contact": "Talk to our team"
     }
   },
   "notFound": {
@@ -5147,7 +5131,8 @@
         "titleRequired": "Event title is required.",
         "descriptionRequired": "Event description is required.",
         "startDateRequired": "Start date and start time are required.",
-        "priceRequired": "Price must be greater than zero for paid events."
+        "priceRequired": "Price must be greater than zero for paid events.",
+        "endBeforeStart": "The event can't end before it starts."
       },
       "enums": {
         "deliveryMode": {
@@ -5567,7 +5552,8 @@
         "department": "Department",
         "allDepartments": "All departments",
         "startDate": "Start date",
-        "endDate": "End date"
+        "endDate": "End date",
+        "endBeforeStart": "The end date can't be before the start date."
       },
       "ranges": {
         "CURRENT_YEAR": "Current year",
@@ -6489,12 +6475,7 @@
           "add": "Add category",
           "remove": "Remove {{name}}",
           "remainder": "Uncategorised",
-          "overflow": "{{assigned}} credits allocated, {{overflow}} above the requirement's {{total}}.",
-          "summary": {
-            "total": "Total required Credits",
-            "categoryMinimum": "Category minimum",
-            "flexible": "Flexible credit"
-          }
+          "overflow": "{{assigned}} credits allocated, {{overflow}} above the requirement's {{total}}."
         },
         "evidence": {
           "title": "Evidence",
@@ -6607,7 +6588,8 @@
         "categoryNameDuplicate": "Two categories cannot share a name.",
         "categoryMappingRequired": "Choose a learning category.",
         "categoryMappingDuplicate": "Two categories cannot map to the same PDU category.",
-        "targetInactive": "One of the selected members is no longer active. Review the selection and save again."
+        "targetInactive": "One of the selected members is no longer active. Review the selection and save again.",
+        "reportingEndBeforeStart": "The reporting period can't end before it starts."
       },
       "error": {
         "title": "We could not load your requirements",

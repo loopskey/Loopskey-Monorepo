@@ -374,6 +374,13 @@ type AssociationActivityCounts {
   rejected: Int!
 }
 
+"""Why an activity linked to a requirement did not count toward it"""
+enum AssociationActivityExclusionReason {
+  CREDIT_TYPE_MISMATCH
+  MISSING_EVIDENCE
+  OUTSIDE_WINDOW
+}
+
 type AssociationActivityRequirement {
   canReview: Boolean!
   creditedAmount: Float!
@@ -1055,6 +1062,8 @@ type AssociationMissingEvidenceRow {
 }
 
 type AssociationMyRequirement {
+  acceptsFrom: DateTime
+  acceptsUntil: DateTime
   assignmentId: ID!
   associationId: ID!
   associationName: String!
@@ -1117,6 +1126,8 @@ type AssociationMyRequirementContent {
 }
 
 type AssociationMyRequirementDetail {
+  acceptsFrom: DateTime
+  acceptsUntil: DateTime
   activities: [AssociationMyRequirementActivity!]!
   assignmentId: ID!
   associationId: ID!
@@ -1132,6 +1143,7 @@ type AssociationMyRequirementDetail {
   description: String
   dueDate: DateTime
   evidencePolicy: AssociationEvidencePolicy!
+  excludedActivities: [AssociationMyRequirementExcludedActivity!]!
   isMissingEvidence: Boolean!
   learningContents: [AssociationMyRequirementContent!]!
   name: String!
@@ -1139,6 +1151,14 @@ type AssociationMyRequirementDetail {
   remainingCredits: Float!
   requiredCredits: Float!
   requirementId: ID!
+}
+
+type AssociationMyRequirementExcludedActivity {
+  activityId: ID!
+  credits: Float!
+  date: DateTime!
+  reason: AssociationActivityExclusionReason!
+  title: String!
 }
 
 type AssociationPageInfo {

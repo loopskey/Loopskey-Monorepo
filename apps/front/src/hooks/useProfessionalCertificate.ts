@@ -5,7 +5,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { CertificateStatusFilter } from "@/lib/graphql/base";
 import { useCertificateEvidence } from "@/hooks/useCertificateEvidence";
-import { CertificateFileError } from "@/hooks/useCertificateEvidence";
+import { fileRequestFailureOf } from "@/utils/file-request.util";
 import { useMyCpdPlansQuery } from "@/lib/rtk/endpoints/cpd-plan.api";
 import { useDebouncedValue } from "@/hooks/useDebounced";
 import { PAGE_SIZE } from "@/utils/constant";
@@ -104,9 +104,6 @@ export const useProfessionalCertificates = () => {
     [certificates, selectedId],
   );
 
-  // A certificate can disappear from under the detail card — deleted here, or
-  // filtered out by a change the user just made. Only the delete case should be
-  // announced, so the flag is set by the delete handler rather than inferred.
   useEffect(() => {
     if (!selectedId || isFetching) return;
     if (!certificates.some((item) => item.id === selectedId))
@@ -219,8 +216,7 @@ export const useProfessionalCertificates = () => {
     try {
       await downloadEvidence(file);
     } catch (error) {
-      const kind =
-        error instanceof CertificateFileError ? error.kind : "generic";
+      const kind = fileRequestFailureOf(error);
       if (kind === "unauthorized")
         notify.error(t(`${CERTIFICATES}.downloadUnauthorized`));
       else if (kind === "missing")
@@ -245,13 +241,12 @@ export const useProfessionalCertificates = () => {
     handleNext,
     planOptions,
     selectedId,
-    certificates,
     handleEdit,
+    certificates,
     handleUpload,
     handleSelect,
     handleDelete,
     handleViewAll,
-    handleRetryAfterError,
     issuerOptions,
     handleDownload,
     handlePrevious,
@@ -266,6 +261,7 @@ export const useProfessionalCertificates = () => {
     handleResetFilters,
     wasSelectionDeleted,
     selectedCertificate,
+    handleRetryAfterError,
     deletingCertificateId,
     isDeleting: Boolean(deletingCertificateId),
   };

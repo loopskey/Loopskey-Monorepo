@@ -130,6 +130,8 @@ const ASSOCIATION_ERROR_TRANSLATION_KEYS: Partial<
     "associationDashboard.members.errors.cycleLengthRequired",
   [AssociationMessageCode.CYCLE_LENGTH_NOT_ALLOWED]:
     "associationDashboard.members.errors.cycleLengthNotAllowed",
+  [AssociationMessageCode.REPORTING_PERIOD_INVERTED]:
+    "associationDashboard.requirements.errors.reportingEndBeforeStart",
   [AssociationMessageCode.PUBLISH_VALIDATION_FAILED]:
     "associationDashboard.members.errors.publishValidationFailed",
 };

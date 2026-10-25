@@ -1,8 +1,13 @@
 import { AssociationEvidencePolicy } from "@prisma/client";
 import { AssociationLateSubmissionPolicy } from "@prisma/client";
-import { CreditType } from "@prisma/client";
+import { CreditType, PDUCategory } from "@prisma/client";
+import { AssociationActivityExclusionReason } from "@association/enums/association-compliance.enum";
 
-import { attributionFor } from "./compliance-attribution.util";
+import {
+  acceptedWindow,
+  attributionFor,
+  exclusionFor,
+} from "./compliance-attribution.util";
 import type { AttributionRequirement } from "./compliance-attribution.util";
 import type { AttributionAssignment } from "./compliance-attribution.util";
 import type { AttributionActivity } from "./compliance-attribution.util";
@@ -137,5 +142,100 @@ describe("attributionFor explicit requirement link", () => {
       assignment,
     );
     expect(result?.creditedAmount).toBe(10);
+  });
+});
+
+describe("attributionFor association content override", () => {
+  const categories = [
+    { id: "cat-tech", mappedCategory: PDUCategory.TECHNICAL },
+    { id: "cat-lead", mappedCategory: PDUCategory.LEADERSHIP },
+  ];
+
+  it("credits the association-set credits and category, not the typed ones", () => {
+    const result = attributionFor(
+      activity({ credits: 1, category: "TECHNICAL" }),
+      requirement({ categories }),
+      assignment,
+      { category: PDUCategory.LEADERSHIP, indicativeCredits: 7 },
+    );
+    expect(result?.creditedAmount).toBe(7);
+    expect(result?.categoryId).toBe("cat-lead");
+  });
+
+  it("falls back to the activity values when the content sets none", () => {
+    const result = attributionFor(
+      activity({ credits: 4, category: "TECHNICAL" }),
+      requirement({ categories }),
+      assignment,
+      { category: null, indicativeCredits: null },
+    );
+    expect(result?.creditedAmount).toBe(4);
+    expect(result?.categoryId).toBe("cat-tech");
+  });
+});
+
+describe("acceptedWindow", () => {
+  it("runs from the later start to the end of the grace period", () => {
+    const result = acceptedWindow(
+      requirement({ reportingStart: day("2026-03-01") }),
+      assignment,
+    );
+    expect(result.acceptsFrom).toEqual(day("2026-03-01"));
+    expect(result.acceptsUntil).toEqual(day("2026-07-14"));
+  });
+
+  it("ends at the deadline when late submissions are not accepted", () => {
+    const result = acceptedWindow(
+      requirement({
+        lateSubmissionPolicy: AssociationLateSubmissionPolicy.NOT_ACCEPTED,
+      }),
+      assignment,
+    );
+    expect(result.acceptsUntil).toEqual(DEADLINE);
+  });
+});
+
+describe("exclusionFor", () => {
+  it("is null for a countable activity", () => {
+    expect(exclusionFor(activity(), requirement(), assignment)).toBeNull();
+  });
+
+  it("reports a credit type mismatch", () => {
+    expect(
+      exclusionFor(
+        activity({ creditType: CreditType.PDU }),
+        requirement(),
+        assignment,
+      ),
+    ).toBe(AssociationActivityExclusionReason.CREDIT_TYPE_MISMATCH);
+  });
+
+  it("reports an activity outside the window", () => {
+    expect(
+      exclusionFor(
+        activity({ date: day("2025-12-31") }),
+        requirement(),
+        assignment,
+      ),
+    ).toBe(AssociationActivityExclusionReason.OUTSIDE_WINDOW);
+    expect(
+      exclusionFor(
+        activity({ date: day("2026-09-01") }),
+        requirement(),
+        assignment,
+      ),
+    ).toBe(AssociationActivityExclusionReason.OUTSIDE_WINDOW);
+  });
+
+  it("reports missing evidence when the policy requires it", () => {
+    expect(
+      exclusionFor(
+        activity({ hasEvidence: false }),
+        requirement({
+          evidencePolicy: AssociationEvidencePolicy.REQUIRED_NO_REVIEW,
+        }),
+        assignment,
+      ),
+    ).toBe(AssociationActivityExclusionReason.MISSING_EVIDENCE);
   });
 });

@@ -84,11 +84,13 @@ export const useCpdPduProgress = () => {
 
   const hasRequirements = options.length > 0;
 
-  const { data: myLearningContent = [], isLoading: isMyLearningContentLoading } =
-    API.useMyAssociationLearningContentQuery(undefined, {
-      skip: isPlansLoading || isAssociationsLoading || hasRequirements,
-      ...API.REQUIREMENT_QUERY_SUBSCRIPTION_OPTIONS,
-    });
+  const {
+    data: myLearningContent = [],
+    isLoading: isMyLearningContentLoading,
+  } = API.useMyAssociationLearningContentQuery(undefined, {
+    skip: isPlansLoading || isAssociationsLoading || hasRequirements,
+    ...API.REQUIREMENT_QUERY_SUBSCRIPTION_OPTIONS,
+  });
 
   const activeKey = R.resolveActiveKey(options, selectedKey);
   const active = R.parseRequirementKey(activeKey);
@@ -124,14 +126,18 @@ export const useCpdPduProgress = () => {
       { skip: !selectedPlanId, ...API.REQUIREMENT_QUERY_SUBSCRIPTION_OPTIONS },
     );
 
-  const { data: associationDetail, isLoading: isAssociationDetailLoading } =
-    API.useMyAssociationRequirementQuery(
-      { requirementId: selectedAssociationId ?? "" },
-      {
-        skip: !selectedAssociationId,
-        ...API.REQUIREMENT_QUERY_SUBSCRIPTION_OPTIONS,
-      },
-    );
+  const {
+    data: associationDetail,
+    isLoading: isAssociationDetailLoading,
+    isError: isAssociationDetailError,
+    refetch: refetchAssociationDetail,
+  } = API.useMyAssociationRequirementQuery(
+    { requirementId: selectedAssociationId ?? "" },
+    {
+      skip: !selectedAssociationId,
+      ...API.REQUIREMENT_QUERY_SUBSCRIPTION_OPTIONS,
+    },
+  );
 
   const { data: draftPlans = [] } = API.useMyDraftCpdPlansQuery(
     undefined,
@@ -313,41 +319,21 @@ export const useCpdPduProgress = () => {
   return {
     t,
     plans,
+    setup,
     options,
     progress,
+    editPlan,
     activeKey,
     draftPlans,
-    trackDraftPlan,
-    isActivatingPlan,
+    closeSetup,
     openSearch,
     searchOpen,
-    closeSearch,
-    selectedPlan,
-    refetchPlans,
-    planActivities,
-    selectedPlanId,
-    hasRequirements,
-    myLearningContent,
-    isMyLearningContentLoading,
-    associationDetail,
-    setSelectedKey,
-    isPlansLoading,
-    isPlansFetching,
-    isProgressLoading,
-    isProgressFetching,
-    selectedAssociation,
-    isAssociationsError,
-    isCreatingSuggestion,
-    isRequirementsLoading,
-    refetchAssociations,
-    isPlanActivitiesLoading,
-    isAssociationDetailLoading,
-    setup,
-    editPlan,
-    closeSetup,
     isDeleting,
+    closeSearch,
     addManually,
     submitSetup,
+    selectedPlan,
+    refetchPlans,
     editManually,
     useSuggested,
     isGenerating,
@@ -355,13 +341,35 @@ export const useCpdPduProgress = () => {
     requestDelete,
     confirmDelete,
     creatingCertId,
+    planActivities,
     deleteTargetId,
+    trackDraftPlan,
     cancelDuplicate,
     goToAddActivity,
+    setSelectedKey,
+    selectedPlanId,
+    isPlansLoading,
+    hasRequirements,
     generateSummary,
+    isPlansFetching,
     confirmDuplicate,
+    isActivatingPlan,
     pendingDuplicate,
+    myLearningContent,
+    associationDetail,
+    isProgressLoading,
+    isProgressFetching,
     canGenerateSummary,
+    selectedAssociation,
+    refetchAssociations,
+    isAssociationsError,
+    isCreatingSuggestion,
+    isRequirementsLoading,
+    isPlanActivitiesLoading,
+    isAssociationDetailError,
+    refetchAssociationDetail,
+    isAssociationDetailLoading,
+    isMyLearningContentLoading,
     isSubmittingPlan: isCreatingPlan || isUpdatingPlan,
   };
 };

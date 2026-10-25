@@ -10,6 +10,7 @@ import { AssociationAudienceKind } from "@prisma/client";
 import { AssociationMemberStatus } from "@prisma/client";
 import { AssociationMessageCode } from "@association/enums/association-message-code.enum";
 import { TAssociationUser } from "@association/types/association-service.types";
+import { calendarDayFloor } from "@association/utils/compliance-attribution.util";
 import { OutboxService } from "@infrastructure/outbox/outbox.service";
 import { PrismaService } from "@prisma/prisma.service";
 import { Prisma } from "@prisma/client";
@@ -339,6 +340,14 @@ export class AssociationRequirementService {
     const current = await this.require(association.id, requirementId);
 
     this.refuseReportingStartMove(current, patch.reportingStart);
+    this.refuseInvertedReportingPeriod(
+      patch.reportingStart === undefined
+        ? current.reportingStart
+        : patch.reportingStart,
+      patch.reportingEnd === undefined
+        ? current.reportingEnd
+        : patch.reportingEnd,
+    );
 
     const updated = await this.prisma.associationRequirement.update({
       where: { id: requirementId },
@@ -386,6 +395,17 @@ export class AssociationRequirementService {
       code: AssociationMessageCode.REQUIREMENT_IMMUTABLE_FIELD,
       message: "A published requirement cannot change reportingStart.",
       fields: ["reportingStart"],
+    });
+  }
+
+  private refuseInvertedReportingPeriod(start: Date | null, end: Date | null) {
+    if (!start || !end) return;
+    if (calendarDayFloor(end) >= calendarDayFloor(start)) return;
+
+    throw new BadRequestException({
+      code: AssociationMessageCode.REPORTING_PERIOD_INVERTED,
+      message: "The reporting period cannot end before it starts.",
+      fields: ["reportingEnd"],
     });
   }
 

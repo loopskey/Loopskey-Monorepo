@@ -5,16 +5,16 @@ import { loadDictionary } from "@/i18n/dictionaries";
 import { identityGraph } from "@/lib/structured-data/graph";
 import { StoreProvider } from "@/providers/rtk-provider";
 
-import LandingPopularCategories from "@modules/Landing/LandingPopularCategories";
 import LandingRoadmapShowcase from "@modules/Landing/LandingRoadmapShowcase";
-import LandingTestimonials from "@modules/Landing/LandingTestimonial";
 import LandingOrganization from "@modules/Landing/LandingOrgShowcase";
-import LandingTopicGuides from "@modules/Landing/LandingTopicGuides";
-import LandingNewFeature from "@modules/Landing/LandingNewFeature";
+import LandingHighlights from "@modules/Landing/LandingHighlights";
+import LandingAudiences from "@modules/Landing/LandingAudiences";
+import LandingFinalCta from "@modules/Landing/LandingFinalCta";
 import LandingServices from "@modules/Landing/LandingServices";
-import LandingProvider from "@modules/Landing/LandingProviderSection";
 import LandingFeatured from "@modules/Landing/LandingFeatured";
+import LandingSteps from "@modules/Landing/LandingSteps";
 import LandingHero from "@modules/Landing/LandingHero";
+import LandingFaq from "@modules/Landing/LandingFaq";
 import JsonLd from "@elements/json-ld";
 
 export const generateMetadata = bespokePageMetadata("landing", "/");
@@ -34,15 +34,15 @@ const HomePage = async ({ params }: THomePageProps) => {
         <StoreProvider>
           <main>
             <LandingHero />
+            <LandingHighlights locale={locale} />
             <LandingFeatured />
-            <LandingNewFeature locale={locale} />
-            <LandingPopularCategories />
-            <LandingTopicGuides locale={locale} />
+            <LandingSteps locale={locale} />
             <LandingServices locale={locale} />
             <LandingRoadmapShowcase locale={locale} />
-            <LandingOrganization />
-            <LandingProvider />
-            <LandingTestimonials locale={locale} />
+            <LandingOrganization locale={locale} />
+            <LandingAudiences locale={locale} />
+            <LandingFaq locale={locale} />
+            <LandingFinalCta locale={locale} />
           </main>
         </StoreProvider>
       </ClientMessages>

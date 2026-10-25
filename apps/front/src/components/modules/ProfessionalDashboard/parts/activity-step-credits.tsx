@@ -15,11 +15,14 @@ export const ActivityStepCredits = ({
   control,
   requirementOptions,
   subCategoryOptions,
+  isCreditTypeLocked,
+  isCreditValueLocked,
   onReportingYearTouched,
 }: TActivityStepCreditsProps) => (
   <div className="grid gap-5 md:grid-cols-2">
     <FloatingSelectField
       name="creditType"
+      disabled={isCreditTypeLocked}
       control={control}
       label={t(`${TRACKER}.fields.creditType`)}
       options={C.CREDIT_TYPES.map((type) => ({
@@ -33,6 +36,7 @@ export const ActivityStepCredits = ({
       step="0.5"
       type="number"
       name="creditValue"
+      readOnly={isCreditValueLocked}
       control={control}
       leftIcon={<L.Hash className="h-4 w-4" />}
       label={t(`${TRACKER}.fields.creditValue`)}

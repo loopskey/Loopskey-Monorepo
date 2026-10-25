@@ -1,76 +1,52 @@
-import { RevealOnScroll } from "@elements/reveal-scroll";
-import { loadTranslator } from "@/i18n/dictionaries";
-import { GlassCard } from "@elements/glass-card";
-
-import * as L from "lucide-react";
+import { LANDING_SERVICE_KEYS } from "@/utils/landing-sections.constant";
+import { loadDictionary } from "@/i18n/dictionaries";
+import { siteLinks } from "@/utils/site-navigation";
 
 import type { PublicLocale } from "@/lib/i18n/locale";
 
-const LandingServices = async ({ locale }: { locale: PublicLocale }) => {
-  const { t } = await loadTranslator(locale);
+import { LandingSection, LandingSectionHeading } from "./parts/LandingSection";
+import LandingActionGroup from "./parts/LandingActionGroup";
+import LandingFeatureCard from "./parts/LandingFeatureCard";
 
-  const services = [
-    { icon: L.ClipboardCheck, key: "cpdManagement" },
-    { icon: L.Globe2, key: "contentAggregation" },
-    { icon: L.UserRoundCog, key: "personalizedDashboard" },
-    { icon: L.Network, key: "professionalsConnection" },
-    { icon: L.BrainCircuit, key: "recommendations" },
-    { icon: L.Compass, key: "providerSolutions" },
-    { icon: L.BriefcaseBusiness, key: "hrAssociations" },
-    { icon: L.BarChart3, key: "dataAnalytics" },
-  ];
+const TITLE_ID = "landing-services-title";
+
+const LandingServices = async ({ locale }: { locale: PublicLocale }) => {
+  const copy = (await loadDictionary(locale)).landing.services;
 
   return (
-    <section className="relative overflow-x-clip px-4 py-10 sm:px-6 lg:px-8">
-      <div className="pointer-events-none absolute inset-0 -z-10"></div>
+    <LandingSection labelledBy={TITLE_ID}>
+      <LandingSectionHeading
+        id={TITLE_ID}
+        eyebrow={copy.badge}
+        title={copy.title}
+      />
 
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <RevealOnScroll direction="up">
-          <div className="mx-auto max-w-3xl text-center">
-            <div className="mb-4 inline-flex items-center gap-2 rounded-full border px-4 py-2 text-sm font-bold text-primary shadow-sm">
-              {t("landing.services.badge")}
-            </div>
+      <ul className="mt-12 grid gap-5 sm:grid-cols-2 xl:grid-cols-4">
+        {LANDING_SERVICE_KEYS.map((key) => (
+          <li key={key} className="flex">
+            <LandingFeatureCard title={copy.items[key].title}>
+              <p className="mt-2 text-sm leading-6 text-muted-foreground">
+                {copy.items[key].text}
+              </p>
+            </LandingFeatureCard>
+          </li>
+        ))}
+      </ul>
 
-            <h2 className="text-3xl font-bold tracking-tight sm:text-4xl lg:text-5xl">
-              {t("landing.services.title")}
-            </h2>
-
-            <p className="mt-4 text-sm leading-7 text-muted-foreground sm:text-base">
-              {t("landing.services.subtitle")}
-            </p>
-          </div>
-        </RevealOnScroll>
-
-        <div className="mt-10 grid gap-5 md:grid-cols-2 xl:grid-cols-4">
-          {services.map((service, index) => {
-            const Icon = service.icon;
-            return (
-              <RevealOnScroll
-                key={service.key}
-                delay={index * 80}
-                direction={index % 2 === 0 ? "left" : "right"}
-              >
-                <GlassCard className="group h-full p-6" glow={false}>
-                  <div className="relative z-10">
-                    <div className="mb-5 flex h-13 w-13 items-center justify-center rounded-md bg-primary/10 text-primary transition-all duration-300 group-hover:scale-110 group-hover:bg-primary group-hover:text-primary-foreground">
-                      <Icon className="h-6 w-6" />
-                    </div>
-
-                    <h3 className="text-lg font-bold">
-                      {t(`landing.services.items.${service.key}.title`)}
-                    </h3>
-
-                    <p className="mt-3 text-sm leading-7 text-muted-foreground">
-                      {t(`landing.services.items.${service.key}.text`)}
-                    </p>
-                  </div>
-                </GlassCard>
-              </RevealOnScroll>
-            );
-          })}
-        </div>
-      </div>
-    </section>
+      <LandingActionGroup
+        align="center"
+        className="mt-10"
+        actions={[
+          {
+            kind: "link",
+            key: "services",
+            href: siteLinks.services,
+            label: copy.viewAll,
+            variant: "outline",
+          },
+        ]}
+      />
+    </LandingSection>
   );
 };
 

@@ -1,219 +1,229 @@
-import { benefits, milestones, statusConfig } from "@/utils/constant";
+import { ROADMAP_BENEFIT_KEYS } from "@/utils/landing-sections.constant";
+import { ROADMAP_SAMPLE_HOURS } from "@/utils/landing-sections.constant";
+import { ROADMAP_SAMPLE_STEPS } from "@/utils/landing-sections.constant";
 import { loadTranslator } from "@/i18n/dictionaries";
-import { RevealOnScroll } from "@elements/reveal-scroll";
-import { GlassCard } from "@elements/glass-card";
-import { Button } from "@ui/button";
+import { siteLinks } from "@/utils/site-navigation";
+import { ArrowRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-import Link from "@elements/localized-link";
-
-import * as L from "lucide-react";
-
+import type { RoadmapSampleStatus } from "@/utils/landing-sections.constant";
+import type { RoadmapSampleStep } from "@/utils/landing-sections.constant";
 import type { PublicLocale } from "@/lib/i18n/locale";
+
+import { LandingSection, LandingSectionHeading } from "./parts/LandingSection";
+import LandingActionGroup from "./parts/LandingActionGroup";
+import LandingSamplePanel from "./parts/LandingSamplePanel";
+
+const TITLE_ID = "landing-roadmap-title";
+const PREVIEW_TITLE_ID = "landing-roadmap-preview-title";
+
+const MARKER_CLASS_NAME: Record<RoadmapSampleStatus, string> = {
+  done: "border-primary bg-primary text-primary-foreground",
+  active: "border-primary/25 bg-card text-primary ring-4 ring-accent",
+  upcoming: "border-border bg-card text-muted-foreground",
+};
+
+const BADGE_CLASS_NAME: Record<RoadmapSampleStatus, string> = {
+  done: "bg-accent text-primary",
+  active: "bg-brand-orange/15 text-brand-orange-text",
+  upcoming: "bg-muted text-muted-foreground",
+};
+
+const DATE_FORMAT: Record<
+  NonNullable<RoadmapSampleStep["date"]>["style"],
+  Intl.DateTimeFormatOptions
+> = {
+  dayMonth: { month: "short", day: "numeric", timeZone: "UTC" },
+  month: { month: "long", timeZone: "UTC" },
+};
 
 const LandingRoadmapShowcase = async ({ locale }: { locale: PublicLocale }) => {
   const { t } = await loadTranslator(locale);
+  const numbers = new Intl.NumberFormat(locale);
+  const percent = new Intl.NumberFormat(locale, { style: "percent" });
+  const formatDate = (date: NonNullable<RoadmapSampleStep["date"]>) =>
+    new Intl.DateTimeFormat(locale, DATE_FORMAT[date.style]).format(date.value);
+
+  const stepMeta = (step: RoadmapSampleStep) =>
+    t(
+      `landing.roadmapShowcase.preview.steps.${step.key}.meta`,
+      step.date
+        ? { date: formatDate(step.date) }
+        : { count: numbers.format(step.hours ?? 0) },
+    );
+
+  const nextStep = ROADMAP_SAMPLE_STEPS.find(
+    (step) => step.status === "active",
+  );
+  const summary = [
+    {
+      key: "hours",
+      value: `${numbers.format(ROADMAP_SAMPLE_HOURS.completed)}/${numbers.format(ROADMAP_SAMPLE_HOURS.target)}`,
+    },
+    {
+      key: "progress",
+      value: percent.format(
+        ROADMAP_SAMPLE_HOURS.completed / ROADMAP_SAMPLE_HOURS.target,
+      ),
+    },
+    {
+      key: "next",
+      value: nextStep?.date ? formatDate(nextStep.date) : "",
+    },
+  ];
+
+  const fromRole = t("landing.roadmapShowcase.preview.fromRole");
+  const toRole = t("landing.roadmapShowcase.preview.toRole");
 
   return (
-    <section className="relative overflow-x-clip px-4 py-16 sm:px-6 lg:px-8">
-      <div className="pointer-events-none absolute inset-0 -z-10"></div>
+    <LandingSection labelledBy={TITLE_ID} tone="muted">
+      <LandingSectionHeading
+        id={TITLE_ID}
+        eyebrow={t("landing.roadmapShowcase.badge")}
+        title={t("landing.roadmapShowcase.title")}
+      />
 
-      <div className="mx-auto grid max-w-7xl items-center gap-10 lg:grid-cols-[0.92fr_1.08fr] px-4 sm:px-6 lg:px-8">
-        <RevealOnScroll direction="left">
-          <div>
-            <div className="mb-5 inline-flex items-center gap-2 rounded-full border px-4 py-2 text-sm font-bold text-primary shadow-sm">
-              <L.Compass className="h-4 w-4" />
-              {t("landing.roadmapShowcase.badge")}
-            </div>
+      <div className="mt-12 grid items-center gap-10 lg:grid-cols-[minmax(0,0.85fr)_minmax(0,1fr)] lg:gap-16">
+        <div className="min-w-0">
+          <h3 className="text-balance text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
+            {t("landing.roadmapShowcase.headingLead")}{" "}
+            <span className="text-primary">
+              {t("landing.roadmapShowcase.headingHighlight")}
+            </span>
+          </h3>
+          <p className="mt-4 max-w-xl text-base leading-7 text-muted-foreground sm:text-lg">
+            {t("landing.roadmapShowcase.description")}
+          </p>
 
-            <h2 className="text-3xl font-bold tracking-tight text-foreground sm:text-4xl lg:text-5xl">
-              {t("landing.roadmapShowcase.title")}{" "}
-              <span className="text-primary">
-                {t("landing.roadmapShowcase.highlight")}
+          <ul className="mt-6 grid gap-3 sm:grid-cols-2">
+            {ROADMAP_BENEFIT_KEYS.map((key) => (
+              <li
+                key={key}
+                className="flex items-center gap-3 rounded-xl border bg-card px-4 py-3 text-sm font-medium text-foreground shadow-sm"
+              >
+                <span
+                  aria-hidden
+                  className="size-2 shrink-0 rounded-full bg-brand-orange"
+                />
+                {t(`landing.roadmapShowcase.benefits.${key}`)}
+              </li>
+            ))}
+          </ul>
+
+          <LandingActionGroup
+            className="mt-8"
+            actions={[
+              {
+                kind: "session",
+                key: "roadmap",
+                intent: "roadmap",
+                variant: "primary",
+              },
+              {
+                kind: "link",
+                key: "learn-more",
+                href: siteLinks.professionals,
+                label: t("landing.roadmapShowcase.learnMore"),
+                variant: "outline",
+              },
+            ]}
+          />
+        </div>
+
+        <LandingSamplePanel
+          titleId={PREVIEW_TITLE_ID}
+          eyebrow={t("landing.roadmapShowcase.preview.goalLabel")}
+          title={t("landing.roadmapShowcase.preview.title")}
+          sampleLabel={t("landing.sample.label")}
+          subtitle={
+            <p className="mt-1 flex flex-wrap items-center gap-1.5 text-sm text-muted-foreground">
+              <span className="sr-only">
+                {t("landing.roadmapShowcase.preview.careerPath", {
+                  from: fromRole,
+                  to: toRole,
+                })}
               </span>
-            </h2>
-
-            <p className="mt-5 max-w-2xl text-base leading-8 text-muted-foreground sm:text-lg">
-              {t("landing.roadmapShowcase.description")}
+              <span aria-hidden>{fromRole}</span>
+              <ArrowRight aria-hidden className="size-3.5" />
+              <span aria-hidden className="font-medium text-foreground">
+                {toRole}
+              </span>
             </p>
-
-            <div className="mt-7 grid gap-3">
-              {benefits.map((item, index) => (
-                <RevealOnScroll
-                  key={item}
-                  delay={index * 90}
-                  direction={index % 2 === 0 ? "left" : "right"}
+          }
+        >
+          <ol
+            aria-label={t("landing.roadmapShowcase.preview.stepsLabel")}
+            className="mt-6 space-y-4 border-t pt-6"
+          >
+            {ROADMAP_SAMPLE_STEPS.map((step, index) => (
+              <li
+                key={step.key}
+                className="relative grid grid-cols-[3rem_minmax(0,1fr)] gap-3 sm:grid-cols-[4rem_minmax(0,1fr)] sm:gap-4"
+              >
+                {index < ROADMAP_SAMPLE_STEPS.length - 1 ? (
+                  <span
+                    aria-hidden
+                    className={cn(
+                      "absolute -bottom-4 left-6 top-12 w-px sm:left-8 sm:top-16",
+                      step.status === "upcoming"
+                        ? "bg-border"
+                        : "bg-primary/60",
+                    )}
+                  />
+                ) : null}
+                <span
+                  aria-hidden
+                  className={cn(
+                    "relative flex size-12 items-center justify-center rounded-lg border text-base font-semibold sm:size-16",
+                    MARKER_CLASS_NAME[step.status],
+                  )}
                 >
-                  <div className="flex items-start gap-3 rounded-md border p-4 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-primary/25 hover:bg-primary/5">
-                    <div className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
-                      <L.Check className="h-4 w-4" />
-                    </div>
-
-                    <p className="text-sm font-medium leading-6 text-foreground">
-                      {t(`landing.roadmapShowcase.benefits.${item}`)}
+                  {index + 1}
+                </span>
+                <div
+                  className={cn(
+                    "flex min-w-0 flex-col gap-2 rounded-xl border p-4 shadow-sm sm:flex-row sm:items-start sm:justify-between",
+                    step.status === "active" ? "bg-muted" : "bg-card",
+                  )}
+                >
+                  <div className="min-w-0">
+                    <p className="font-semibold text-foreground">
+                      {t(
+                        `landing.roadmapShowcase.preview.steps.${step.key}.title`,
+                      )}
+                    </p>
+                    <p className="mt-1 text-sm text-muted-foreground">
+                      {stepMeta(step)}
                     </p>
                   </div>
-                </RevealOnScroll>
-              ))}
-            </div>
-
-            <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-              <Button asChild radius="xl" size="lg">
-                <Link href="/contact">
-                  {t("landing.roadmapShowcase.primaryAction")}
-                  <L.ArrowRight className="h-4 w-4" />
-                </Link>
-              </Button>
-
-              <Button asChild radius="xl" variant="outline" size="lg">
-                <Link href="/services">
-                  {t("landing.roadmapShowcase.secondaryAction")}
-                </Link>
-              </Button>
-            </div>
-          </div>
-        </RevealOnScroll>
-
-        <RevealOnScroll direction="right" delay={120}>
-          <GlassCard className="relative overflow-hidden p-5 md:p-7">
-            <div className="mb-6 flex flex-col justify-between gap-4 border-b border-border pb-5 sm:flex-row sm:items-center">
-              <div>
-                <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">
-                  {t("landing.roadmapShowcase.preview.eyebrow")}
-                </p>
-                <h3 className="mt-2 text-xl font-bold text-foreground">
-                  {t("landing.roadmapShowcase.preview.title")}
-                </h3>
-              </div>
-
-              <span className="inline-flex w-fit items-center gap-2 rounded-full border border-primary/20 bg-primary/10 px-3 py-2 text-[10px] font-bold uppercase tracking-widest text-primary">
-                <span className="h-2 w-2 rounded-full bg-primary shadow-[0_0_0_4px_color-mix(in_oklab,var(--primary)_14%,transparent)]" />
-                {t("landing.roadmapShowcase.preview.status")}
-              </span>
-            </div>
-
-            <div className="relative space-y-5">
-              <div className="absolute bottom-8 left-7 top-8 w-px bg-border md:left-8" />
-
-              {milestones.map((milestone, index) => {
-                const Icon = milestone.icon;
-                const status = statusConfig[milestone.status];
-                const StatusIcon = status.icon;
-                const isLast = index === milestones.length - 1;
-                return (
-                  <RevealOnScroll
-                    key={milestone.key}
-                    delay={index * 110}
-                    direction="right"
+                  <span
+                    className={cn(
+                      "w-fit shrink-0 rounded-full px-2.5 py-1 text-xs font-bold uppercase tracking-wider",
+                      BADGE_CLASS_NAME[step.status],
+                    )}
                   >
-                    <div className="relative grid grid-cols-[3.5rem_1fr] gap-4">
-                      {!isLast && (
-                        <div
-                          className={cn(
-                            "absolute left-7 top-12 h-[calc(100%+1.25rem)] w-px md:left-8",
-                            status.lineClassName,
-                          )}
-                        />
-                      )}
+                    {t(`landing.roadmapShowcase.preview.status.${step.status}`)}
+                  </span>
+                </div>
+              </li>
+            ))}
+          </ol>
 
-                      <div
-                        className={cn(
-                          "relative z-10 flex h-14 w-14 items-center justify-center rounded-md border text-sm transition-all duration-300 md:h-16 md:w-16",
-                          status.circleClassName,
-                          milestone.status === "active" && "animate-pulse",
-                        )}
-                      >
-                        {milestone.status === "done" ? (
-                          <StatusIcon className="h-5 w-5" />
-                        ) : (
-                          <Icon className="h-5 w-5" />
-                        )}
-                      </div>
-
-                      <div
-                        className={cn(
-                          "rounded-lg border p-4 shadow-sm transition-all duration-300",
-                          milestone.status === "active"
-                            ? "border-primary/30 bg-primary/5"
-                            : "border-border hover:border-primary/20 hover:bg-primary/5",
-                        )}
-                      >
-                        <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-start">
-                          <div>
-                            <h4 className="font-bold text-foreground">
-                              {t(
-                                `landing.roadmapShowcase.milestones.${milestone.key}.title`,
-                              )}
-                            </h4>
-
-                            <p className="mt-2 text-sm leading-6 text-muted-foreground">
-                              {t(
-                                `landing.roadmapShowcase.milestones.${milestone.key}.meta`,
-                              )}
-                            </p>
-                          </div>
-
-                          <span
-                            className={cn(
-                              "inline-flex w-fit items-center gap-1.5 rounded-full px-3 py-1.5 text-[10px] font-bold uppercase tracking-widest",
-                              milestone.status === "done" &&
-                                "bg-primary/10 text-primary",
-                              milestone.status === "active" &&
-                                "bg-brand-orange/10 text-brand-orange-text",
-                              milestone.status === "upcoming" &&
-                                "bg-muted text-muted-foreground",
-                            )}
-                          >
-                            {milestone.status === "done" && (
-                              <L.Check className="h-3.5 w-3.5" />
-                            )}
-                            {milestone.status === "active" && (
-                              <L.Sparkles className="h-3.5 w-3.5" />
-                            )}
-                            {milestone.status === "upcoming" && (
-                              <L.Clock3 className="h-3.5 w-3.5" />
-                            )}
-
-                            {t(
-                              `landing.roadmapShowcase.status.${milestone.status}`,
-                            )}
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-                  </RevealOnScroll>
-                );
-              })}
-            </div>
-
-            <div className="mt-7 grid gap-4 rounded-lg border border-primary/20 bg-primary/5 p-5 sm:grid-cols-3">
-              <div>
-                <p className="text-xs text-muted-foreground">
-                  {t("landing.roadmapShowcase.metrics.cpd")}
-                </p>
-                <p className="mt-1 text-2xl font-bold text-foreground">40</p>
+          <dl className="mt-6 grid gap-4 rounded-xl bg-muted p-5 sm:grid-cols-3">
+            {summary.map((item) => (
+              <div key={item.key}>
+                <dt className="text-xs text-muted-foreground">
+                  {t(`landing.roadmapShowcase.preview.summary.${item.key}`)}
+                </dt>
+                <dd className="mt-1 text-2xl font-bold text-foreground">
+                  {item.value}
+                </dd>
               </div>
-
-              <div>
-                <p className="text-xs text-muted-foreground">
-                  {t("landing.roadmapShowcase.metrics.progress")}
-                </p>
-                <p className="mt-1 text-2xl font-bold text-foreground">62%</p>
-              </div>
-
-              <div>
-                <p className="text-xs text-muted-foreground">
-                  {t("landing.roadmapShowcase.metrics.next")}
-                </p>
-                <p className="mt-1 text-2xl font-bold text-foreground">
-                  Jul 12
-                </p>
-              </div>
-            </div>
-          </GlassCard>
-        </RevealOnScroll>
+            ))}
+          </dl>
+        </LandingSamplePanel>
       </div>
-    </section>
+    </LandingSection>
   );
 };
 

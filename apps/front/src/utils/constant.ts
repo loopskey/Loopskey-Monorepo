@@ -4,12 +4,7 @@ export {
   HERO_SEARCH_MIN_LENGTH,
   HERO_CATEGORY_TAKE,
   getKindHrefPrefix,
-  HERO_SPLIT_STAGGER_MS,
-  HERO_SPLIT_DURATION_S,
   SEARCH_DEBOUNCE_MS,
-  fallbackStats,
-  fallbackCompliance,
-  fallbackFeatures,
 } from "./landing-public.constant";
 
 import { TSelectedRange } from "@/types/professional-dashboard.types";
@@ -38,60 +33,6 @@ export const enumOptions = <T extends Record<string, string>>(
     label: t(`${labelPrefix}.${value}`, {}, value.replace(/_/g, " ")),
   }));
 };
-
-// =============== Landing ================
-
-// ============== Roadmap Landing ================
-export const milestones = [
-  {
-    icon: L.Target,
-    key: "systemsEngineering",
-    status: "done",
-  },
-  {
-    icon: L.CalendarDays,
-    key: "incoseSymposium",
-    status: "active",
-  },
-  {
-    icon: L.Sparkles,
-    key: "riskReliability",
-    status: "upcoming",
-  },
-  {
-    icon: L.Award,
-    key: "charteredEngineer",
-    status: "upcoming",
-  },
-] as const;
-
-export const benefits = [
-  "aiSequencing",
-  "eventSlotting",
-  "progressTracking",
-  "adaptiveRoadmap",
-] as const;
-
-export const statusConfig = {
-  done: {
-    icon: L.Check,
-    circleClassName: "bg-primary text-primary-foreground border-primary",
-    lineClassName: "bg-primary",
-  },
-  active: {
-    icon: L.LoaderCircle,
-    circleClassName:
-      "bg-background text-primary border-primary shadow-[0_0_0_6px_color-mix(in_oklab,var(--primary)_12%,transparent)]",
-    lineClassName: "bg-primary/50",
-  },
-  upcoming: {
-    icon: L.Circle,
-    circleClassName: "bg-background text-muted-foreground border-border",
-    lineClassName: "bg-border",
-  },
-} as const;
-
-// ============= Landing Org ===============
 
 // ============= Charts =================
 export const CHART_COLORS = [

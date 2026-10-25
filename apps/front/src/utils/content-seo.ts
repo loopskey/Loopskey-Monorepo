@@ -4,15 +4,16 @@ import { ContentSeoMessageCode } from "@loopskey/api-contracts/error-codes";
 import { IMAGE_UPLOAD_DEFAULTS } from "@loopskey/api-contracts/upload";
 import { isAcceptedImageFile } from "@loopskey/api-contracts/upload";
 import { CONTENT_SEO_LIMITS } from "@loopskey/api-contracts/validation";
-import { publicPagePath } from "@/lib/content-catalog/public-path";
+import { fetchWithSession } from "@/utils/file-request.util";
 import { fromApiLanguage } from "@/lib/i18n/locale";
+import { publicPagePath } from "@/lib/content-catalog/public-path";
 import { localizePath } from "@/lib/i18n/locale";
 import { API_ORIGIN } from "@/utils/api-origin.util";
 
 import type { TGraphQLBaseQueryError } from "@/types/rtk.types";
 import type { TContentSeoImageUpload } from "@/types/content-seo.types";
-import type { AppLanguage } from "@/lib/graphql/base";
 import type { PublicPageKind } from "@/lib/content-catalog/public-path";
+import type { AppLanguage } from "@/lib/graphql/base";
 
 export const SEO_TITLE_MAX_LENGTH = CONTENT_SEO_LIMITS.titleMax;
 
@@ -63,11 +64,10 @@ export const uploadSocialImage = async (
   const body = new FormData();
   body.append("file", file);
 
-  const response = await fetch(contentSocialImageUploadUrl(API_ORIGIN), {
-    method: "POST",
-    credentials: "include",
-    body,
-  });
+  const response = await fetchWithSession(
+    contentSocialImageUploadUrl(API_ORIGIN),
+    { method: "POST", body },
+  );
 
   if (!response.ok)
     throw new ContentSeoUploadError(await codeOfResponse(response));

@@ -6,9 +6,9 @@ import { CreditType, PduCategory, PduSource } from "@/lib/graphql/base";
 import { useRouter, useSearchParams } from "next/navigation";
 import { usePduEvidenceUpload } from "@/hooks/usePduEvidenceUpload";
 import { PduCompletionStatus } from "@/lib/graphql/base";
+import { fileRequestErrorKey } from "@/utils/file-request.util";
 import { pduActivityErrorKey } from "@/utils/pdu-activity-error.util";
 import { getAuthErrorCode } from "@/utils/graphql-error.util";
-import { reportingYearOf } from "@/utils/completion-date.util";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { useI18n } from "@/hooks/useI18n";
@@ -16,6 +16,7 @@ import { notify } from "@/hooks/notify";
 
 import * as CpdAPI from "@/lib/rtk/endpoints/cpd-plan.api";
 import * as API from "@/lib/rtk/endpoints/professional.api";
+import * as CD from "@/utils/completion-date.util";
 import * as SC from "@/lib/validations/pdu-activity.schema";
 import * as C from "@/utils/pdu.constant";
 import * as R from "@/utils/professional-requirement.helper";
@@ -53,7 +54,7 @@ const defaultValues: SC.TPduActivityFormInput = {
 };
 
 export const useProfessionalAddActivity = () => {
-  const { t } = useI18n();
+  const { t, language } = useI18n();
   const router = useRouter();
   const searchParams = useSearchParams();
   const activityId = searchParams?.get("id") ?? null;
@@ -229,6 +230,52 @@ export const useProfessionalAddActivity = () => {
   }, [form, requestedContent, requestedDetail]);
 
   const dateCompleted = form.watch("dateCompleted");
+  const requirementValue = form.watch("requirement");
+  const selectedLink = R.parseRequirementKey(requirementValue);
+  const selectedAssociation =
+    selectedLink?.source === "ASSOCIATION"
+      ? (associationRequirements.find(
+          (requirement) => requirement.requirementId === selectedLink.id,
+        ) ?? null)
+      : null;
+
+  const dateBounds = CD.completionDateBounds(
+    selectedAssociation?.acceptsFrom,
+    selectedAssociation?.acceptsUntil,
+  );
+
+  const isCreditValueLocked =
+    Boolean(selectedAssociation) &&
+    selectedAssociation?.requirementId === requestedAssociationId &&
+    requestedContent?.indicativeCredits != null;
+
+  useEffect(() => {
+    if (!selectedAssociation) return;
+    form.setValue("creditType", selectedAssociation.creditType, {
+      shouldValidate: true,
+    });
+  }, [selectedAssociation, form]);
+
+  const dateWindowError = (value: string) => {
+    if (!selectedAssociation || CD.isWithinCompletionBounds(value, dateBounds))
+      return null;
+    const until = CD.formatCalendarDate(dateBounds.max, language);
+    return dateBounds.min
+      ? t("contentDetails.markCompleted.dateOutsideWindow", {
+          from: CD.formatCalendarDate(dateBounds.min, language),
+          until,
+        })
+      : t("contentDetails.markCompleted.dateAfterWindow", { until });
+  };
+
+  const rejectDateOutsideWindow = (value: string) => {
+    const message = dateWindowError(value);
+    if (!message) return false;
+    form.setError("dateCompleted", { message });
+    notify.error(message);
+    setStep(1);
+    return true;
+  };
   const category = form.watch("category");
   const activityType = form.watch("activityType");
 
@@ -250,7 +297,7 @@ export const useProfessionalAddActivity = () => {
 
   useEffect(() => {
     if (reportingYearTouched.current || !dateCompleted) return;
-    const derived = reportingYearOf(dateCompleted);
+    const derived = CD.reportingYearOf(dateCompleted);
     if (Number.isFinite(derived)) form.setValue("reportingYear", derived);
   }, [dateCompleted, form]);
 
@@ -277,6 +324,8 @@ export const useProfessionalAddActivity = () => {
   const goNext = async () => {
     const isStepValid = await form.trigger(SC.PDU_STEP_FIELDS[step]);
     if (!isStepValid) return;
+    if (step === 2 && rejectDateOutsideWindow(form.getValues("dateCompleted")))
+      return;
     setStep((previous) => Math.min(C.PDU_WIZARD_LAST_STEP, previous + 1));
   };
 
@@ -310,13 +359,16 @@ export const useProfessionalAddActivity = () => {
       setStage("complete");
       setIsSubmitted(true);
       notify.success(t(successKey));
-    } catch {
+    } catch (error: unknown) {
       setStage("upload-failed");
-      notify.error(t(`${TRACKER}.evidence.uploadFailed`));
+      notify.error(
+        `${t(`${TRACKER}.evidence.uploadFailed`)} ${t(fileRequestErrorKey(error))}`,
+      );
     }
   };
 
   const onSubmit = form.handleSubmit(async (values) => {
+    if (rejectDateOutsideWindow(values.dateCompleted)) return;
     setStage("saving");
     const link = R.parseRequirementKey(values.requirement);
     const planId = link?.source === "PLAN" ? link.id : null;
@@ -446,6 +498,9 @@ export const useProfessionalAddActivity = () => {
     goBack,
     goToStep,
     onSubmit,
+    dateBounds,
+    isCreditValueLocked,
+    isCreditTypeLocked: Boolean(selectedAssociation),
     isEditing,
     isRemoving,
     isUploading,

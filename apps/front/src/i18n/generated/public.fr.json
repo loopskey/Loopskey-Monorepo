@@ -184,6 +184,14 @@
     "delete": "Supprimer",
     "edit": "Modifier",
     "english": "Anglais",
+    "fileRequest": {
+      "generic": "Le fichier n'a pas pu être traité. Réessayez.",
+      "missing": "Ce fichier n'est plus disponible.",
+      "network": "Le téléversement n'a pas pu joindre le serveur. Vérifiez votre connexion et réessayez.",
+      "rejected": "Le serveur n'a pas accepté ce fichier. Vérifiez son type et sa taille.",
+      "tooLarge": "Le fichier dépasse la taille acceptée par le serveur.",
+      "unauthorized": "Votre session a expiré. Reconnectez-vous, puis réessayez."
+    },
     "free": "Gratuit",
     "french": "Français",
     "joinAs": {
@@ -576,6 +584,8 @@
       "alreadyCompleted": "Vous avez déjà marqué ce contenu comme terminé. L'enregistrement mettra à jour l'activité existante.",
       "button": "Marquer comme terminé",
       "completedButton": "Terminé",
+      "dateAfterWindow": "Choisissez une date au plus tard le {{until}} pour cette exigence.",
+      "dateOutsideWindow": "Choisissez une date entre le {{from}} et le {{until}} pour cette exigence.",
       "description": "Vérifiez les détails et enregistrez cette activité d'apprentissage comme terminée.",
       "errors": {
         "contentNotAvailable": "Ce contenu ne vous est plus proposé par votre association : il ne peut pas être marqué comme terminé.",
@@ -611,13 +621,22 @@
         "default": "{{association}} recommande ce contenu. Nous avons choisi votre première exigence avec elle — vous pouvez la changer.",
         "suggested": "Suggéré car {{association}} recommande ce contenu."
       },
+      "requirementPanel": {
+        "countsToward": "Compte pour {{name}} · {{association}}",
+        "locked": "Les champs définis par {{association}} sont verrouillés.",
+        "target": "Exigence : {{total}} {{credit}}",
+        "window": "Accepte les achèvements datés du {{from}} au {{until}}",
+        "windowOpen": "Accepte les achèvements datés à partir du {{from}}"
+      },
+      "retryUpload": "Réessayer le téléversement",
       "save": "Enregistrer comme terminé",
       "success": {
         "counted": "Comptabilisé pour {{name}}.",
         "review": "Envoyé à {{association}} pour révision.",
         "saved": "Enregistré dans vos activités."
       },
-      "title": "Marquer comme terminé"
+      "title": "Marquer comme terminé",
+      "uploadFailedSaved": "Votre achèvement est enregistré, mais la preuve n'a pas été téléversée. {{reason}}"
     },
     "messages": {
       "actionFailed": "L’action a échoué. Veuillez réessayer.",
@@ -967,6 +986,13 @@
     "termsOfService": "Conditions d'utilisation"
   },
   "landing": {
+    "actions": {
+      "buildRoadmap": "Créer ma feuille de route",
+      "createAccount": "Créer un compte gratuit",
+      "dashboard": "Accéder à votre tableau de bord",
+      "getStarted": "Commencer",
+      "roadmapForProfessionals": "Feuilles de route pour les professionnels"
+    },
     "hero": {
       "badge": "Apprentissage professionnel propulsé par l’IA",
       "categories": {
@@ -982,11 +1008,11 @@
       },
       "categoryResults": "Résultats par catégorie",
       "clear": "Effacer",
-      "dashboardCta": "Accéder au tableau de bord",
       "exploreButton": "Explorer",
+      "exploreLearning": "Explorer les contenus",
       "exploreTitle": "Explorer par catégorie",
       "noResults": "Aucun contenu correspondant trouvé. Essayez un autre mot-clé ou une autre catégorie.",
-      "primaryCta": "Explorer les contenus",
+      "planNote": "Fonctionnalités essentielles gratuites pour les professionnels",
       "resultMeta": {
         "course": "Cours",
         "episodes": "{{count}} épisodes",
@@ -994,15 +1020,16 @@
         "minutes": "{{count}} min",
         "videos": "{{count}} vidéos"
       },
+      "sampleCard": {
+        "credits": "{{earned}} crédits sur {{total}}",
+        "title": "Project Management Professional"
+      },
       "searchPlaceholder": "Rechercher des cours, événements, podcasts et chaînes YouTube...",
       "searchResults": "Résultats de recherche",
-      "secondaryCta": "Créer un compte",
       "selectedCategory": "Catégorie sélectionnée",
-      "subtitleLine1": "Votre parcours, votre choix — l’IA de LoopsKey,",
-      "subtitleLine2": "adaptée à vos objectifs.",
-      "titleLine1": "Votre parcours de",
-      "titleLine2": "développement professionnel",
-      "titleLine3": "au même endroit",
+      "subtitle": "Explorez des cours en ligne, des événements et des podcasts, gérez vos certifications et suivez vos crédits — sur une seule plateforme propulsée par l’IA.",
+      "titleHighlight": "réunis au même endroit",
+      "titleLead": "Votre apprentissage et vos certifications,",
       "viewAll": "Tout voir",
       "viewItem": "Voir"
     },
@@ -1057,101 +1084,8 @@
       "viewAll": "Voir tout le contenu",
       "viewDetails": "Voir les détails"
     },
-    "organization": {
-      "compliance": {
-        "atRisk": "À risque",
-        "compliant": "Conformes",
-        "nonCompliant": "Non conformes"
-      },
-      "dashboard": {
-        "complianceTitle": "Conformité CPD par équipe",
-        "eyebrow": "Vue d'ensemble de l'équipe",
-        "status": "En direct",
-        "title": "Équipe ingénierie · T3"
-      },
-      "description": "Offrez à chaque membre de l'équipe une feuille de route personnalisée, prouvez la conformité CPD en un clic et transformez l'apprentissage en résultats mesurables.",
-      "eyebrow": "Pour les organisations",
-      "features": {
-        "cpdCompliance": "Conformité CPD automatisée",
-        "learningAssignments": "Affectations intelligentes",
-        "skillAnalytics": "Analyse des compétences",
-        "teamProgress": "Progression d'équipe en un coup d'œil"
-      },
-      "primaryAction": "Réserver une consultation",
-      "secondaryAction": "Explorer les services",
-      "stats": {
-        "avgGrowth": "Croissance moyenne",
-        "cpdCompliant": "Conformes CPD",
-        "teamMembers": "Membres de l'équipe"
-      },
-      "title": "Construisez une main-d'œuvre qui progresse durablement",
-      "topics": {
-        "aiRoadmaps": "Feuilles de route IA",
-        "compliance": "Formation conformité",
-        "leadership": "Compétences leadership"
-      }
-    },
-    "popularCategories": {
-      "badge": "Catégories populaires",
-      "courses": "Cours",
-      "events": "Événements",
-      "itemsCount": "{{count}} éléments",
-      "podcasts": "Podcasts",
-      "subtitle": "Explorez les catégories les plus performantes selon les notes, les avis et l’activité d’apprentissage sur LoopsKey.",
-      "title": "Découvrez ce que les professionnels apprennent",
-      "youtube": "YouTube"
-    },
-    "provider": {
-      "benefits": {
-        "analytics": {
-          "description": "Suivez les impressions, inscriptions et l'engagement des apprenants grâce à un tableau de bord clair.",
-          "title": "Analyses en temps réel"
-        },
-        "growAudience": {
-          "description": "Fidélisez des apprenants réguliers et transformez des participants ponctuels en communauté.",
-          "title": "Développer votre audience"
-        },
-        "promoteEvents": {
-          "description": "Publiez des cours, conférences et webinaires auprès d'une audience mondiale de professionnels qualifiés.",
-          "title": "Promouvoir vos événements"
-        },
-        "reachPeople": {
-          "description": "L'IA associe vos offres aux apprenants qui construisent activement des feuilles de route dans votre domaine.",
-          "title": "Atteindre les bonnes personnes"
-        }
-      },
-      "dashboard": {
-        "analyticsDescription": "Comprenez les vues, l'intérêt, les inscriptions et la dynamique de vos contenus au même endroit.",
-        "analyticsTitle": "Données de performance claires",
-        "demoData": "Données démo",
-        "eyebrow": "Console de croissance fournisseur",
-        "fallbackProvider": "Espace fournisseur",
-        "funnelDescription": "Suivez comment votre contenu passe de la découverte à l'inscription.",
-        "funnelTitle": "Performance des campagnes",
-        "matchingDescription": "Vos événements apparaissent là où les professionnels planifient déjà leur prochaine étape.",
-        "matchingTitle": "Correspondance basée sur l'IA",
-        "noTopEvent": "Aucun événement principal pour le moment",
-        "rating": "Note",
-        "registrations": "Inscriptions",
-        "revenue": "Revenus",
-        "status": "En direct",
-        "topEventTitle": "Événement le plus performant"
-      },
-      "description": "Les organismes de formation, associations et éducateurs font confiance à LoopsKey pour présenter leurs meilleurs contenus à des apprenants motivés.",
-      "eyebrow": "Pour les fournisseurs de contenu",
-      "funnel": {
-        "convert": "Conversion en inscriptions",
-        "promote": "Événements promus",
-        "publish": "Visibilité du contenu publié"
-      },
-      "primaryAction": "Devenir fournisseur",
-      "secondaryAction": "Voir les services",
-      "stats": {
-        "conversionRate": "Taux de conversion",
-        "totalEvents": "Événements publiés",
-        "totalRegistrations": "Inscriptions"
-      },
-      "title": "Touchez des professionnels déjà en apprentissage"
+    "sample": {
+      "label": "Exemple"
     }
   },
   "navigation": {
