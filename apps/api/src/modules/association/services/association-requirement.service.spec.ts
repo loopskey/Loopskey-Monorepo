@@ -378,6 +378,51 @@ describe("AssociationRequirementService reporting rules after publish", () => {
     expect(prisma.associationRequirement.update).toHaveBeenCalled();
   });
 
+  it("refuses a reporting end before the reporting start", async () => {
+    const { service, prisma } = setup({ current: {} });
+
+    await expect(
+      service.updateReportingRules(owner, {
+        requirementId: "req-1",
+        reportingStart: day("2026-06-01"),
+        reportingEnd: day("2026-05-31"),
+      }),
+    ).rejects.toMatchObject({
+      response: {
+        code: AssociationMessageCode.REPORTING_PERIOD_INVERTED,
+        fields: ["reportingEnd"],
+      },
+    });
+    expect(prisma.associationRequirement.update).not.toHaveBeenCalled();
+  });
+
+  it("refuses a new reporting end before the stored reporting start", async () => {
+    const { service } = setup({
+      current: { ...published, reportingStart: day("2026-06-01") },
+    });
+
+    await expect(
+      service.updateReportingRules(owner, {
+        requirementId: "req-1",
+        reportingEnd: day("2026-01-15"),
+      }),
+    ).rejects.toMatchObject({
+      response: { code: AssociationMessageCode.REPORTING_PERIOD_INVERTED },
+    });
+  });
+
+  it("accepts a reporting period that starts and ends on the same day", async () => {
+    const { service, prisma } = setup({ current: {} });
+
+    await service.updateReportingRules(owner, {
+      requirementId: "req-1",
+      reportingStart: day("2026-06-01"),
+      reportingEnd: new Date("2026-06-01T18:00:00.000Z"),
+    });
+
+    expect(prisma.associationRequirement.update).toHaveBeenCalled();
+  });
+
   it("leaves a draft free to move its reporting start", async () => {
     const { service, prisma, compliance } = setup({
       current: { reportingStart: day("2026-01-01") },

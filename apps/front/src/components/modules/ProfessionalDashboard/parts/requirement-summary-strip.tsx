@@ -1,9 +1,14 @@
 "use client";
 
-import { ProgressRing } from "@elements/charts/progress-ring";
+import {
+  deadlineText,
+  REQUIREMENT_TONE_CLASSES,
+} from "@/utils/professional-requirement.helper";
 import { RequirementSourceBadge } from "@modules/ProfessionalDashboard/parts/requirement-source-badge";
-import { deadlineText, REQUIREMENT_TONE_CLASSES } from "@/utils/professional-requirement.helper";
+import { formatCalendarDate } from "@/utils/completion-date.util";
+import { ProgressRing } from "@elements/charts/progress-ring";
 import { GlassCard } from "@elements/glass-card";
+import { useI18n } from "@/hooks/useI18n";
 import { Button } from "@ui/button";
 import { Badge } from "@ui/badge";
 import { cn } from "@/lib/utils";
@@ -21,12 +26,17 @@ export const RequirementSummaryStrip = ({
   onDelete,
   isDeleting,
 }: TRequirementSummaryStripProps) => {
+  const { language } = useI18n();
   const creditLabel = t(`cpdProgress.creditTypes.${model.creditType}`);
+  const acceptsFrom = formatCalendarDate(model.acceptsFrom, language);
+  const acceptsUntil = formatCalendarDate(model.acceptsUntil, language);
   const statusLabel = t(model.statusLabelKey);
 
   const evidenceLine = model.evidence
     ? model.evidence.awaitingReviewCount > 0
-      ? t(`${KEY}.awaitingReview`, { count: model.evidence.awaitingReviewCount })
+      ? t(`${KEY}.awaitingReview`, {
+          count: model.evidence.awaitingReviewCount,
+        })
       : t(`${KEY}.evidenceOk`)
     : null;
 
@@ -76,7 +86,12 @@ export const RequirementSummaryStrip = ({
 
       <div className="flex flex-wrap items-center gap-x-5 gap-y-2 sm:flex-col sm:items-end">
         <div className="flex items-center gap-2">
-          <Badge className={cn("border-transparent", REQUIREMENT_TONE_CLASSES[model.statusTone])}>
+          <Badge
+            className={cn(
+              "border-transparent",
+              REQUIREMENT_TONE_CLASSES[model.statusTone],
+            )}
+          >
             {statusLabel}
           </Badge>
           {onEdit || onDelete ? (
@@ -99,8 +114,8 @@ export const RequirementSummaryStrip = ({
                   radius="xl"
                   type="button"
                   variant="ghost"
-                  disabled={isDeleting}
                   onClick={onDelete}
+                  disabled={isDeleting}
                   aria-label={t("cpdProgress.progress.deletePlan")}
                   className="text-destructive hover:bg-destructive/10"
                 >
@@ -114,6 +129,18 @@ export const RequirementSummaryStrip = ({
         <p className="text-xs text-muted-foreground">
           {deadlineText(t, model.dueDate, model.daysRemaining)}
         </p>
+
+        {acceptsFrom ? (
+          <p className="flex items-center gap-1.5 text-xs text-muted-foreground">
+            <L.CalendarRange className="h-3.5 w-3.5 shrink-0" aria-hidden />
+            {acceptsUntil
+              ? t(`${KEY}.acceptsWindow`, {
+                  from: acceptsFrom,
+                  until: acceptsUntil,
+                })
+              : t(`${KEY}.acceptsFrom`, { from: acceptsFrom })}
+          </p>
+        ) : null}
 
         {evidenceLine ? (
           <p className="flex items-center gap-1.5 text-xs text-muted-foreground">

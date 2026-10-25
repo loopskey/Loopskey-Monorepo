@@ -12,6 +12,8 @@ export type TAssociationLearningContentItem =
   API.AssociationMyLearningContentFieldsFragment;
 export type TAssociationRequirementActivity =
   TAssociationRequirementDetail["activities"][number];
+export type TExcludedRequirementActivity =
+  TAssociationRequirementDetail["excludedActivities"][number];
 export type TPlanActivity = API.CpdPlanActivityFieldsFragment;
 
 export type TRequirementSource = "ASSOCIATION" | "PLAN";
@@ -54,6 +56,11 @@ export type TRequirementActivitiesTableProps = {
   t: I18nContextValue["t"];
   isLoading: boolean;
   rows: TRequirementActivityRow[];
+};
+
+export type TRequirementExcludedActivitiesProps = {
+  t: I18nContextValue["t"];
+  activities: TExcludedRequirementActivity[];
 };
 
 export type TRequirementLearningContentProps = {
@@ -127,6 +134,8 @@ export type TRequirementViewModel = {
   daysRemaining: number | null;
   associationName: string | null;
   percent: number;
+  acceptsFrom: string | null;
+  acceptsUntil: string | null;
   evidence: {
     labelKey: string;
     awaitingReviewCount: number;
@@ -150,6 +159,7 @@ export type TRequirementDetailViewProps = {
   categories: TRequirementCategoryRow[];
   content: TAssociationRequirementContent[];
   activities: TRequirementActivityRow[];
+  excludedActivities?: TExcludedRequirementActivity[];
   isDetailLoading: boolean;
   isActivitiesLoading: boolean;
   onEdit?: () => void;

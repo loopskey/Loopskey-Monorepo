@@ -34,21 +34,6 @@ export const AssociationRequirementCategoriesCard = ({
       disabled: usedMappings.has(value) && value !== ownMapping,
     }));
 
-  const summaryStats = [
-    {
-      id: "total",
-      value: allocation.total,
-    },
-    {
-      id: "categoryMinimum",
-      value: allocation.assigned,
-    },
-    {
-      id: "flexible",
-      value: allocation.remainder,
-    },
-  ];
-
   return (
     <F.Form {...categoriesForm}>
       <form noValidate onSubmit={submitCategories} className="space-y-5">
@@ -132,38 +117,14 @@ export const AssociationRequirementCategoriesCard = ({
           {t("associationDashboard.requirements.rules.categories.add")}
         </Button>
 
-        {categoryRows.fields.length > 0 && (
-          <div className="grid gap-3 sm:grid-cols-3">
-            {summaryStats.map((stat) => (
-              <div key={stat.id} className="rounded-md border p-3">
-                <p className="text-xs uppercase text-muted-foreground">
-                  {t(
-                    `associationDashboard.requirements.rules.categories.summary.${stat.id}`,
-                  )}
-                </p>
-
-                <p className="mt-1 text-lg font-medium tabular-nums">
-                  {stat.value.toLocaleString(locale)}
-                </p>
-              </div>
-            ))}
-
-            {allocation.isOverflowing && (
-              <p
-                role="alert"
-                className="text-sm font-medium text-destructive sm:col-span-3"
-              >
-                {t(
-                  "associationDashboard.requirements.rules.categories.overflow",
-                  {
-                    total: allocation.total.toLocaleString(locale),
-                    assigned: allocation.assigned.toLocaleString(locale),
-                    overflow: allocation.overflow.toLocaleString(locale),
-                  },
-                )}
-              </p>
-            )}
-          </div>
+        {allocation.isOverflowing && (
+          <p role="alert" className="text-sm font-medium text-destructive">
+            {t("associationDashboard.requirements.rules.categories.overflow", {
+              total: allocation.total.toLocaleString(locale),
+              assigned: allocation.assigned.toLocaleString(locale),
+              overflow: allocation.overflow.toLocaleString(locale),
+            })}
+          </p>
         )}
 
         <div className="flex justify-end">

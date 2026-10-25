@@ -416,6 +416,14 @@ export type AssociationActivityCounts = {
   rejected: Scalars['Int']['output'];
 };
 
+/** Why an activity linked to a requirement did not count toward it */
+export const AssociationActivityExclusionReason = {
+  CreditTypeMismatch: 'CREDIT_TYPE_MISMATCH',
+  MissingEvidence: 'MISSING_EVIDENCE',
+  OutsideWindow: 'OUTSIDE_WINDOW'
+} as const;
+
+export type AssociationActivityExclusionReason = typeof AssociationActivityExclusionReason[keyof typeof AssociationActivityExclusionReason];
 export type AssociationActivityRequirement = {
   __typename?: 'AssociationActivityRequirement';
   canReview: Scalars['Boolean']['output'];
@@ -1152,6 +1160,8 @@ export type AssociationMissingEvidenceRow = {
 
 export type AssociationMyRequirement = {
   __typename?: 'AssociationMyRequirement';
+  acceptsFrom?: Maybe<Scalars['DateTime']['output']>;
+  acceptsUntil?: Maybe<Scalars['DateTime']['output']>;
   assignmentId: Scalars['ID']['output'];
   associationId: Scalars['ID']['output'];
   associationName: Scalars['String']['output'];
@@ -1217,6 +1227,8 @@ export type AssociationMyRequirementContent = {
 
 export type AssociationMyRequirementDetail = {
   __typename?: 'AssociationMyRequirementDetail';
+  acceptsFrom?: Maybe<Scalars['DateTime']['output']>;
+  acceptsUntil?: Maybe<Scalars['DateTime']['output']>;
   activities: Array<AssociationMyRequirementActivity>;
   assignmentId: Scalars['ID']['output'];
   associationId: Scalars['ID']['output'];
@@ -1232,6 +1244,7 @@ export type AssociationMyRequirementDetail = {
   description?: Maybe<Scalars['String']['output']>;
   dueDate?: Maybe<Scalars['DateTime']['output']>;
   evidencePolicy: AssociationEvidencePolicy;
+  excludedActivities: Array<AssociationMyRequirementExcludedActivity>;
   isMissingEvidence: Scalars['Boolean']['output'];
   learningContents: Array<AssociationMyRequirementContent>;
   name: Scalars['String']['output'];
@@ -1239,6 +1252,15 @@ export type AssociationMyRequirementDetail = {
   remainingCredits: Scalars['Float']['output'];
   requiredCredits: Scalars['Float']['output'];
   requirementId: Scalars['ID']['output'];
+};
+
+export type AssociationMyRequirementExcludedActivity = {
+  __typename?: 'AssociationMyRequirementExcludedActivity';
+  activityId: Scalars['ID']['output'];
+  credits: Scalars['Float']['output'];
+  date: Scalars['DateTime']['output'];
+  reason: AssociationActivityExclusionReason;
+  title: Scalars['String']['output'];
 };
 
 export type AssociationPageInfo = {

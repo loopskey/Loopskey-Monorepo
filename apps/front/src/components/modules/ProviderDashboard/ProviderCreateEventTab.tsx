@@ -4,8 +4,9 @@ import { useProviderCreateEventTab } from "@hooks/useProviderCreateEventTab";
 import { FloatingTextareaField } from "@elements/floating-textarea";
 import { FloatingSelectField } from "@elements/floating-select";
 import { FloatingInputField } from "@elements/floating-input";
-import { WizardStepper } from "@elements/wizard-stepper";
+import { useDateRangeBounds } from "@/hooks/useDateRangeBounds";
 import { isValidImageSrc } from "@utils/image-src.util";
+import { WizardStepper } from "@elements/wizard-stepper";
 import { GlassCard } from "@elements/glass-card";
 import { Button } from "@ui/button";
 import { Switch } from "@ui/switch";
@@ -37,6 +38,12 @@ const ProviderCreateEventTab = () => {
     pduCategoryOptions,
     deliveryModeOptions,
   } = useProviderCreateEventTab();
+
+  const { startMax, endMin } = useDateRangeBounds(
+    formRhf.control,
+    "startDate",
+    "endDate",
+  );
 
   const hasValidThumbnail = isValidImageSrc(form.imageUrl);
 
@@ -166,6 +173,7 @@ const ProviderCreateEventTab = () => {
               <div className="grid gap-5 md:grid-cols-2">
                 <FloatingInputField
                   type="date"
+                  max={startMax}
                   name="startDate"
                   control={formRhf.control}
                   leftIcon={<L.CalendarDays className="h-4 w-4" />}
@@ -174,6 +182,7 @@ const ProviderCreateEventTab = () => {
 
                 <FloatingInputField
                   type="date"
+                  min={endMin}
                   name="endDate"
                   control={formRhf.control}
                   leftIcon={<L.CalendarDays className="h-4 w-4" />}

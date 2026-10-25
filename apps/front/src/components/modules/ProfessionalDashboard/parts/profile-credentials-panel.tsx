@@ -6,6 +6,7 @@ import { TCredentialsPanelProps } from "@/types/professional-profile.types";
 import { CERTIFICATES_TAB_HREF } from "@/utils/professional-profile.constant";
 import { FloatingSelectField } from "@elements/floating-select";
 import { FloatingInputField } from "@elements/floating-input";
+import { useDateRangeBounds } from "@/hooks/useDateRangeBounds";
 import { ConfirmDialog } from "@elements/confirm-dialog";
 import { formatDate } from "@/utils/function-helper";
 import { Button } from "@ui/button";
@@ -36,6 +37,12 @@ export const ProfileCredentialsPanel = ({
     isPlansLoading,
     isSaveDisabled,
   } = hook;
+
+  const { startMax, endMin } = useDateRangeBounds(
+    rhf.control,
+    "issueDate",
+    "expiryDate",
+  );
 
   return (
     <div className="space-y-6">
@@ -211,6 +218,7 @@ export const ProfileCredentialsPanel = ({
 
             <FloatingInputField
               type="date"
+              max={startMax}
               name="issueDate"
               disabled={isDisabled}
               control={rhf.control}
@@ -222,6 +230,7 @@ export const ProfileCredentialsPanel = ({
 
             <FloatingInputField
               type="date"
+              min={endMin}
               name="expiryDate"
               disabled={isDisabled}
               control={rhf.control}

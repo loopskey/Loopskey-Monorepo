@@ -252,6 +252,7 @@ export const useProviderCreateEventTab = () => {
   const validate = () => {
     if (!form.title.trim()) return "titleRequired";
     if (!startDateTime) return "startDateRequired";
+    if (endDateTime && endDateTime < startDateTime) return "endBeforeStart";
     if (!form.description.trim()) return "descriptionRequired";
     if (!form.isFree && Number(form.price || 0) <= 0) return "priceRequired";
     return null;

@@ -72,6 +72,9 @@ const setup = ({
     associationSettings: {
       findUnique: jest.fn().mockResolvedValue({ onTrackThreshold: 70 }),
     },
+    associationLearningContent: {
+      findMany: jest.fn().mockResolvedValue([]),
+    },
     $transaction: jest.fn(
       async (run: (client: typeof tx) => Promise<unknown>) => run(tx),
     ),
@@ -98,6 +101,37 @@ const setup = ({
 };
 
 describe("AssociationComplianceService", () => {
+  it("credits a content-linked completion with the amount the association set", async () => {
+    const { service, prisma, updateMany } = setup({
+      activities: [
+        activity({ credits: 18, associationLearningContentId: "content-1" }),
+      ],
+    });
+    prisma.associationLearningContent.findMany.mockResolvedValue([
+      { id: "content-1", category: null, indicativeCredits: 5 },
+    ]);
+
+    await service.recomputeAssignment("assign-1");
+
+    expect(prisma.associationLearningContent.findMany).toHaveBeenCalledWith({
+      where: { id: { in: ["content-1"] }, associationId: "assoc-1" },
+      select: { id: true, category: true, indicativeCredits: true },
+    });
+    expect(updateMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({ completedCredits: 5, percent: 25 }),
+      }),
+    );
+  });
+
+  it("does not look up association content when no activity links to any", async () => {
+    const { service, prisma } = setup();
+
+    await service.recomputeAssignment("assign-1");
+
+    expect(prisma.associationLearningContent.findMany).not.toHaveBeenCalled();
+  });
+
   it("writes one attribution per qualifying activity and caches the totals", async () => {
     const { service, upsert, updateMany } = setup();
 

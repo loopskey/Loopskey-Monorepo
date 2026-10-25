@@ -31,6 +31,7 @@ const ProfessionalAddActivityTab = () => {
     isSaving,
     isEditing,
     isRemoving,
+    dateBounds,
     isSubmitted,
     retryUpload,
     goToTracker,
@@ -41,8 +42,10 @@ const ProfessionalAddActivityTab = () => {
     isLoadingActivity,
     handleFilesChange,
     subCategoryOptions,
+    isCreditTypeLocked,
     requirementOptions,
     activityTypeOptions,
+    isCreditValueLocked,
     handleRemoveExistingFile,
     markReportingYearTouched,
     returnTargetIsRequirements,
@@ -114,6 +117,7 @@ const ProfessionalAddActivityTab = () => {
               <ActivityStepBasic
                 t={t}
                 control={form.control}
+                dateBounds={dateBounds}
                 activityTypeOptions={activityTypeOptions}
               />
             )}
@@ -124,6 +128,8 @@ const ProfessionalAddActivityTab = () => {
                 control={form.control}
                 requirementOptions={requirementOptions}
                 subCategoryOptions={subCategoryOptions}
+                isCreditTypeLocked={isCreditTypeLocked}
+                isCreditValueLocked={isCreditValueLocked}
                 onReportingYearTouched={markReportingYearTouched}
               />
             )}

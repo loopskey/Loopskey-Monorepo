@@ -4,7 +4,7 @@ import { REQUIREMENT_QUERY_SUBSCRIPTION_OPTIONS } from "@/lib/rtk/endpoints/cpd-
 import { useEffect, useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useCertificateEvidence } from "@/hooks/useCertificateEvidence";
-import { CertificateFileError } from "@/hooks/useCertificateEvidence";
+import { fileRequestFailureOf } from "@/utils/file-request.util";
 import { useMyCpdPlansQuery } from "@/lib/rtk/endpoints/cpd-plan.api";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toDateInput } from "@/utils/function-helper";
@@ -145,8 +145,7 @@ export const useProfessionalCertificateForm = () => {
     try {
       await downloadEvidence(file);
     } catch (error) {
-      const kind =
-        error instanceof CertificateFileError ? error.kind : "generic";
+      const kind = fileRequestFailureOf(error);
       notify.error(
         kind === "missing"
           ? t(`${CERTIFICATES}.downloadMissing`)
@@ -175,8 +174,6 @@ export const useProfessionalCertificateForm = () => {
           validUntil: toIsoDate(values.validUntil),
         }).unwrap();
 
-        // Plan linking is a separate mutation by design, so "omitted" can never
-        // be confused with "explicitly cleared".
         if (planId !== (certificate?.cpdPlanId ?? null))
           await setCertificateCpdPlan({
             certificateId,
@@ -199,8 +196,6 @@ export const useProfessionalCertificateForm = () => {
         cpdPlanId: planId,
       }).unwrap();
 
-      // The evidence endpoint is multipart REST, so an upload failure leaves a
-      // saved certificate without its file. Say so instead of claiming success.
       try {
         await uploadEvidence(created.id, files);
       } catch {
@@ -212,8 +207,7 @@ export const useProfessionalCertificateForm = () => {
       notify.success(t(`${CERTIFICATES}.createSuccess`));
       goToCertificates(created.id);
     } catch (error) {
-      const kind =
-        error instanceof CertificateFileError ? error.kind : "generic";
+      const kind = fileRequestFailureOf(error);
       notify.error(
         kind === "generic"
           ? t("authPages.common.genericError")
@@ -241,8 +235,8 @@ export const useProfessionalCertificateForm = () => {
     handleFilesChange,
     handleRemoveExistingFile,
     handleDownloadExistingFile,
-    handleCancel: () => goToCertificates(certificateId ?? undefined),
     isCertificateError: isEditing && isCertificateError,
     isLoadingCertificate: isEditing && isLoadingCertificate,
+    handleCancel: () => goToCertificates(certificateId ?? undefined),
   };
 };

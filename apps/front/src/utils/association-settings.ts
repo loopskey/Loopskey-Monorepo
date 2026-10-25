@@ -1,8 +1,8 @@
-import { ASSOCIATION_LOGO_LIMITS } from "@loopskey/api-contracts/upload";
 import { associationLogoUploadUrl } from "@loopskey/api-contracts/upload";
+import { ASSOCIATION_LOGO_LIMITS } from "@loopskey/api-contracts/upload";
 import { IMAGE_ACCEPT_ATTRIBUTE } from "@loopskey/api-contracts/upload";
 import { isAcceptedImageFile } from "@loopskey/api-contracts/upload";
-
+import { fetchWithSession } from "@utils/file-request.util";
 import { PDU_API_ORIGIN } from "@utils/pdu.constant";
 
 export const ASSOCIATION_SETTINGS_SECTIONS = [
@@ -69,11 +69,10 @@ export const uploadAssociationLogo = async (file: File) => {
   const body = new FormData();
   body.append("file", file);
 
-  const response = await fetch(associationLogoUploadUrl(PDU_API_ORIGIN), {
-    method: "POST",
-    credentials: "include",
-    body,
-  });
+  const response = await fetchWithSession(
+    associationLogoUploadUrl(PDU_API_ORIGIN),
+    { method: "POST", body },
+  );
 
   if (!response.ok)
     throw new AssociationLogoUploadError(await codeOfResponse(response));
@@ -82,10 +81,10 @@ export const uploadAssociationLogo = async (file: File) => {
 };
 
 export const removeAssociationLogo = async () => {
-  const response = await fetch(associationLogoUploadUrl(PDU_API_ORIGIN), {
-    method: "DELETE",
-    credentials: "include",
-  });
+  const response = await fetchWithSession(
+    associationLogoUploadUrl(PDU_API_ORIGIN),
+    { method: "DELETE" },
+  );
 
   if (!response.ok)
     throw new AssociationLogoUploadError(await codeOfResponse(response));

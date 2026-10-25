@@ -47,15 +47,29 @@ export const AssociationReportsFilters = ({
           type: "date",
           id: "from",
           value: filter.startDate,
+          max: filter.endDate || undefined,
           label: label("filters.from"),
-          onChange: (next) => setFilter({ startDate: next }),
+          onChange: (next) =>
+            setFilter({
+              startDate: next,
+              ...(filter.endDate && next > filter.endDate
+                ? { endDate: next }
+                : {}),
+            }),
         },
         isCustom && {
           type: "date",
           id: "to",
           value: filter.endDate,
+          min: filter.startDate || undefined,
           label: label("filters.to"),
-          onChange: (next) => setFilter({ endDate: next }),
+          onChange: (next) =>
+            setFilter({
+              endDate:
+                next && filter.startDate && next < filter.startDate
+                  ? filter.startDate
+                  : next,
+            }),
         },
         {
           type: "select",

@@ -1,6 +1,7 @@
 "use client";
 
 import { getEvidenceFileUrl, getEvidenceUploadUrl } from "@/utils/pdu.constant";
+import { requestFile, saveBlobAs } from "@/utils/file-request.util";
 import { useCallback, useState } from "react";
 import { TPduEvidenceFile } from "@/types/professional-dashboard.types";
 import { professionalApi } from "@/lib/rtk/endpoints/professional.api";
@@ -36,12 +37,10 @@ export const usePduEvidenceUpload = () => {
           "uploadKeys",
           JSON.stringify(files.map((file) => getUploadKey(file))),
         );
-        const response = await fetch(getEvidenceUploadUrl(activityId), {
+        await requestFile(getEvidenceUploadUrl(activityId), {
           method: "POST",
-          credentials: "include",
           body,
         });
-        if (!response.ok) throw new Error(`Upload failed (${response.status})`);
         invalidatePdu();
       } finally {
         setIsUploading(false);
@@ -51,28 +50,15 @@ export const usePduEvidenceUpload = () => {
   );
 
   const downloadEvidence = useCallback(async (file: TPduEvidenceFile) => {
-    const response = await fetch(getEvidenceFileUrl(file.id), {
-      credentials: "include",
-    });
-    if (!response.ok) throw new Error(`Download failed (${response.status})`);
-    const blob = await response.blob();
-    const url = URL.createObjectURL(blob);
-    const anchor = document.createElement("a");
-    anchor.href = url;
-    anchor.download = file.fileName;
-    anchor.click();
-    URL.revokeObjectURL(url);
+    const response = await requestFile(getEvidenceFileUrl(file.id));
+    saveBlobAs(await response.blob(), file.fileName);
   }, []);
 
   const removeEvidence = useCallback(
     async (fileId: string) => {
       setIsRemoving(true);
       try {
-        const response = await fetch(getEvidenceFileUrl(fileId), {
-          method: "DELETE",
-          credentials: "include",
-        });
-        if (!response.ok) throw new Error(`Delete failed (${response.status})`);
+        await requestFile(getEvidenceFileUrl(fileId), { method: "DELETE" });
         invalidatePdu();
       } finally {
         setIsRemoving(false);
@@ -81,8 +67,8 @@ export const usePduEvidenceUpload = () => {
     [invalidatePdu],
   );
   return {
-    isUploading,
     isRemoving,
+    isUploading,
     uploadEvidence,
     removeEvidence,
     downloadEvidence,

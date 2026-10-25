@@ -1,4 +1,5 @@
 import { AssociationEvidencePolicy, PDUStatus } from "@prisma/client";
+import { AssociationActivityExclusionReason } from "@association/enums/association-compliance.enum";
 import { AssociationLateSubmissionPolicy } from "@prisma/client";
 import { AssociationAttributionState } from "@prisma/client";
 import { AssociationComplianceBand } from "@prisma/client";
@@ -32,6 +33,11 @@ export type AttributionRequirement = {
 export type AttributionAssignment = {
   cycleStart: Date;
   cycleEnd: Date | null;
+};
+
+export type AttributionContent = {
+  category: PDUCategory | null;
+  indicativeCredits: number | null;
 };
 
 export type EffectiveWindow = {
@@ -114,10 +120,40 @@ const stateFor = (
     : AssociationAttributionState.AWAITING_REVIEW;
 };
 
+export const acceptedWindow = (
+  requirement: AttributionRequirement,
+  assignment: AttributionAssignment,
+) => {
+  const window = effectiveWindow(requirement, assignment);
+  return {
+    acceptsFrom: window.from,
+    acceptsUntil: window.lateFrom ?? window.to,
+  };
+};
+
+export const exclusionFor = (
+  activity: AttributionActivity,
+  requirement: AttributionRequirement,
+  assignment: AttributionAssignment,
+): AssociationActivityExclusionReason | null => {
+  if (activity.creditType !== requirement.creditType)
+    return AssociationActivityExclusionReason.CREDIT_TYPE_MISMATCH;
+  const placement = withinWindow(
+    activity.date,
+    effectiveWindow(requirement, assignment),
+    requirement.lateSubmissionPolicy,
+  );
+  if (!placement) return AssociationActivityExclusionReason.OUTSIDE_WINDOW;
+  if (!stateFor(activity, requirement.evidencePolicy))
+    return AssociationActivityExclusionReason.MISSING_EVIDENCE;
+  return null;
+};
+
 export const attributionFor = (
   activity: AttributionActivity,
   requirement: AttributionRequirement,
   assignment: AttributionAssignment,
+  content?: AttributionContent,
 ): Attribution | null => {
   if (activity.creditType !== requirement.creditType) return null;
   if (
@@ -133,16 +169,16 @@ export const attributionFor = (
   if (!placement) return null;
   const state = stateFor(activity, requirement.evidencePolicy);
   if (!state) return null;
+  const mappedCategory = content?.category ?? activity.category;
   const category = requirement.categories.find(
-    (candidate) => candidate.mappedCategory === activity.category,
+    (candidate) => candidate.mappedCategory === mappedCategory,
   );
+  const credits = content?.indicativeCredits ?? activity.credits;
   return {
     activityId: activity.id,
     categoryId: category?.id ?? null,
     creditedAmount:
-      state === AssociationAttributionState.COUNTED
-        ? Math.max(0, activity.credits)
-        : 0,
+      state === AssociationAttributionState.COUNTED ? Math.max(0, credits) : 0,
     activityDate: activity.date,
     isLate: placement.isLate,
     state,

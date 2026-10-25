@@ -134,6 +134,8 @@ fragment AssociationMyRequirementFields on AssociationMyRequirement {
   isMissingEvidence
   cycleStart
   cycleEnd
+  acceptsFrom
+  acceptsUntil
 }
 
 fragment AssociationMyRequirementDetailFields on AssociationMyRequirementDetail {
@@ -156,6 +158,8 @@ fragment AssociationMyRequirementDetailFields on AssociationMyRequirementDetail 
   isMissingEvidence
   cycleStart
   cycleEnd
+  acceptsFrom
+  acceptsUntil
   categories {
     id
     name
@@ -199,6 +203,13 @@ fragment AssociationMyRequirementDetailFields on AssociationMyRequirementDetail 
     description
     category
     indicativeCredits
+  }
+  excludedActivities {
+    activityId
+    title
+    date
+    credits
+    reason
   }
 }
 

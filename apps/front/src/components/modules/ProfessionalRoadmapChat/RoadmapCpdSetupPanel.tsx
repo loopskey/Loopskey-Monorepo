@@ -314,6 +314,7 @@ export const RoadmapCpdSetupPanel = ({
           {t(`${KEY}.deadline`)}
           <Input
             type="date"
+            min={toDateInput(plan?.reportingStart) || undefined}
             value={reportingEnd}
             onChange={(event) => setReportingEnd(event.target.value)}
           />
