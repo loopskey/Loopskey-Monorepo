@@ -18,9 +18,9 @@ export type CpdReportRecipientOptionFieldsFragment = { __typename?: 'CpdReportRe
 
 export type CpdPlanActivityFieldsFragment = { __typename?: 'ProfessionalPduActivity', id: string, title: string, date: string, pdus: number, status: Types.PduStatus, source: Types.PduSource, category: Types.PduCategory, creditType: Types.CreditType, evidenceFiles: Array<{ __typename?: 'ProfessionalPduActivityFile', id: string }> };
 
-export type AssociationMyRequirementFieldsFragment = { __typename?: 'AssociationMyRequirement', requirementId: string, assignmentId: string, name: string, description?: string | null, associationId: string, associationName: string, creditType: Types.CreditType, evidencePolicy: Types.AssociationEvidencePolicy, requiredCredits: number, completedCredits: number, remainingCredits: number, percent: number, band: Types.AssociationComplianceBand, dueDate?: string | null, daysRemaining?: number | null, awaitingReviewCount: number, isMissingEvidence: boolean, cycleStart: string, cycleEnd?: string | null };
+export type AssociationMyRequirementFieldsFragment = { __typename?: 'AssociationMyRequirement', requirementId: string, assignmentId: string, name: string, description?: string | null, associationId: string, associationName: string, creditType: Types.CreditType, evidencePolicy: Types.AssociationEvidencePolicy, requiredCredits: number, completedCredits: number, remainingCredits: number, percent: number, band: Types.AssociationComplianceBand, dueDate?: string | null, daysRemaining?: number | null, awaitingReviewCount: number, isMissingEvidence: boolean, cycleStart: string, cycleEnd?: string | null, acceptsFrom?: string | null, acceptsUntil?: string | null };
 
-export type AssociationMyRequirementDetailFieldsFragment = { __typename?: 'AssociationMyRequirementDetail', requirementId: string, assignmentId: string, name: string, description?: string | null, associationId: string, associationName: string, creditType: Types.CreditType, evidencePolicy: Types.AssociationEvidencePolicy, requiredCredits: number, completedCredits: number, remainingCredits: number, percent: number, band: Types.AssociationComplianceBand, dueDate?: string | null, daysRemaining?: number | null, awaitingReviewCount: number, isMissingEvidence: boolean, cycleStart: string, cycleEnd?: string | null, categories: Array<{ __typename?: 'AssociationCategoryProgress', id: string, name: string, requiredCredits: number, completedCredits: number, mappedCategory: Types.PduCategory, percent: number }>, activities: Array<{ __typename?: 'AssociationMyRequirementActivity', activityId: string, title: string, date: string, submittedAt: string, category: string, credits: number, creditedAmount: number, state: Types.AssociationAttributionState, isLate: boolean, hasEvidence: boolean, categoryName?: string | null, reviewNote?: string | null }>, learningContents: Array<{ __typename?: 'AssociationMyRequirementContent', id: string, title: string, provider?: string | null, imageUrl?: string | null, isExternal: boolean, isAvailable: boolean, isCompleted: boolean, isLinkedToRequirement: boolean, isLate: boolean, completedAt?: string | null, submittedAt?: string | null, creditedAmount?: number | null, completionState?: Types.AssociationAttributionState | null, contentType?: Types.ContentType | null, contentId?: string | null, slug?: string | null, externalUrl?: string | null, description?: string | null, category?: Types.PduCategory | null, indicativeCredits?: number | null }> };
+export type AssociationMyRequirementDetailFieldsFragment = { __typename?: 'AssociationMyRequirementDetail', requirementId: string, assignmentId: string, name: string, description?: string | null, associationId: string, associationName: string, creditType: Types.CreditType, evidencePolicy: Types.AssociationEvidencePolicy, requiredCredits: number, completedCredits: number, remainingCredits: number, percent: number, band: Types.AssociationComplianceBand, dueDate?: string | null, daysRemaining?: number | null, awaitingReviewCount: number, isMissingEvidence: boolean, cycleStart: string, cycleEnd?: string | null, acceptsFrom?: string | null, acceptsUntil?: string | null, categories: Array<{ __typename?: 'AssociationCategoryProgress', id: string, name: string, requiredCredits: number, completedCredits: number, mappedCategory: Types.PduCategory, percent: number }>, activities: Array<{ __typename?: 'AssociationMyRequirementActivity', activityId: string, title: string, date: string, submittedAt: string, category: string, credits: number, creditedAmount: number, state: Types.AssociationAttributionState, isLate: boolean, hasEvidence: boolean, categoryName?: string | null, reviewNote?: string | null }>, learningContents: Array<{ __typename?: 'AssociationMyRequirementContent', id: string, title: string, provider?: string | null, imageUrl?: string | null, isExternal: boolean, isAvailable: boolean, isCompleted: boolean, isLinkedToRequirement: boolean, isLate: boolean, completedAt?: string | null, submittedAt?: string | null, creditedAmount?: number | null, completionState?: Types.AssociationAttributionState | null, contentType?: Types.ContentType | null, contentId?: string | null, slug?: string | null, externalUrl?: string | null, description?: string | null, category?: Types.PduCategory | null, indicativeCredits?: number | null }>, excludedActivities: Array<{ __typename?: 'AssociationMyRequirementExcludedActivity', activityId: string, title: string, date: string, credits: number, reason: Types.AssociationActivityExclusionReason }> };
 
 export type AssociationMyLearningContentFieldsFragment = { __typename?: 'AssociationMyRequirementContent', id: string, title: string, provider?: string | null, imageUrl?: string | null, isExternal: boolean, isAvailable: boolean, isCompleted: boolean, isLinkedToRequirement: boolean, isLate: boolean, completedAt?: string | null, submittedAt?: string | null, creditedAmount?: number | null, completionState?: Types.AssociationAttributionState | null, associationId: string, associationName: string, contentType?: Types.ContentType | null, contentId?: string | null, slug?: string | null, externalUrl?: string | null, description?: string | null, category?: Types.PduCategory | null, indicativeCredits?: number | null };
 
@@ -70,14 +70,14 @@ export type CpdPlanActivitiesQuery = { __typename?: 'Query', cpdPlanActivities: 
 export type MyAssociationRequirementsQueryVariables = Types.Exact<{ [key: string]: never; }>;
 
 
-export type MyAssociationRequirementsQuery = { __typename?: 'Query', myAssociationRequirements: Array<{ __typename?: 'AssociationMyRequirement', requirementId: string, assignmentId: string, name: string, description?: string | null, associationId: string, associationName: string, creditType: Types.CreditType, evidencePolicy: Types.AssociationEvidencePolicy, requiredCredits: number, completedCredits: number, remainingCredits: number, percent: number, band: Types.AssociationComplianceBand, dueDate?: string | null, daysRemaining?: number | null, awaitingReviewCount: number, isMissingEvidence: boolean, cycleStart: string, cycleEnd?: string | null }> };
+export type MyAssociationRequirementsQuery = { __typename?: 'Query', myAssociationRequirements: Array<{ __typename?: 'AssociationMyRequirement', requirementId: string, assignmentId: string, name: string, description?: string | null, associationId: string, associationName: string, creditType: Types.CreditType, evidencePolicy: Types.AssociationEvidencePolicy, requiredCredits: number, completedCredits: number, remainingCredits: number, percent: number, band: Types.AssociationComplianceBand, dueDate?: string | null, daysRemaining?: number | null, awaitingReviewCount: number, isMissingEvidence: boolean, cycleStart: string, cycleEnd?: string | null, acceptsFrom?: string | null, acceptsUntil?: string | null }> };
 
 export type MyAssociationRequirementQueryVariables = Types.Exact<{
   requirementId: Types.Scalars['ID']['input'];
 }>;
 
 
-export type MyAssociationRequirementQuery = { __typename?: 'Query', myAssociationRequirement: { __typename?: 'AssociationMyRequirementDetail', requirementId: string, assignmentId: string, name: string, description?: string | null, associationId: string, associationName: string, creditType: Types.CreditType, evidencePolicy: Types.AssociationEvidencePolicy, requiredCredits: number, completedCredits: number, remainingCredits: number, percent: number, band: Types.AssociationComplianceBand, dueDate?: string | null, daysRemaining?: number | null, awaitingReviewCount: number, isMissingEvidence: boolean, cycleStart: string, cycleEnd?: string | null, categories: Array<{ __typename?: 'AssociationCategoryProgress', id: string, name: string, requiredCredits: number, completedCredits: number, mappedCategory: Types.PduCategory, percent: number }>, activities: Array<{ __typename?: 'AssociationMyRequirementActivity', activityId: string, title: string, date: string, submittedAt: string, category: string, credits: number, creditedAmount: number, state: Types.AssociationAttributionState, isLate: boolean, hasEvidence: boolean, categoryName?: string | null, reviewNote?: string | null }>, learningContents: Array<{ __typename?: 'AssociationMyRequirementContent', id: string, title: string, provider?: string | null, imageUrl?: string | null, isExternal: boolean, isAvailable: boolean, isCompleted: boolean, isLinkedToRequirement: boolean, isLate: boolean, completedAt?: string | null, submittedAt?: string | null, creditedAmount?: number | null, completionState?: Types.AssociationAttributionState | null, contentType?: Types.ContentType | null, contentId?: string | null, slug?: string | null, externalUrl?: string | null, description?: string | null, category?: Types.PduCategory | null, indicativeCredits?: number | null }> } };
+export type MyAssociationRequirementQuery = { __typename?: 'Query', myAssociationRequirement: { __typename?: 'AssociationMyRequirementDetail', requirementId: string, assignmentId: string, name: string, description?: string | null, associationId: string, associationName: string, creditType: Types.CreditType, evidencePolicy: Types.AssociationEvidencePolicy, requiredCredits: number, completedCredits: number, remainingCredits: number, percent: number, band: Types.AssociationComplianceBand, dueDate?: string | null, daysRemaining?: number | null, awaitingReviewCount: number, isMissingEvidence: boolean, cycleStart: string, cycleEnd?: string | null, acceptsFrom?: string | null, acceptsUntil?: string | null, categories: Array<{ __typename?: 'AssociationCategoryProgress', id: string, name: string, requiredCredits: number, completedCredits: number, mappedCategory: Types.PduCategory, percent: number }>, activities: Array<{ __typename?: 'AssociationMyRequirementActivity', activityId: string, title: string, date: string, submittedAt: string, category: string, credits: number, creditedAmount: number, state: Types.AssociationAttributionState, isLate: boolean, hasEvidence: boolean, categoryName?: string | null, reviewNote?: string | null }>, learningContents: Array<{ __typename?: 'AssociationMyRequirementContent', id: string, title: string, provider?: string | null, imageUrl?: string | null, isExternal: boolean, isAvailable: boolean, isCompleted: boolean, isLinkedToRequirement: boolean, isLate: boolean, completedAt?: string | null, submittedAt?: string | null, creditedAmount?: number | null, completionState?: Types.AssociationAttributionState | null, contentType?: Types.ContentType | null, contentId?: string | null, slug?: string | null, externalUrl?: string | null, description?: string | null, category?: Types.PduCategory | null, indicativeCredits?: number | null }>, excludedActivities: Array<{ __typename?: 'AssociationMyRequirementExcludedActivity', activityId: string, title: string, date: string, credits: number, reason: Types.AssociationActivityExclusionReason }> } };
 
 export type MyAssociationLearningContentQueryVariables = Types.Exact<{ [key: string]: never; }>;
 
@@ -298,6 +298,8 @@ export const AssociationMyRequirementFieldsFragmentDoc = /*#__PURE__*/ new Typed
   isMissingEvidence
   cycleStart
   cycleEnd
+  acceptsFrom
+  acceptsUntil
 }
     `, {"fragmentName":"AssociationMyRequirementFields"}) as unknown as TypedDocumentString<AssociationMyRequirementFieldsFragment, unknown>;
 export const AssociationMyRequirementDetailFieldsFragmentDoc = /*#__PURE__*/ new TypedDocumentString(`
@@ -321,6 +323,8 @@ export const AssociationMyRequirementDetailFieldsFragmentDoc = /*#__PURE__*/ new
   isMissingEvidence
   cycleStart
   cycleEnd
+  acceptsFrom
+  acceptsUntil
   categories {
     id
     name
@@ -364,6 +368,13 @@ export const AssociationMyRequirementDetailFieldsFragmentDoc = /*#__PURE__*/ new
     description
     category
     indicativeCredits
+  }
+  excludedActivities {
+    activityId
+    title
+    date
+    credits
+    reason
   }
 }
     `, {"fragmentName":"AssociationMyRequirementDetailFields"}) as unknown as TypedDocumentString<AssociationMyRequirementDetailFieldsFragment, unknown>;
@@ -640,6 +651,8 @@ export const MyAssociationRequirementsDocument = /*#__PURE__*/ new TypedDocument
   isMissingEvidence
   cycleStart
   cycleEnd
+  acceptsFrom
+  acceptsUntil
 }`) as unknown as TypedDocumentString<MyAssociationRequirementsQuery, MyAssociationRequirementsQueryVariables>;
 export const MyAssociationRequirementDocument = /*#__PURE__*/ new TypedDocumentString(`
     query MyAssociationRequirement($requirementId: ID!) {
@@ -667,6 +680,8 @@ export const MyAssociationRequirementDocument = /*#__PURE__*/ new TypedDocumentS
   isMissingEvidence
   cycleStart
   cycleEnd
+  acceptsFrom
+  acceptsUntil
   categories {
     id
     name
@@ -710,6 +725,13 @@ export const MyAssociationRequirementDocument = /*#__PURE__*/ new TypedDocumentS
     description
     category
     indicativeCredits
+  }
+  excludedActivities {
+    activityId
+    title
+    date
+    credits
+    reason
   }
 }`) as unknown as TypedDocumentString<MyAssociationRequirementQuery, MyAssociationRequirementQueryVariables>;
 export const MyAssociationLearningContentDocument = /*#__PURE__*/ new TypedDocumentString(`

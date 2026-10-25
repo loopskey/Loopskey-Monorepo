@@ -1,8 +1,6 @@
 import { AssociationRequirementStatus, Prisma } from "@prisma/client";
-import { type ProfessionalComplianceApi } from "@professional/public/professional-compliance-api";
 import { PROFESSIONAL_COMPLIANCE_API } from "@professional/public/professional-compliance-api";
 import { Inject, Injectable, Logger } from "@nestjs/common";
-import { type ComplianceActivity } from "@professional/public/professional-compliance-api";
 import { PrismaService } from "@prisma/prisma.service";
 
 import {
@@ -11,6 +9,9 @@ import {
   TAssignmentPreview,
   TRecomputeOutcome,
 } from "@association/types/association-attention.types";
+
+import { type ProfessionalComplianceApi } from "@professional/public/professional-compliance-api";
+import { type ComplianceActivity } from "@professional/public/professional-compliance-api";
 
 import * as C from "@association/utils/compliance-attribution.util";
 
@@ -68,6 +69,28 @@ export class AssociationComplianceService {
     return settings?.onTrackThreshold ?? DEFAULT_ON_TRACK_THRESHOLD;
   }
 
+  private async contentRulesFor(
+    associationId: string,
+    activities: ComplianceActivity[],
+  ) {
+    const ids = [
+      ...new Set(
+        activities
+          .map((activity) => activity.associationLearningContentId)
+          .filter((id): id is string => Boolean(id)),
+      ),
+    ];
+    if (!ids.length) return new Map<string, C.AttributionContent>();
+
+    const rows = await this.prisma.associationLearningContent.findMany({
+      where: { id: { in: ids }, associationId },
+      select: { id: true, category: true, indicativeCredits: true },
+    });
+    return new Map<string, C.AttributionContent>(
+      rows.map(({ id, ...rules }) => [id, rules]),
+    );
+  }
+
   private async computeTotals(
     assignment: TAssignmentForCompute,
     activitiesForUser?: ComplianceActivity[],
@@ -77,13 +100,21 @@ export class AssociationComplianceService {
       activitiesForUser ??
       (await this.activities.activitiesForMembers({ userIds: [userId] }));
 
-    const thresholds = await this.onTrackThreshold(
-      assignment.requirement.associationId,
-    );
+    const [thresholds, contents] = await Promise.all([
+      this.onTrackThreshold(assignment.requirement.associationId),
+      this.contentRulesFor(assignment.requirement.associationId, activityList),
+    ]);
 
     const attributed = activityList
       .map((activity) =>
-        C.attributionFor(activity, assignment.requirement, assignment),
+        C.attributionFor(
+          activity,
+          assignment.requirement,
+          assignment,
+          activity.associationLearningContentId
+            ? contents.get(activity.associationLearningContentId)
+            : undefined,
+        ),
       )
       .filter((attribution): attribution is C.Attribution =>
         Boolean(attribution),

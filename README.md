@@ -282,6 +282,15 @@ server {
 }
 ```
 
+The API host needs its own limit for uploads. Evidence and certificate uploads
+send up to five files of 20 MB each in one request, and nginx refuses anything
+over 1 MB by default. Its 413 response carries no CORS headers, so the browser
+reports a failed upload as a network error rather than a size error. Give the
+API server block `client_max_body_size 105m;`. Uploads are stored on the
+`uploads_data` volume as the `node` user; a volume created before the image set
+that ownership needs `docker compose exec -u root api chown -R node:node
+/app/uploads` once, or every upload fails with a permission error.
+
 `SITE_CANONICAL_HOST_ALIASES` is the in-application equivalent, for a host the
 ingress hands through instead of redirecting: list the apex host there and the
 frontend answers it with a single 308 to the canonical origin, preserving the

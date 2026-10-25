@@ -340,6 +340,7 @@ export type TActivityStepBasicProps = {
   t: I18nContextValue["t"];
   control: Control<TPduActivityFormInput>;
   activityTypeOptions: { value: string; label: string }[];
+  dateBounds: { min?: string; max: string };
 };
 
 export type TActivityStepCreditsProps = {
@@ -348,6 +349,8 @@ export type TActivityStepCreditsProps = {
   requirementOptions: { value: string; label: string }[];
   onReportingYearTouched: () => void;
   control: Control<TPduActivityFormInput>;
+  isCreditTypeLocked: boolean;
+  isCreditValueLocked: boolean;
 };
 
 export type TActivityStepEvidenceProps = {

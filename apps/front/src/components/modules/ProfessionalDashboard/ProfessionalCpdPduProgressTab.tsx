@@ -24,9 +24,9 @@ const ProfessionalCpdPduProgressTab = () => {
       <CpdSetupFlow
         t={t}
         setup={cpd.setup}
-        isSubmitting={cpd.isSubmittingPlan}
         onCancel={cpd.closeSetup}
         onSubmit={cpd.submitSetup}
+        isSubmitting={cpd.isSubmittingPlan}
       />
     );
 
@@ -155,20 +155,44 @@ const ProfessionalCpdPduProgressTab = () => {
                 cpd.selectedAssociation,
               );
               return (
-                <RequirementDetailView
-                  t={t}
-                  model={model}
-                  isLoading={false}
-                  requirementKeyValue={model.key}
-                  isDetailLoading={cpd.isAssociationDetailLoading}
-                  isActivitiesLoading={cpd.isAssociationDetailLoading}
-                  categories={R.associationCategoryRows(cpd.associationDetail)}
-                  content={cpd.associationDetail?.learningContents ?? []}
-                  activities={R.associationActivityRows(
-                    t,
-                    cpd.associationDetail?.activities ?? [],
-                  )}
-                />
+                <div className="space-y-6">
+                  {cpd.isAssociationDetailError ? (
+                    <div
+                      role="alert"
+                      className="flex flex-wrap items-center gap-3 rounded-md border border-destructive/30 bg-destructive/5 p-4 text-sm"
+                    >
+                      <span>{t("cpdProgress.requirements.detailError")}</span>
+                      <Button
+                        size="sm"
+                        radius="xl"
+                        type="button"
+                        variant="outline"
+                        onClick={() => cpd.refetchAssociationDetail()}
+                      >
+                        {t("cpdProgress.requirements.retry")}
+                      </Button>
+                    </div>
+                  ) : null}
+                  <RequirementDetailView
+                    t={t}
+                    model={model}
+                    isLoading={false}
+                    requirementKeyValue={model.key}
+                    isDetailLoading={cpd.isAssociationDetailLoading}
+                    isActivitiesLoading={cpd.isAssociationDetailLoading}
+                    categories={R.associationCategoryRows(
+                      cpd.associationDetail,
+                    )}
+                    content={cpd.associationDetail?.learningContents ?? []}
+                    activities={R.associationActivityRows(
+                      t,
+                      cpd.associationDetail?.activities ?? [],
+                    )}
+                    excludedActivities={
+                      cpd.associationDetail?.excludedActivities ?? []
+                    }
+                  />
+                </div>
               );
             }
 
@@ -177,13 +201,13 @@ const ProfessionalCpdPduProgressTab = () => {
                 <RequirementDetailView
                   t={t}
                   isLoading
+                  content={[]}
+                  activities={[]}
+                  categories={[]}
                   isDetailLoading
                   isActivitiesLoading
                   requirementKeyValue=""
                   model={{} as TRequirementViewModel}
-                  categories={[]}
-                  content={[]}
-                  activities={[]}
                 />
               );
 
@@ -191,17 +215,17 @@ const ProfessionalCpdPduProgressTab = () => {
             return (
               <RequirementDetailView
                 t={t}
+                content={[]}
                 model={model}
                 isLoading={false}
                 isDetailLoading={false}
                 requirementKeyValue={model.key}
-                isActivitiesLoading={cpd.isPlanActivitiesLoading}
-                categories={R.planCategoryRows(cpd.progress)}
-                content={[]}
-                activities={R.planActivityRows(t, cpd.planActivities)}
                 isDeleting={cpd.isDeleting}
-                onDelete={() => cpd.requestDelete(cpd.selectedPlan!.id)}
+                categories={R.planCategoryRows(cpd.progress)}
                 onEdit={() => cpd.editPlan(cpd.selectedPlan!)}
+                isActivitiesLoading={cpd.isPlanActivitiesLoading}
+                activities={R.planActivityRows(t, cpd.planActivities)}
+                onDelete={() => cpd.requestDelete(cpd.selectedPlan!.id)}
               />
             );
           })()}

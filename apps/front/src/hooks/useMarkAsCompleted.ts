@@ -7,9 +7,9 @@ import { orUndefined, toDateInput } from "@/utils/function-helper";
 import { TMarkCompletedPrefill } from "@/types/content-module.types";
 import { usePduEvidenceUpload } from "@/hooks/usePduEvidenceUpload";
 import { pduActivityErrorKey } from "@/utils/pdu-activity-error.util";
+import { fileRequestErrorKey } from "@/utils/file-request.util";
 import { PDU_ACTIVITY_TYPES } from "@/utils/pdu.constant";
 import { getAuthErrorCode } from "@/utils/graphql-error.util";
-import { reportingYearOf } from "@/utils/completion-date.util";
 import { useSearchParams } from "next/navigation";
 import { TPduActivity } from "@/types/professional-dashboard.types";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -19,6 +19,7 @@ import { notify } from "@/hooks/notify";
 
 import * as CpdAPI from "@/lib/rtk/endpoints/cpd-plan.api";
 import * as API from "@/lib/rtk/endpoints/professional.api";
+import * as CD from "@/utils/completion-date.util";
 import * as S from "@/lib/validations/mark-completed.schema";
 import * as R from "@/utils/professional-requirement.helper";
 
@@ -29,12 +30,13 @@ export const useMarkAsCompleted = (
   existing: TPduActivity | null | undefined,
   onClose: () => void,
 ) => {
-  const { t } = useI18n();
+  const { t, language } = useI18n();
   const searchParams = useSearchParams();
 
   const [files, setFiles] = useState<File[]>([]);
   const [evidenceError, setEvidenceError] = useState<string | null>(null);
   const [requirementTouched, setRequirementTouched] = useState(false);
+  const [savedActivityId, setSavedActivityId] = useState<string | null>(null);
 
   const [createActivity, { isLoading: isCreating }] =
     API.useCreateProfessionalPduActivityMutation();
@@ -112,6 +114,7 @@ export const useMarkAsCompleted = (
     form.reset(defaultValues);
     setFiles([]);
     setEvidenceError(null);
+    setSavedActivityId(null);
     setRequirementTouched(Boolean(existing));
   }, [defaultValues, form, existing]);
 
@@ -182,12 +185,59 @@ export const useMarkAsCompleted = (
     },
   );
 
+  const associationLearningContentId = useMemo(() => {
+    if (prefill.associationLearningContentId)
+      return prefill.associationLearningContentId;
+    if (!selectedAssociationId || !inferredRequirement) return null;
+    if (
+      inferredRequirement.key === requirementValue &&
+      inferredRequirement.associationLearningContentId
+    )
+      return inferredRequirement.associationLearningContentId;
+    return null;
+  }, [
+    prefill.associationLearningContentId,
+    inferredRequirement,
+    requirementValue,
+    selectedAssociationId,
+  ]);
+
+  const linkedContent = useMemo(
+    () =>
+      selectedDetail?.learningContents.find(
+        (content) => content.id === associationLearningContentId,
+      ) ?? null,
+    [selectedDetail, associationLearningContentId],
+  );
+
+  const locks = {
+    requirement: Boolean(prefill.requirementLink),
+    creditType: Boolean(selectedAssociation),
+    title: Boolean(linkedContent),
+    provider: Boolean(linkedContent?.provider),
+    category: Boolean(linkedContent?.category),
+    credits: linkedContent?.indicativeCredits != null,
+  };
+
   useEffect(() => {
     if (!selectedAssociation) return;
     form.setValue("creditType", selectedAssociation.creditType, {
       shouldValidate: true,
     });
   }, [selectedAssociation, form]);
+
+  useEffect(() => {
+    if (!linkedContent) return;
+    const options = { shouldValidate: true };
+    if (linkedContent.title)
+      form.setValue("title", linkedContent.title, options);
+    if (linkedContent.provider)
+      form.setValue("providerOrganizer", linkedContent.provider, options);
+    if (linkedContent.category)
+      form.setValue("category", linkedContent.category, options);
+    if (linkedContent.indicativeCredits != null)
+      form.setValue("creditValue", linkedContent.indicativeCredits, options);
+  }, [linkedContent, form]);
 
   const allowedCategories = useMemo(() => {
     if (!selectedAssociationId || !selectedDetail) return null;
@@ -200,26 +250,31 @@ export const useMarkAsCompleted = (
   }, [selectedAssociationId, selectedDetail]);
 
   useEffect(() => {
-    if (!allowedCategories) return;
+    if (!allowedCategories || linkedContent?.category) return;
     const current = form.getValues("category");
     if (!allowedCategories.includes(current))
       form.setValue("category", allowedCategories[0], { shouldValidate: true });
-  }, [allowedCategories, form]);
+  }, [allowedCategories, linkedContent, form]);
+
+  const dateBounds = CD.completionDateBounds(
+    selectedAssociation?.acceptsFrom,
+    selectedAssociation?.acceptsUntil,
+  );
+
+  const formatWindowDate = (value?: string | null) =>
+    CD.formatCalendarDate(value, language);
+
+  const acceptedWindow = selectedAssociation
+    ? {
+        from: formatWindowDate(selectedAssociation.acceptsFrom),
+        until: formatWindowDate(selectedAssociation.acceptsUntil),
+      }
+    : null;
 
   const evidencePolicy = selectedAssociation?.evidencePolicy ?? null;
   const evidenceRequired = Boolean(
     evidencePolicy && evidencePolicy !== AssociationEvidencePolicy.NotRequired,
   );
-
-  const associationLearningContentId = useMemo(() => {
-    if (!selectedAssociationId || !inferredRequirement) return null;
-    if (
-      inferredRequirement.key === requirementValue &&
-      inferredRequirement.associationLearningContentId
-    )
-      return inferredRequirement.associationLearningContentId;
-    return null;
-  }, [inferredRequirement, requirementValue, selectedAssociationId]);
 
   const activityType = form.watch("activityType");
 
@@ -256,7 +311,37 @@ export const useMarkAsCompleted = (
       : `${MODAL}.success.counted`;
   };
 
+  const finish = () => {
+    notify.success(
+      t(successMessageKey(), {
+        name: selectedAssociation?.name ?? "",
+        association: selectedAssociation?.associationName ?? "",
+      }),
+    );
+    onClose();
+  };
+
+  const uploadSavedEvidence = async (activityId: string) => {
+    try {
+      await uploadEvidence(activityId, files);
+      setSavedActivityId(null);
+      finish();
+    } catch (error: unknown) {
+      setSavedActivityId(activityId);
+      notify.error(
+        t(`${MODAL}.uploadFailedSaved`, {
+          reason: t(fileRequestErrorKey(error)),
+        }),
+      );
+    }
+  };
+
   const onSubmit = form.handleSubmit(async (values) => {
+    if (savedActivityId) {
+      await uploadSavedEvidence(savedActivityId);
+      return;
+    }
+
     const hasEvidence = Boolean(files.length || values.certificateLink?.trim());
     if (evidenceRequired && !hasEvidence) {
       setEvidenceError(t(`${MODAL}.evidenceRequired`));
@@ -264,24 +349,37 @@ export const useMarkAsCompleted = (
     }
     setEvidenceError(null);
 
+    if (
+      selectedAssociation &&
+      !CD.isWithinCompletionBounds(values.dateCompleted, dateBounds)
+    ) {
+      form.setError("dateCompleted", {
+        message: dateBounds.min
+          ? t(`${MODAL}.dateOutsideWindow`, {
+              from: formatWindowDate(dateBounds.min),
+              until: formatWindowDate(dateBounds.max),
+            })
+          : t(`${MODAL}.dateAfterWindow`, {
+              until: formatWindowDate(dateBounds.max),
+            }),
+      });
+      return;
+    }
+
     const link = R.parseRequirementKey(values.requirement);
     const planId = link?.source === "PLAN" ? link.id : null;
     const associationRequirementId =
       link?.source === "ASSOCIATION" ? link.id : null;
 
-    const resolvedAssociationLearningContentId =
-      prefill.associationLearningContentId ??
-      (associationRequirementId ? associationLearningContentId : null);
-
     try {
       const created = await createActivity({
         title: values.title,
         date: new Date(values.dateCompleted).toISOString(),
-        pdus: values.creditValue,
+        pdus: linkedContent?.indicativeCredits ?? values.creditValue,
         source: values.activityType,
-        category: values.category,
-        creditType: values.creditType,
-        reportingYear: reportingYearOf(values.dateCompleted),
+        category: linkedContent?.category ?? values.category,
+        creditType: selectedAssociation?.creditType ?? values.creditType,
+        reportingYear: CD.reportingYearOf(values.dateCompleted),
         providerOrganizer: values.providerOrganizer,
         subCategory: orUndefined(values.subCategory),
         issuingOrganization: orUndefined(values.issuingOrganization),
@@ -290,20 +388,14 @@ export const useMarkAsCompleted = (
         contentType: prefill.contentType ?? undefined,
         cpdPlanId: orUndefined(planId),
         associationRequirementId: orUndefined(associationRequirementId),
-        associationLearningContentId: orUndefined(
-          resolvedAssociationLearningContentId,
-        ),
+        associationLearningContentId: orUndefined(associationLearningContentId),
       }).unwrap();
-      if (files.length) await uploadEvidence(created.id, files);
 
-      const messageKey = successMessageKey();
-      notify.success(
-        t(messageKey, {
-          name: selectedAssociation?.name ?? "",
-          association: selectedAssociation?.associationName ?? "",
-        }),
-      );
-      onClose();
+      if (files.length) {
+        await uploadSavedEvidence(created.id);
+        return;
+      }
+      finish();
     } catch (error: unknown) {
       notify.error(t(pduActivityErrorKey(getAuthErrorCode(error))));
     }
@@ -315,9 +407,12 @@ export const useMarkAsCompleted = (
     t,
     form,
     files,
+    locks,
     onSubmit,
+    dateBounds,
     evidenceError,
     evidencePolicy,
+    acceptedWindow,
     evidenceRequired,
     allowedCategories,
     handleFilesChange,
@@ -329,6 +424,7 @@ export const useMarkAsCompleted = (
     handleRequirementChange,
     isSaving: isCreating || isUploading,
     isAlreadyCompleted: Boolean(existing),
+    isUploadPending: Boolean(savedActivityId),
     isRequirementOptionsLoading: isPlansLoading || isAssociationsLoading,
   };
 };

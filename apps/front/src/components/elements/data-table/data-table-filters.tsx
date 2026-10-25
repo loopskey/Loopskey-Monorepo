@@ -89,6 +89,8 @@ const DatePill = ({ filter }: { filter: T.DataTableDateFilter }) => (
     {filter.label}
     <Input
       type="date"
+      min={filter.min}
+      max={filter.max}
       value={filter.value}
       onChange={(event) => filter.onChange(event.target.value)}
       className="h-8 w-36 border-0 bg-transparent px-1 font-semibold text-foreground shadow-none focus-visible:ring-0"

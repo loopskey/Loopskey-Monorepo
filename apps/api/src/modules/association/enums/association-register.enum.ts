@@ -1,3 +1,4 @@
+import { AssociationActivityExclusionReason } from "@association/enums/association-compliance.enum";
 import { AssociationLearningContentStatus } from "@prisma/client";
 import { AssociationLearningExternalType } from "@prisma/client";
 import { AssociationMessageDeliveryState } from "@prisma/client";
@@ -22,9 +23,9 @@ import { AssociationReportType } from "@prisma/client";
 import { registerEnumType } from "@nestjs/graphql";
 
 export enum AssociationInviteOutcome {
-  LINKED_EXISTING_USER = "LINKED_EXISTING_USER",
   INVITATION_SENT = "INVITATION_SENT",
   INVITATION_COOLDOWN = "INVITATION_COOLDOWN",
+  LINKED_EXISTING_USER = "LINKED_EXISTING_USER",
   INVITATION_LIMIT_REACHED = "INVITATION_LIMIT_REACHED",
 }
 
@@ -140,6 +141,12 @@ registerEnumType(AssociationMessageType, {
 registerEnumType(AssociationMessageDeliveryState, {
   name: "AssociationMessageDeliveryState",
   description: "Where one recipient's copy of a message stands",
+});
+
+registerEnumType(AssociationActivityExclusionReason, {
+  name: "AssociationActivityExclusionReason",
+  description:
+    "Why an activity linked to a requirement did not count toward it",
 });
 
 registerEnumType(AssociationMessageSkipReason, {

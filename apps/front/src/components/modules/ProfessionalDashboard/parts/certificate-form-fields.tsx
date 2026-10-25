@@ -4,6 +4,7 @@ import { TCertificateFormFieldsProps } from "@/types/professional-dashboard.type
 import { ActivityEvidenceUpload } from "@modules/ProfessionalDashboard/parts/activity-evidence-upload";
 import { FloatingSelectField } from "@elements/floating-select";
 import { FloatingInputField } from "@elements/floating-input";
+import { useDateRangeBounds } from "@/hooks/useDateRangeBounds";
 
 import * as H from "@/utils/certificates.helper";
 import * as F from "@ui/form";
@@ -25,6 +26,12 @@ export const CertificateFormFields = ({
   onRemoveExisting,
   onDownloadExisting,
 }: TCertificateFormFieldsProps) => {
+  const { startMax, endMin } = useDateRangeBounds(
+    control,
+    "issueDate",
+    "validUntil",
+  );
+
   const planSelectOptions = [
     {
       value: H.CERTIFICATE_PLAN_NONE,
@@ -63,6 +70,7 @@ export const CertificateFormFields = ({
 
         <FloatingInputField
           type="date"
+          max={startMax}
           name="issueDate"
           control={control}
           leftIcon={<L.CalendarDays className="h-4 w-4" />}
@@ -71,6 +79,7 @@ export const CertificateFormFields = ({
 
         <FloatingInputField
           type="date"
+          min={endMin}
           name="validUntil"
           control={control}
           leftIcon={<L.CalendarClock className="h-4 w-4" />}

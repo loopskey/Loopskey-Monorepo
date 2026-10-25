@@ -137,6 +137,8 @@ export type DataTableDateFilter = {
   id: string;
   label: string;
   value: string;
+  min?: string;
+  max?: string;
   onChange: (value: string) => void;
 };
 

@@ -5,6 +5,7 @@ import { TAddCalendarEventDialogProps } from "@/types/professional-dashboard.typ
 import { FloatingTextareaField } from "@elements/floating-textarea";
 import { FloatingSelectField } from "@elements/floating-select";
 import { FloatingInputField } from "@elements/floating-input";
+import { useDateRangeBounds } from "@/hooks/useDateRangeBounds";
 import { useEffect, useMemo } from "react";
 import { CalendarEventType } from "@/lib/graphql/base";
 import { toDateTimeLocal } from "@/utils/function-helper";
@@ -59,6 +60,12 @@ export const AddCalendarEventDialog = ({
   useEffect(() => {
     if (open) form.reset(defaultValues);
   }, [open, defaultValues, form]);
+
+  const { startMax, endMin } = useDateRangeBounds(
+    form.control,
+    "startDate",
+    "endDate",
+  );
 
   const typeOptions = useMemo(
     () =>
@@ -122,6 +129,7 @@ export const AddCalendarEventDialog = ({
 
             <FloatingInputField
               name="startDate"
+              max={startMax}
               type="datetime-local"
               control={form.control}
               label={t(
@@ -131,6 +139,7 @@ export const AddCalendarEventDialog = ({
 
             <FloatingInputField
               name="endDate"
+              min={endMin}
               type="datetime-local"
               control={form.control}
               label={t(

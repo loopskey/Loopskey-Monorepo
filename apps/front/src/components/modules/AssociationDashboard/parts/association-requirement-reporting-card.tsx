@@ -7,6 +7,7 @@ import { AssociationSubmissionWindow } from "@/lib/graphql/base";
 import { AssociationRenewalCondition } from "@/lib/graphql/base";
 import { FloatingSelectField } from "@elements/floating-select";
 import { FloatingInputField } from "@elements/floating-input";
+import { useDateRangeBounds } from "@/hooks/useDateRangeBounds";
 import { CpdReminderTiming } from "@/lib/graphql/base";
 import { useState } from "react";
 import { Switch } from "@ui/switch";
@@ -28,6 +29,12 @@ export const AssociationRequirementReportingCard = ({
     submitReporting,
     submitReminders,
   } = hook;
+
+  const { startMax, endMin } = useDateRangeBounds(
+    reportingForm.control,
+    "reportingStart",
+    "reportingEnd",
+  );
 
   const submissionWindowOptions = Object.values(AssociationSubmissionWindow).map(
     (value) => ({
@@ -82,6 +89,7 @@ export const AssociationRequirementReportingCard = ({
         <div className="grid gap-4 sm:grid-cols-2">
           <FloatingInputField
             type="date"
+            max={startMax}
             name="reportingStart"
             control={reportingForm.control}
             label={t(
@@ -91,6 +99,7 @@ export const AssociationRequirementReportingCard = ({
 
           <FloatingInputField
             type="date"
+            min={endMin}
             name="reportingEnd"
             control={reportingForm.control}
             label={t(

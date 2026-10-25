@@ -3,6 +3,7 @@ import {
   associationMemberEvidenceFileUrl,
 } from "@loopskey/api-contracts/upload";
 
+import { requestFile, saveBlobAs } from "@utils/file-request.util";
 import { PDU_API_ORIGIN } from "@utils/pdu.constant";
 
 export type TAssociationDownloadKind = "evidence" | "certificate";
@@ -21,17 +22,8 @@ export const downloadAssociationMemberFile = async (
   memberId: string,
   file: { id: string; fileName: string },
 ) => {
-  const response = await fetch(
+  const response = await requestFile(
     getAssociationMemberFileUrl(kind, memberId, file.id),
-    { credentials: "include" },
   );
-
-  if (!response.ok) throw new Error(`Download failed (${response.status})`);
-
-  const url = URL.createObjectURL(await response.blob());
-  const anchor = document.createElement("a");
-  anchor.href = url;
-  anchor.download = file.fileName;
-  anchor.click();
-  URL.revokeObjectURL(url);
+  saveBlobAs(await response.blob(), file.fileName);
 };

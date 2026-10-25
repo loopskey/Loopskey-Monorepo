@@ -184,6 +184,14 @@
     "delete": "Delete",
     "edit": "Edit",
     "english": "English",
+    "fileRequest": {
+      "generic": "The file couldn't be processed. Try again.",
+      "missing": "That file is no longer available.",
+      "network": "The upload couldn't reach the server. Check your connection and try again.",
+      "rejected": "The server didn't accept this file. Check its type and size.",
+      "tooLarge": "The file is larger than the server accepts.",
+      "unauthorized": "Your session has expired. Sign in again, then retry."
+    },
     "free": "Free",
     "french": "French",
     "joinAs": {
@@ -576,6 +584,8 @@
       "alreadyCompleted": "You have already marked this content as completed. Saving will update the existing activity.",
       "button": "Mark as Completed",
       "completedButton": "Completed",
+      "dateAfterWindow": "Choose a date on or before {{until}} for this requirement.",
+      "dateOutsideWindow": "Choose a date between {{from}} and {{until}} for this requirement.",
       "description": "Review the details and save this as a completed learning activity.",
       "errors": {
         "contentNotAvailable": "This content is no longer offered to you by your association, so it cannot be marked complete.",
@@ -611,13 +621,22 @@
         "default": "{{association}} recommends this content. We picked your first requirement with them — you can change it.",
         "suggested": "Suggested because {{association}} recommends this content."
       },
+      "requirementPanel": {
+        "countsToward": "Counts toward {{name}} · {{association}}",
+        "locked": "Fields set by {{association}} are locked.",
+        "target": "Requirement: {{total}} {{credit}}",
+        "window": "Accepts completions dated {{from}} to {{until}}",
+        "windowOpen": "Accepts completions dated from {{from}}"
+      },
+      "retryUpload": "Retry upload",
       "save": "Save as Completed",
       "success": {
         "counted": "Counted toward {{name}}.",
         "review": "Sent to {{association}} for review.",
         "saved": "Saved to your activities."
       },
-      "title": "Mark as completed"
+      "title": "Mark as completed",
+      "uploadFailedSaved": "Your completion is saved, but the evidence was not uploaded. {{reason}}"
     },
     "messages": {
       "actionFailed": "Action failed. Please try again.",
