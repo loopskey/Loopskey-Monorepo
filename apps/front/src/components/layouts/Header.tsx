@@ -91,7 +91,7 @@ const Header = ({ languageControl }: THeaderProps) => {
                 href={item.href}
                 aria-current={isActive ? "page" : undefined}
                 className={cn(
-                  "relative mx-3 rounded-full px-3 py-2 text-sm font-semibold transition-all duration-300",
+                  "relative mx-1 whitespace-nowrap rounded-full px-2 py-2 text-sm font-semibold xl:mx-3 xl:px-3 transition-all duration-300",
                   "after:absolute after:bottom-1 after:left-1/2 after:h-[2px] after:w-0 after:-translate-x-1/2 after:rounded-full after:bg-primary after:transition-all after:duration-300",
                   isActive
                     ? "bg-primary/10 text-primary shadow-sm ring-1 ring-primary/15 after:w-6"

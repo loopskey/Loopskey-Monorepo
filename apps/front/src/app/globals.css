@@ -233,17 +233,6 @@ body {
   }
 }
 
-@keyframes hero-float {
-  0%,
-  100% {
-    transform: translateY(0) rotateY(-8deg);
-  }
-
-  50% {
-    transform: translateY(-18px) rotateY(-4deg);
-  }
-}
-
 /* ============== Calendar CSS ================= */
 .calendar-shell .fc {
   --fc-border-color: var(--border);

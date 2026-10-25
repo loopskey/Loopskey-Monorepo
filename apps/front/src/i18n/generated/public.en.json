@@ -986,6 +986,13 @@
     "termsOfService": "Terms of Service"
   },
   "landing": {
+    "actions": {
+      "buildRoadmap": "Build my roadmap",
+      "createAccount": "Create free account",
+      "dashboard": "Go to your dashboard",
+      "getStarted": "Get started",
+      "roadmapForProfessionals": "Roadmaps for professionals"
+    },
     "hero": {
       "badge": "AI-powered professional learning",
       "categories": {
@@ -1001,11 +1008,11 @@
       },
       "categoryResults": "Category results",
       "clear": "Clear",
-      "dashboardCta": "Go to dashboard",
       "exploreButton": "Explore",
+      "exploreLearning": "Explore learning",
       "exploreTitle": "Explore by category",
       "noResults": "No matching content found. Try another keyword or category.",
-      "primaryCta": "Explore learning",
+      "planNote": "Core features are free for individual professionals",
       "resultMeta": {
         "course": "Course",
         "episodes": "{{count}} episodes",
@@ -1013,15 +1020,16 @@
         "minutes": "{{count}} min",
         "videos": "{{count}} videos"
       },
+      "sampleCard": {
+        "credits": "{{earned}} of {{total}} credits",
+        "title": "Project Management Professional"
+      },
       "searchPlaceholder": "Search courses, events, podcasts, and YouTube channels...",
       "searchResults": "Search results",
-      "secondaryCta": "Create account",
       "selectedCategory": "Selected category",
-      "subtitleLine1": "Your Path, Your Choice—LoopsKey's AI,",
-      "subtitleLine2": "Tailored for You.",
-      "titleLine1": "Your Professional",
-      "titleLine2": "Development Journey",
-      "titleLine3": "All In One Place",
+      "subtitle": "Explore online courses, events and podcasts, manage your certifications and keep track of your credits — on one AI-powered platform.",
+      "titleHighlight": "all in one place",
+      "titleLead": "Your learning and certifications,",
       "viewAll": "View all",
       "viewItem": "View"
     },
@@ -1076,101 +1084,8 @@
       "viewAll": "View all content",
       "viewDetails": "View details"
     },
-    "organization": {
-      "compliance": {
-        "atRisk": "At risk",
-        "compliant": "Compliant",
-        "nonCompliant": "Non-compliant"
-      },
-      "dashboard": {
-        "complianceTitle": "CPD compliance by team",
-        "eyebrow": "Workforce overview",
-        "status": "Live",
-        "title": "Engineering team · Q3"
-      },
-      "description": "Give every team member a personalized roadmap, prove CPD compliance in one click, and turn learning into measurable business outcomes.",
-      "eyebrow": "For organizations",
-      "features": {
-        "cpdCompliance": "Automated CPD compliance",
-        "learningAssignments": "Smart learning assignments",
-        "skillAnalytics": "Workforce skill analytics",
-        "teamProgress": "Team progress at a glance"
-      },
-      "primaryAction": "Book consultation",
-      "secondaryAction": "Explore services",
-      "stats": {
-        "avgGrowth": "Avg. growth",
-        "cpdCompliant": "CPD compliant",
-        "teamMembers": "Team members"
-      },
-      "title": "Build a workforce that compounds",
-      "topics": {
-        "aiRoadmaps": "AI learning roadmaps",
-        "compliance": "Compliance training",
-        "leadership": "Leadership skills"
-      }
-    },
-    "popularCategories": {
-      "badge": "Popular Categories",
-      "courses": "Courses",
-      "events": "Events",
-      "itemsCount": "{{count}} items",
-      "podcasts": "Podcasts",
-      "subtitle": "Discover high-performing categories based on ratings, reviews, and learning activity across LoopsKey.",
-      "title": "Explore what professionals are learning",
-      "youtube": "YouTube"
-    },
-    "provider": {
-      "benefits": {
-        "analytics": {
-          "description": "Track impressions, registrations, and learner engagement with a clean dashboard.",
-          "title": "Real-time analytics"
-        },
-        "growAudience": {
-          "description": "Build a following of returning learners and convert one-off attendees into a community.",
-          "title": "Grow your audience"
-        },
-        "promoteEvents": {
-          "description": "List courses, conferences, and webinars to a global audience of qualified professionals.",
-          "title": "Promote your events"
-        },
-        "reachPeople": {
-          "description": "AI matches your offerings to learners actively building roadmaps in your domain.",
-          "title": "Reach the right people"
-        }
-      },
-      "dashboard": {
-        "analyticsDescription": "Understand views, interest, registrations, and content momentum in one place.",
-        "analyticsTitle": "Clear performance data",
-        "demoData": "Demo data",
-        "eyebrow": "Provider growth console",
-        "fallbackProvider": "Provider workspace",
-        "funnelDescription": "Monitor how your content moves from discovery to registration.",
-        "funnelTitle": "Campaign performance",
-        "matchingDescription": "Your events appear where professionals are already planning their next step.",
-        "matchingTitle": "AI-powered matching",
-        "noTopEvent": "No top event yet",
-        "rating": "Rating",
-        "registrations": "Registrations",
-        "revenue": "Revenue",
-        "status": "Live",
-        "topEventTitle": "Top performing event"
-      },
-      "description": "Training companies, associations, and educators trust LoopsKey to put their best content in front of motivated learners.",
-      "eyebrow": "For content providers",
-      "funnel": {
-        "convert": "Registration conversion",
-        "promote": "Promoted events",
-        "publish": "Published content visibility"
-      },
-      "primaryAction": "Become a provider",
-      "secondaryAction": "View services",
-      "stats": {
-        "conversionRate": "Conversion rate",
-        "totalEvents": "Published events",
-        "totalRegistrations": "Registrations"
-      },
-      "title": "Reach professionals actively learning"
+    "sample": {
+      "label": "Sample"
     }
   },
   "navigation": {

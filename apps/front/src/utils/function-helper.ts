@@ -228,13 +228,6 @@ export const isFaqItemArray = (value: unknown): value is TFaqItem[] => {
   return Array.isArray(value) && value.every(isFaqItem);
 };
 
-// =============== Landinig Org =================
-export const formatNumber = (value?: number | null) =>
-  new Intl.NumberFormat("en-US").format(Number(value ?? 0));
-
-export const formatPercent = (value?: number | null) =>
-  `${Math.round(Number(value ?? 0))}%`;
-
 // ================ Calendar Dialog ================
 export const toDateTimeLocal = (value?: string | null) => {
   if (!value) return "";

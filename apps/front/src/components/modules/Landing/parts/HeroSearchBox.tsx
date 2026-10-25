@@ -9,6 +9,7 @@ const HeroSearchBox = ({
   value,
   onChange,
   onClear,
+  clearLabel,
   placeholder,
   exploreLabel,
   isExplorerOpen,
@@ -24,6 +25,7 @@ const HeroSearchBox = ({
             value={value}
             onChange={(event) => onChange(event.target.value)}
             placeholder={placeholder}
+            aria-label={placeholder}
             className={cn(
               "h-14 w-full rounded-md border border-border/60 bg-muted pl-12 pr-12 text-sm font-semibold outline-none",
               "transition-all placeholder:text-muted-foreground/70",
@@ -35,9 +37,10 @@ const HeroSearchBox = ({
             <button
               type="button"
               onClick={onClear}
+              aria-label={clearLabel}
               className="absolute right-4 top-1/2 -translate-y-1/2 rounded-full p-1 text-muted-foreground transition hover:bg-muted hover:text-foreground"
             >
-              <X className="h-4 w-4" />
+              <X aria-hidden className="h-4 w-4" />
             </button>
           ) : null}
         </div>
