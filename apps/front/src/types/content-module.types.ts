@@ -322,6 +322,8 @@ export type TMarkCompletedPrefill = {
   roadmapArea?: string | null;
   durationMinutes?: number | null;
   providerOrganizer?: string | null;
+  associationName?: string | null;
+  creditValue?: number | null;
   category?: API.PduCategory | null;
   contentType?: API.ContentType | null;
   associationLearningContentId?: string | null;

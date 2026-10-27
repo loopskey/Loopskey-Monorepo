@@ -584,6 +584,7 @@
       "alreadyCompleted": "Vous avez déjà marqué ce contenu comme terminé. L'enregistrement mettra à jour l'activité existante.",
       "button": "Marquer comme terminé",
       "completedButton": "Terminé",
+      "completionWindowNotOpen": "Cette exigence accepte les activités terminées à partir du {{date}}. Vous pourrez enregistrer cet achèvement à cette date.",
       "dateAfterWindow": "Choisissez une date au plus tard le {{until}} pour cette exigence.",
       "dateOutsideWindow": "Choisissez une date entre le {{from}} et le {{until}} pour cette exigence.",
       "description": "Vérifiez les détails et enregistrez cette activité d'apprentissage comme terminée.",
@@ -613,6 +614,7 @@
         "subCategory": "Sous-catégorie",
         "title": "Titre de l'activité"
       },
+      "fixField": "Vérifiez {{field}} avant d’enregistrer.",
       "noRequirements": {
         "hint": "Vous n'avez pas encore d'exigence.",
         "link": "Ajouter une exigence"

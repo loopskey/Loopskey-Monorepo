@@ -584,6 +584,7 @@
       "alreadyCompleted": "You have already marked this content as completed. Saving will update the existing activity.",
       "button": "Mark as Completed",
       "completedButton": "Completed",
+      "completionWindowNotOpen": "This requirement accepts completed activities starting {{date}}. You can save this completion when that date arrives.",
       "dateAfterWindow": "Choose a date on or before {{until}} for this requirement.",
       "dateOutsideWindow": "Choose a date between {{from}} and {{until}} for this requirement.",
       "description": "Review the details and save this as a completed learning activity.",
@@ -613,6 +614,7 @@
         "subCategory": "Sub-category",
         "title": "Activity title"
       },
+      "fixField": "Check {{field}} before saving.",
       "noRequirements": {
         "hint": "You don't have any requirements yet.",
         "link": "Add a requirement"

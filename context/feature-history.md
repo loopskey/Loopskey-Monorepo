@@ -160,3 +160,4 @@ into this index and do not rewrite previous records.
 - [`landing-v10-responsive-redesign`](feature-runs/active/landing-v10-responsive-redesign.md) — PR [#326](https://github.com/loopskey/Loopskey-Monorepo/pull/326)
 - [`requirement-completion-and-date-range`](feature-runs/active/requirement-completion-and-date-range.md) — PR [#327](https://github.com/loopskey/Loopskey-Monorepo/pull/327)
 - [`active-members-and-progress-sync`](feature-runs/active/active-members-and-progress-sync.md) — PR [#328](https://github.com/loopskey/Loopskey-Monorepo/pull/328)
+- [`association-completion-prefill`](feature-runs/active/association-completion-prefill.md) — PR [#330](https://github.com/loopskey/Loopskey-Monorepo/pull/330)

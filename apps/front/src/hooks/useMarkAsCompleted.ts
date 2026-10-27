@@ -1,7 +1,7 @@
 "use client";
 
 import { CreditType, PduCategory, PduSource } from "@/lib/graphql/base";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { AssociationEvidencePolicy } from "@/lib/graphql/base";
 import { orUndefined, toDateInput } from "@/utils/function-helper";
 import { TMarkCompletedPrefill } from "@/types/content-module.types";
@@ -37,6 +37,7 @@ export const useMarkAsCompleted = (
   const [evidenceError, setEvidenceError] = useState<string | null>(null);
   const [requirementTouched, setRequirementTouched] = useState(false);
   const [savedActivityId, setSavedActivityId] = useState<string | null>(null);
+  const initializedFormIdentity = useRef<string | null>(null);
 
   const [createActivity, { isLoading: isCreating }] =
     API.useCreateProfessionalPduActivityMutation();
@@ -82,10 +83,13 @@ export const useMarkAsCompleted = (
       title: existing?.title ?? prefill.title,
       activityType: existing?.source ?? prefill.activityType,
       providerOrganizer:
-        existing?.providerOrganizer ?? prefill.providerOrganizer ?? "",
+        existing?.providerOrganizer ??
+        prefill.providerOrganizer ??
+        prefill.associationName ??
+        "",
       dateCompleted: toDateInput(existing?.date),
       creditType: existing?.creditType ?? CreditType.Pdu,
-      creditValue: existing?.pdus ?? 1,
+      creditValue: existing?.pdus ?? prefill.creditValue ?? 1,
       category: existing?.category ?? prefill.category ?? PduCategory.Technical,
       subCategory: existing?.subCategory ?? "",
       issuingOrganization: existing?.issuingOrganization ?? "",
@@ -110,13 +114,29 @@ export const useMarkAsCompleted = (
     defaultValues,
   });
 
+  const formIdentity = [
+    prefill.associationLearningContentId,
+    prefill.contentType,
+    prefill.contentId,
+    existing?.id,
+  ].join(":");
+
   useEffect(() => {
+    if (initializedFormIdentity.current === formIdentity) return;
+    if (files.length > 0 || savedActivityId || form.formState.isDirty) return;
     form.reset(defaultValues);
-    setFiles([]);
+    initializedFormIdentity.current = formIdentity;
     setEvidenceError(null);
-    setSavedActivityId(null);
     setRequirementTouched(Boolean(existing));
-  }, [defaultValues, form, existing]);
+  }, [
+    defaultValues,
+    form,
+    existing,
+    files.length,
+    formIdentity,
+    savedActivityId,
+    form.formState.isDirty,
+  ]);
 
   const inferredRequirement = useMemo(() => {
     if (existing) return null;
@@ -214,7 +234,9 @@ export const useMarkAsCompleted = (
     requirement: Boolean(prefill.requirementLink),
     creditType: Boolean(selectedAssociation),
     title: Boolean(linkedContent),
-    provider: Boolean(linkedContent?.provider),
+    provider:
+      !existing &&
+      Boolean(selectedAssociation?.associationName || linkedContent?.provider),
     category: Boolean(linkedContent?.category),
     credits: linkedContent?.indicativeCredits != null,
   };
@@ -224,20 +246,48 @@ export const useMarkAsCompleted = (
     form.setValue("creditType", selectedAssociation.creditType, {
       shouldValidate: true,
     });
-  }, [selectedAssociation, form]);
+  }, [selectedAssociation, existing?.id, form]);
 
   useEffect(() => {
     if (!linkedContent) return;
     const options = { shouldValidate: true };
     if (linkedContent.title)
       form.setValue("title", linkedContent.title, options);
-    if (linkedContent.provider)
-      form.setValue("providerOrganizer", linkedContent.provider, options);
+    if (!existing && !form.getFieldState("providerOrganizer").isDirty) {
+      if (selectedAssociation?.associationName)
+        form.setValue(
+          "providerOrganizer",
+          selectedAssociation.associationName,
+          options,
+        );
+      else if (prefill.associationName)
+        form.setValue("providerOrganizer", prefill.associationName, options);
+      else if (linkedContent.provider)
+        form.setValue("providerOrganizer", linkedContent.provider, options);
+    }
     if (linkedContent.category)
       form.setValue("category", linkedContent.category, options);
     if (linkedContent.indicativeCredits != null)
       form.setValue("creditValue", linkedContent.indicativeCredits, options);
-  }, [linkedContent, form]);
+  }, [
+    linkedContent,
+    selectedAssociation?.associationName,
+    prefill.associationName,
+    existing,
+    form,
+  ]);
+
+  useEffect(() => {
+    if (
+      existing ||
+      !selectedAssociation?.associationName ||
+      form.getFieldState("providerOrganizer").isDirty
+    )
+      return;
+    form.setValue("providerOrganizer", selectedAssociation.associationName, {
+      shouldValidate: true,
+    });
+  }, [selectedAssociation?.associationName, existing, form]);
 
   const allowedCategories = useMemo(() => {
     if (!selectedAssociationId || !selectedDetail) return null;
@@ -256,10 +306,25 @@ export const useMarkAsCompleted = (
       form.setValue("category", allowedCategories[0], { shouldValidate: true });
   }, [allowedCategories, linkedContent, form]);
 
-  const dateBounds = CD.completionDateBounds(
-    selectedAssociation?.acceptsFrom,
-    selectedAssociation?.acceptsUntil,
+  const dateBounds = useMemo(
+    () =>
+      CD.completionDateBounds(
+        selectedAssociation?.acceptsFrom,
+        selectedAssociation?.acceptsUntil,
+      ),
+    [selectedAssociation?.acceptsFrom, selectedAssociation?.acceptsUntil],
   );
+  const completionWindowNotOpen = Boolean(
+    selectedAssociation && dateBounds.min && dateBounds.min > dateBounds.max,
+  );
+
+  useEffect(() => {
+    if (!selectedAssociation || existing || form.getValues("dateCompleted"))
+      return;
+    const today = CD.latestCompletionDate();
+    if (CD.isWithinCompletionBounds(today, dateBounds))
+      form.setValue("dateCompleted", today, { shouldValidate: true });
+  }, [selectedAssociation, existing, dateBounds, form]);
 
   const formatWindowDate = (value?: string | null) =>
     CD.formatCalendarDate(value, language);
@@ -414,6 +479,7 @@ export const useMarkAsCompleted = (
     evidencePolicy,
     acceptedWindow,
     evidenceRequired,
+    completionWindowNotOpen,
     allowedCategories,
     handleFilesChange,
     requirementOptions,
