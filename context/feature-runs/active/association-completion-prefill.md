@@ -4,7 +4,7 @@
 - Model: `Standard development — bounded frontend form and data-flow correction using existing API contracts.`
 - Branch: `feature/association-completion-prefill`
 - Base: `8ce8c3d56a803fce008b1e2584d441c85463dbe3`
-- Status: `Ready`
+- Status: `Submitted`
 
 ## Acceptance
 
@@ -25,6 +25,6 @@
 
 ## Submission
 
-- Commit:
-- PR:
-- CI:
+- Commit: `f0cfe39d`
+- PR: https://github.com/loopskey/Loopskey-Monorepo/pull/330
+- CI: pending
