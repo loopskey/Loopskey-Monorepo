@@ -26,7 +26,6 @@ export const MarkAsCompletedButton = ({
   const { t } = useI18n();
   const { user } = usePublicSession();
   const [open, setOpen] = useState(false);
-  const [hasOpened, setHasOpened] = useState(false);
 
   const isProfessional = user?.role === Role.Professional;
 
@@ -51,10 +50,7 @@ export const MarkAsCompletedButton = ({
         radius="xl"
         type="button"
         variant="outline"
-        onClick={() => {
-          setHasOpened(true);
-          setOpen(true);
-        }}
+        onClick={() => setOpen(true)}
         className={cn(style.softClass, "justify-center", className)}
       >
         {isCompleted ? (
@@ -65,7 +61,7 @@ export const MarkAsCompletedButton = ({
         {isCompleted ? t(`${MODAL}.completedButton`) : t(`${MODAL}.button`)}
       </Button>
 
-      {hasOpened && (
+      {open && (
         <MarkAsCompletedDialog
           open={open}
           prefill={prefill}

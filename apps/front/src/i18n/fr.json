@@ -3295,6 +3295,8 @@
         "link": "Ajouter une exigence"
       },
       "save": "Enregistrer comme terminé",
+      "fixField": "Vérifiez {{field}} avant d’enregistrer.",
+      "completionWindowNotOpen": "Cette exigence accepte les activités terminées à partir du {{date}}. Vous pourrez enregistrer cet achèvement à cette date.",
       "fields": {
         "title": "Titre de l'activité",
         "activityType": "Type d'activité",

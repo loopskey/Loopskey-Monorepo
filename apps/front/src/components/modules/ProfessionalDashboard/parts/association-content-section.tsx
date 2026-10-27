@@ -172,7 +172,9 @@ export const AssociationContentSection = ({
             contentId: completing.contentId,
             contentType: completing.contentType,
             activityType: activityTypeForContentType(completing.contentType),
-            providerOrganizer: completing.provider,
+            providerOrganizer: completing.associationName ?? completing.provider,
+            associationName: completing.associationName,
+            creditValue: completing.indicativeCredits,
             category: completing.category,
             associationLearningContentId: completing.id,
           }}
