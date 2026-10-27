@@ -3291,6 +3291,8 @@
         "link": "Add a requirement"
       },
       "save": "Save as Completed",
+      "fixField": "Check {{field}} before saving.",
+      "completionWindowNotOpen": "This requirement accepts completed activities starting {{date}}. You can save this completion when that date arrives.",
       "fields": {
         "title": "Activity title",
         "activityType": "Activity type",

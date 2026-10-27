@@ -19,6 +19,20 @@ import * as D from "@ui/dialog";
 const MODAL = "contentDetails.markCompleted";
 const TRACKER = "professionalDashboard.cpdPduTracker";
 const REQUIREMENTS_HREF = "/dashboard/professional?tab=cpd-pdu-progress";
+const VALIDATION_FIELD_LABELS: Record<string, string> = {
+  title: "title",
+  activityType: "activityType",
+  requirement: "requirement",
+  providerOrganizer: "providerOrganizer",
+  dateCompleted: "dateCompleted",
+  creditType: "creditType",
+  creditValue: "creditValue",
+  category: "category",
+  subCategory: "subCategory",
+  issuingOrganization: "issuingOrganization",
+  certificateLink: "certificateLink",
+  files: "certificate",
+};
 
 export const MarkAsCompletedDialog = ({
   open,
@@ -39,6 +53,7 @@ export const MarkAsCompletedDialog = ({
     evidencePolicy,
     isUploadPending,
     evidenceRequired,
+    completionWindowNotOpen,
     handleFilesChange,
     allowedCategories,
     requirementOptions,
@@ -69,7 +84,14 @@ export const MarkAsCompletedDialog = ({
     label: t(`${TRACKER}.creditTypes.${type}`),
   }));
 
-  const categoryOptions = (allowedCategories ?? PDU_CATEGORIES).map(
+  const selectedCategory = form.watch("category");
+  const categories = allowedCategories ?? PDU_CATEGORIES;
+  const categoryOptions = [
+    ...(locks.category && !categories.includes(selectedCategory)
+      ? [selectedCategory]
+      : []),
+    ...categories,
+  ].map(
     (category) => ({
       value: category,
       label: t(`${TRACKER}.categories.${category}`),
@@ -80,6 +102,10 @@ export const MarkAsCompletedDialog = ({
   const showInferredHint =
     Boolean(inferredRequirement) &&
     inferredRequirement?.key === requirementValue;
+  const firstInvalidField = Object.keys(form.formState.errors)[0];
+  const firstInvalidLabel = firstInvalidField
+    ? VALIDATION_FIELD_LABELS[firstInvalidField]
+    : null;
 
   return (
     <D.Dialog open={open} onOpenChange={onOpenChange}>
@@ -94,6 +120,17 @@ export const MarkAsCompletedDialog = ({
             <CheckCircle2 className="h-4 w-4" />
             {t(`${MODAL}.alreadyCompleted`)}
           </div>
+        )}
+
+        {completionWindowNotOpen && acceptedWindow?.from && (
+          <p
+            role="status"
+            className="rounded-md border border-warning/30 bg-warning/10 px-4 py-3 text-sm text-foreground"
+          >
+            {t(`${MODAL}.completionWindowNotOpen`, {
+              date: acceptedWindow.from,
+            })}
+          </p>
         )}
 
         <Form {...form}>
@@ -204,6 +241,7 @@ export const MarkAsCompletedDialog = ({
                 name="providerOrganizer"
                 readOnly={locks.provider}
                 label={t(`${MODAL}.fields.providerOrganizer`)}
+                requiredText={t("common.required")}
               />
 
               <FloatingInputField
@@ -213,6 +251,7 @@ export const MarkAsCompletedDialog = ({
                 max={dateBounds.max}
                 control={form.control}
                 label={t(`${MODAL}.fields.dateCompleted`)}
+                requiredText={t("common.required")}
               />
 
               <FloatingSelectField
@@ -292,8 +331,16 @@ export const MarkAsCompletedDialog = ({
             />
 
             {evidenceError && (
-              <p className="text-sm font-medium text-destructive">
+              <p role="alert" className="text-sm font-medium text-destructive">
                 {evidenceError}
+              </p>
+            )}
+
+            {form.formState.isSubmitted && firstInvalidLabel && (
+              <p role="alert" className="text-sm font-medium text-destructive">
+                {t(`${MODAL}.fixField`, {
+                  field: t(`${MODAL}.fields.${firstInvalidLabel}`),
+                })}
               </p>
             )}
 
@@ -308,7 +355,11 @@ export const MarkAsCompletedDialog = ({
                 {t("common.cancel")}
               </Button>
 
-              <Button radius="xl" type="submit" disabled={isSaving}>
+              <Button
+                radius="xl"
+                type="submit"
+                disabled={isSaving || (completionWindowNotOpen && !isUploadPending)}
+              >
                 {isSaving && <Loader2 className="h-4 w-4 animate-spin" />}
                 {t(isUploadPending ? `${MODAL}.retryUpload` : `${MODAL}.save`)}
               </Button>
