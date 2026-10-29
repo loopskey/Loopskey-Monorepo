@@ -23,4 +23,4 @@
 
 - Commit: 65eb8af9
 - PR: https://github.com/loopskey/Loopskey-Monorepo/pull/335
-- CI: pending
+- CI: first run failed the public JavaScript ceiling check on /contact (200.4 KiB vs the 200 KiB target; the bundler split the shared shell into one more chunk). The cover now renders through next/image (unoptimized SVG), which restores the chunking: /contact 199.4 KiB, same as develop.

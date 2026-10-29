@@ -242,6 +242,7 @@ export type TExternalLearningBtn = {
 };
 
 export type TContentThumbnailProps = {
+  priority?: boolean;
   className?: string;
   category?: string | null;
 };

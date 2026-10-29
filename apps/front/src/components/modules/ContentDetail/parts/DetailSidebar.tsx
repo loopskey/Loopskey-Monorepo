@@ -19,7 +19,7 @@ const DetailSidebar = ({
   return (
     <GlassCard className="overflow-hidden p-0 md:p-0">
       <div className="relative aspect-video bg-muted">
-        <ContentThumbnail category={category} />
+        <ContentThumbnail priority category={category} />
       </div>
 
       <div className="space-y-5 p-5">

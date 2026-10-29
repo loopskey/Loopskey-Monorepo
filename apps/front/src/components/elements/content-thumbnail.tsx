@@ -1,20 +1,21 @@
-import { CONTENT_CATEGORY_ART_CLASS_NAME } from "@utils/content-category-art.constant";
 import { getContentCategoryArtSrc } from "@utils/content-category-art.constant";
 import { cn } from "@/lib/utils";
 
 import type { TContentThumbnailProps } from "@/types/element.types";
 
+import Image from "next/image";
+
 export const ContentThumbnail = ({
+  priority,
   category,
   className,
 }: TContentThumbnailProps) => (
-  <div
-    aria-hidden
-    style={{ backgroundImage: `url(${getContentCategoryArtSrc(category)})` }}
-    className={cn(
-      "absolute inset-0",
-      CONTENT_CATEGORY_ART_CLASS_NAME,
-      className,
-    )}
+  <Image
+    fill
+    alt=""
+    unoptimized
+    priority={priority}
+    src={getContentCategoryArtSrc(category)}
+    className={cn("object-cover object-[100%_center]", className)}
   />
 );
