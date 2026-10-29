@@ -163,3 +163,4 @@ into this index and do not rewrite previous records.
 - [`association-completion-prefill`](feature-runs/active/association-completion-prefill.md) — PR [#330](https://github.com/loopskey/Loopskey-Monorepo/pull/330)
 - [`category-cover-cards`](feature-runs/active/category-cover-cards.md) — PR [#332](https://github.com/loopskey/Loopskey-Monorepo/pull/332)
 - [`remove-requirement-credit-categories`](feature-runs/active/remove-requirement-credit-categories.md) — PR [#333](https://github.com/loopskey/Loopskey-Monorepo/pull/333)
+- [`svg-only-covers-and-compact-card`](feature-runs/active/svg-only-covers-and-compact-card.md) — PR [#335](https://github.com/loopskey/Loopskey-Monorepo/pull/335)

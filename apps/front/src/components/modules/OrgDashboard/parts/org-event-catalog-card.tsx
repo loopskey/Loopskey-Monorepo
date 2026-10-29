@@ -18,12 +18,7 @@ export const OrgEventCatalogCard = ({
     <GlassCard className="overflow-hidden p-0">
       <div className="relative z-10">
         <div className="relative aspect-video overflow-hidden rounded-t-lg bg-muted">
-          <ContentThumbnail
-            title={event.title}
-            imageUrl={event.imageUrl}
-            category={event.category}
-            sizes="(max-width: 768px) 100vw, (max-width: 1280px) 50vw, 33vw"
-          />
+          <ContentThumbnail category={event.category} />
           <Badge className="absolute left-4 top-4">{event.deliveryMode}</Badge>
         </div>
         <div className="p-6">

@@ -56,8 +56,6 @@ const CourseDetailPage = ({ course, breadcrumbs }: TCourseDetailPageProps) => {
       }
       sidebar={
         <DetailSidebar
-          title={course.title}
-          imageUrl={course.imageUrl}
           category={course.category}
           summary={
             <DetailSummary

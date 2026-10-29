@@ -98,7 +98,6 @@ export const OverviewRecommendationsCard = () => {
                 title: course.title,
                 status: course.level,
                 rating: course.rating,
-                imageUrl: course.imageUrl,
                 category: course.category,
                 categoryKey: course.category,
                 description: course.description,

@@ -216,7 +216,6 @@ const ProfessionalWishlistTab = () => {
                     title,
                     status: item.contentType,
                     rating: content?.rating,
-                    imageUrl: content?.imageUrl,
                     category: content?.category,
                     categoryKey: content?.category,
                     description: content?.description,

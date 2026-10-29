@@ -1,13 +1,13 @@
 import * as Types from "@/lib/graphql/base";
 import { TypedDocumentString } from "@/lib/graphql/document";
-export type LandingCatalogSearchItemFieldsFragment = { __typename?: 'LandingCatalogSearchItem', id: string, contentType: Types.ContentType, slug: string, title: string, imageUrl?: string | null, category: string, rating: number, durationMinutes?: number | null, startDate?: string | null, episodeCount?: number | null, videoCount?: number | null };
+export type LandingCatalogSearchItemFieldsFragment = { __typename?: 'LandingCatalogSearchItem', id: string, contentType: Types.ContentType, slug: string, title: string, category: string, rating: number, durationMinutes?: number | null, startDate?: string | null, episodeCount?: number | null, videoCount?: number | null };
 
 export type LandingCatalogSearchQueryVariables = Types.Exact<{
   input: Types.LandingCatalogSearchInput;
 }>;
 
 
-export type LandingCatalogSearchQuery = { __typename?: 'Query', landingCatalogSearch: Array<{ __typename?: 'LandingCatalogSearchItem', id: string, contentType: Types.ContentType, slug: string, title: string, imageUrl?: string | null, category: string, rating: number, durationMinutes?: number | null, startDate?: string | null, episodeCount?: number | null, videoCount?: number | null }> };
+export type LandingCatalogSearchQuery = { __typename?: 'Query', landingCatalogSearch: Array<{ __typename?: 'LandingCatalogSearchItem', id: string, contentType: Types.ContentType, slug: string, title: string, category: string, rating: number, durationMinutes?: number | null, startDate?: string | null, episodeCount?: number | null, videoCount?: number | null }> };
 
 export const LandingCatalogSearchItemFieldsFragmentDoc = /*#__PURE__*/ new TypedDocumentString(`
     fragment LandingCatalogSearchItemFields on LandingCatalogSearchItem {
@@ -15,7 +15,6 @@ export const LandingCatalogSearchItemFieldsFragmentDoc = /*#__PURE__*/ new Typed
   contentType
   slug
   title
-  imageUrl
   category
   rating
   durationMinutes
@@ -35,7 +34,6 @@ export const LandingCatalogSearchDocument = /*#__PURE__*/ new TypedDocumentStrin
   contentType
   slug
   title
-  imageUrl
   category
   rating
   durationMinutes
