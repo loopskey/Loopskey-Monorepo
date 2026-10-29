@@ -100,6 +100,7 @@ export const OverviewRecommendationsCard = () => {
                 rating: course.rating,
                 imageUrl: course.imageUrl,
                 category: course.category,
+                categoryKey: course.category,
                 description: course.description,
                 metaPrimary: t("content.card.professionals", {
                   count: course.professionals,

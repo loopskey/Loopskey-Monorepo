@@ -97,9 +97,8 @@ export const OrgEventAssignView = ({ hook }: TEventCatalogAssignView) => {
         <aside className="space-y-6 xl:sticky xl:top-24 xl:self-start">
           <GlassCard className="overflow-hidden p-0">
             <div className="relative z-10">
-              <div className="relative h-44 overflow-hidden rounded-t-lg bg-muted">
+              <div className="relative aspect-video overflow-hidden rounded-t-lg bg-muted">
                 <ContentThumbnail
-                  kind="event"
                   title={selectedEvent.title}
                   imageUrl={selectedEvent.imageUrl}
                   category={selectedEvent.category}

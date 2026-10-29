@@ -29,18 +29,8 @@ const KIND_META_ICONS = {
   youtube: { primary: L.Users, secondary: L.Video },
 } as const;
 
-const PROGRESSIVE_BLUR_LAYER_CLASS_NAMES = [
-  "backdrop-blur-[2px] [mask-image:linear-gradient(to_bottom,transparent_0%,black_25%)]",
-  "backdrop-blur-[4px] [mask-image:linear-gradient(to_bottom,transparent_20%,black_45%)]",
-  "backdrop-blur-[8px] [mask-image:linear-gradient(to_bottom,transparent_40%,black_65%)]",
-  "backdrop-blur-[16px] [mask-image:linear-gradient(to_bottom,transparent_60%,black_85%)]",
-] as const;
-
-const CHIP_CLASS_NAME =
-  "flex items-center gap-1.5 rounded-full bg-black/45 px-3 py-1 text-[11px] font-bold backdrop-blur-md";
-
 const CTA_CLASS_NAME =
-  "mx-6 mb-6 flex min-h-12 items-center justify-between gap-3 rounded-xl px-4 py-3 text-sm font-semibold shadow-sm";
+  "flex min-h-12 items-center justify-between gap-3 rounded-xl px-4 py-3 text-sm font-semibold shadow-sm";
 
 export type ContentCardViewProps = TContentCardProps & {
   viewDetails: string;
@@ -50,7 +40,6 @@ export type ContentCardViewProps = TContentCardProps & {
 const ContentCardView = ({
   item,
   overlay,
-  variant,
   className,
   footerNote,
   viewDetails,
@@ -63,7 +52,7 @@ const ContentCardView = ({
   return (
     <article
       className={cn(
-        "group relative isolate flex aspect-[3/4] min-h-[27.5rem] min-w-0 flex-col justify-end overflow-hidden rounded-2xl text-white",
+        "group @container relative isolate flex min-w-0 flex-col overflow-hidden rounded-2xl border bg-card text-card-foreground",
         "transition-[transform,box-shadow] duration-300 hover:-translate-y-0.5 hover:shadow-xl",
         "motion-reduce:transition-none motion-reduce:hover:translate-y-0",
         "has-[a:focus-visible]:ring-2 has-[a:focus-visible]:ring-ring has-[a:focus-visible]:ring-offset-2",
@@ -71,73 +60,55 @@ const ContentCardView = ({
         className,
       )}
     >
-      <ContentThumbnail
-        variant={variant}
-        kind={item.kind}
-        title={item.title}
-        imageUrl={item.imageUrl}
-        category={item.categoryKey}
-        sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, (max-width: 1280px) 33vw, 25vw"
-        className="-z-30 transition-transform duration-500 group-hover:scale-105 motion-reduce:transition-none"
-      />
-
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-x-0 bottom-0 -z-20 h-[72%] bg-gradient-to-t from-black/95 via-black/75 to-transparent"
-      />
-
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-x-0 bottom-0 -z-10 h-[62%]"
-      >
-        {PROGRESSIVE_BLUR_LAYER_CLASS_NAMES.map((layerClassName) => (
-          <div
-            key={layerClassName}
-            className={cn("absolute inset-0", layerClassName)}
-          />
-        ))}
+      <div className="relative aspect-video w-full shrink-0 border-b bg-white">
+        <ContentThumbnail
+          title={item.title}
+          imageUrl={item.imageUrl}
+          category={item.categoryKey}
+          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, (max-width: 1280px) 33vw, 25vw"
+        />
       </div>
 
-      <div className="pointer-events-none absolute inset-x-6 top-6 z-10 flex items-center justify-between gap-2">
-        {item.category ? (
-          <span
-            className={cn(CHIP_CLASS_NAME, "min-w-0 uppercase tracking-wide")}
-          >
-            <span
-              className={cn(
-                "size-2 shrink-0 rounded-full ring-2 ring-white/35",
-                KIND_DOT_CLASS_NAME[item.kind],
-              )}
-            />
-            <span className="truncate">{item.category}</span>
-          </span>
+      <div className="flex min-w-0 flex-1 flex-col gap-2 p-5 @max-[17rem]:p-4">
+        {item.category || hasRating || overlay ? (
+          <div className="flex items-center justify-between gap-2">
+            {item.category ? (
+              <span className="flex min-w-0 items-center gap-1.5 rounded-full bg-muted px-2.5 py-1 text-[11px] font-bold uppercase tracking-wide">
+                <span
+                  className={cn(
+                    "size-2 shrink-0 rounded-full",
+                    KIND_DOT_CLASS_NAME[item.kind],
+                  )}
+                />
+                <span className="truncate">{item.category}</span>
+              </span>
+            ) : null}
+
+            <div className="relative z-10 ml-auto flex shrink-0 items-center gap-2">
+              {hasRating ? (
+                <span className="flex items-center gap-1 text-xs font-bold">
+                  <L.Star
+                    aria-hidden="true"
+                    className="size-3.5 fill-yellow-400 text-yellow-500"
+                  />
+                  {item.rating?.toFixed(1)}
+                </span>
+              ) : null}
+
+              {overlay}
+            </div>
+          </div>
         ) : null}
 
-        <div className="pointer-events-auto ml-auto flex shrink-0 items-center gap-2">
-          {hasRating ? (
-            <span className={CHIP_CLASS_NAME}>
-              <L.Star
-                aria-hidden="true"
-                className="size-3 fill-yellow-400 text-yellow-500"
-              />
-              {item.rating?.toFixed(1)}
-            </span>
-          ) : null}
-
-          {overlay}
-        </div>
-      </div>
-
-      <div className="flex min-w-0 flex-col gap-2 px-6 pb-5">
         {item.status ? (
-          <span className="w-fit rounded-full bg-white px-2.5 py-0.5 text-[11px] font-bold text-black">
+          <span className="w-fit rounded-full bg-primary px-2.5 py-0.5 text-[11px] font-bold text-primary-foreground">
             {item.status}
           </span>
         ) : null}
 
         <h3
           lang={item.contentLang ?? undefined}
-          className="line-clamp-2 text-balance text-xl font-semibold leading-tight tracking-tight"
+          className="line-clamp-2 text-balance text-xl font-semibold leading-tight tracking-tight @max-[17rem]:text-lg"
         >
           {item.title}
         </h3>
@@ -145,17 +116,19 @@ const ContentCardView = ({
         {item.description ? (
           <p
             lang={item.contentLang ?? undefined}
-            className="line-clamp-2 text-[13px] leading-5"
+            className="line-clamp-2 text-[13px] leading-5 text-muted-foreground"
           >
             {item.description}
           </p>
         ) : null}
 
         {item.originalLanguage ? (
-          <p className="text-[11px] font-semibold">{originalLanguage}</p>
+          <p className="text-[11px] font-semibold text-muted-foreground">
+            {originalLanguage}
+          </p>
         ) : null}
 
-        <div className="flex flex-wrap items-center gap-x-4 gap-y-1 pt-1.5 text-xs">
+        <div className="flex flex-wrap items-center gap-x-4 gap-y-1 pt-1.5 text-xs text-muted-foreground">
           {item.metaPrimary ? (
             <span className="flex min-w-0 items-center gap-1.5">
               <PrimaryIcon aria-hidden="true" className="size-3.5 shrink-0" />
@@ -171,32 +144,38 @@ const ContentCardView = ({
           ) : null}
         </div>
 
-        {footerNote ? <div className="text-xs">{footerNote}</div> : null}
-      </div>
+        {footerNote ? (
+          <div className="text-xs text-muted-foreground">{footerNote}</div>
+        ) : null}
 
-      {item.href ? (
-        <Link
-          href={item.href}
-          className={cn(
-            CTA_CLASS_NAME,
-            "outline-none transition-[filter] group-hover:brightness-110 active:brightness-90 motion-reduce:transition-none after:absolute after:inset-0 after:content-['']",
-            KIND_CTA_CLASS_NAME[item.kind],
+        <div className="mt-auto pt-2">
+          {item.href ? (
+            <Link
+              href={item.href}
+              className={cn(
+                CTA_CLASS_NAME,
+                "outline-none transition-[filter] group-hover:brightness-110 active:brightness-90 motion-reduce:transition-none after:absolute after:inset-0 after:content-['']",
+                KIND_CTA_CLASS_NAME[item.kind],
+              )}
+            >
+              {viewDetails}
+              <span className="sr-only">: {item.title}</span>
+              <span
+                aria-hidden
+                className="flex size-7 items-center justify-center rounded-full bg-white/20"
+              >
+                <L.ArrowRight className="size-4 transition-transform group-hover:translate-x-0.5 group-focus-within:translate-x-0.5 motion-reduce:transform-none" />
+              </span>
+            </Link>
+          ) : (
+            <span
+              className={cn(CTA_CLASS_NAME, "bg-muted text-muted-foreground")}
+            >
+              {viewDetails}
+            </span>
           )}
-        >
-          {viewDetails}
-          <span className="sr-only">: {item.title}</span>
-          <span
-            aria-hidden
-            className="flex size-7 items-center justify-center rounded-full bg-white/20"
-          >
-            <L.ArrowRight className="size-4 transition-transform group-hover:translate-x-0.5 group-focus-within:translate-x-0.5 motion-reduce:transform-none" />
-          </span>
-        </Link>
-      ) : (
-        <span className={cn(CTA_CLASS_NAME, "bg-white/15 text-white/75")}>
-          {viewDetails}
-        </span>
-      )}
+        </div>
+      </div>
     </article>
   );
 };

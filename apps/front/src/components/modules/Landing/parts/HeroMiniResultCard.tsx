@@ -30,7 +30,6 @@ const HeroMiniResultCard = ({ item }: { item: TLandingHeroResultItem }) => {
         <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-md bg-muted">
           <ContentThumbnail
             sizes="64px"
-            kind={item.kind}
             title={item.title}
             imageUrl={item.imageUrl}
             category={item.category}
