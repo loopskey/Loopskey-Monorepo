@@ -3,7 +3,6 @@ fragment LandingCatalogSearchItemFields on LandingCatalogSearchItem {
   contentType
   slug
   title
-  imageUrl
   category
   rating
   durationMinutes

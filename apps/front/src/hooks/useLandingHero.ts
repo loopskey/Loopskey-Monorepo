@@ -247,7 +247,6 @@ export const useLandingHeroSearch = () => {
           slug: item.slug,
           title: item.title,
           rating: item.rating,
-          imageUrl: item.imageUrl,
           category: item.category,
           meta,
           href: `${getKindHrefPrefix(kind)}/${item.slug}`,
@@ -264,7 +263,6 @@ export const useLandingHeroSearch = () => {
         slug: course.slug,
         title: course.title,
         rating: course.rating,
-        imageUrl: course.imageUrl,
         category: course.category,
         description: course.description,
         meta: course.durationMinutes
@@ -284,7 +282,6 @@ export const useLandingHeroSearch = () => {
         kind: "event",
         slug: event.slug,
         title: event.title,
-        imageUrl: event.imageUrl,
         category: event.category,
         description: event.description,
         rating: event.averageRating ?? event.rating,
@@ -304,7 +301,6 @@ export const useLandingHeroSearch = () => {
         slug: podcast.slug,
         title: podcast.title,
         rating: podcast.rating,
-        imageUrl: podcast.imageUrl,
         category: podcast.category,
         description: podcast.description,
         meta: t("landing.hero.resultMeta.episodes", {
@@ -324,7 +320,6 @@ export const useLandingHeroSearch = () => {
         title: channel.title,
         rating: channel.rating,
         category: channel.category,
-        imageUrl: channel.imageUrl,
         description: channel.description,
         meta: t("landing.hero.resultMeta.videos", {
           count: channel.videoCount ?? 0,

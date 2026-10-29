@@ -32,7 +32,6 @@ export type TContentCardItem = {
   rating?: number | null;
   kind: TContentCardKind;
   isFree?: boolean | null;
-  imageUrl?: string | null;
   category?: string | null;
   categoryKey?: string | null;
   description?: string | null;
@@ -118,7 +117,6 @@ export type TDetailBase = {
   title: string;
   rating?: number | null;
   isFree?: boolean | null;
-  imageUrl?: string | null;
   currency?: string | null;
   category?: string | null;
   description?: string | null;
@@ -177,11 +175,9 @@ export type TDetailPageHeaderProps = {
 };
 
 export type TDetailSidebarProps = {
-  title: string;
   actions: ReactNode;
   facts: TDetailFact[];
   summary?: ReactNode;
-  imageUrl?: string | null;
   category?: string | null;
 };
 
