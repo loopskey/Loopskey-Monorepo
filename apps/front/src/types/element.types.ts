@@ -242,18 +242,12 @@ export type TExternalLearningBtn = {
 };
 
 export type TContentThumbnailProps = {
-  title: string;
-  sizes: string;
-  priority?: boolean;
   className?: string;
-  imageUrl?: string | null;
   category?: string | null;
 };
 
 export type RoadmapArtProps = {
-  sizes?: string;
   className?: string;
-  imageUrl?: string | null;
   category?: CourseCategory | null;
 };
 

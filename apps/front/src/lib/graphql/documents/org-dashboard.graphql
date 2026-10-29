@@ -172,7 +172,6 @@ fragment OrganizationEventCatalogFields on OrganizationEventCatalogItem {
   capacity
   location
   currency
-  imageUrl
   startDate
   onlineUrl
   description

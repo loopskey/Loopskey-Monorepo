@@ -63,9 +63,9 @@ export type DeleteOrganizationCpdCategoryMutationVariables = Types.Exact<{
 
 export type DeleteOrganizationCpdCategoryMutation = { __typename?: 'Mutation', deleteOrganizationCpdCategory: { __typename?: 'OrganizationActionResponse', code: string, message: string, success: boolean } };
 
-export type OrganizationEventCatalogFieldsFragment = { __typename?: 'OrganizationEventCatalogItem', id: string, pdu: number, slug: string, type: Types.EventType, title: string, price?: number | null, isFree: boolean, rating: number, speaker?: string | null, category: Types.EventCategory, capacity?: number | null, location?: string | null, currency: string, imageUrl?: string | null, startDate: string, onlineUrl?: string | null, description: string, deliveryMode: Types.EventDeliveryMode, averageRating: number };
+export type OrganizationEventCatalogFieldsFragment = { __typename?: 'OrganizationEventCatalogItem', id: string, pdu: number, slug: string, type: Types.EventType, title: string, price?: number | null, isFree: boolean, rating: number, speaker?: string | null, category: Types.EventCategory, capacity?: number | null, location?: string | null, currency: string, startDate: string, onlineUrl?: string | null, description: string, deliveryMode: Types.EventDeliveryMode, averageRating: number };
 
-export type PaginatedOrganizationEventCatalogFieldsFragment = { __typename?: 'PaginatedOrganizationEventCatalog', totalCount: number, pageInfo: { __typename?: 'OrganizationPageInfo', nextCursor?: string | null, hasNextPage: boolean }, items: Array<{ __typename?: 'OrganizationEventCatalogItem', id: string, pdu: number, slug: string, type: Types.EventType, title: string, price?: number | null, isFree: boolean, rating: number, speaker?: string | null, category: Types.EventCategory, capacity?: number | null, location?: string | null, currency: string, imageUrl?: string | null, startDate: string, onlineUrl?: string | null, description: string, deliveryMode: Types.EventDeliveryMode, averageRating: number }> };
+export type PaginatedOrganizationEventCatalogFieldsFragment = { __typename?: 'PaginatedOrganizationEventCatalog', totalCount: number, pageInfo: { __typename?: 'OrganizationPageInfo', nextCursor?: string | null, hasNextPage: boolean }, items: Array<{ __typename?: 'OrganizationEventCatalogItem', id: string, pdu: number, slug: string, type: Types.EventType, title: string, price?: number | null, isFree: boolean, rating: number, speaker?: string | null, category: Types.EventCategory, capacity?: number | null, location?: string | null, currency: string, startDate: string, onlineUrl?: string | null, description: string, deliveryMode: Types.EventDeliveryMode, averageRating: number }> };
 
 export type OrganizationSettingsQueryVariables = Types.Exact<{ [key: string]: never; }>;
 
@@ -83,7 +83,7 @@ export type OrganizationEventCatalogQueryVariables = Types.Exact<{
 }>;
 
 
-export type OrganizationEventCatalogQuery = { __typename?: 'Query', organizationEventCatalog: { __typename?: 'PaginatedOrganizationEventCatalog', totalCount: number, pageInfo: { __typename?: 'OrganizationPageInfo', nextCursor?: string | null, hasNextPage: boolean }, items: Array<{ __typename?: 'OrganizationEventCatalogItem', id: string, pdu: number, slug: string, type: Types.EventType, title: string, price?: number | null, isFree: boolean, rating: number, speaker?: string | null, category: Types.EventCategory, capacity?: number | null, location?: string | null, currency: string, imageUrl?: string | null, startDate: string, onlineUrl?: string | null, description: string, deliveryMode: Types.EventDeliveryMode, averageRating: number }> } };
+export type OrganizationEventCatalogQuery = { __typename?: 'Query', organizationEventCatalog: { __typename?: 'PaginatedOrganizationEventCatalog', totalCount: number, pageInfo: { __typename?: 'OrganizationPageInfo', nextCursor?: string | null, hasNextPage: boolean }, items: Array<{ __typename?: 'OrganizationEventCatalogItem', id: string, pdu: number, slug: string, type: Types.EventType, title: string, price?: number | null, isFree: boolean, rating: number, speaker?: string | null, category: Types.EventCategory, capacity?: number | null, location?: string | null, currency: string, startDate: string, onlineUrl?: string | null, description: string, deliveryMode: Types.EventDeliveryMode, averageRating: number }> } };
 
 export type UpdateOrganizationSettingsMutationVariables = Types.Exact<{
   input: Types.UpdateOrganizationSettingsInput;
@@ -427,7 +427,6 @@ export const OrganizationEventCatalogFieldsFragmentDoc = /*#__PURE__*/ new Typed
   capacity
   location
   currency
-  imageUrl
   startDate
   onlineUrl
   description
@@ -463,7 +462,6 @@ fragment OrganizationEventCatalogFields on OrganizationEventCatalogItem {
   capacity
   location
   currency
-  imageUrl
   startDate
   onlineUrl
   description
@@ -931,7 +929,6 @@ fragment OrganizationEventCatalogFields on OrganizationEventCatalogItem {
   capacity
   location
   currency
-  imageUrl
   startDate
   onlineUrl
   description

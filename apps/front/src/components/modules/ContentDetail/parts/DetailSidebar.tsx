@@ -7,11 +7,9 @@ import { GlassCard } from "@elements/glass-card";
 import DetailMetaPill from "@modules/ContentDetail/parts/DetailMetaPill";
 
 const DetailSidebar = ({
-  title,
   facts,
   summary,
   actions,
-  imageUrl,
   category,
 }: TDetailSidebarProps) => {
   const visibleFacts = facts.filter(
@@ -21,13 +19,7 @@ const DetailSidebar = ({
   return (
     <GlassCard className="overflow-hidden p-0 md:p-0">
       <div className="relative aspect-video bg-muted">
-        <ContentThumbnail
-          priority
-          title={title}
-          imageUrl={imageUrl}
-          category={category}
-          sizes="(max-width: 1024px) 100vw, 360px"
-        />
+        <ContentThumbnail category={category} />
       </div>
 
       <div className="space-y-5 p-5">

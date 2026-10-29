@@ -2,16 +2,16 @@ import * as Types from "@/lib/graphql/base";
 import { TypedDocumentString } from "@/lib/graphql/document";
 export type ContentActionPayloadFieldsFragment = { __typename?: 'ContentActionPayload', success: boolean, code: string, message: string, active?: boolean | null };
 
-export type WishlistContentFieldsFragment = { __typename?: 'WishlistContent', url?: string | null, slug?: string | null, title?: string | null, price?: number | null, isFree: boolean, rating?: number | null, imageUrl?: string | null, category?: string | null, currency?: string | null, description?: string | null, providerName?: string | null };
+export type WishlistContentFieldsFragment = { __typename?: 'WishlistContent', url?: string | null, slug?: string | null, title?: string | null, price?: number | null, isFree: boolean, rating?: number | null, category?: string | null, currency?: string | null, description?: string | null, providerName?: string | null };
 
-export type WishlistItemFieldsFragment = { __typename?: 'WishlistItem', id: string, userId: string, contentId: string, createdAt: string, contentType: Types.ContentType, content?: { __typename?: 'WishlistContent', url?: string | null, slug?: string | null, title?: string | null, price?: number | null, isFree: boolean, rating?: number | null, imageUrl?: string | null, category?: string | null, currency?: string | null, description?: string | null, providerName?: string | null } | null };
+export type WishlistItemFieldsFragment = { __typename?: 'WishlistItem', id: string, userId: string, contentId: string, createdAt: string, contentType: Types.ContentType, content?: { __typename?: 'WishlistContent', url?: string | null, slug?: string | null, title?: string | null, price?: number | null, isFree: boolean, rating?: number | null, category?: string | null, currency?: string | null, description?: string | null, providerName?: string | null } | null };
 
 export type MyWishlistQueryVariables = Types.Exact<{
   input?: Types.InputMaybe<Types.MyWishlistInput>;
 }>;
 
 
-export type MyWishlistQuery = { __typename?: 'Query', myWishlist: { __typename?: 'PaginatedWishlist', page: number, limit: number, totalCount: number, categories: Array<string>, totalPages: number, hasNextPage: boolean, hasPreviousPage: boolean, items: Array<{ __typename?: 'WishlistItem', id: string, userId: string, contentId: string, createdAt: string, contentType: Types.ContentType, content?: { __typename?: 'WishlistContent', url?: string | null, slug?: string | null, title?: string | null, price?: number | null, isFree: boolean, rating?: number | null, imageUrl?: string | null, category?: string | null, currency?: string | null, description?: string | null, providerName?: string | null } | null }> } };
+export type MyWishlistQuery = { __typename?: 'Query', myWishlist: { __typename?: 'PaginatedWishlist', page: number, limit: number, totalCount: number, categories: Array<string>, totalPages: number, hasNextPage: boolean, hasPreviousPage: boolean, items: Array<{ __typename?: 'WishlistItem', id: string, userId: string, contentId: string, createdAt: string, contentType: Types.ContentType, content?: { __typename?: 'WishlistContent', url?: string | null, slug?: string | null, title?: string | null, price?: number | null, isFree: boolean, rating?: number | null, category?: string | null, currency?: string | null, description?: string | null, providerName?: string | null } | null }> } };
 
 export type ToggleWishlistMutationVariables = Types.Exact<{
   input: Types.ContentActionInput;
@@ -124,7 +124,6 @@ export const WishlistContentFieldsFragmentDoc = /*#__PURE__*/ new TypedDocumentS
   price
   isFree
   rating
-  imageUrl
   category
   currency
   description
@@ -149,7 +148,6 @@ export const WishlistItemFieldsFragmentDoc = /*#__PURE__*/ new TypedDocumentStri
   price
   isFree
   rating
-  imageUrl
   category
   currency
   description
@@ -241,7 +239,6 @@ export const MyWishlistDocument = /*#__PURE__*/ new TypedDocumentString(`
   price
   isFree
   rating
-  imageUrl
   category
   currency
   description

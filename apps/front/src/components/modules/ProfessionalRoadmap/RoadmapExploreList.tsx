@@ -99,10 +99,8 @@ export const RoadmapExploreList = ({
               className="flex items-center gap-3 border-b px-3 py-2.5 last:border-b-0"
             >
               <RoadmapArt
-                sizes="40px"
                 className="size-10"
                 category={roadmap.category}
-                imageUrl={roadmap.imageUrl}
               />
 
               <div className="min-w-0 flex-1 space-y-0.5">

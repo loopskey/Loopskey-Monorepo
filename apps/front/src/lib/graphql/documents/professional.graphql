@@ -683,7 +683,6 @@ fragment ProfessionalRoadmapFields on ProfessionalRoadmap {
   title
   userId
   status
-  imageUrl
   progress
   category
   updatedAt
@@ -717,7 +716,6 @@ fragment ProfessionalExploreRoadmapFields on ProfessionalExploreRoadmap {
   title
   level
   status
-  imageUrl
   category
   totalSteps
   isEnrolled

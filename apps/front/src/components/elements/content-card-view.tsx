@@ -61,19 +61,14 @@ const ContentCardView = ({
       )}
     >
       <div className="relative aspect-video w-full shrink-0 border-b bg-white">
-        <ContentThumbnail
-          title={item.title}
-          imageUrl={item.imageUrl}
-          category={item.categoryKey}
-          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, (max-width: 1280px) 33vw, 25vw"
-        />
+        <ContentThumbnail category={item.categoryKey} />
       </div>
 
       <div className="flex min-w-0 flex-1 flex-col gap-2 p-5 @max-[17rem]:p-4">
-        {item.category || hasRating || overlay ? (
-          <div className="flex items-center justify-between gap-2">
+        {item.category || item.status || overlay ? (
+          <div className="flex min-w-0 items-center gap-1.5">
             {item.category ? (
-              <span className="flex min-w-0 items-center gap-1.5 rounded-full bg-muted px-2.5 py-1 text-[11px] font-bold uppercase tracking-wide">
+              <span className="flex min-w-0 items-center gap-1.5 rounded-full bg-muted px-2 py-1 text-[11px] font-bold uppercase leading-none tracking-wide">
                 <span
                   className={cn(
                     "size-2 shrink-0 rounded-full",
@@ -84,26 +79,18 @@ const ContentCardView = ({
               </span>
             ) : null}
 
-            <div className="relative z-10 ml-auto flex shrink-0 items-center gap-2">
-              {hasRating ? (
-                <span className="flex items-center gap-1 text-xs font-bold">
-                  <L.Star
-                    aria-hidden="true"
-                    className="size-3.5 fill-yellow-400 text-yellow-500"
-                  />
-                  {item.rating?.toFixed(1)}
-                </span>
-              ) : null}
+            {item.status ? (
+              <span className="shrink-0 rounded-full bg-primary px-2 py-1 text-[11px] font-bold leading-none text-primary-foreground">
+                {item.status}
+              </span>
+            ) : null}
 
-              {overlay}
-            </div>
+            {overlay ? (
+              <div className="relative z-10 ml-auto flex shrink-0 items-center">
+                {overlay}
+              </div>
+            ) : null}
           </div>
-        ) : null}
-
-        {item.status ? (
-          <span className="w-fit rounded-full bg-primary px-2.5 py-0.5 text-[11px] font-bold text-primary-foreground">
-            {item.status}
-          </span>
         ) : null}
 
         <h3
@@ -128,16 +115,26 @@ const ContentCardView = ({
           </p>
         ) : null}
 
-        <div className="flex flex-wrap items-center gap-x-4 gap-y-1 pt-1.5 text-xs text-muted-foreground">
+        <div className="flex flex-wrap items-center gap-x-3 gap-y-1 pt-1.5 text-xs text-muted-foreground">
+          {hasRating ? (
+            <span className="flex items-center gap-1 font-bold text-foreground">
+              <L.Star
+                aria-hidden="true"
+                className="size-3.5 fill-yellow-400 text-yellow-500"
+              />
+              {item.rating?.toFixed(1)}
+            </span>
+          ) : null}
+
           {item.metaPrimary ? (
-            <span className="flex min-w-0 items-center gap-1.5">
+            <span className="flex min-w-0 items-center gap-1">
               <PrimaryIcon aria-hidden="true" className="size-3.5 shrink-0" />
               <span className="truncate">{item.metaPrimary}</span>
             </span>
           ) : null}
 
           {item.metaSecondary ? (
-            <span className="flex min-w-0 items-center gap-1.5">
+            <span className="flex min-w-0 items-center gap-1">
               <SecondaryIcon aria-hidden="true" className="size-3.5 shrink-0" />
               <span className="truncate">{item.metaSecondary}</span>
             </span>

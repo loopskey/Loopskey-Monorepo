@@ -88,10 +88,8 @@ export const RoadmapSwitcher = ({
                     className="grid grid-cols-[2.5rem_minmax(0,1fr)] items-center gap-x-3 gap-y-0.5 rounded-lg outline-none focus-visible:ring-2 focus-visible:ring-ring"
                   >
                     <RoadmapArt
-                      sizes="40px"
                       className="row-span-2 size-10"
                       category={roadmap.category}
-                      imageUrl={roadmap.imageUrl}
                     />
                     <span className="truncate text-sm font-medium">
                       {roadmap.title}

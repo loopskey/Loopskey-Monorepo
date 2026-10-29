@@ -98,12 +98,7 @@ export const OrgEventAssignView = ({ hook }: TEventCatalogAssignView) => {
           <GlassCard className="overflow-hidden p-0">
             <div className="relative z-10">
               <div className="relative aspect-video overflow-hidden rounded-t-lg bg-muted">
-                <ContentThumbnail
-                  title={selectedEvent.title}
-                  imageUrl={selectedEvent.imageUrl}
-                  category={selectedEvent.category}
-                  sizes="(max-width: 1280px) 100vw, 380px"
-                />
+                <ContentThumbnail category={selectedEvent.category} />
               </div>
 
               <div className="p-5">

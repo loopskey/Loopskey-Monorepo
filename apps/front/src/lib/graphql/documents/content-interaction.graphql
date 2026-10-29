@@ -12,7 +12,6 @@ fragment WishlistContentFields on WishlistContent {
   price
   isFree
   rating
-  imageUrl
   category
   currency
   description

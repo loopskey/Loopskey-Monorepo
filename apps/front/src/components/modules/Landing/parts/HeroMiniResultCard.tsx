@@ -29,9 +29,6 @@ const HeroMiniResultCard = ({ item }: { item: TLandingHeroResultItem }) => {
       <div className="flex gap-3">
         <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-md bg-muted">
           <ContentThumbnail
-            sizes="64px"
-            title={item.title}
-            imageUrl={item.imageUrl}
             category={item.category}
             className="transition duration-500 group-hover:scale-110"
           />
