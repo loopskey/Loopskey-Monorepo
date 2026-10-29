@@ -56,8 +56,6 @@ export const toEditorialCardItems = (
         kind,
         href: contentDetailPath(kind, item.slug),
         title: item.title,
-        description: item.summary ?? null,
-        imageUrl: item.imageUrl ?? null,
         category: item.category
           ? categoryLabel(dictionary, kind, item.category)
           : null,

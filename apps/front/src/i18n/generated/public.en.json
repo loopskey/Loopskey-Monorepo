@@ -310,14 +310,26 @@
   "content": {
     "card": {
       "attendees": "{{count}} attendees",
+      "byline": "by {{name}}",
+      "cta": {
+        "course": "View course",
+        "event": "View event",
+        "podcast": "Listen",
+        "youtube": "Watch"
+      },
       "episodes": "{{count}} episodes",
+      "kinds": {
+        "course": "Course",
+        "event": "Event",
+        "podcast": "Podcast",
+        "youtube": "YouTube"
+      },
       "listeners": "{{count}} listeners",
       "minutes": "{{count}} min",
       "originalLanguage": "Original language",
       "professionals": "{{count}} professionals",
       "subscribers": "{{count}} subscribers",
-      "videos": "{{count}} videos",
-      "viewDetails": "View details"
+      "videos": "{{count}} videos"
     },
     "empty": {
       "description": "Try changing your search term or resetting the filters.",
