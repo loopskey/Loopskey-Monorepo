@@ -16,7 +16,7 @@
 
 ## Verification
 
-- `npx tsc --noEmit`, `eslint` on changed files, `npm run check-i18n`, i18n public slice — pass
+- `npx tsc --noEmit` (also with `next-env.d.ts` removed, as in CI), `eslint` on changed files, `npm run check-i18n`, i18n public slice — pass
 - `npx vitest run` — pass (19 tests)
 - `next build` + `bundle-report --check-targets --check-ceilings` — pass (`/contact` 199.4 KiB)
 - `next start`: hashed SVG served with matching content; old public URL returns 404
@@ -26,4 +26,4 @@
 
 - Commit: 66c75228
 - PR: https://github.com/loopskey/Loopskey-Monorepo/pull/337
-- CI: pending
+- CI: first run failed `check-types` in CI: the statically imported `*.svg` modules had no type declaration because `next-env.d.ts` is generated and git-ignored. `src/types/next-assets.d.ts` now references `next/image-types/global`; `tsc --noEmit` passes with and without `next-env.d.ts`.
