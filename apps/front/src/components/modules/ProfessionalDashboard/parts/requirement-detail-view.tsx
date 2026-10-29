@@ -1,7 +1,6 @@
 "use client";
 
 import { RequirementExcludedActivities } from "@modules/ProfessionalDashboard/parts/requirement-excluded-activities";
-import { RequirementCategoryProgress } from "@modules/ProfessionalDashboard/parts/requirement-category-progress";
 import { RequirementLearningContent } from "@modules/ProfessionalDashboard/parts/requirement-learning-content";
 import { RequirementActivitiesTable } from "@modules/ProfessionalDashboard/parts/requirement-activities-table";
 import { RequirementSummaryStrip } from "@modules/ProfessionalDashboard/parts/requirement-summary-strip";
@@ -29,7 +28,6 @@ export const RequirementDetailView = ({
   content,
   onDelete,
   isLoading,
-  categories,
   activities,
   isDeleting,
   isDetailLoading,
@@ -41,22 +39,13 @@ export const RequirementDetailView = ({
     return (
       <div className="space-y-6" aria-busy="true">
         <SummarySkeleton />
-        <div className="grid gap-6 xl:grid-cols-2">
-          <GlassCard>
-            <Skeleton className="h-4 w-32" />
-            <div className="mt-4 space-y-3">
-              <Skeleton className="h-8 w-full" />
-              <Skeleton className="h-8 w-full" />
-            </div>
-          </GlassCard>
-          <GlassCard>
-            <Skeleton className="h-4 w-40" />
-            <div className="mt-4 space-y-3">
-              <Skeleton className="h-14 w-full" />
-              <Skeleton className="h-14 w-full" />
-            </div>
-          </GlassCard>
-        </div>
+        <GlassCard>
+          <Skeleton className="h-4 w-40" />
+          <div className="mt-4 space-y-3">
+            <Skeleton className="h-14 w-full" />
+            <Skeleton className="h-14 w-full" />
+          </div>
+        </GlassCard>
         <GlassCard>
           <Skeleton className="h-4 w-28" />
           <div className="mt-4 space-y-3">
@@ -78,21 +67,13 @@ export const RequirementDetailView = ({
         isDeleting={isDeleting}
       />
 
-      <div className="grid gap-6 xl:grid-cols-2">
-        <RequirementCategoryProgress
-          t={t}
-          categories={categories}
-          isLoading={isDetailLoading}
-          creditLabel={t(`cpdProgress.creditTypes.${model.creditType}`)}
-        />
-        <RequirementLearningContent
-          t={t}
-          contents={content}
-          isLoading={isDetailLoading}
-          associationName={model.associationName}
-          requirementKeyValue={requirementKeyValue}
-        />
-      </div>
+      <RequirementLearningContent
+        t={t}
+        contents={content}
+        isLoading={isDetailLoading}
+        associationName={model.associationName}
+        requirementKeyValue={requirementKeyValue}
+      />
 
       <RequirementActivitiesTable
         t={t}

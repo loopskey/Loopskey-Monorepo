@@ -180,9 +180,6 @@ const ProfessionalCpdPduProgressTab = () => {
                     requirementKeyValue={model.key}
                     isDetailLoading={cpd.isAssociationDetailLoading}
                     isActivitiesLoading={cpd.isAssociationDetailLoading}
-                    categories={R.associationCategoryRows(
-                      cpd.associationDetail,
-                    )}
                     content={cpd.associationDetail?.learningContents ?? []}
                     activities={R.associationActivityRows(
                       t,
@@ -203,7 +200,6 @@ const ProfessionalCpdPduProgressTab = () => {
                   isLoading
                   content={[]}
                   activities={[]}
-                  categories={[]}
                   isDetailLoading
                   isActivitiesLoading
                   requirementKeyValue=""
@@ -221,7 +217,6 @@ const ProfessionalCpdPduProgressTab = () => {
                 isDetailLoading={false}
                 requirementKeyValue={model.key}
                 isDeleting={cpd.isDeleting}
-                categories={R.planCategoryRows(cpd.progress)}
                 onEdit={() => cpd.editPlan(cpd.selectedPlan!)}
                 isActivitiesLoading={cpd.isPlanActivitiesLoading}
                 activities={R.planActivityRows(t, cpd.planActivities)}
