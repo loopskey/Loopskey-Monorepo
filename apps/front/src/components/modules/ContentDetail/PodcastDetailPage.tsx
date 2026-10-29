@@ -55,7 +55,6 @@ const PodcastDetailPage = ({
       }
       sidebar={
         <DetailSidebar
-          kind="podcast"
           title={podcast.title}
           imageUrl={podcast.imageUrl}
           category={podcast.category}

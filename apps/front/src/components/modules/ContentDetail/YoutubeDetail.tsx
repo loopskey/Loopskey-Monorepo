@@ -56,7 +56,6 @@ const YouTubeDetailPage = ({
       }
       sidebar={
         <DetailSidebar
-          kind="youtube"
           title={channel.title}
           imageUrl={channel.imageUrl}
           category={channel.category}

@@ -3414,58 +3414,16 @@
       "description": "Discover courses, events, podcasts and YouTube channels, build an AI-powered development roadmap, and track CPD and PDU compliance in one place."
     },
     "learningHub": {
-      "badge": "Featured learning hub",
-      "title": "Suggested For you",
-      "subtitle": "Explore curated courses, live events, podcasts, and expert channels designed for CPD, professional growth, and lifelong learning.",
-      "viewAll": "View all content",
-      "viewDetails": "View details",
-      "free": "Free",
-      "info": "Info",
-      "price": "Price",
-      "details": "Details",
-      "totalAvailable": "{{count}} items available",
-      "tabsLabel": "Content type",
+      "badge": "Learning hub",
+      "title": "Explore courses, events and podcasts",
+      "recommended": "Recommended for you",
+      "popular": "Most popular",
+      "viewAll": "View all",
       "emptyTitle": "No featured content yet",
       "emptyText": "Featured learning content will appear here once providers publish new items.",
       "errorTitle": "We couldn’t load this content",
       "errorText": "Check your connection and try again.",
-      "retry": "Try again",
-      "tabs": {
-        "courses": "Courses",
-        "events": "Events",
-        "podcasts": "Podcasts",
-        "youtube": "YouTube"
-      },
-      "kind": {
-        "course": "Course",
-        "event": "Event",
-        "podcast": "Podcast",
-        "youtube": "YouTube"
-      },
-      "shelf": {
-        "label": "Suggested content",
-        "slide": "Item {{current}} of {{total}}",
-        "show": "Show {{title}}",
-        "rated": "Rated {{rating}} out of 5",
-        "upNext": "Up next",
-        "pause": "Pause autoplay",
-        "play": "Resume autoplay",
-        "previous": "Previous item",
-        "next": "Next item"
-      },
-      "meta": {
-        "professionals": "{{count}} professionals",
-        "minutes": "{{count}} min",
-        "attendees": "{{count}} attendees",
-        "listeners": "{{count}} listeners",
-        "episodes": "{{count}} episodes",
-        "subscribers": "{{count}} subscribers",
-        "videos": "{{count}} videos",
-        "upcoming": "Upcoming"
-      },
-      "previousSlide": "Previous slide",
-      "nextSlide": "Next slide",
-      "goToSlide": "Go to slide {{index}}"
+      "retry": "Try again"
     },
     "hero": {
       "badge": "AI-powered professional learning",

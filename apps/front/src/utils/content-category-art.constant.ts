@@ -36,11 +36,18 @@ const CONTENT_CATEGORY_ART_SLUG: Record<TContentCategoryValue, string> = {
   TECHNOLOGY: "technology",
 };
 
+const FALLBACK_CATEGORY: TContentCategoryValue = "GENERAL";
+
+export const CONTENT_CATEGORY_ART_CLASS_NAME =
+  "bg-cover bg-[position:100%_center]";
+
 const ART_SLUG_BY_CATEGORY: ReadonlyMap<string, string> = new Map(
   Object.entries(CONTENT_CATEGORY_ART_SLUG),
 );
 
 export const getContentCategoryArtSrc = (category?: string | null) => {
-  const slug = category ? ART_SLUG_BY_CATEGORY.get(category) : undefined;
-  return slug ? `/category-art-${slug}.svg` : null;
+  const slug =
+    (category ? ART_SLUG_BY_CATEGORY.get(category) : undefined) ??
+    CONTENT_CATEGORY_ART_SLUG[FALLBACK_CATEGORY];
+  return `/category-art-${slug}.svg`;
 };

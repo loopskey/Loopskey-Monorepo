@@ -1,6 +1,6 @@
 import type { TextareaHTMLAttributes, InputHTMLAttributes } from "react";
-import type { HTMLAttributes, ReactNode } from "react";
 import type { Control, FieldPath, FieldValues, Path } from "react-hook-form";
+import type { HTMLAttributes, ReactNode } from "react";
 import type { ExternalLearningProvider } from "@/lib/graphql/base";
 import type { CourseCategory } from "@/lib/graphql/base";
 import type { ComponentProps } from "react";
@@ -241,10 +241,6 @@ export type TExternalLearningBtn = {
   provider?: ExternalLearningProvider;
 };
 
-export type TContentThumbnailKind = "course" | "event" | "podcast" | "youtube";
-
-export type TContentThumbnailVariant = "default" | "wishlist";
-
 export type TContentThumbnailProps = {
   title: string;
   sizes: string;
@@ -252,8 +248,6 @@ export type TContentThumbnailProps = {
   className?: string;
   imageUrl?: string | null;
   category?: string | null;
-  kind: TContentThumbnailKind;
-  variant?: TContentThumbnailVariant;
 };
 
 export type RoadmapArtProps = {

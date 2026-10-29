@@ -1,56 +1,20 @@
 import type { PodcastCategory, YouTubeCategory } from "@/lib/graphql/base";
 import type { CourseCategory, EventCategory } from "@/lib/graphql/base";
+import type { TContentCardItem } from "@/types/content-module.types";
 
 // ================ Featured ================
-export type TLandingContentKind = "course" | "event" | "podcast" | "youtube";
-
-export type TLandingContentItem = {
-  id: string;
-  slug: string;
-  href: string;
+export type TLandingHubRow = {
+  id: "recommended" | "popular";
   title: string;
-  rating?: number | null;
-  status?: string | null;
-  isFree?: boolean | null;
-  imageUrl?: string | null;
-  currency?: string | null;
-  category?: string | null;
-  categoryKey?: string | null;
-  kind: TLandingContentKind;
-  description?: string | null;
-  ratingCount?: number | null;
-  metaPrimary?: string | null;
-  metaSecondary?: string | null;
-  price?: number | string | null;
+  isError: boolean;
+  isLoading: boolean;
+  refetch: () => void;
+  viewAllHref: string;
+  items: TContentCardItem[];
 };
 
-export type TLandingTab = {
-  label: string;
-  value: TLandingContentKind;
-};
-
-export type TLearningHubTabsProps = {
-  tabs: TLandingTab[];
-  activeTab: TLandingContentKind;
-  onChange: (tab: TLandingContentKind) => void;
-};
-
-export type TLearningShelfProps = {
-  nextTabLabel: string;
-  onSequenceEnd: () => void;
-  items: TLandingContentItem[];
-};
-
-export type TLearningShelfStageProps = {
-  index: number;
-  item: TLandingContentItem;
-};
-
-export type TLearningShelfSpineProps = {
-  index: number;
-  isActive: boolean;
-  onSelect: () => void;
-  item: TLandingContentItem;
+export type TLearningHubRowProps = {
+  row: TLandingHubRow;
 };
 
 export type TLandingEmptyStateProps = {

@@ -214,25 +214,6 @@ body {
   color: var(--foreground);
 }
 
-.landing-shelf-progress {
-  transform-origin: left;
-  animation: landing-shelf-progress 6s linear forwards;
-}
-
-.landing-shelf-progress[data-paused="true"] {
-  animation-play-state: paused;
-}
-
-@keyframes landing-shelf-progress {
-  from {
-    transform: scaleX(0);
-  }
-
-  to {
-    transform: scaleX(1);
-  }
-}
-
 /* ============== Calendar CSS ================= */
 .calendar-shell .fc {
   --fc-border-color: var(--border);

@@ -10,13 +10,13 @@ import { Badge } from "@ui/badge";
 import { Input } from "@ui/input";
 import { Label } from "@ui/label";
 
-import type { TContentThumbnailKind } from "@/types/element.types";
+import type { TContentCardKind } from "@/types/content-module.types";
 
 import ContentCard from "@elements/content-card";
 
 import * as L from "lucide-react";
 
-const THUMBNAIL_KIND: Record<ContentType, TContentThumbnailKind> = {
+const THUMBNAIL_KIND: Record<ContentType, TContentCardKind> = {
   [ContentType.Course]: "course",
   [ContentType.Event]: "event",
   [ContentType.Podcast]: "podcast",
@@ -209,7 +209,6 @@ const ProfessionalWishlistTab = () => {
               return (
                 <ContentCard
                   key={item.id}
-                  variant="wishlist"
                   item={{
                     id: item.contentId,
                     href,
@@ -219,6 +218,7 @@ const ProfessionalWishlistTab = () => {
                     rating: content?.rating,
                     imageUrl: content?.imageUrl,
                     category: content?.category,
+                    categoryKey: content?.category,
                     description: content?.description,
                     metaPrimary:
                       content?.providerName ??

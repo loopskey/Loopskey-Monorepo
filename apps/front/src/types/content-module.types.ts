@@ -3,23 +3,18 @@ import type { TAddCalendarEventPrefill } from "@/types/professional-dashboard.ty
 import type { TRequirementOption } from "@/types/professional-requirement.types";
 import type { I18nContextValue } from "@/types/providers.types";
 import type { TPduActivity } from "@/types/professional-dashboard.types";
-import type { TContentThumbnailVariant } from "@/types/element.types";
 import type { ContentType } from "@/lib/graphql/base";
 import type { ReactNode } from "react";
 
+import type { PublicCourse, PublicEvent } from "@/lib/server/public-content";
+import type { CatalogPageData } from "@/lib/server/catalog-reader";
+import type { CatalogFacets } from "@/lib/server/catalog-reader";
 import type {
-  PublicCourse,
-  PublicEvent,
   PublicPodcast,
+  PublicYouTubeVideo,
   PublicPodcastEpisode,
   PublicYouTubeChannel,
-  PublicYouTubeVideo,
 } from "@/lib/server/public-content";
-
-import type {
-  CatalogFacets,
-  CatalogPageData,
-} from "@/lib/server/catalog-reader";
 
 import type * as API from "@/lib/graphql/generated";
 
@@ -54,7 +49,6 @@ export type TSelectOption = {
 
 export type TContentCardProps = {
   className?: string;
-  variant?: TContentThumbnailVariant;
   footerNote?: ReactNode;
   item: TContentCardItem;
   overlay?: ReactNode;
@@ -118,8 +112,6 @@ export type TEmptyStateProps = {
 };
 
 // ============== Details ================
-export type TDetailKind = "course" | "event" | "podcast" | "youtube";
-
 export type TDetailBase = {
   id: string;
   slug: string;
@@ -186,7 +178,6 @@ export type TDetailPageHeaderProps = {
 
 export type TDetailSidebarProps = {
   title: string;
-  kind: TDetailKind;
   actions: ReactNode;
   facts: TDetailFact[];
   summary?: ReactNode;

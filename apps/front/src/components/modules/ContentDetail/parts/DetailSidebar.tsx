@@ -7,7 +7,6 @@ import { GlassCard } from "@elements/glass-card";
 import DetailMetaPill from "@modules/ContentDetail/parts/DetailMetaPill";
 
 const DetailSidebar = ({
-  kind,
   title,
   facts,
   summary,
@@ -24,7 +23,6 @@ const DetailSidebar = ({
       <div className="relative aspect-video bg-muted">
         <ContentThumbnail
           priority
-          kind={kind}
           title={title}
           imageUrl={imageUrl}
           category={category}
