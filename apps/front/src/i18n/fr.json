@@ -281,10 +281,6 @@
       },
       "awaitingReview": "{{count}} en attente d’examen",
       "evidenceOk": "Aucune preuve en attente",
-      "categoriesTitle": "Catégories de crédits",
-      "categoriesSubtitle": "Crédits acceptés dans chaque catégorie.",
-      "categoriesEmpty": "Cette exigence ne répartit pas les crédits par catégorie.",
-      "categoryProgress": "{{completed}} / {{required}} {{credit}}",
       "learning": {
         "title": "Contenu d’apprentissage",
         "subtitle": "Attribué par votre association pour cette exigence.",
@@ -338,8 +334,6 @@
       },
       "loadError": "Nous n’avons pas pu charger vos exigences.",
       "retry": "Réessayer",
-      "categoryCompleted": "Obtenus",
-      "categoryRequired": "Requis",
       "acceptsWindow": "Compte les achèvements datés du {{from}} au {{until}}",
       "acceptsFrom": "Compte les achèvements datés à partir du {{from}}",
       "detailError": "Les détails de cette exigence n'ont pas pu être chargés.",
@@ -3418,58 +3412,16 @@
       "description": "Découvrez des cours, événements, podcasts et chaînes YouTube, créez un parcours de développement propulsé par l’IA et suivez votre conformité CPD et PDU au même endroit."
     },
     "learningHub": {
-      "badge": "Espace d’apprentissage sélectionné",
-      "title": "Découvrez des contenus qui font avancer votre carrière",
-      "subtitle": "Explorez des cours, événements en direct, podcasts et chaînes d’experts conçus pour le CPD, la croissance professionnelle et l’apprentissage continu.",
-      "viewAll": "Voir tout le contenu",
-      "viewDetails": "Voir les détails",
-      "free": "Gratuit",
-      "info": "Info",
-      "price": "Prix",
-      "details": "Détails",
-      "totalAvailable": "{{count}} contenus disponibles",
-      "tabsLabel": "Type de contenu",
+      "badge": "Espace d’apprentissage",
+      "title": "Découvrez des cours, des événements et des podcasts",
+      "recommended": "Recommandé pour vous",
+      "popular": "Les plus populaires",
+      "viewAll": "Voir tout",
       "emptyTitle": "Aucun contenu mis en avant pour le moment",
       "emptyText": "Les contenus d’apprentissage mis en avant apparaîtront ici lorsque les fournisseurs publieront de nouveaux éléments.",
       "errorTitle": "Impossible de charger ce contenu",
       "errorText": "Vérifiez votre connexion et réessayez.",
-      "retry": "Réessayer",
-      "tabs": {
-        "courses": "Cours",
-        "events": "Événements",
-        "podcasts": "Podcasts",
-        "youtube": "YouTube"
-      },
-      "kind": {
-        "course": "Cours",
-        "event": "Événement",
-        "podcast": "Podcast",
-        "youtube": "YouTube"
-      },
-      "shelf": {
-        "label": "Contenus suggérés",
-        "slide": "Élément {{current}} sur {{total}}",
-        "show": "Afficher {{title}}",
-        "rated": "Noté {{rating}} sur 5",
-        "upNext": "À suivre",
-        "pause": "Mettre en pause la lecture automatique",
-        "play": "Reprendre la lecture automatique",
-        "previous": "Élément précédent",
-        "next": "Élément suivant"
-      },
-      "meta": {
-        "professionals": "{{count}} professionnels",
-        "minutes": "{{count}} min",
-        "attendees": "{{count}} participants",
-        "listeners": "{{count}} auditeurs",
-        "episodes": "{{count}} épisodes",
-        "subscribers": "{{count}} abonnés",
-        "videos": "{{count}} vidéos",
-        "upcoming": "À venir"
-      },
-      "previousSlide": "Diapositive précédente",
-      "nextSlide": "Diapositive suivante",
-      "goToSlide": "Aller à la diapositive {{index}}"
+      "retry": "Réessayer"
     },
     "hero": {
       "badge": "Apprentissage professionnel propulsé par l’IA",

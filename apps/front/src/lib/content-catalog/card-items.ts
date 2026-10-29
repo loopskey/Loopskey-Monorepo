@@ -59,6 +59,48 @@ const enumLabel = (t: Translate, prefix: string, value?: string | null) =>
 const countLabel = (t: Translate, key: string, count?: number | null) =>
   count ? t(key, { count }) : null;
 
+type CatalogCourse = Extract<
+  CatalogPageData,
+  { tab: "courses" }
+>["items"][number];
+
+export type CardCourse = Omit<
+  CatalogCourse,
+  "availableLocales" | "contentLanguage"
+> &
+  Partial<Pick<CatalogCourse, "availableLocales" | "contentLanguage">>;
+
+export const toCourseCardItem = (
+  course: CardCourse,
+  t: Translate,
+  language: string,
+): TContentCardItem => ({
+  id: course.id,
+  slug: course.slug,
+  kind: "course",
+  title: course.title,
+  description: course.description,
+  imageUrl: course.imageUrl,
+  category: enumLabel(t, "courseCategory", course.category),
+  categoryKey: course.category,
+  status: enumLabel(t, "courseLevel", course.level),
+  rating: course.rating,
+  price: course.price ?? null,
+  isFree: course.isFree,
+  metaPrimary: countLabel(
+    t,
+    "content.card.professionals",
+    course.professionals,
+  ),
+  metaSecondary: countLabel(t, "content.card.minutes", course.durationMinutes),
+  href: detailHref(
+    `/courses/${course.slug}`,
+    language,
+    course.availableLocales,
+  ),
+  ...localeFields(language, course.contentLanguage),
+});
+
 export const toCardItems = (
   page: CatalogPageData,
   t: Translate,
@@ -66,36 +108,7 @@ export const toCardItems = (
 ): TContentCardItem[] => {
   switch (page.tab) {
     case "courses":
-      return page.items.map((course) => ({
-        id: course.id,
-        slug: course.slug,
-        kind: "course",
-        title: course.title,
-        description: course.description,
-        imageUrl: course.imageUrl,
-        category: enumLabel(t, "courseCategory", course.category),
-        categoryKey: course.category,
-        status: enumLabel(t, "courseLevel", course.level),
-        rating: course.rating,
-        price: course.price ?? null,
-        isFree: course.isFree,
-        metaPrimary: countLabel(
-          t,
-          "content.card.professionals",
-          course.professionals,
-        ),
-        metaSecondary: countLabel(
-          t,
-          "content.card.minutes",
-          course.durationMinutes,
-        ),
-        href: detailHref(
-          `/courses/${course.slug}`,
-          language,
-          course.availableLocales,
-        ),
-        ...localeFields(language, course.contentLanguage),
-      }));
+      return page.items.map((course) => toCourseCardItem(course, t, language));
     case "events":
       return page.items.map((event) => ({
         id: event.id,

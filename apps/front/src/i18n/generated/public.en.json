@@ -309,7 +309,14 @@
   },
   "content": {
     "card": {
+      "attendees": "{{count}} attendees",
+      "episodes": "{{count}} episodes",
+      "listeners": "{{count}} listeners",
+      "minutes": "{{count}} min",
       "originalLanguage": "Original language",
+      "professionals": "{{count}} professionals",
+      "subscribers": "{{count}} subscribers",
+      "videos": "{{count}} videos",
       "viewDetails": "View details"
     },
     "empty": {
@@ -1036,55 +1043,16 @@
       "viewItem": "View"
     },
     "learningHub": {
-      "badge": "Featured learning hub",
-      "details": "Details",
+      "badge": "Learning hub",
       "emptyText": "Featured learning content will appear here once providers publish new items.",
       "emptyTitle": "No featured content yet",
       "errorText": "Check your connection and try again.",
       "errorTitle": "We couldn’t load this content",
-      "free": "Free",
-      "info": "Info",
-      "kind": {
-        "course": "Course",
-        "event": "Event",
-        "podcast": "Podcast",
-        "youtube": "YouTube"
-      },
-      "meta": {
-        "attendees": "{{count}} attendees",
-        "episodes": "{{count}} episodes",
-        "listeners": "{{count}} listeners",
-        "minutes": "{{count}} min",
-        "professionals": "{{count}} professionals",
-        "subscribers": "{{count}} subscribers",
-        "upcoming": "Upcoming",
-        "videos": "{{count}} videos"
-      },
-      "price": "Price",
+      "popular": "Most popular",
+      "recommended": "Recommended for you",
       "retry": "Try again",
-      "shelf": {
-        "label": "Suggested content",
-        "next": "Next item",
-        "pause": "Pause autoplay",
-        "play": "Resume autoplay",
-        "previous": "Previous item",
-        "rated": "Rated {{rating}} out of 5",
-        "show": "Show {{title}}",
-        "slide": "Item {{current}} of {{total}}",
-        "upNext": "Up next"
-      },
-      "subtitle": "Explore curated courses, live events, podcasts, and expert channels designed for CPD, professional growth, and lifelong learning.",
-      "tabs": {
-        "courses": "Courses",
-        "events": "Events",
-        "podcasts": "Podcasts",
-        "youtube": "YouTube"
-      },
-      "tabsLabel": "Content type",
-      "title": "Suggested For you",
-      "totalAvailable": "{{count}} items available",
-      "viewAll": "View all content",
-      "viewDetails": "View details"
+      "title": "Explore courses, events and podcasts",
+      "viewAll": "View all"
     },
     "sample": {
       "label": "Sample"

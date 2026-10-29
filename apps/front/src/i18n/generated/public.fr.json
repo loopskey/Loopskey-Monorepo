@@ -309,7 +309,14 @@
   },
   "content": {
     "card": {
+      "attendees": "{{count}} participants",
+      "episodes": "{{count}} épisodes",
+      "listeners": "{{count}} auditeurs",
+      "minutes": "{{count}} min",
       "originalLanguage": "Langue d’origine",
+      "professionals": "{{count}} professionnels",
+      "subscribers": "{{count}} abonnés",
+      "videos": "{{count}} vidéos",
       "viewDetails": "Voir les détails"
     },
     "empty": {
@@ -1036,55 +1043,16 @@
       "viewItem": "Voir"
     },
     "learningHub": {
-      "badge": "Espace d’apprentissage sélectionné",
-      "details": "Détails",
+      "badge": "Espace d’apprentissage",
       "emptyText": "Les contenus d’apprentissage mis en avant apparaîtront ici lorsque les fournisseurs publieront de nouveaux éléments.",
       "emptyTitle": "Aucun contenu mis en avant pour le moment",
       "errorText": "Vérifiez votre connexion et réessayez.",
       "errorTitle": "Impossible de charger ce contenu",
-      "free": "Gratuit",
-      "info": "Info",
-      "kind": {
-        "course": "Cours",
-        "event": "Événement",
-        "podcast": "Podcast",
-        "youtube": "YouTube"
-      },
-      "meta": {
-        "attendees": "{{count}} participants",
-        "episodes": "{{count}} épisodes",
-        "listeners": "{{count}} auditeurs",
-        "minutes": "{{count}} min",
-        "professionals": "{{count}} professionnels",
-        "subscribers": "{{count}} abonnés",
-        "upcoming": "À venir",
-        "videos": "{{count}} vidéos"
-      },
-      "price": "Prix",
+      "popular": "Les plus populaires",
+      "recommended": "Recommandé pour vous",
       "retry": "Réessayer",
-      "shelf": {
-        "label": "Contenus suggérés",
-        "next": "Élément suivant",
-        "pause": "Mettre en pause la lecture automatique",
-        "play": "Reprendre la lecture automatique",
-        "previous": "Élément précédent",
-        "rated": "Noté {{rating}} sur 5",
-        "show": "Afficher {{title}}",
-        "slide": "Élément {{current}} sur {{total}}",
-        "upNext": "À suivre"
-      },
-      "subtitle": "Explorez des cours, événements en direct, podcasts et chaînes d’experts conçus pour le CPD, la croissance professionnelle et l’apprentissage continu.",
-      "tabs": {
-        "courses": "Cours",
-        "events": "Événements",
-        "podcasts": "Podcasts",
-        "youtube": "YouTube"
-      },
-      "tabsLabel": "Type de contenu",
-      "title": "Découvrez des contenus qui font avancer votre carrière",
-      "totalAvailable": "{{count}} contenus disponibles",
-      "viewAll": "Voir tout le contenu",
-      "viewDetails": "Voir les détails"
+      "title": "Découvrez des cours, des événements et des podcasts",
+      "viewAll": "Voir tout"
     },
     "sample": {
       "label": "Exemple"

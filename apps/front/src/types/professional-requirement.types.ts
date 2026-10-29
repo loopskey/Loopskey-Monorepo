@@ -105,21 +105,6 @@ export type TRequirementSwitcherProps = {
   onSelect: (key: string) => void;
 };
 
-export type TRequirementCategoryRow = {
-  id: string;
-  name: string;
-  completed: number;
-  required: number;
-  percent: number;
-};
-
-export type TRequirementCategoryProgressProps = {
-  isLoading: boolean;
-  creditLabel: string;
-  t: I18nContextValue["t"];
-  categories: TRequirementCategoryRow[];
-};
-
 export type TRequirementViewModel = {
   key: string;
   title: string;
@@ -156,7 +141,6 @@ export type TRequirementDetailViewProps = {
   isLoading: boolean;
   model: TRequirementViewModel;
   requirementKeyValue: string;
-  categories: TRequirementCategoryRow[];
   content: TAssociationRequirementContent[];
   activities: TRequirementActivityRow[];
   excludedActivities?: TExcludedRequirementActivity[];

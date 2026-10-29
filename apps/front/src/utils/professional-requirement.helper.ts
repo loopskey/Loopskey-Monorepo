@@ -1,10 +1,8 @@
 import type {
   TAssociationRequirement,
   TAssociationRequirementActivity,
-  TAssociationRequirementDetail,
   TPlanActivity,
   TRequirementActivityRow,
-  TRequirementCategoryRow,
   TRequirementOption,
   TRequirementSource,
   TRequirementTone,
@@ -253,28 +251,6 @@ export const daysUntil = (value: string | null | undefined): number | null => {
   if (!value) return null;
   return Math.ceil((new Date(value).getTime() - Date.now()) / MS_PER_DAY);
 };
-
-export const planCategoryRows = (
-  progress: TCpdPlanProgress | undefined,
-): TRequirementCategoryRow[] =>
-  (progress?.categories ?? []).map((category) => ({
-    id: category.id,
-    name: category.name,
-    completed: category.completed,
-    required: category.target,
-    percent: category.progress,
-  }));
-
-export const associationCategoryRows = (
-  detail: TAssociationRequirementDetail | undefined,
-): TRequirementCategoryRow[] =>
-  (detail?.categories ?? []).map((category) => ({
-    id: category.id,
-    name: category.name,
-    completed: category.completedCredits,
-    required: category.requiredCredits,
-    percent: category.percent,
-  }));
 
 export const planToViewModel = (
   plan: TCpdPlan,

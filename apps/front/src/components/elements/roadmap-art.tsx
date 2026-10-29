@@ -1,11 +1,10 @@
 import { getContentCategoryArtSrc } from "@utils/content-category-art.constant";
+import { CONTENT_CATEGORY_ART_CLASS_NAME } from "@utils/content-category-art.constant";
 import { cn } from "@/lib/utils";
 
 import type { RoadmapArtProps } from "@/types/element.types";
 
 import Image from "next/image";
-
-const FALLBACK_CATEGORY = "GENERAL";
 
 export const RoadmapArt = ({
   category,
@@ -13,9 +12,7 @@ export const RoadmapArt = ({
   className,
   sizes = "56px",
 }: RoadmapArtProps) => {
-  const artSrc =
-    getContentCategoryArtSrc(category) ??
-    getContentCategoryArtSrc(FALLBACK_CATEGORY);
+  const artSrc = getContentCategoryArtSrc(category);
 
   return (
     <span
@@ -35,7 +32,7 @@ export const RoadmapArt = ({
         />
       ) : (
         <span
-          className="absolute inset-0 bg-cover bg-[position:85%_center]"
+          className={cn("absolute inset-0", CONTENT_CATEGORY_ART_CLASS_NAME)}
           style={{ backgroundImage: `url(${artSrc})` }}
         />
       )}

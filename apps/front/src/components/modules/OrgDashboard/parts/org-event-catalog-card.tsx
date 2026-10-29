@@ -17,9 +17,8 @@ export const OrgEventCatalogCard = ({
   return (
     <GlassCard className="overflow-hidden p-0">
       <div className="relative z-10">
-        <div className="relative h-44 overflow-hidden rounded-t-lg bg-muted">
+        <div className="relative aspect-video overflow-hidden rounded-t-lg bg-muted">
           <ContentThumbnail
-            kind="event"
             title={event.title}
             imageUrl={event.imageUrl}
             category={event.category}
