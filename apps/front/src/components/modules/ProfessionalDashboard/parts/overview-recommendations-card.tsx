@@ -2,6 +2,7 @@
 
 import { getOverviewSectionState } from "@/utils/professional-overview.helper";
 import { OverviewCardMessage } from "@modules/ProfessionalDashboard/parts/overview-card";
+import { toCourseCardItem } from "@/lib/content-catalog/card-items";
 import { useCoursesQuery } from "@/lib/rtk/endpoints/course.api";
 import { GlassCard } from "@elements/glass-card";
 import { useI18n } from "@/hooks/useI18n";
@@ -16,7 +17,7 @@ import * as L from "lucide-react";
 const RECOMMENDATION_LIMIT = 6;
 
 export const OverviewRecommendationsCard = () => {
-  const { t } = useI18n();
+  const { t, language } = useI18n();
 
   const recommendationsQuery = useCoursesQuery({
     pagination: { take: RECOMMENDATION_LIMIT },
@@ -91,25 +92,7 @@ export const OverviewRecommendationsCard = () => {
           {courses.map((course) => (
             <ContentCard
               key={course.id}
-              item={{
-                id: course.id,
-                href: `/courses/${course.slug}`,
-                kind: "course",
-                title: course.title,
-                status: course.level,
-                rating: course.rating,
-                category: course.category,
-                categoryKey: course.category,
-                description: course.description,
-                metaPrimary: t("content.card.professionals", {
-                  count: course.professionals,
-                }),
-                metaSecondary: course.durationMinutes
-                  ? t("content.card.minutes", {
-                      count: course.durationMinutes,
-                    })
-                  : null,
-              }}
+              item={toCourseCardItem(course, t, language)}
             />
           ))}
         </div>
