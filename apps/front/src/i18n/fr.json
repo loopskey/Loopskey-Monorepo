@@ -3063,8 +3063,19 @@
     },
     "card": {
       "originalLanguage": "Langue d’origine",
-      "free": "Gratuit",
-      "viewDetails": "Voir les détails",
+      "byline": "par {{name}}",
+      "kinds": {
+        "course": "Cours",
+        "event": "Événement",
+        "podcast": "Podcast",
+        "youtube": "YouTube"
+      },
+      "cta": {
+        "course": "Voir le cours",
+        "event": "Voir l’événement",
+        "podcast": "Écouter",
+        "youtube": "Regarder"
+      },
       "professionals": "{{count}} professionnels",
       "attendees": "{{count}} participants",
       "listeners": "{{count}} auditeurs",

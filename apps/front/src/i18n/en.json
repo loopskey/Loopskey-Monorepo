@@ -3059,8 +3059,19 @@
     },
     "card": {
       "originalLanguage": "Original language",
-      "free": "Free",
-      "viewDetails": "View details",
+      "byline": "by {{name}}",
+      "kinds": {
+        "course": "Course",
+        "event": "Event",
+        "podcast": "Podcast",
+        "youtube": "YouTube"
+      },
+      "cta": {
+        "course": "View course",
+        "event": "View event",
+        "podcast": "Listen",
+        "youtube": "Watch"
+      },
       "professionals": "{{count}} professionals",
       "attendees": "{{count}} attendees",
       "listeners": "{{count}} listeners",

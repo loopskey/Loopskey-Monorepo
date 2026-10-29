@@ -3,6 +3,7 @@
 import { contentTypeOptions, sortOptions } from "@/utils/constant";
 import { ContentType, WishlistSortBy } from "@/lib/graphql/base";
 import { useProfessionalWishlistTab } from "@/hooks/useProfessionalWishlistTab";
+import { cardCategoryLabel } from "@/lib/content-catalog/card-items";
 import { ContentPagination } from "@elements/pagination";
 import { GlassCard } from "@elements/glass-card";
 import { Button } from "@ui/button";
@@ -214,17 +215,16 @@ const ProfessionalWishlistTab = () => {
                     href,
                     kind: THUMBNAIL_KIND[item.contentType],
                     title,
-                    status: item.contentType,
                     rating: content?.rating,
-                    category: content?.category,
+                    category: cardCategoryLabel(
+                      t,
+                      THUMBNAIL_KIND[item.contentType],
+                      content?.category,
+                    ),
                     categoryKey: content?.category,
-                    description: content?.description,
-                    metaPrimary:
+                    byline:
                       content?.providerName ??
                       t("professionalDashboard.wishlist.unknownProvider"),
-                    metaSecondary: content?.isFree
-                      ? t("common.free")
-                      : `${content?.price ?? 0} ${content?.currency ?? "USD"}`,
                   }}
                   footerNote={
                     <>

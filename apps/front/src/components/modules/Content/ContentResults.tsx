@@ -1,3 +1,4 @@
+import { contentCardLabels } from "@/lib/content-catalog/card-labels";
 import { loadDictionary } from "@/i18n/dictionaries";
 import { translatorFor } from "@/lib/i18n/translator";
 import { toCardItems } from "@/lib/content-catalog/card-items";
@@ -12,17 +13,13 @@ const ContentResults = async ({
   locale,
 }: TContentResultsProps & { locale: PublicLocale }) => {
   const { t } = translatorFor(await loadDictionary(locale));
+  const labels = contentCardLabels(t);
 
   return (
     <ul className="grid gap-x-8 gap-y-10 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
       {toCardItems(page, t, locale).map((item) => (
         <li key={`${item.kind}-${item.id}`} className="flex">
-          <ContentCardView
-            item={item}
-            className="w-full"
-            viewDetails={t("content.card.viewDetails")}
-            originalLanguage={t("content.card.originalLanguage")}
-          />
+          <ContentCardView item={item} className="w-full" labels={labels} />
         </li>
       ))}
     </ul>

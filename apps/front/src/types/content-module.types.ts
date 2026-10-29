@@ -7,14 +7,12 @@ import type { ContentType } from "@/lib/graphql/base";
 import type { ReactNode } from "react";
 
 import type { PublicCourse, PublicEvent } from "@/lib/server/public-content";
+import type { PublicPodcastEpisode } from "@/lib/server/public-content";
+import type { PublicYouTubeChannel } from "@/lib/server/public-content";
+import type { PublicYouTubeVideo } from "@/lib/server/public-content";
 import type { CatalogPageData } from "@/lib/server/catalog-reader";
 import type { CatalogFacets } from "@/lib/server/catalog-reader";
-import type {
-  PublicPodcast,
-  PublicYouTubeVideo,
-  PublicPodcastEpisode,
-  PublicYouTubeChannel,
-} from "@/lib/server/public-content";
+import type { PublicPodcast } from "@/lib/server/public-content";
 
 import type * as API from "@/lib/graphql/generated";
 
@@ -22,23 +20,35 @@ export type TContentTab = "courses" | "events" | "podcasts" | "youtube";
 
 export type TContentCardKind = "course" | "event" | "podcast" | "youtube";
 
+export type TContentCardDateBadge = {
+  day: string;
+  month: string;
+};
+
 export type TContentCardItem = {
   id: string;
   href: string;
   title: string;
   slug?: string | null;
-  price?: number | null;
   status?: string | null;
+  byline?: string | null;
   rating?: number | null;
   kind: TContentCardKind;
-  isFree?: boolean | null;
+  levelKey?: string | null;
   category?: string | null;
-  categoryKey?: string | null;
-  description?: string | null;
-  metaPrimary?: string | null;
-  metaSecondary?: string | null;
-  contentLang?: string | null;
   originalLanguage?: boolean;
+  categoryKey?: string | null;
+  ratingCount?: string | null;
+  metaPrimary?: string | null;
+  contentLang?: string | null;
+  metaSecondary?: string | null;
+  dateBadge?: TContentCardDateBadge | null;
+};
+
+export type TContentCardLabels = {
+  originalLanguage: string;
+  cta: Record<TContentCardKind, string>;
+  kind: Record<TContentCardKind, string>;
 };
 
 export type TSelectOption = {
@@ -48,9 +58,9 @@ export type TSelectOption = {
 
 export type TContentCardProps = {
   className?: string;
+  overlay?: ReactNode;
   footerNote?: ReactNode;
   item: TContentCardItem;
-  overlay?: ReactNode;
 };
 
 export type TContentTabsProps = {
@@ -76,9 +86,9 @@ export type TFilterField = {
 
 export type TContentFilterValues = {
   q: string;
-  category: string;
   level: string;
   rating: string;
+  category: string;
   eventType: string;
 };
 
@@ -176,8 +186,8 @@ export type TDetailPageHeaderProps = {
 
 export type TDetailSidebarProps = {
   actions: ReactNode;
-  facts: TDetailFact[];
   summary?: ReactNode;
+  facts: TDetailFact[];
   category?: string | null;
 };
 
@@ -270,25 +280,25 @@ export type TYouTubeVideosProps = {
 };
 
 export type TCourseDetailPageProps = {
-  breadcrumbs?: ReactNode;
   course: PublicCourse;
+  breadcrumbs?: ReactNode;
 };
 
 export type TEventDetailPageProps = {
-  breadcrumbs?: ReactNode;
   event: PublicEvent;
+  breadcrumbs?: ReactNode;
 };
 
 export type TPodcastDetailPageProps = {
-  breadcrumbs?: ReactNode;
   podcast: PublicPodcast;
+  breadcrumbs?: ReactNode;
   episodes: PublicPodcastEpisode[];
 };
 
 export type TYouTubeDetailPageProps = {
   breadcrumbs?: ReactNode;
-  channel: PublicYouTubeChannel;
   videos: PublicYouTubeVideo[];
+  channel: PublicYouTubeChannel;
 };
 
 export type TAddToCalendarButtonProps = {
@@ -307,10 +317,10 @@ export type TMarkCompletedPrefill = {
   contentId?: string | null;
   activityType: API.PduSource;
   roadmapArea?: string | null;
-  durationMinutes?: number | null;
-  providerOrganizer?: string | null;
-  associationName?: string | null;
   creditValue?: number | null;
+  durationMinutes?: number | null;
+  associationName?: string | null;
+  providerOrganizer?: string | null;
   category?: API.PduCategory | null;
   contentType?: API.ContentType | null;
   associationLearningContentId?: string | null;
@@ -333,30 +343,30 @@ export type TMarkAsCompletedDialogProps = {
 export type TAssignedContentDetailItem = {
   title: string;
   provider?: string | null;
-  description?: string | null;
   category?: string | null;
-  indicativeCredits?: number | null;
-  associationName?: string | null;
   externalUrl?: string | null;
+  description?: string | null;
+  associationName?: string | null;
   contentType?: ContentType | null;
   requirementLabel?: string | null;
+  indicativeCredits?: number | null;
 };
 
 export type TAssignedContentDetailDialogProps = {
   open: boolean;
-  item: TAssignedContentDetailItem | null;
   onOpenChange: (open: boolean) => void;
+  item: TAssignedContentDetailItem | null;
 };
 
 export type TRequirementSelectFieldProps<T extends FieldValues> = {
-  t: I18nContextValue["t"];
-  name: Path<T>;
   label: string;
+  name: Path<T>;
   noneValue: string;
   noneLabel: string;
   disabled?: boolean;
   className?: string;
   control: Control<T>;
+  t: I18nContextValue["t"];
   description?: string | null;
   options: TRequirementOption[];
   onValueChange?: (value: string) => void;
