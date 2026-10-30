@@ -1017,39 +1017,11 @@
     },
     "hero": {
       "badge": "AI-powered professional learning",
-      "categories": {
-        "aiPodcasts": "AI podcasts",
-        "businessCourses": "Business courses",
-        "careerPodcasts": "Career podcasts",
-        "certificationEvents": "Certification events",
-        "complianceEvents": "Compliance events",
-        "dataYouTube": "Data YouTube",
-        "engineeringYouTube": "Engineering YouTube",
-        "leadershipCourses": "Leadership courses",
-        "technologyCourses": "Technology courses"
-      },
-      "categoryResults": "Category results",
-      "clear": "Clear",
-      "exploreButton": "Explore",
       "exploreLearning": "Explore learning",
-      "exploreTitle": "Explore by category",
-      "noResults": "No matching content found. Try another keyword or category.",
-      "resultMeta": {
-        "course": "Course",
-        "episodes": "{{count}} episodes",
-        "event": "Event",
-        "minutes": "{{count}} min",
-        "videos": "{{count}} videos"
-      },
-      "searchPlaceholder": "Search courses, events, podcasts, and YouTube channels...",
-      "searchResults": "Search results",
-      "selectedCategory": "Selected category",
       "subtitle": "Explore online courses, events and podcasts, manage your certifications and keep track of your credits — on one AI-powered platform.",
       "titleLine1": "Your learning and",
       "titleLine2": "certifications,",
-      "titleLine3": "all in one place",
-      "viewAll": "View all",
-      "viewItem": "View"
+      "titleLine3": "all in one place"
     },
     "learningHub": {
       "badge": "Learning hub",

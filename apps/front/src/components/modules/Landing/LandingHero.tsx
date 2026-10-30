@@ -1,38 +1,15 @@
 "use client";
 
-import { useLandingHeroSearch } from "@/hooks/useLandingHero";
+import { useI18n } from "@/hooks/useI18n";
 import { siteLinks } from "@/utils/site-navigation";
-import { GlassCard } from "@elements/glass-card";
 
-import HeroMiniResultSkeleton from "@modules/Landing/parts/HeroMiniResultSkeleton";
-import HeroCategoryExplorer from "@modules/Landing/parts/HeroCategoryExplorer";
-import HeroMiniResultCard from "@modules/Landing/parts/HeroMiniResultCard";
 import LandingActionGroup from "./parts/LandingActionGroup";
-import HeroSearchBox from "@modules/Landing/parts/HeroSearchBox";
 import Image from "next/image";
-import Link from "@elements/localized-link";
 
 const TITLE_ID = "landing-hero-title";
 
 const LandingHero = () => {
-  const {
-    t,
-    search,
-    results,
-    isLoading,
-    hasSearch,
-    setSearch,
-    categories,
-    clearSearch,
-    clearCategory,
-    selectCategory,
-    isExplorerOpen,
-    selectedCategory,
-    setIsExplorerOpen,
-    hasSelectedCategory,
-  } = useLandingHeroSearch();
-
-  const shouldShowResults = hasSearch || hasSelectedCategory;
+  const { t } = useI18n();
 
   return (
     <section
@@ -84,90 +61,6 @@ const LandingHero = () => {
               },
             ]}
           />
-
-          <div className="mt-8 max-w-2xl space-y-4">
-            <HeroSearchBox
-              value={search}
-              onChange={setSearch}
-              onClear={clearSearch}
-              isExplorerOpen={isExplorerOpen}
-              clearLabel={t("landing.hero.clear")}
-              exploreLabel={t("landing.hero.exploreButton")}
-              placeholder={t("landing.hero.searchPlaceholder")}
-              onToggleExplorer={() => setIsExplorerOpen(!isExplorerOpen)}
-            />
-
-            {isExplorerOpen ? (
-              <GlassCard className="p-5" glow={false}>
-                <div className="relative z-10">
-                  <HeroCategoryExplorer
-                    categories={categories}
-                    onSelect={selectCategory}
-                    selectedCategory={selectedCategory}
-                  />
-                </div>
-              </GlassCard>
-            ) : null}
-
-            {selectedCategory ? (
-              <div className="flex items-center justify-between rounded-md border px-4 py-3 text-sm">
-                <span className="font-medium text-muted-foreground">
-                  {t("landing.hero.selectedCategory")}:{" "}
-                  <span className="text-primary">{selectedCategory.label}</span>
-                </span>
-
-                <button
-                  type="button"
-                  onClick={clearCategory}
-                  className="font-medium text-primary hover:underline"
-                >
-                  {t("landing.hero.clear")}
-                </button>
-              </div>
-            ) : null}
-
-            {shouldShowResults ? (
-              <div className="motion-safe:animate-in motion-safe:fade-in-0 motion-safe:slide-in-from-bottom-3 motion-safe:duration-500">
-                <div className="mb-3 flex items-center justify-between">
-                  <h2 className="text-sm font-medium">
-                    {hasSearch
-                      ? t("landing.hero.searchResults")
-                      : t("landing.hero.categoryResults")}
-                  </h2>
-
-                  <Link
-                    href={siteLinks.content}
-                    className="text-xs font-medium text-primary hover:underline"
-                  >
-                    {t("landing.hero.viewAll")}
-                  </Link>
-                </div>
-
-                {isLoading ? (
-                  <div className="grid gap-3 sm:grid-cols-2">
-                    {Array.from({ length: 4 }).map((_, index) => (
-                      <HeroMiniResultSkeleton key={index} />
-                    ))}
-                  </div>
-                ) : results.length ? (
-                  <div className="grid gap-3 sm:grid-cols-2">
-                    {results.map((item) => (
-                      <HeroMiniResultCard
-                        item={item}
-                        key={`${item.kind}-${item.id}`}
-                      />
-                    ))}
-                  </div>
-                ) : (
-                  <GlassCard className="p-5" glow={false}>
-                    <p className="relative z-10 text-sm font-medium text-muted-foreground">
-                      {t("landing.hero.noResults")}
-                    </p>
-                  </GlassCard>
-                )}
-              </div>
-            ) : null}
-          </div>
         </div>
 
         <div className="relative mx-auto w-full max-w-md sm:max-w-lg lg:max-w-xl">
