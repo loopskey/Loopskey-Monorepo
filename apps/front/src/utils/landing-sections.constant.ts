@@ -86,5 +86,3 @@ export const ORGANIZATION_SAMPLE = {
     { key: "leadership", completion: 0.51 },
   ],
 } as const;
-
-export const HERO_SAMPLE_CREDITS = { earned: 42, total: 60 } as const;

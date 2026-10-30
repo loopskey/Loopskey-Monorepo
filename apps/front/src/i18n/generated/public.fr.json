@@ -1034,7 +1034,6 @@
       "exploreLearning": "Explorer les contenus",
       "exploreTitle": "Explorer par catégorie",
       "noResults": "Aucun contenu correspondant trouvé. Essayez un autre mot-clé ou une autre catégorie.",
-      "planNote": "Fonctionnalités essentielles gratuites pour les professionnels",
       "resultMeta": {
         "course": "Cours",
         "episodes": "{{count}} épisodes",
@@ -1042,16 +1041,13 @@
         "minutes": "{{count}} min",
         "videos": "{{count}} vidéos"
       },
-      "sampleCard": {
-        "credits": "{{earned}} crédits sur {{total}}",
-        "title": "Project Management Professional"
-      },
       "searchPlaceholder": "Rechercher des cours, événements, podcasts et chaînes YouTube...",
       "searchResults": "Résultats de recherche",
       "selectedCategory": "Catégorie sélectionnée",
       "subtitle": "Explorez des cours en ligne, des événements et des podcasts, gérez vos certifications et suivez vos crédits — sur une seule plateforme propulsée par l’IA.",
-      "titleHighlight": "réunis au même endroit",
-      "titleLead": "Votre apprentissage et vos certifications,",
+      "titleLine1": "Votre apprentissage",
+      "titleLine2": "et vos certifications,",
+      "titleLine3": "réunis au même endroit",
       "viewAll": "Tout voir",
       "viewItem": "Voir"
     },
@@ -1066,9 +1062,6 @@
       "retry": "Réessayer",
       "title": "Découvrez des cours, des événements et des podcasts",
       "viewAll": "Voir tout"
-    },
-    "sample": {
-      "label": "Exemple"
     }
   },
   "navigation": {
@@ -1082,7 +1075,6 @@
     "primary": "Principale",
     "roleBar": {
       "dashboard": "Accéder à votre tableau de bord",
-      "for": "Pour",
       "label": "Public",
       "taglines": {
         "association": "Définissez les exigences de renouvellement et suivez la progression des membres.",

@@ -1034,7 +1034,6 @@
       "exploreLearning": "Explore learning",
       "exploreTitle": "Explore by category",
       "noResults": "No matching content found. Try another keyword or category.",
-      "planNote": "Core features are free for individual professionals",
       "resultMeta": {
         "course": "Course",
         "episodes": "{{count}} episodes",
@@ -1042,16 +1041,13 @@
         "minutes": "{{count}} min",
         "videos": "{{count}} videos"
       },
-      "sampleCard": {
-        "credits": "{{earned}} of {{total}} credits",
-        "title": "Project Management Professional"
-      },
       "searchPlaceholder": "Search courses, events, podcasts, and YouTube channels...",
       "searchResults": "Search results",
       "selectedCategory": "Selected category",
       "subtitle": "Explore online courses, events and podcasts, manage your certifications and keep track of your credits — on one AI-powered platform.",
-      "titleHighlight": "all in one place",
-      "titleLead": "Your learning and certifications,",
+      "titleLine1": "Your learning and",
+      "titleLine2": "certifications,",
+      "titleLine3": "all in one place",
       "viewAll": "View all",
       "viewItem": "View"
     },
@@ -1066,9 +1062,6 @@
       "retry": "Try again",
       "title": "Explore courses, events and podcasts",
       "viewAll": "View all"
-    },
-    "sample": {
-      "label": "Sample"
     }
   },
   "navigation": {
@@ -1082,7 +1075,6 @@
     "primary": "Main",
     "roleBar": {
       "dashboard": "Go to your dashboard",
-      "for": "For",
       "label": "Audience",
       "taglines": {
         "association": "Set renewal requirements and follow member progress.",

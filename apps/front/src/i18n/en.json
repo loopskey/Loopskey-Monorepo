@@ -2714,7 +2714,6 @@
       }
     },
     "roleBar": {
-      "for": "For",
       "label": "Audience",
       "workspace": "{{role}} workspace",
       "dashboard": "Go to your dashboard",
@@ -3478,10 +3477,10 @@
     },
     "hero": {
       "badge": "AI-powered professional learning",
-      "titleLead": "Your learning and certifications,",
-      "titleHighlight": "all in one place",
+      "titleLine1": "Your learning and",
+      "titleLine2": "certifications,",
+      "titleLine3": "all in one place",
       "subtitle": "Explore online courses, events and podcasts, manage your certifications and keep track of your credits — on one AI-powered platform.",
-      "planNote": "Core features are free for individual professionals",
       "exploreLearning": "Explore learning",
       "sampleCard": {
         "title": "Project Management Professional",
