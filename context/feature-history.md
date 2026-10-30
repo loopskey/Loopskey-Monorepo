@@ -165,3 +165,4 @@ into this index and do not rewrite previous records.
 - [`remove-requirement-credit-categories`](feature-runs/active/remove-requirement-credit-categories.md) — PR [#333](https://github.com/loopskey/Loopskey-Monorepo/pull/333)
 - [`svg-only-covers-and-compact-card`](feature-runs/active/svg-only-covers-and-compact-card.md) — PR [#335](https://github.com/loopskey/Loopskey-Monorepo/pull/335)
 - [`professional-content-card`](feature-runs/active/professional-content-card.md) — PR [#337](https://github.com/loopskey/Loopskey-Monorepo/pull/337)
+- [`header-search-redesign`](feature-runs/active/header-search-redesign.md) — PR [#339](https://github.com/loopskey/Loopskey-Monorepo/pull/339)
