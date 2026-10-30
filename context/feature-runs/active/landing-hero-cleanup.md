@@ -4,7 +4,7 @@
 - Model: `Standard development — removing UI elements and recolouring a heading inside established patterns`
 - Branch: `feature/landing-hero-cleanup`
 - Base: `0970e396`
-- Status: `Ready`
+- Status: `Submitted`
 
 ## Acceptance
 
@@ -22,6 +22,6 @@
 
 ## Submission
 
-- Commit:
-- PR:
-- CI:
+- Commit: 7d830ad3
+- PR: https://github.com/loopskey/Loopskey-Monorepo/pull/341
+- CI: pending

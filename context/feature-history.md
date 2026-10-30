@@ -166,3 +166,4 @@ into this index and do not rewrite previous records.
 - [`svg-only-covers-and-compact-card`](feature-runs/active/svg-only-covers-and-compact-card.md) — PR [#335](https://github.com/loopskey/Loopskey-Monorepo/pull/335)
 - [`professional-content-card`](feature-runs/active/professional-content-card.md) — PR [#337](https://github.com/loopskey/Loopskey-Monorepo/pull/337)
 - [`header-search-redesign`](feature-runs/active/header-search-redesign.md) — PR [#339](https://github.com/loopskey/Loopskey-Monorepo/pull/339)
+- [`landing-hero-cleanup`](feature-runs/active/landing-hero-cleanup.md) — PR [#341](https://github.com/loopskey/Loopskey-Monorepo/pull/341)
