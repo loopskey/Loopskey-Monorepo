@@ -131,5 +131,7 @@ export const getDashboardProfilePath = (role?: Role | null) => {
   }
 };
 
+export const HEADER_SEARCH_INPUT_ID = "header-search-input";
+
 export const HEADER_CONTAINER_CLASS_NAME =
   "mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8";

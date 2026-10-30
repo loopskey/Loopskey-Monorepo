@@ -411,7 +411,8 @@
   "common": {
     "languageSwitcher": {
       "label": "Langue",
-      "unavailable": "Non disponible dans cette langue"
+      "unavailable": "Non disponible dans cette langue",
+      "current": "Langue : {{name}}"
     },
     "wizardStepper": {
       "stepOf": "Étape {{current}} sur {{total}}",
@@ -2681,7 +2682,51 @@
     "closeMenu": "Fermer le menu",
     "primary": "Principale",
     "homeLink": "Accueil LoopsKey",
-    "skipToContent": "Aller au contenu principal"
+    "skipToContent": "Aller au contenu principal",
+    "search": {
+      "label": "Rechercher sur LoopsKey",
+      "placeholder": "Rechercher des cours, événements, podcasts…",
+      "open": "Ouvrir la recherche",
+      "close": "Fermer la recherche",
+      "browse": "Parcourir",
+      "recent": "Recherches récentes",
+      "clearRecent": "Effacer",
+      "results": "Résultats",
+      "loading": "Recherche…",
+      "minChars": "Saisissez au moins {{count}} caractères pour rechercher.",
+      "error": "La recherche est indisponible pour le moment. Réessayez dans un instant.",
+      "noResults": "Aucun résultat pour « {{query}} ». Essayez un sujet, un fournisseur ou une certification.",
+      "seeAll": "Voir tous les résultats pour « {{query}} »",
+      "types": {
+        "courses": "Cours",
+        "events": "Événements",
+        "podcasts": "Podcasts",
+        "youtube": "YouTube"
+      },
+      "kinds": {
+        "course": "Cours",
+        "event": "Événement",
+        "podcast": "Podcast",
+        "youtube": "YouTube"
+      },
+      "meta": {
+        "minutes": "{{count}} min",
+        "episodes": "{{count}} épisodes",
+        "videos": "{{count}} vidéos"
+      }
+    },
+    "roleBar": {
+      "for": "Pour",
+      "label": "Public",
+      "workspace": "Espace {{role}}",
+      "dashboard": "Accéder à votre tableau de bord",
+      "taglines": {
+        "professional": "Suivez vos crédits DPC et PDU de tous vos fournisseurs au même endroit.",
+        "association": "Définissez les exigences de renouvellement et suivez la progression des membres.",
+        "organization": "Attribuez des formations et suivez la conformité de vos équipes.",
+        "provider": "Publiez des cours et événements pour des professionnels certifiés."
+      }
+    }
   },
   "dashboardShell": {
     "navLabel": "Navigation du tableau de bord",
@@ -3000,7 +3045,8 @@
     "dashboard": "Tableau de bord",
     "profile": "Profil",
     "logout": "Déconnexion",
-    "loggingOut": "Déconnexion..."
+    "loggingOut": "Déconnexion...",
+    "open": "Menu du compte"
   },
   "content": {
     "meta": {

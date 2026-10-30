@@ -6,7 +6,7 @@ import { refreshPublicSession } from "@/lib/session/public-session";
 import { stripLocalePrefix } from "@/lib/i18n/locale";
 import { usePublicSession } from "@/hooks/usePublicSession";
 import { usePathname } from "next/navigation";
-import { siteLinks } from "@/utils/site-navigation";
+import { HEADER_SEARCH_INPUT_ID, siteLinks } from "@/utils/site-navigation";
 import { TNavItem } from "@/types/element.types";
 import { useI18n } from "@hooks/useI18n";
 
@@ -16,6 +16,8 @@ export const useHeader = () => {
 
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileOpen, setIsMobileOpen] = useState(false);
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [isInlineSearchActive, setIsInlineSearchActive] = useState(false);
 
   const { user, isAuthenticated } = usePublicSession();
   const currentUserRole = user?.role;
@@ -55,7 +57,41 @@ export const useHeader = () => {
     menuToggle.current?.focus();
   }, []);
 
-  const toggleMobileMenu = () => setIsMobileOpen((prev) => !prev);
+  const toggleMobileMenu = () => {
+    setIsSearchOpen(false);
+    setIsMobileOpen((prev) => !prev);
+  };
+
+  const closeSearch = useCallback(() => setIsSearchOpen(false), []);
+
+  const toggleSearch = () => {
+    setIsMobileOpen(false);
+    setIsSearchOpen((prev) => !prev);
+  };
+
+  useEffect(() => {
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key !== "/" || event.metaKey || event.ctrlKey || event.altKey)
+        return;
+      const target = event.target as HTMLElement | null;
+      if (
+        target?.isContentEditable ||
+        /^(input|textarea|select)$/i.test(target?.tagName ?? "")
+      )
+        return;
+      event.preventDefault();
+      const field = document.getElementById(HEADER_SEARCH_INPUT_ID);
+      if (field && field.offsetParent !== null) {
+        if (field instanceof HTMLInputElement) field.focus();
+        else setIsInlineSearchActive(true);
+      } else {
+        setIsMobileOpen(false);
+        setIsSearchOpen(true);
+      }
+    };
+    document.addEventListener("keydown", onKeyDown);
+    return () => document.removeEventListener("keydown", onKeyDown);
+  }, []);
 
   useEffect(() => {
     const onScroll = () => {
@@ -89,18 +125,24 @@ export const useHeader = () => {
 
   useEffect(() => {
     closeMobileMenu();
-  }, [pathname]);
+    closeSearch();
+  }, [pathname, closeSearch]);
 
   return {
     t,
     navItems,
     menuToggle,
     isScrolled,
+    closeSearch,
     isMobileOpen,
+    isSearchOpen,
     showRoleStrip,
+    isInlineSearchActive,
     isAuthenticated,
     currentUserRole,
     isActiveNavItem,
+    toggleSearch,
+    setIsInlineSearchActive,
     closeMobileMenu,
     toggleMobileMenu,
     dismissMobileMenu,

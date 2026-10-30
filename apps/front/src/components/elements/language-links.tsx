@@ -2,6 +2,7 @@
 
 import { PUBLIC_LOCALES, switchLocalePath } from "@/lib/i18n/locale";
 import { usePathname, useSearchParams } from "next/navigation";
+import { TLanguageLinksProps } from "@/types/element.types";
 import { stripLocalePrefix } from "@/lib/i18n/locale";
 import { LanguageMenu } from "@elements/language-menu";
 import { Languages } from "lucide-react";
@@ -12,12 +13,6 @@ import { cn } from "@/lib/utils";
 import type { PublicLocale } from "@/lib/i18n/locale";
 
 import Link from "next/link";
-
-type TLanguageLinksProps = {
-  className?: string;
-  variant?: "inline" | "menu";
-  available?: readonly PublicLocale[];
-};
 
 type TLinkListProps = TLanguageLinksProps & { search: string };
 
@@ -31,6 +26,7 @@ const isCatalogPath = (pathname: string) =>
 
 const LinkList = ({
   search,
+  iconOnly,
   available,
   className,
   variant = "inline",
@@ -42,6 +38,7 @@ const LinkList = ({
     return (
       <LanguageMenu
         search={search}
+        iconOnly={iconOnly}
         available={available}
         className={className}
         nameKeys={LANGUAGE_NAME_KEY}
@@ -109,9 +106,7 @@ const LinksWithSearch = (props: TLanguageLinksProps) => {
 
 export const LanguageLinks = (props: TLanguageLinksProps) => {
   const pathname = usePathname();
-
   if (!isCatalogPath(pathname)) return <LinkList {...props} search="" />;
-
   return (
     <Suspense fallback={<LinkList {...props} search="" />}>
       <LinksWithSearch {...props} />

@@ -411,7 +411,8 @@
   "common": {
     "languageSwitcher": {
       "label": "Language",
-      "unavailable": "Not available in this language"
+      "unavailable": "Not available in this language",
+      "current": "Language: {{name}}"
     },
     "wizardStepper": {
       "stepOf": "Step {{current}} of {{total}}",
@@ -2679,7 +2680,51 @@
     "closeMenu": "Close menu",
     "primary": "Main",
     "homeLink": "LoopsKey home",
-    "skipToContent": "Skip to main content"
+    "skipToContent": "Skip to main content",
+    "search": {
+      "label": "Search LoopsKey",
+      "placeholder": "Search courses, events, podcasts…",
+      "open": "Open search",
+      "close": "Close search",
+      "browse": "Browse",
+      "recent": "Recent searches",
+      "clearRecent": "Clear",
+      "results": "Results",
+      "loading": "Searching…",
+      "minChars": "Type at least {{count}} characters to search.",
+      "error": "Search is unavailable right now. Try again in a moment.",
+      "noResults": "No matches for “{{query}}”. Try a topic, provider or credential.",
+      "seeAll": "See all results for “{{query}}”",
+      "types": {
+        "courses": "Courses",
+        "events": "Events",
+        "podcasts": "Podcasts",
+        "youtube": "YouTube"
+      },
+      "kinds": {
+        "course": "Course",
+        "event": "Event",
+        "podcast": "Podcast",
+        "youtube": "YouTube"
+      },
+      "meta": {
+        "minutes": "{{count}} min",
+        "episodes": "{{count}} episodes",
+        "videos": "{{count}} videos"
+      }
+    },
+    "roleBar": {
+      "for": "For",
+      "label": "Audience",
+      "workspace": "{{role}} workspace",
+      "dashboard": "Go to your dashboard",
+      "taglines": {
+        "professional": "Track CPD and PDU credits from every provider in one place.",
+        "association": "Set renewal requirements and follow member progress.",
+        "organization": "Assign learning and report on team compliance.",
+        "provider": "Publish courses and events to credentialed professionals."
+      }
+    }
   },
   "dashboardShell": {
     "navLabel": "Dashboard navigation",
@@ -2996,7 +3041,8 @@
     "dashboard": "Dashboard",
     "profile": "Profile",
     "logout": "Logout",
-    "loggingOut": "Logging out..."
+    "loggingOut": "Logging out...",
+    "open": "Account menu"
   },
   "content": {
     "meta": {

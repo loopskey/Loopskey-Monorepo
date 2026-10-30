@@ -1,3 +1,5 @@
+import type { PublicLocale } from "@/lib/i18n/locale";
+
 import type { TextareaHTMLAttributes, InputHTMLAttributes } from "react";
 import type { Control, FieldPath, FieldValues, Path } from "react-hook-form";
 import type { HTMLAttributes, ReactNode } from "react";
@@ -266,4 +268,34 @@ export type TIconActionProps = {
 export type TFormSectionProps = {
   title: string;
   children: ReactNode;
+};
+
+export type THeaderSearchVariant = "inline" | "row";
+
+export type THeaderSearchProps = {
+  autoFocus?: boolean;
+  className?: string;
+  onClose?: () => void;
+  variant: THeaderSearchVariant;
+};
+
+export type THeaderSearchOption = {
+  id: string;
+  href: string;
+  label: string;
+};
+
+export type TLanguageLinksProps = {
+  iconOnly?: boolean;
+  className?: string;
+  variant?: "inline" | "menu";
+  available?: readonly PublicLocale[];
+};
+
+export type TLanguageMenuProps = {
+  search: string;
+  iconOnly?: boolean;
+  className?: string;
+  available?: readonly PublicLocale[];
+  nameKeys: Record<PublicLocale, string>;
 };

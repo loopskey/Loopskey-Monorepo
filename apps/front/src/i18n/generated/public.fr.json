@@ -203,6 +203,7 @@
     "joinForFree": "Rejoindre gratuitement",
     "language": "Langue",
     "languageSwitcher": {
+      "current": "Langue : {{name}}",
       "label": "Langue",
       "unavailable": "Non disponible dans cette langue"
     },
@@ -1079,6 +1080,50 @@
     "homeLink": "Accueil LoopsKey",
     "openMenu": "Ouvrir le menu",
     "primary": "Principale",
+    "roleBar": {
+      "dashboard": "Accéder à votre tableau de bord",
+      "for": "Pour",
+      "label": "Public",
+      "taglines": {
+        "association": "Définissez les exigences de renouvellement et suivez la progression des membres.",
+        "organization": "Attribuez des formations et suivez la conformité de vos équipes.",
+        "professional": "Suivez vos crédits DPC et PDU de tous vos fournisseurs au même endroit.",
+        "provider": "Publiez des cours et événements pour des professionnels certifiés."
+      },
+      "workspace": "Espace {{role}}"
+    },
+    "search": {
+      "browse": "Parcourir",
+      "clearRecent": "Effacer",
+      "close": "Fermer la recherche",
+      "error": "La recherche est indisponible pour le moment. Réessayez dans un instant.",
+      "kinds": {
+        "course": "Cours",
+        "event": "Événement",
+        "podcast": "Podcast",
+        "youtube": "YouTube"
+      },
+      "label": "Rechercher sur LoopsKey",
+      "loading": "Recherche…",
+      "meta": {
+        "episodes": "{{count}} épisodes",
+        "minutes": "{{count}} min",
+        "videos": "{{count}} vidéos"
+      },
+      "minChars": "Saisissez au moins {{count}} caractères pour rechercher.",
+      "noResults": "Aucun résultat pour « {{query}} ». Essayez un sujet, un fournisseur ou une certification.",
+      "open": "Ouvrir la recherche",
+      "placeholder": "Rechercher des cours, événements, podcasts…",
+      "recent": "Recherches récentes",
+      "results": "Résultats",
+      "seeAll": "Voir tous les résultats pour « {{query}} »",
+      "types": {
+        "courses": "Cours",
+        "events": "Événements",
+        "podcasts": "Podcasts",
+        "youtube": "YouTube"
+      }
+    },
     "services": "Services",
     "skipToContent": "Aller au contenu principal"
   },
@@ -1916,6 +1961,7 @@
     "dashboard": "Tableau de bord",
     "loggingOut": "Déconnexion...",
     "logout": "Déconnexion",
+    "open": "Menu du compte",
     "profile": "Profil"
   }
 }
