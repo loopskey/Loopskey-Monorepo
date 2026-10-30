@@ -50,10 +50,6 @@ export const RoleStrip = ({ workspace }: TRoleStripProps) => {
   return (
     <div className={BAR_CLASS_NAME}>
       <div className={INNER_CLASS_NAME}>
-        <span className="text-xs font-medium text-muted-foreground">
-          {t("navigation.roleBar.for")}
-        </span>
-
         <nav
           aria-label={t("navigation.roleBar.label")}
           className="flex h-full items-stretch"

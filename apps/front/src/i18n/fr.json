@@ -2716,7 +2716,6 @@
       }
     },
     "roleBar": {
-      "for": "Pour",
       "label": "Public",
       "workspace": "Espace {{role}}",
       "dashboard": "Accéder à votre tableau de bord",
@@ -3482,10 +3481,10 @@
     },
     "hero": {
       "badge": "Apprentissage professionnel propulsé par l’IA",
-      "titleLead": "Votre apprentissage et vos certifications,",
-      "titleHighlight": "réunis au même endroit",
+      "titleLine1": "Votre apprentissage",
+      "titleLine2": "et vos certifications,",
+      "titleLine3": "réunis au même endroit",
       "subtitle": "Explorez des cours en ligne, des événements et des podcasts, gérez vos certifications et suivez vos crédits — sur une seule plateforme propulsée par l’IA.",
-      "planNote": "Fonctionnalités essentielles gratuites pour les professionnels",
       "exploreLearning": "Explorer les contenus",
       "sampleCard": {
         "title": "Project Management Professional",

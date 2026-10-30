@@ -1,19 +1,16 @@
 "use client";
 
-import { HERO_SAMPLE_CREDITS } from "@/utils/landing-sections.constant";
 import { useLandingHeroSearch } from "@/hooks/useLandingHero";
 import { siteLinks } from "@/utils/site-navigation";
 import { GlassCard } from "@elements/glass-card";
-import { Sparkles } from "lucide-react";
 
 import HeroMiniResultSkeleton from "@modules/Landing/parts/HeroMiniResultSkeleton";
 import HeroCategoryExplorer from "@modules/Landing/parts/HeroCategoryExplorer";
 import HeroMiniResultCard from "@modules/Landing/parts/HeroMiniResultCard";
+import LandingActionGroup from "./parts/LandingActionGroup";
 import HeroSearchBox from "@modules/Landing/parts/HeroSearchBox";
 import Image from "next/image";
 import Link from "@elements/localized-link";
-
-import LandingActionGroup from "./parts/LandingActionGroup";
 
 const TITLE_ID = "landing-hero-title";
 
@@ -36,7 +33,6 @@ const LandingHero = () => {
   } = useLandingHeroSearch();
 
   const shouldShowResults = hasSearch || hasSelectedCategory;
-  const creditShare = HERO_SAMPLE_CREDITS.earned / HERO_SAMPLE_CREDITS.total;
 
   return (
     <section
@@ -53,9 +49,14 @@ const LandingHero = () => {
             id={TITLE_ID}
             className="mt-6 text-balance text-4xl font-bold leading-[1.08] tracking-tight text-foreground sm:text-5xl lg:text-6xl"
           >
-            <span className="block">{t("landing.hero.titleLead")}</span>{" "}
-            <span className="block text-primary">
-              {t("landing.hero.titleHighlight")}
+            <span className="block text-brand-sky-large-text">
+              {t("landing.hero.titleLine1")}
+            </span>{" "}
+            <span className="block text-brand-navy">
+              {t("landing.hero.titleLine2")}
+            </span>{" "}
+            <span className="block text-brand-orange-large-text">
+              {t("landing.hero.titleLine3")}
             </span>
           </h1>
 
@@ -83,10 +84,6 @@ const LandingHero = () => {
               },
             ]}
           />
-
-          <p className="mt-4 text-sm text-muted-foreground">
-            {t("landing.hero.planNote")}
-          </p>
 
           <div className="mt-8 max-w-2xl space-y-4">
             <HeroSearchBox
@@ -177,37 +174,12 @@ const LandingHero = () => {
           <div className="relative aspect-[600/638] w-full">
             <Image
               fill
-              priority
               alt=""
+              priority
               src="/hero.png"
-              sizes="(max-width: 640px) 90vw, (max-width: 1024px) 512px, 576px"
               className="object-contain"
+              sizes="(max-width: 640px) 90vw, (max-width: 1024px) 512px, 576px"
             />
-          </div>
-
-          <div className="absolute bottom-2 left-0 w-64 max-w-[85%] rounded-xl border bg-card p-4 shadow-lg sm:bottom-6 sm:w-72">
-            <span className="inline-flex items-center gap-1 rounded-full bg-muted px-2 py-0.5 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-              <Sparkles aria-hidden className="size-3" />
-              {t("landing.sample.label")}
-            </span>
-            <p className="mt-2 text-sm font-semibold text-foreground">
-              {t("landing.hero.sampleCard.title")}
-            </p>
-            <p className="mt-1 text-xs text-muted-foreground">
-              {t("landing.hero.sampleCard.credits", {
-                earned: HERO_SAMPLE_CREDITS.earned,
-                total: HERO_SAMPLE_CREDITS.total,
-              })}
-            </p>
-            <div
-              aria-hidden
-              className="mt-3 h-1.5 overflow-hidden rounded-full bg-muted"
-            >
-              <div
-                className="h-full rounded-full bg-brand-orange"
-                style={{ width: `${creditShare * 100}%` }}
-              />
-            </div>
           </div>
         </div>
       </div>
