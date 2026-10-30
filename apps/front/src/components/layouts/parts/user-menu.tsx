@@ -1,19 +1,13 @@
 "use client";
 
-import { UserMenuView } from "@layouts/parts/user-menu-view";
 import { useCurrentUserQuery } from "@/lib/rtk/endpoints/auth.api";
 import { useLogoutMutation } from "@/lib/rtk/endpoints/auth.api";
+import type { TUserMenuProps } from "@/types/layouts.types";
+import { UserMenuView } from "@layouts/parts/user-menu-view";
 import { useRouter } from "next/navigation";
 import { siteLinks } from "@/utils/site-navigation";
 import { useI18n } from "@/hooks/useI18n";
 import { notify } from "@/hooks/notify";
-
-import type { TUserMenuVariant } from "@layouts/parts/user-menu-view";
-
-type TUserMenuProps = {
-  variant?: TUserMenuVariant;
-  onNavigate?: () => void;
-};
 
 export const UserMenu = ({
   onNavigate,

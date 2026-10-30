@@ -1,10 +1,7 @@
-import {
-  siteLinks,
-  socialLinks,
-  solutionEntries,
-} from "@/utils/site-navigation";
 import { TFooterLink, TSocialLink } from "@/types/element.types";
+import { siteLinks, socialLinks } from "@/utils/site-navigation";
 import { Facebook, Linkedin } from "lucide-react";
+import { solutionEntries } from "@/utils/site-navigation";
 import { FooterColumn } from "@layouts/parts/footer-column";
 import { Youtube } from "lucide-react";
 import { Button } from "@ui/button";
@@ -134,23 +131,23 @@ export const FooterContent = ({ t }: { t: I18nContextValue["t"] }) => {
 
           <div className="grid grid-cols-2 gap-x-6 gap-y-10 md:contents">
             <FooterColumn
-              title={t("footer.columns.solutions")}
               links={solutionLinks}
+              title={t("footer.columns.solutions")}
             />
 
             <FooterColumn
-              title={t("footer.columns.support")}
               links={supportLinks}
+              title={t("footer.columns.support")}
             />
 
             <FooterColumn
-              title={t("footer.columns.legal")}
               links={legalLinks}
+              title={t("footer.columns.legal")}
             />
 
             <FooterColumn
-              title={t("footer.columns.company")}
               links={companyLinks}
+              title={t("footer.columns.company")}
             />
           </div>
         </div>

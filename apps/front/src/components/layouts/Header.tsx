@@ -1,15 +1,15 @@
 "use client";
 
-import { getSolutionHrefForRole, siteLinks } from "@/utils/site-navigation";
+import { getAuthHrefForSolutionHref, siteLinks } from "@/utils/site-navigation";
 import { HEADER_CONTAINER_CLASS_NAME } from "@/utils/site-navigation";
-import { getAuthHrefForSolutionHref } from "@/utils/site-navigation";
-import { RoleMenuSection } from "@layouts/parts/role-menu-section";
+import { HEADER_SEARCH_INPUT_ID } from "@/utils/site-navigation";
+import { getDashboardPath } from "@/utils/site-navigation";
+import { Menu, Search, X } from "lucide-react";
 import { solutionEntries } from "@/utils/site-navigation";
-import { useMediaQuery } from "@/hooks/useMediaQuery";
 import { useActiveRole } from "@/providers/active-role-provider";
+import { useEffect, useState } from "react";
 import { RoleStrip } from "@layouts/parts/role-strip";
 import { useHeader } from "@hooks/useHeader";
-import { Menu, X } from "lucide-react";
 import { Button } from "@ui/button";
 import { Logo } from "@layouts/parts/logo";
 import { cn } from "@lib/utils";
@@ -21,13 +21,22 @@ import Link from "@elements/localized-link";
 
 const PublicUserMenu = dynamic(() => import("@layouts/parts/public-user-menu"));
 
-const MOBILE_NAV_STAGGER_MS = 50;
+const loadHeaderSearch = () =>
+  import("@layouts/parts/header-search").then((module) => module.HeaderSearch);
+const HeaderSearch = dynamic(loadHeaderSearch, { ssr: false });
+const preloadHeaderSearch = () => void loadHeaderSearch();
+
+// The drawer is only for narrow screens, so desktop visitors never download it.
+const loadMobileMenu = () => import("@layouts/parts/header-mobile-menu");
+const HeaderMobileMenu = dynamic(loadMobileMenu, { ssr: false });
+const preloadMobileMenu = () => void loadMobileMenu();
 
 type THeaderProps = {
   languageControl: ReactNode;
 };
 
 const MOBILE_NAV_ID = "header-mobile-navigation";
+const SEARCH_ROW_ID = "header-search-row";
 
 const Header = ({ languageControl }: THeaderProps) => {
   const {
@@ -35,14 +44,19 @@ const Header = ({ languageControl }: THeaderProps) => {
     navItems,
     menuToggle,
     isScrolled,
-    showRoleStrip,
+    closeSearch,
+    toggleSearch,
+    isSearchOpen,
     isMobileOpen,
+    showRoleStrip,
     isAuthenticated,
     currentUserRole,
     isActiveNavItem,
     closeMobileMenu,
     toggleMobileMenu,
     dismissMobileMenu,
+    isInlineSearchActive,
+    setIsInlineSearchActive,
   } = useHeader();
   const { activeRoleHref } = useActiveRole();
   const activeRole = solutionEntries.find(
@@ -54,19 +68,16 @@ const Header = ({ languageControl }: THeaderProps) => {
   const joinLabel = activeRole
     ? t(`common.joinAs.${activeRole.role.toLowerCase()}`)
     : t("common.joinForFree");
-  const authenticatedRoleHref =
+  const workspaceEntry =
     isAuthenticated && currentUserRole
-      ? getSolutionHrefForRole(currentUserRole)
+      ? solutionEntries.find((entry) => entry.role === currentUserRole)
       : undefined;
   const showRoleMenuMobile = showRoleStrip && !isAuthenticated;
-  const prefersReducedMotion = useMediaQuery(
-    "(prefers-reduced-motion: reduce)",
-  );
+  const [hasOpenedMobileMenu, setHasOpenedMobileMenu] = useState(false);
 
-  const staggerDelay = (index: number) =>
-    prefersReducedMotion || !isMobileOpen
-      ? "0ms"
-      : `${index * MOBILE_NAV_STAGGER_MS}ms`;
+  useEffect(() => {
+    if (isMobileOpen) setHasOpenedMobileMenu(true);
+  }, [isMobileOpen]);
 
   return (
     <header
@@ -75,13 +86,24 @@ const Header = ({ languageControl }: THeaderProps) => {
         isScrolled ? "border-b shadow-sm" : "border-b",
       )}
     >
-      {showRoleStrip && <RoleStrip lockedHref={authenticatedRoleHref} />}
+      {showRoleStrip && (
+        <RoleStrip
+          workspace={
+            workspaceEntry && currentUserRole
+              ? {
+                  roleLabelKey: workspaceEntry.roleLabelKey,
+                  dashboardHref: getDashboardPath(currentUserRole),
+                }
+              : undefined
+          }
+        />
+      )}
 
-      <div className={HEADER_CONTAINER_CLASS_NAME}>
+      <div className={cn(HEADER_CONTAINER_CLASS_NAME, "gap-4 xl:gap-8")}>
         <Logo label={t("navigation.homeLink")} />
         <nav
           aria-label={t("navigation.primary")}
-          className="hidden items-center gap-1 lg:flex"
+          className="hidden items-center lg:flex"
         >
           {navItems.map((item) => {
             const isActive = isActiveNavItem(item.href);
@@ -91,11 +113,11 @@ const Header = ({ languageControl }: THeaderProps) => {
                 href={item.href}
                 aria-current={isActive ? "page" : undefined}
                 className={cn(
-                  "relative mx-1 whitespace-nowrap rounded-full px-2 py-2 text-sm font-semibold xl:mx-3 xl:px-3 transition-all duration-300",
-                  "after:absolute after:bottom-1 after:left-1/2 after:h-[2px] after:w-0 after:-translate-x-1/2 after:rounded-full after:bg-primary after:transition-all after:duration-300",
+                  "relative whitespace-nowrap rounded-md px-2.5 py-2 text-sm font-semibold outline-none transition-colors duration-200 focus-visible:ring-2 focus-visible:ring-ring xl:px-3",
+                  "after:absolute after:inset-x-2.5 after:-bottom-[14px] after:h-0.5 after:rounded-t-full after:bg-primary after:opacity-0 after:transition-opacity after:duration-200 xl:after:inset-x-3",
                   isActive
-                    ? "bg-primary/10 text-primary shadow-sm ring-1 ring-primary/15 after:w-6"
-                    : "text-muted-foreground hover:bg-primary/5 hover:text-primary hover:after:w-5",
+                    ? "text-primary after:opacity-100"
+                    : "text-muted-foreground hover:text-primary",
                 )}
               >
                 {item.label}
@@ -104,143 +126,122 @@ const Header = ({ languageControl }: THeaderProps) => {
           })}
         </nav>
 
-        <div className="hidden items-center gap-2 lg:flex">
+        <div className="ml-auto flex items-center gap-0.5 min-[380px]:gap-1.5 sm:gap-2">
+          {isInlineSearchActive ? (
+            <HeaderSearch
+              autoFocus
+              variant="inline"
+              className="hidden w-72 xl:block"
+            />
+          ) : (
+            <button
+              type="button"
+              id={HEADER_SEARCH_INPUT_ID}
+              onFocus={preloadHeaderSearch}
+              onPointerEnter={preloadHeaderSearch}
+              aria-label={t("navigation.search.label")}
+              onClick={() => setIsInlineSearchActive(true)}
+              className="relative hidden h-10 w-72 items-center gap-2 rounded-xl border border-border bg-muted/60 pl-3 pr-2.5 text-left text-sm font-medium text-muted-foreground outline-none transition-[border-color,background-color] hover:border-primary/25 focus-visible:border-primary focus-visible:ring-4 focus-visible:ring-primary/15 xl:flex"
+            >
+              <Search aria-hidden className="size-4 shrink-0" />
+              <span className="min-w-0 flex-1 truncate">
+                {t("navigation.search.placeholder")}
+              </span>
+              <kbd
+                aria-hidden
+                className="rounded-md border bg-background px-1.5 py-0.5 text-[11px] font-semibold"
+              >
+                /
+              </kbd>
+            </button>
+          )}
+
+          <Button
+            size="icon"
+            radius="xl"
+            type="button"
+            variant="ghost"
+            onClick={toggleSearch}
+            aria-expanded={isSearchOpen}
+            aria-controls={SEARCH_ROW_ID}
+            className="size-9 text-muted-foreground hover:text-primary min-[380px]:size-10 xl:hidden"
+            aria-label={
+              isSearchOpen
+                ? t("navigation.search.close")
+                : t("navigation.search.open")
+            }
+          >
+            {isSearchOpen ? (
+              <X className="size-5" />
+            ) : (
+              <Search className="size-5" />
+            )}
+          </Button>
+
           {languageControl}
+
           {isAuthenticated ? (
             <PublicUserMenu />
           ) : (
-            <Button asChild size="lg" radius="full">
+            <Button
+              asChild
+              size="lg"
+              radius="full"
+              className="hidden lg:inline-flex"
+            >
               <Link href={joinHref}>{joinLabel}</Link>
             </Button>
           )}
-        </div>
 
-        <div className="flex items-center gap-2 lg:hidden">
-          {languageControl}
           <Button
             size="icon"
+            radius="xl"
             type="button"
-            radius="full"
-            variant="outline"
+            variant="ghost"
             ref={menuToggle}
+            onFocus={preloadMobileMenu}
+            onClick={toggleMobileMenu}
             aria-expanded={isMobileOpen}
-            aria-controls={MOBILE_NAV_ID}
+            onPointerEnter={preloadMobileMenu}
+            aria-controls={hasOpenedMobileMenu ? MOBILE_NAV_ID : undefined}
+            className="size-9 text-muted-foreground hover:text-primary min-[380px]:size-10 lg:hidden"
             aria-label={
               isMobileOpen
                 ? t("navigation.closeMenu")
                 : t("navigation.openMenu")
             }
-            onClick={toggleMobileMenu}
           >
             {isMobileOpen ? (
-              <X className="h-5 w-5" />
+              <X className="size-5" />
             ) : (
-              <Menu className="h-5 w-5" />
+              <Menu className="size-5" />
             )}
           </Button>
         </div>
       </div>
 
-      <div
-        inert={!isMobileOpen}
-        aria-hidden={!isMobileOpen}
-        className={cn(
-          "lg:hidden",
-          isMobileOpen
-            ? "pointer-events-auto opacity-100"
-            : "pointer-events-none opacity-0",
-        )}
-      >
-        <div
-          className={cn(
-            "fixed inset-0 top-16 z-40 bg-foreground/20 transition-opacity duration-300",
-            isMobileOpen ? "opacity-100" : "opacity-0",
-          )}
-          onClick={dismissMobileMenu}
-        />
-
-        <div
-          className={cn(
-            "absolute left-4 right-4 top-16 z-50 origin-top rounded-lg border bg-popover p-4 shadow-md transition-all duration-300",
-            isMobileOpen
-              ? "translate-y-0 scale-100 opacity-100"
-              : "-translate-y-3 scale-95 opacity-0",
-          )}
-        >
-          <nav
-            id={MOBILE_NAV_ID}
-            aria-label={t("navigation.primary")}
-            className="flex flex-col gap-2"
-          >
-            {navItems.map((item, index) => {
-              const isActive = isActiveNavItem(item.href);
-              return (
-                <Link
-                  href={item.href}
-                  onClick={closeMobileMenu}
-                  key={`mobile-${item.href}-${item.label}`}
-                  aria-current={isActive ? "page" : undefined}
-                  style={{ transitionDelay: staggerDelay(index) }}
-                  className={cn(
-                    "flex items-center justify-between rounded-md px-4 py-3 text-sm font-semibold transition-all duration-300",
-                    isMobileOpen
-                      ? "translate-y-0 opacity-100"
-                      : "-translate-y-2 opacity-0",
-                    isActive
-                      ? "bg-primary/10 text-primary ring-1 ring-primary/15"
-                      : "text-foreground hover:bg-primary/10 hover:text-primary",
-                  )}
-                >
-                  <span>{item.label}</span>
-                  {isActive && (
-                    <span className="h-2 w-2 rounded-full bg-primary shadow-[0_0_0_4px_color-mix(in_oklab,var(--primary)_14%,transparent)]" />
-                  )}
-                </Link>
-              );
-            })}
-
-            {showRoleMenuMobile && (
-              <div
-                style={{ transitionDelay: staggerDelay(navItems.length) }}
-                className={cn(
-                  "mt-2 transition-all duration-300",
-                  isMobileOpen
-                    ? "translate-y-0 opacity-100"
-                    : "-translate-y-2 opacity-0",
-                )}
-              >
-                <RoleMenuSection />
-              </div>
-            )}
-
-            <div
-              style={{ transitionDelay: staggerDelay(navItems.length + 1) }}
-              className={cn(
-                "mt-2 pt-4 transition-all duration-300",
-                showRoleMenuMobile && "border-t-0",
-                !showRoleMenuMobile && "border-t border-border/70",
-                isMobileOpen
-                  ? "translate-y-0 opacity-100"
-                  : "-translate-y-2 opacity-0",
-              )}
-            >
-              {isAuthenticated ? (
-                <PublicUserMenu variant="inline" onNavigate={closeMobileMenu} />
-              ) : (
-                <Button
-                  asChild
-                  size="lg"
-                  radius="full"
-                  className="w-full"
-                  onClick={closeMobileMenu}
-                >
-                  <Link href={joinHref}>{joinLabel}</Link>
-                </Button>
-              )}
-            </div>
-          </nav>
+      {isSearchOpen ? (
+        <div id={SEARCH_ROW_ID} className="border-t bg-background xl:hidden">
+          <div className="mx-auto max-w-7xl px-4 py-3 sm:px-6 lg:px-8">
+            <HeaderSearch autoFocus variant="row" onClose={closeSearch} />
+          </div>
         </div>
-      </div>
+      ) : null}
+
+      {hasOpenedMobileMenu ? (
+        <HeaderMobileMenu
+          id={MOBILE_NAV_ID}
+          isOpen={isMobileOpen}
+          joinHref={joinHref}
+          navItems={navItems}
+          joinLabel={joinLabel}
+          onClose={closeMobileMenu}
+          onDismiss={dismissMobileMenu}
+          isActive={isActiveNavItem}
+          showJoin={!isAuthenticated}
+          showRoleMenu={showRoleMenuMobile}
+        />
+      ) : null}
     </header>
   );
 };
