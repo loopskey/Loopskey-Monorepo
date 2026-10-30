@@ -1,28 +1,18 @@
 "use client";
 
-import { LayoutDashboard, LogOut, UserRound } from "lucide-react";
-import { getDashboardPath } from "@/utils/site-navigation";
+import { EllipsisVertical, LayoutDashboard } from "lucide-react";
+import { getDashboardPath, solutionEntries } from "@/utils/site-navigation";
 import { getDashboardProfilePath } from "@/utils/site-navigation";
+import type { TUserMenuViewProps } from "@/types/layouts.types";
+import { LogOut, UserRound } from "lucide-react";
 import { UserAvatar } from "@elements/user-avatar";
 import { useI18n } from "@/hooks/useI18n";
 import { Button } from "@ui/button";
 import { cn } from "@/lib/utils";
 
-import type { TPublicSessionUser } from "@/lib/session/public-session";
-
 import Link from "next/link";
 
 import * as D from "@ui/dropdown-menu";
-
-export type TUserMenuVariant = "dropdown" | "inline";
-
-type TUserMenuViewProps = {
-  user: TPublicSessionUser;
-  isLoggingOut: boolean;
-  onLogout: () => void;
-  onNavigate?: () => void;
-  variant?: TUserMenuVariant;
-};
 
 export const UserMenuView = ({
   user,
@@ -34,6 +24,8 @@ export const UserMenuView = ({
   const { t } = useI18n();
   const dashboardPath = getDashboardPath(user.role);
   const profilePath = getDashboardProfilePath(user.role);
+  const roleEntry = solutionEntries.find((entry) => entry.role === user.role);
+  const roleLabel = roleEntry ? t(roleEntry.roleLabelKey) : user.role;
 
   if (variant === "inline") {
     return (
@@ -54,8 +46,8 @@ export const UserMenuView = ({
             <p className="truncate text-xs text-muted-foreground">
               {user.email}
             </p>
-            <p className="mt-1 text-xs font-semibold text-primary">
-              {user.role}
+            <p className="mt-1.5 w-fit rounded-full bg-primary/10 px-2 py-0.5 text-[11px] font-bold text-primary">
+              {roleLabel}
             </p>
           </div>
         </div>
@@ -80,8 +72,8 @@ export const UserMenuView = ({
 
         <button
           type="button"
-          disabled={isLoggingOut}
           onClick={onLogout}
+          disabled={isLoggingOut}
           className="flex items-center rounded-md px-4 py-3 text-start text-sm font-semibold text-destructive transition-colors duration-300 hover:bg-destructive/10 disabled:pointer-events-none disabled:opacity-50"
         >
           <LogOut className="mr-2 h-4 w-4" />
@@ -98,23 +90,20 @@ export const UserMenuView = ({
           type="button"
           radius="full"
           variant="outline"
-          className="h-12 gap-3 px-2 pr-4"
+          aria-label={t("userMenu.open")}
+          className="h-10 gap-0.5 p-1 pr-1 hover:border-primary/30 aria-expanded:border-primary/30 aria-expanded:bg-accent/60 min-[380px]:h-11 min-[380px]:pr-1.5"
         >
           <UserAvatar
             email={user.email}
             fullName={user.fullName}
             avatarUrl={user.avatarUrl}
-            className="h-9 w-9 border border-primary/20"
+            className="size-8 border border-primary/20 min-[380px]:size-9"
             fallbackClassName="bg-primary/10 text-sm font-bold text-primary"
           />
-          <span className="hidden min-w-0 text-left md:block">
-            <span className="block max-w-32 truncate text-sm font-bold">
-              {user.fullName ?? user.email}
-            </span>
-            <span className="block text-xs text-muted-foreground">
-              {user.role}
-            </span>
-          </span>
+          <EllipsisVertical
+            aria-hidden
+            className="size-[18px] shrink-0 text-muted-foreground"
+          />
         </Button>
       </D.DropdownMenuTrigger>
       <D.DropdownMenuContent
@@ -140,8 +129,8 @@ export const UserMenuView = ({
             <p className="truncate text-xs text-muted-foreground">
               {user.email}
             </p>
-            <p className="mt-1 text-xs font-semibold text-primary">
-              {user.role}
+            <p className="mt-1.5 w-fit rounded-full bg-primary/10 px-2 py-0.5 text-[11px] font-bold text-primary">
+              {roleLabel}
             </p>
           </div>
         </div>

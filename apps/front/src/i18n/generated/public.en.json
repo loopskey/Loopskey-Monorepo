@@ -203,6 +203,7 @@
     "joinForFree": "Join for Free",
     "language": "Language",
     "languageSwitcher": {
+      "current": "Language: {{name}}",
       "label": "Language",
       "unavailable": "Not available in this language"
     },
@@ -1079,6 +1080,50 @@
     "homeLink": "LoopsKey home",
     "openMenu": "Open menu",
     "primary": "Main",
+    "roleBar": {
+      "dashboard": "Go to your dashboard",
+      "for": "For",
+      "label": "Audience",
+      "taglines": {
+        "association": "Set renewal requirements and follow member progress.",
+        "organization": "Assign learning and report on team compliance.",
+        "professional": "Track CPD and PDU credits from every provider in one place.",
+        "provider": "Publish courses and events to credentialed professionals."
+      },
+      "workspace": "{{role}} workspace"
+    },
+    "search": {
+      "browse": "Browse",
+      "clearRecent": "Clear",
+      "close": "Close search",
+      "error": "Search is unavailable right now. Try again in a moment.",
+      "kinds": {
+        "course": "Course",
+        "event": "Event",
+        "podcast": "Podcast",
+        "youtube": "YouTube"
+      },
+      "label": "Search LoopsKey",
+      "loading": "Searching…",
+      "meta": {
+        "episodes": "{{count}} episodes",
+        "minutes": "{{count}} min",
+        "videos": "{{count}} videos"
+      },
+      "minChars": "Type at least {{count}} characters to search.",
+      "noResults": "No matches for “{{query}}”. Try a topic, provider or credential.",
+      "open": "Open search",
+      "placeholder": "Search courses, events, podcasts…",
+      "recent": "Recent searches",
+      "results": "Results",
+      "seeAll": "See all results for “{{query}}”",
+      "types": {
+        "courses": "Courses",
+        "events": "Events",
+        "podcasts": "Podcasts",
+        "youtube": "YouTube"
+      }
+    },
     "services": "Services",
     "skipToContent": "Skip to main content"
   },
@@ -1916,6 +1961,7 @@
     "dashboard": "Dashboard",
     "loggingOut": "Logging out...",
     "logout": "Logout",
+    "open": "Account menu",
     "profile": "Profile"
   }
 }

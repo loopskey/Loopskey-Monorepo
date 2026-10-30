@@ -1,20 +1,14 @@
 "use client";
 
-import { UserMenuView } from "@layouts/parts/user-menu-view";
 import { signOutPublicSession } from "@/lib/session/public-session";
+import type { TPublicUserMenuProps } from "@/types/layouts.types";
 import { usePublicSession } from "@/hooks/usePublicSession";
+import { UserMenuView } from "@layouts/parts/user-menu-view";
 import { useRouter } from "next/navigation";
 import { siteLinks } from "@/utils/site-navigation";
+import { useState } from "react";
 import { useI18n } from "@/hooks/useI18n";
 import { notify } from "@/hooks/notify";
-import { useState } from "react";
-
-import type { TUserMenuVariant } from "@layouts/parts/user-menu-view";
-
-type TPublicUserMenuProps = {
-  variant?: TUserMenuVariant;
-  onNavigate?: () => void;
-};
 
 const PublicUserMenu = ({
   onNavigate,
