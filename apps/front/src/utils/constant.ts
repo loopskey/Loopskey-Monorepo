@@ -1,8 +1,5 @@
 export {
-  HERO_SEARCH_TAKE,
   HERO_SEARCH_MIN_LENGTH,
-  HERO_CATEGORY_TAKE,
-  getKindHrefPrefix,
   SEARCH_DEBOUNCE_MS,
 } from "./landing-public.constant";
 

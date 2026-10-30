@@ -3481,39 +3481,7 @@
       "titleLine2": "certifications,",
       "titleLine3": "all in one place",
       "subtitle": "Explore online courses, events and podcasts, manage your certifications and keep track of your credits — on one AI-powered platform.",
-      "exploreLearning": "Explore learning",
-      "sampleCard": {
-        "title": "Project Management Professional",
-        "credits": "{{earned}} of {{total}} credits"
-      },
-      "searchPlaceholder": "Search courses, events, podcasts, and YouTube channels...",
-      "exploreButton": "Explore",
-      "exploreTitle": "Explore by category",
-      "selectedCategory": "Selected category",
-      "clear": "Clear",
-      "searchResults": "Search results",
-      "categoryResults": "Category results",
-      "viewAll": "View all",
-      "viewItem": "View",
-      "noResults": "No matching content found. Try another keyword or category.",
-      "categories": {
-        "technologyCourses": "Technology courses",
-        "businessCourses": "Business courses",
-        "leadershipCourses": "Leadership courses",
-        "certificationEvents": "Certification events",
-        "complianceEvents": "Compliance events",
-        "aiPodcasts": "AI podcasts",
-        "careerPodcasts": "Career podcasts",
-        "dataYouTube": "Data YouTube",
-        "engineeringYouTube": "Engineering YouTube"
-      },
-      "resultMeta": {
-        "course": "Course",
-        "event": "Event",
-        "minutes": "{{count}} min",
-        "episodes": "{{count}} episodes",
-        "videos": "{{count}} videos"
-      }
+      "exploreLearning": "Explore learning"
     },
     "actions": {
       "createAccount": "Create free account",

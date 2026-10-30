@@ -3485,39 +3485,7 @@
       "titleLine2": "et vos certifications,",
       "titleLine3": "réunis au même endroit",
       "subtitle": "Explorez des cours en ligne, des événements et des podcasts, gérez vos certifications et suivez vos crédits — sur une seule plateforme propulsée par l’IA.",
-      "exploreLearning": "Explorer les contenus",
-      "sampleCard": {
-        "title": "Project Management Professional",
-        "credits": "{{earned}} crédits sur {{total}}"
-      },
-      "searchPlaceholder": "Rechercher des cours, événements, podcasts et chaînes YouTube...",
-      "exploreButton": "Explorer",
-      "exploreTitle": "Explorer par catégorie",
-      "selectedCategory": "Catégorie sélectionnée",
-      "clear": "Effacer",
-      "searchResults": "Résultats de recherche",
-      "categoryResults": "Résultats par catégorie",
-      "viewAll": "Tout voir",
-      "viewItem": "Voir",
-      "noResults": "Aucun contenu correspondant trouvé. Essayez un autre mot-clé ou une autre catégorie.",
-      "categories": {
-        "technologyCourses": "Cours de technologie",
-        "businessCourses": "Cours de business",
-        "leadershipCourses": "Cours de leadership",
-        "certificationEvents": "Événements de certification",
-        "complianceEvents": "Événements conformité",
-        "aiPodcasts": "Podcasts IA",
-        "careerPodcasts": "Podcasts carrière",
-        "dataYouTube": "YouTube data",
-        "engineeringYouTube": "YouTube ingénierie"
-      },
-      "resultMeta": {
-        "course": "Cours",
-        "event": "Événement",
-        "minutes": "{{count}} min",
-        "episodes": "{{count}} épisodes",
-        "videos": "{{count}} vidéos"
-      }
+      "exploreLearning": "Explorer les contenus"
     },
     "actions": {
       "createAccount": "Créer un compte gratuit",

@@ -52,7 +52,6 @@ export const baseApi = createApi({
     "ProviderOverview",
     "ProviderAnalytics",
     "ProviderAttendees",
-    "LandingCatalogSearch",
     "ProviderPromotions",
     "EventRegistrations",
     "AdminOrganizations",

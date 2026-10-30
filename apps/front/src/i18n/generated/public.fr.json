@@ -1017,39 +1017,11 @@
     },
     "hero": {
       "badge": "Apprentissage professionnel propulsé par l’IA",
-      "categories": {
-        "aiPodcasts": "Podcasts IA",
-        "businessCourses": "Cours de business",
-        "careerPodcasts": "Podcasts carrière",
-        "certificationEvents": "Événements de certification",
-        "complianceEvents": "Événements conformité",
-        "dataYouTube": "YouTube data",
-        "engineeringYouTube": "YouTube ingénierie",
-        "leadershipCourses": "Cours de leadership",
-        "technologyCourses": "Cours de technologie"
-      },
-      "categoryResults": "Résultats par catégorie",
-      "clear": "Effacer",
-      "exploreButton": "Explorer",
       "exploreLearning": "Explorer les contenus",
-      "exploreTitle": "Explorer par catégorie",
-      "noResults": "Aucun contenu correspondant trouvé. Essayez un autre mot-clé ou une autre catégorie.",
-      "resultMeta": {
-        "course": "Cours",
-        "episodes": "{{count}} épisodes",
-        "event": "Événement",
-        "minutes": "{{count}} min",
-        "videos": "{{count}} vidéos"
-      },
-      "searchPlaceholder": "Rechercher des cours, événements, podcasts et chaînes YouTube...",
-      "searchResults": "Résultats de recherche",
-      "selectedCategory": "Catégorie sélectionnée",
       "subtitle": "Explorez des cours en ligne, des événements et des podcasts, gérez vos certifications et suivez vos crédits — sur une seule plateforme propulsée par l’IA.",
       "titleLine1": "Votre apprentissage",
       "titleLine2": "et vos certifications,",
-      "titleLine3": "réunis au même endroit",
-      "viewAll": "Tout voir",
-      "viewItem": "Voir"
+      "titleLine3": "réunis au même endroit"
     },
     "learningHub": {
       "badge": "Espace d’apprentissage",
