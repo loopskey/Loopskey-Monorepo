@@ -168,3 +168,4 @@ into this index and do not rewrite previous records.
 - [`header-search-redesign`](feature-runs/active/header-search-redesign.md) — PR [#339](https://github.com/loopskey/Loopskey-Monorepo/pull/339)
 - [`landing-hero-cleanup`](feature-runs/active/landing-hero-cleanup.md) — PR [#341](https://github.com/loopskey/Loopskey-Monorepo/pull/341)
 - [`remove-hero-search`](feature-runs/active/remove-hero-search.md) — PR [#343](https://github.com/loopskey/Loopskey-Monorepo/pull/343)
+- [`transactional-email-copy-refresh`](feature-runs/active/transactional-email-copy-refresh.md) — PR [#345](https://github.com/loopskey/Loopskey-Monorepo/pull/345)
