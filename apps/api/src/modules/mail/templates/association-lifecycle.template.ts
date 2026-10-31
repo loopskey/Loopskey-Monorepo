@@ -1,9 +1,12 @@
 import { AppLanguage, AssociationMessageType } from "@prisma/client";
+import { buildAssociationLifecycleEmailV2 } from "@mail/templates/association-notice.template";
+import { renderAssociationEmail } from "@mail/templates/association-message.template";
+import { formatMessageDate } from "@mail/templates/association-message.template";
 
-import { renderAssociationEmail } from "@mail/association-message.template";
-import { formatMessageDate } from "@mail/association-message.template";
-import { type AssociationEmailCopy } from "@mail/association-message.template";
-import { type TAssociationLifecycleInput } from "@mail/mail-service.type";
+import { type TAssociationLifecycleInput } from "@mail/types/mail-service.types";
+import { type AssociationEmailCopy } from "@mail/templates/association-message.template";
+
+export const LIFECYCLE_TEMPLATE_VERSION = 2;
 
 const englishCopy = (
   input: TAssociationLifecycleInput,
@@ -117,13 +120,16 @@ const frenchCopy = (
 
 export const buildAssociationLifecycleEmail = (
   input: TAssociationLifecycleInput,
+  version: number = LIFECYCLE_TEMPLATE_VERSION,
 ) =>
-  renderAssociationEmail({
-    copy:
-      input.language === AppLanguage.FR
-        ? frenchCopy(input)
-        : englishCopy(input),
-    appName: input.appName,
-    actionUrl: input.actionUrl,
-    associationName: input.associationName,
-  });
+  version >= 2
+    ? buildAssociationLifecycleEmailV2(input)
+    : renderAssociationEmail({
+        copy:
+          input.language === AppLanguage.FR
+            ? frenchCopy(input)
+            : englishCopy(input),
+        appName: input.appName,
+        actionUrl: input.actionUrl,
+        associationName: input.associationName,
+      });

@@ -13,7 +13,7 @@ import { AssociationAudienceKind } from "@prisma/client";
 import { AssociationMemberStatus } from "@prisma/client";
 import { CreditType, PDUCategory, PDUSource, Role } from "@prisma/client";
 import { INestApplication } from "@nestjs/common";
-import { MailService } from "@mail/mail.service";
+import { MailService } from "@mail/services/mail.service";
 import { PrismaService } from "@prisma/prisma.service";
 import { bootApp, fulfilled, runTogether, suiteScope } from "../setup/concurrency";
 

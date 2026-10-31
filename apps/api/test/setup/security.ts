@@ -1,6 +1,6 @@
 import { INestApplication } from "@nestjs/common";
 import { Role, UserStatus } from "@prisma/client";
-import { MailService } from "@mail/mail.service";
+import { MailService } from "@mail/services/mail.service";
 import { PrismaService } from "@prisma/prisma.service";
 import { bootApp } from "./concurrency";
 

@@ -14,22 +14,22 @@ import * as argon2 from "argon2";
 @Injectable()
 export class AuthPasswordService {
   constructor(
-    private readonly prisma: PrismaService,
-    private readonly authCommon: AuthCommonService,
+    private readonly prismaService: PrismaService,
+    private readonly authCommonService: AuthCommonService,
   ) {}
 
   async forgotPassword(input: ForgotPasswordInput) {
-    const email = this.authCommon.normalizeEmail(input.email);
-    const otpCode = this.authCommon.generateOtpCode();
+    const email = this.authCommonService.normalizeEmail(input.email);
+    const otpCode = this.authCommonService.generateOtpCode();
     const codeHash = await argon2.hash(otpCode);
-    const user = await this.prisma.user.findFirst({
+    const user = await this.prismaService.user.findFirst({
       where: { email, deletedAt: null },
       select: { id: true, status: true },
     });
     if (user?.status === UserStatus.ACTIVE) {
       const issued = await this.issueResetOtp(user.id, email, codeHash);
       if (issued)
-        await this.authCommon.sendOtpEmail(
+        await this.authCommonService.sendOtpEmail(
           email,
           otpCode,
           OtpPurpose.RESET_PASSWORD,
@@ -49,7 +49,7 @@ export class AuthPasswordService {
     destination: string,
     codeHash: string,
   ) {
-    return this.prisma.$transaction(async (tx) => {
+    return this.prismaService.$transaction(async (tx) => {
       await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtext(${`reset-otp:${userId}`}))`;
       const now = new Date();
       const cooling = await tx.otpCode.findFirst({
@@ -76,9 +76,9 @@ export class AuthPasswordService {
           destination,
           codeHash,
           purpose: OtpPurpose.RESET_PASSWORD,
-          expiresAt: this.authCommon.getOtpExpiryDate(),
-          resendAfter: this.authCommon.getOtpResendAfterDate(),
-          maxAttempts: this.authCommon.getOtpMaxAttempts(),
+          expiresAt: this.authCommonService.getOtpExpiryDate(),
+          resendAfter: this.authCommonService.getOtpResendAfterDate(),
+          maxAttempts: this.authCommonService.getOtpMaxAttempts(),
         },
       });
       return true;
@@ -86,7 +86,7 @@ export class AuthPasswordService {
   }
 
   private async reserveResetAttempt(userId: string, destination: string) {
-    const [reserved] = await this.prisma.$queryRaw<
+    const [reserved] = await this.prismaService.$queryRaw<
       { id: string; codeHash: string }[]
     >`
       UPDATE "OtpCode"
@@ -115,13 +115,13 @@ export class AuthPasswordService {
   }
 
   async resetPassword(input: ResetPasswordInput) {
-    const email = this.authCommon.normalizeEmail(input.email);
+    const email = this.authCommonService.normalizeEmail(input.email);
     if (input.newPassword !== input.confirmPassword)
       throw new BadRequestException({
         code: AuthMessageCode.INVALID_CREDENTIALS,
         message: "Password and confirm password do not match.",
       });
-    const user = await this.prisma.user.findFirst({
+    const user = await this.prismaService.user.findFirst({
       where: { email, deletedAt: null, status: UserStatus.ACTIVE },
       select: {
         id: true,
@@ -142,7 +142,7 @@ export class AuthPasswordService {
     if (!user || !reserved || !isValidOtp) throw this.invalidResetCode();
     const passwordHash = await argon2.hash(input.newPassword);
     const now = new Date();
-    await this.prisma.$transaction(async (tx) => {
+    await this.prismaService.$transaction(async (tx) => {
       const consumed = await tx.otpCode.updateMany({
         where: { id: reserved.id, consumedAt: null },
         data: { consumedAt: now },
@@ -182,7 +182,7 @@ export class AuthPasswordService {
         code: AuthMessageCode.INVALID_CREDENTIALS,
         message: "New password and confirm password do not match.",
       });
-    const user = await this.prisma.user.findFirst({
+    const user = await this.prismaService.user.findFirst({
       where: {
         id: userId,
         deletedAt: null,
@@ -217,7 +217,7 @@ export class AuthPasswordService {
         code: AuthMessageCode.INVALID_CREDENTIALS,
         message: "New password must be different from the current password.",
       });
-    const updatedUser = await this.prisma.user.update({
+    const updatedUser = await this.prismaService.user.update({
       where: { id: user.id },
       data: {
         passwordHash: await argon2.hash(input.newPassword),

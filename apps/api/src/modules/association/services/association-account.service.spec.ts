@@ -1,7 +1,7 @@
 import { ConflictException } from "@nestjs/common";
 import { AuditAction, Prisma, UserStatus } from "@prisma/client";
 import type { ConfigService } from "@nestjs/config";
-import type { MailService } from "@mail/mail.service";
+import type { MailService } from "@mail/services/mail.service";
 import type { OutboxService } from "@infrastructure/outbox/outbox.service";
 import type { PrismaService } from "@prisma/prisma.service";
 

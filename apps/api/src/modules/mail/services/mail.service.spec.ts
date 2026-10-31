@@ -1,9 +1,14 @@
 import type { ConfigService } from "@nestjs/config";
 
-import { MailService } from "./mail.service";
-import type { OutboxService } from "../../infrastructure/outbox/outbox.service";
+import type {
+  OutboxService,
+  OutboxWriter,
+} from "@infrastructure/outbox/outbox.service";
 
-const outbox = { append: jest.fn() } as unknown as OutboxService;
+import { MailService } from "./mail.service";
+
+const append = jest.fn();
+const outbox = { append } as unknown as OutboxService;
 const mockSend = jest.fn();
 
 jest.mock("resend", () => ({
@@ -78,4 +83,39 @@ describe("MailService provider receipt", () => {
       ).rejects.toThrow("Unable to send email. Please try again later.");
     },
   );
+});
+
+describe("MailService outbox request", () => {
+  it("queues one delivery event through the given transaction writer", async () => {
+    const config = {
+      get: (name: string) =>
+        name === "RESEND_API_KEY" ? "re_test" : "test@example.test",
+    };
+    const service = new MailService(config as unknown as ConfigService, outbox);
+    const writer = {
+      outboxEvent: { create: jest.fn() },
+    } as unknown as OutboxWriter;
+    const input = {
+      to: "member@example.test",
+      subject: "Welcome",
+      html: "<p>Welcome</p>",
+      text: "Welcome",
+    };
+    const receipt = { id: "outbox-event-1" };
+    append.mockResolvedValueOnce(receipt);
+    mockSend.mockClear();
+
+    await expect(service.sendEmail(input, writer)).resolves.toBe(receipt);
+    expect(append).toHaveBeenCalledWith(
+      expect.objectContaining({
+        eventName: "mail.delivery.requested",
+        eventVersion: 1,
+        aggregateType: "MailDelivery",
+        aggregateId: "member@example.test",
+        payload: input,
+      }),
+      writer,
+    );
+    expect(mockSend).not.toHaveBeenCalled();
+  });
 });

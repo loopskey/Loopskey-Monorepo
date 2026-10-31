@@ -1,17 +1,23 @@
 import { AppLanguage, AssociationMessageType } from "@prisma/client";
+import { buildAssociationMessageEmailV2 } from "@mail/templates/association-notice.template";
+import { escapeHtml } from "@mail/templates/association-email.template";
 
-import { escapeHtml } from "@mail/association-email.template";
-import { type TAssociationMessageInput } from "@mail/mail-service.type";
+import { type TAssociationMessageInput } from "@mail/types/mail-service.types";
 
-export const ASSOCIATION_MESSAGE_TEMPLATE_VERSION = 1;
+export const ASSOCIATION_MESSAGE_TEMPLATE_VERSION = 2;
+
+export type TAssociationEmailRenderOptions = {
+  now?: Date;
+  version?: number;
+};
 
 export type AssociationEmailCopy = {
+  help: string;
+  action: string;
   subject: string;
   heading: string;
   lines: string[];
-  action: string;
   closing: string;
-  help: string;
 };
 
 type Copy = AssociationEmailCopy;
@@ -201,10 +207,18 @@ export const renderAssociationEmail = ({
   };
 };
 
-export const buildAssociationMessageEmail = (input: TAssociationMessageInput) =>
-  renderAssociationEmail({
-    copy: copyFor(input),
-    appName: input.appName,
-    actionUrl: input.dashboardUrl,
-    associationName: input.associationName,
-  });
+export const buildAssociationMessageEmail = (
+  input: TAssociationMessageInput,
+  {
+    now,
+    version = ASSOCIATION_MESSAGE_TEMPLATE_VERSION,
+  }: TAssociationEmailRenderOptions = {},
+) =>
+  version >= 2
+    ? buildAssociationMessageEmailV2(input, now)
+    : renderAssociationEmail({
+        copy: copyFor(input),
+        appName: input.appName,
+        actionUrl: input.dashboardUrl,
+        associationName: input.associationName,
+      });

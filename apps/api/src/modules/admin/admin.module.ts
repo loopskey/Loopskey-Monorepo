@@ -20,16 +20,16 @@ import "@admin/enums/admin-register.enum";
     AuthModule,
     UserModule,
     PrismaModule,
-    OrganizationModule,
     AssociationModule,
+    OrganizationModule,
   ],
   providers: [
     AdminOrgService,
     AdminOrgResolver,
     AdminDashboardService,
     AdminDashboardResolver,
-    OrganizationReviewNotificationService,
     AssociationReviewNotificationService,
+    OrganizationReviewNotificationService,
   ],
   exports: [AdminDashboardService, AdminOrgService],
 })

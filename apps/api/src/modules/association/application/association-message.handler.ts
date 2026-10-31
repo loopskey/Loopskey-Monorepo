@@ -1,15 +1,19 @@
 import { Injectable, Logger, OnModuleInit } from "@nestjs/common";
 import { AssociationMessageDeliveryState } from "@prisma/client";
-import { buildAssociationMessageEmail } from "@mail/association-message.template";
+import { buildAssociationMessageEmail } from "@mail/templates/association-message.template";
+import { AssociationMessageSkipReason } from "@association/enums/association-attention.enum";
+import { professionalRequirementsUrl } from "@association/utils/association-message-links.util";
 import { ASSOCIATION_MESSAGE_EVENT } from "@association/services/association-message.service";
+import { professionalDashboardUrl } from "@association/utils/association-message-links.util";
+import { AssociationMessageType } from "@prisma/client";
 import { AssociationMessageCode } from "@association/enums/association-message-code.enum";
-import { isManualMessageType } from "@association/enums/association-attention.enum";
 import { OutboxHandlerRegistry } from "@infrastructure/outbox/outbox-handler.port";
 import { messageTemplateInput } from "@association/utils/association-message-context.util";
+import { isManualMessageType } from "@association/enums/association-attention.enum";
 import { readMessageContext } from "@association/utils/association-message-context.util";
 import { PrismaService } from "@prisma/prisma.service";
 import { ConfigService } from "@nestjs/config";
-import { MailService } from "@mail/mail.service";
+import { MailService } from "@mail/services/mail.service";
 
 import { type OutboxEventContext } from "@infrastructure/outbox/outbox-handler.port";
 import { type OutboxHandler } from "@infrastructure/outbox/outbox-handler.port";
@@ -46,6 +50,7 @@ export class AssociationMessageHandler implements OutboxHandler, OnModuleInit {
         context: true,
         language: true,
         messageType: true,
+        templateVersion: true,
         association: { select: { name: true } },
         member: {
           select: { user: { select: { email: true, fullName: true } } },
@@ -76,13 +81,30 @@ export class AssociationMessageHandler implements OutboxHandler, OnModuleInit {
       return;
     }
 
+    const context = readMessageContext(delivery.context);
+
+    if (
+      delivery.templateVersion >= 2 &&
+      messageType === AssociationMessageType.CERTIFICATE_EXPIRING &&
+      !context.detailDate
+    ) {
+      await this.skip(
+        deliveryId,
+        AssociationMessageSkipReason.NO_LONGER_APPLICABLE,
+      );
+      return;
+    }
+
     const template = buildAssociationMessageEmail(
       messageTemplateInput({
         messageType,
         language: delivery.language,
         associationName: delivery.association.name,
-        context: readMessageContext(delivery.context),
+        context,
         dashboardUrl: this.dashboardUrl(),
+        requirementsUrl: this.requirementsUrl(
+          context.requirementId ?? undefined,
+        ),
         memberName: delivery.member.user.fullName ?? email,
         appName: this.config.get<string>("APP_NAME", "LoopsKey"),
         supportEmail: this.config.get<string>(
@@ -90,6 +112,7 @@ export class AssociationMessageHandler implements OutboxHandler, OnModuleInit {
           "support@loopskey.com",
         ),
       }),
+      { version: delivery.templateVersion },
     );
 
     await this.mail.deliver({ to: email, ...template }, event.idempotencyKey);
@@ -136,11 +159,15 @@ export class AssociationMessageHandler implements OutboxHandler, OnModuleInit {
     });
   }
 
-  private dashboardUrl() {
-    const origin = this.config
-      .get<string>("FRONTEND_URL", "http://localhost:3000")
-      .replace(/\/+$/, "");
+  private origin() {
+    return this.config.get<string>("FRONTEND_URL", "http://localhost:3000");
+  }
 
-    return `${origin}/dashboard/professional`;
+  private dashboardUrl() {
+    return professionalDashboardUrl(this.origin());
+  }
+
+  private requirementsUrl(requirementId?: string) {
+    return professionalRequirementsUrl(this.origin(), requirementId);
   }
 }

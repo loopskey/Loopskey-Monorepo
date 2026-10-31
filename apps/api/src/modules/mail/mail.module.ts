@@ -3,12 +3,12 @@ import { REALTIME_OUTBOX_PROCESSOR } from "@infrastructure/outbox/outbox-process
 import { OutboxHandlerRegistry } from "@infrastructure/outbox/outbox-handler.port";
 import { BULK_OUTBOX_PROCESSOR } from "@infrastructure/outbox/outbox-processor.service";
 import { AuditOutboxHandler } from "@infrastructure/outbox/handlers/audit-outbox.handler";
-import { MailOutboxHandler } from "@infrastructure/outbox/handlers/mail-outbox.handler";
+import { MailOutboxHandler } from "@mail/application/mail-outbox.handler";
 import { OutboxProcessor } from "@infrastructure/outbox/outbox-processor.service";
 import { OutboxService } from "@infrastructure/outbox/outbox.service";
 import { PrismaService } from "@prisma/prisma.service";
 import { PrismaModule } from "@prisma/prisma.module";
-import { MailService } from "@mail/mail.service";
+import { MailService } from "@mail/services/mail.service";
 import { Module } from "@nestjs/common";
 
 const outboxProcessorProviders = [

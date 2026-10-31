@@ -8,7 +8,7 @@ import { ContactInquiryService } from "@support/services/contact-inquiry.service
 import { SubmitContactInquiryInput } from "@support/dtos/submit-contact-inquiry.input";
 import { ContactInquiryType } from "@support/enums/contact-inquiry.enum";
 import { ConfigService } from "@nestjs/config";
-import { MailService } from "@mail/mail.service";
+import { MailService } from "@mail/services/mail.service";
 
 const config: Record<string, string> = {
   CONTACT_RECIPIENT_EMAIL: "loopskey.dev@gmail.com",

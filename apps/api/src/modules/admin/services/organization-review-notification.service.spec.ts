@@ -4,7 +4,7 @@ import {
   OtpPurpose,
 } from "@prisma/client";
 import type { ConfigService } from "@nestjs/config";
-import type { MailService } from "@mail/mail.service";
+import type { MailService } from "@mail/services/mail.service";
 import type { PrismaService } from "@prisma/prisma.service";
 import { ConflictException, Logger } from "@nestjs/common";
 

@@ -8,7 +8,7 @@ import { GROUP_ADDED_ON_ACTIVATION } from "@association/enums/association-notifi
 import { occurrenceKeys } from "@association/enums/association-notification.enum";
 import { Injectable } from "@nestjs/common";
 
-import { type LifecycleNotification } from "@association/services/association-notification.service";
+import { type LifecycleNotification } from "@association/types/association-notif.types";
 
 export type LifecycleMember = {
   id: string;

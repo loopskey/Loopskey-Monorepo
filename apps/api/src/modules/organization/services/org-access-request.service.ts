@@ -3,16 +3,17 @@ import { ConflictException, NotFoundException } from "@nestjs/common";
 import { SubmitOrganizationAccessRequestInput } from "@org/dtos/submit-org-access-request.input";
 import { OrganizationAccessRequestMessageCode } from "@org/enums/org-access-request-message-code.enum";
 import { OrganizationAccessRequestFilterInput } from "@org/dtos/org-access-request-filter";
-import { buildOrganizationSubmittedEmail } from "@mail/organization-email.template";
+import { buildOrganizationSubmittedEmail } from "@mail/templates/organization-email.template";
 import { OrganizationAccessRequestStatus } from "@prisma/client";
 import { NotificationDeliveryStatus } from "@prisma/client";
 import { Inject, Injectable, Logger } from "@nestjs/common";
-import { type IdentityProfileApi } from "@user/public/identity-profile-api";
 import { IDENTITY_PROFILE_API } from "@user/public/identity-profile-api";
 import { PrismaService } from "@prisma/prisma.service";
 import { ConfigService } from "@nestjs/config";
-import { MailService } from "@mail/mail.service";
+import { MailService } from "@mail/services/mail.service";
 import { Prisma } from "@prisma/client";
+
+import { type IdentityProfileApi } from "@user/public/identity-profile-api";
 
 @Injectable()
 export class OrgAccessRequestService {

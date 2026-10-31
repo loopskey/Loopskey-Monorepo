@@ -175,6 +175,7 @@ describe("AssociationAttentionService", () => {
 
       expect(rows).toHaveLength(1);
       expect(rows[0].deadline).toEqual(daysFromNow(30));
+      expect(rows[0].requirementId).toBe("req-1");
     });
 
     it("excludes a member whose incomplete assignment is due in 31 days", async () => {
@@ -248,6 +249,7 @@ describe("AssociationAttentionService", () => {
       expect(rows).toHaveLength(1);
       expect(rows[0].detail).toBe("Leadership");
       expect(rows[0].percent).toBe(0);
+      expect(rows[0].requirementId).toBe("req-1");
     });
 
     it("leaves out a member who is short in nothing", async () => {
@@ -472,9 +474,9 @@ describe("AssociationAttentionService", () => {
 
       const prisma = (
         service as unknown as {
-          prisma: { associationMember: { findMany: jest.Mock } };
+          prismaService: { associationMember: { findMany: jest.Mock } };
         }
-      ).prisma;
+      ).prismaService;
 
       const query = prisma.associationMember.findMany.mock.calls.at(-1)?.[0];
 

@@ -1,11 +1,10 @@
 import { Injectable, Logger, NotFoundException } from "@nestjs/common";
 import { AuditAction, Prisma, UserStatus } from "@prisma/client";
-import { buildAssociationActivationEmail } from "@mail/association-email.template";
+import { buildAssociationActivationEmail } from "@mail/templates/association-email.template";
 import { CreateAssociationAccountInput } from "@association/dtos/create-association-account.input";
 import { AssociationAccountFilterInput } from "@association/dtos/association-account-filter.input";
 import { AssociationPaginationInput } from "@association/dtos/association-pagination.input";
 import { ConflictException, Inject } from "@nestjs/common";
-import { type IdentityProfileApi } from "@user/public/identity-profile-api";
 import { ACCOUNT_ACTIVATION_API } from "@auth/public/account-activation-api";
 import { AssociationMessageCode } from "@association/enums/association-message-code.enum";
 import { IDENTITY_PROFILE_API } from "@user/public/identity-profile-api";
@@ -14,11 +13,11 @@ import { projectAssociation } from "@association/application/association.project
 import { OutboxService } from "@infrastructure/outbox/outbox.service";
 import { PrismaService } from "@prisma/prisma.service";
 import { ConfigService } from "@nestjs/config";
-import { MailService } from "@mail/mail.service";
-import {
-  type AccountActivationApi,
-  type AccountActivationLink,
-} from "@auth/public/account-activation-api";
+import { MailService } from "@mail/services/mail.service";
+
+import { type AccountActivationLink } from "@auth/public/account-activation-api";
+import { type AccountActivationApi } from "@auth/public/account-activation-api";
+import { type IdentityProfileApi } from "@user/public/identity-profile-api";
 
 const UNIQUE_VIOLATION = "P2002";
 const ACCOUNT_SEARCH_MIN_LENGTH = 2;
@@ -28,10 +27,10 @@ export class AssociationAccountService {
   private readonly logger = new Logger(AssociationAccountService.name);
 
   constructor(
-    private readonly prisma: PrismaService,
-    private readonly config: ConfigService,
-    private readonly mail: MailService,
-    private readonly outbox: OutboxService,
+    private readonly prismaService: PrismaService,
+    private readonly configService: ConfigService,
+    private readonly mailService: MailService,
+    private readonly outboxService: OutboxService,
     @Inject(IDENTITY_PROFILE_API)
     private readonly identity: IdentityProfileApi,
     @Inject(ACCOUNT_ACTIVATION_API)
@@ -74,7 +73,7 @@ export class AssociationAccountService {
   }
 
   async resendActivation(actorId: string, associationId: string) {
-    const association = await this.prisma.association.findFirst({
+    const association = await this.prismaService.association.findFirst({
       where: { id: associationId, deletedAt: null },
       select: {
         id: true,
@@ -132,7 +131,7 @@ export class AssociationAccountService {
   ) {
     const take = pagination?.take ?? 20;
     const where = this.accountsWhere(filter);
-    const rows = await this.prisma.association.findMany({
+    const rows = await this.prismaService.association.findMany({
       where,
       take: take + 1,
       ...(pagination?.cursor
@@ -144,7 +143,7 @@ export class AssociationAccountService {
     const items = rows.slice(0, take).map(projectAssociation);
     return {
       items,
-      totalCount: await this.prisma.association.count({ where }),
+      totalCount: await this.prismaService.association.count({ where }),
       pageInfo: {
         hasNextPage: rows.length > take,
         nextCursor: rows.length > take ? (items.at(-1)?.id ?? null) : null,
@@ -177,7 +176,7 @@ export class AssociationAccountService {
     actorId: string,
     input: CreateAssociationAccountInput & { workEmail: string },
   ) {
-    return this.prisma.$transaction(async (tx) => {
+    return this.prismaService.$transaction(async (tx) => {
       const owner = await this.identity.resolveAssociationOwner({
         email: input.workEmail,
         fullName: input.representativeFullName,
@@ -196,7 +195,7 @@ export class AssociationAccountService {
         },
         select: ASSOCIATION_SELECT,
       });
-      await this.outbox.append(
+      await this.outboxService.append(
         {
           eventName: "audit.record.requested",
           eventVersion: 1,
@@ -248,9 +247,9 @@ export class AssociationAccountService {
     link: AccountActivationLink,
   ) {
     const template = buildAssociationActivationEmail({
-      appName: this.config.get<string>("APP_NAME", "LoopsKey"),
+      appName: this.configService.get<string>("APP_NAME", "LoopsKey"),
       associationName,
-      supportEmail: this.config.get<string>(
+      supportEmail: this.configService.get<string>(
         "SUPPORT_EMAIL",
         "support@loopskey.com",
       ),
@@ -259,13 +258,13 @@ export class AssociationAccountService {
       loginUrl: this.loginUrl(),
       expiresInMinutes: link.expiresInMinutes,
     });
-    return this.mail.sendEmail({ to: destination, ...template });
+    return this.mailService.sendEmail({ to: destination, ...template });
   }
 
   private loginUrl() {
-    const configured = this.config.get<string>("ASSOCIATION_LOGIN_URL");
+    const configured = this.configService.get<string>("ASSOCIATION_LOGIN_URL");
     if (configured) return configured;
-    const base = this.config.get<string>("APPLICATION_BASE_URL");
+    const base = this.configService.get<string>("APPLICATION_BASE_URL");
     if (!base) throw new Error("APPLICATION_BASE_URL is not configured.");
     return `${base.replace(/\/$/, "")}/auth/association`;
   }

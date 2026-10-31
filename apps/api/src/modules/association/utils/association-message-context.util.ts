@@ -1,6 +1,6 @@
 import { AppLanguage, AssociationMessageType } from "@prisma/client";
 
-import { type TAssociationMessageInput } from "@mail/mail-service.type";
+import { type TAssociationMessageInput } from "@mail/types/mail-service.types";
 import { type ManualMessageType } from "@association/enums/association-attention.enum";
 import { type AttentionRow } from "@association/types/association-attention.types";
 
@@ -11,6 +11,7 @@ export type MessageContext = {
   deadline: string | null;
   completedCredits: number;
   detailDate: string | null;
+  requirementId: string | null;
 };
 
 export const messageContextOf = (row: AttentionRow): MessageContext => ({
@@ -19,6 +20,7 @@ export const messageContextOf = (row: AttentionRow): MessageContext => ({
   completedCredits: row.completedCredits ?? 0,
   deadline: row.deadline?.toISOString() ?? null,
   detail: row.detail ?? "",
+  requirementId: row.requirementId ?? null,
   detailDate: row.detailDate?.toISOString() ?? null,
 });
 
@@ -44,6 +46,7 @@ export const readMessageContext = (value: unknown) => {
     completedCredits: readNumber(source.completedCredits),
     deadline: readDate(source.deadline),
     detail: readText(source.detail),
+    requirementId: readText(source.requirementId) || null,
     detailDate: readDate(source.detailDate),
   };
 };
@@ -55,6 +58,7 @@ export const messageTemplateInput = ({
   messageType,
   supportEmail,
   dashboardUrl,
+  requirementsUrl,
   associationName,
   context,
 }: {
@@ -64,6 +68,7 @@ export const messageTemplateInput = ({
   messageType: ManualMessageType;
   supportEmail: string;
   dashboardUrl: string;
+  requirementsUrl?: string;
   associationName: string;
   context: ReturnType<typeof readMessageContext>;
 }): TAssociationMessageInput => {
@@ -73,6 +78,7 @@ export const messageTemplateInput = ({
     memberName,
     supportEmail,
     dashboardUrl,
+    requirementsUrl,
     associationName,
   };
 
