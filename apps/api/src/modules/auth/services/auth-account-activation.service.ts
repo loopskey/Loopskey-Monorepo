@@ -5,22 +5,24 @@ import { AssociationActivationTokenStatus } from "@auth/enums/association-activa
 import { ActivateOrganizationAccountInput } from "@auth/dtos/activate-organization-account.input";
 import { AssociationMemberStatus, Prisma } from "@prisma/client";
 import { ActivateAssociationAccountInput } from "@auth/dtos/activate-association-account.input";
-import { buildAssociationActivationEmail } from "@mail/association-email.template";
+import { buildAssociationActivationEmail } from "@mail/templates/association-email.template";
 import { MEMBER_INVITATION_RECORD_SELECT } from "@auth/types/auth-service.types";
-import { buildOrganizationApprovalEmail } from "@mail/organization-email.template";
+import { buildOrganizationApprovalEmail } from "@mail/templates/organization-email.template";
 import { AuditAction, OtpPurpose, Role } from "@prisma/client";
 import { SessionStatus, UserStatus } from "@prisma/client";
 import { ACTIVATION_RECORD_SELECT } from "@auth/types/auth-service.types";
 import { createHash, randomBytes } from "crypto";
 import { ActivationTokenStatus } from "@auth/enums/activation-token-status.enum";
+import { ActivationLinkProfile } from "@auth/types/auth-account.types";
 import { RoleProfileRegistry } from "@prisma/role-profile-registry.service";
 import { Injectable, Logger } from "@nestjs/common";
+import { ActivationProfile } from "@auth/types/auth-account.types";
 import { AuthCommonService } from "@auth/services/auth-common.service";
 import { AUTH_USER_SELECT } from "@auth/types/auth-user-select.constant";
 import { AuthMessageCode } from "@auth/enums/message-code.enum";
 import { ConfigService } from "@nestjs/config";
 import { PrismaService } from "@prisma/prisma.service";
-import { MailService } from "@mail/mail.service";
+import { MailService } from "@mail/services/mail.service";
 
 import { type PrepareMemberInvitationAcceptanceCommand } from "@auth/public/account-activation-api";
 import { type PreparedMemberInvitationAcceptance } from "@auth/public/account-activation-api";
@@ -32,60 +34,42 @@ import { type MemberInvitationRecord } from "@auth/types/auth-service.types";
 import { type MemberInvitationIssue } from "@auth/public/account-activation-api";
 import { type MemberInvitationCheck } from "@auth/types/auth-service.types";
 
-import * as T from "@auth/types/auth-service.types";
 import * as argon2 from "argon2";
+import * as T from "@auth/types/auth-service.types";
 
-const ACTIVATION_TOKEN_BYTES = 32;
 const TOKEN_ID_BYTES = 16;
+const ACTIVATION_TOKEN_BYTES = 32;
 const MIN_ACTIVATION_TOKEN_LENGTH = 20;
 const MAX_ACTIVATION_TOKEN_LENGTH = 128;
 
-type ActivationLinkProfile = {
-  readonly purpose: OtpPurpose;
-  readonly lockKeyPrefix: string;
-  readonly urlConfigKey: string;
-  readonly urlFallbackPath: string;
-};
-
-type ActivationProfile = ActivationLinkProfile & {
-  readonly role: Role;
-  readonly loginUrlConfigKey: string;
-  readonly nameKey: string;
-  readonly fallbackName: string;
-  readonly activatedCode: AuthMessageCode;
-  readonly activatedMessage: string;
-  readonly auditActivated: AuditAction;
-  readonly auditResent: AuditAction;
-};
-
 const ORGANIZATION_PROFILE: ActivationProfile = {
   role: Role.ORGANIZATION,
-  purpose: OtpPurpose.ORGANIZATION_ACTIVATION,
-  lockKeyPrefix: "organization-activation",
-  urlConfigKey: "ORGANIZATION_ACTIVATION_URL",
-  urlFallbackPath: "/auth/organization/activate",
-  loginUrlConfigKey: "ORGANIZATION_LOGIN_URL",
   nameKey: "organizationName",
   fallbackName: "your Organization",
+  lockKeyPrefix: "organization-activation",
+  urlConfigKey: "ORGANIZATION_ACTIVATION_URL",
+  loginUrlConfigKey: "ORGANIZATION_LOGIN_URL",
+  purpose: OtpPurpose.ORGANIZATION_ACTIVATION,
+  urlFallbackPath: "/auth/organization/activate",
+  auditResent: AuditAction.ORGANIZATION_ACTIVATION_RESENT,
+  auditActivated: AuditAction.ORGANIZATION_ACCOUNT_ACTIVATED,
   activatedCode: AuthMessageCode.ORGANIZATION_ACCOUNT_ACTIVATED,
   activatedMessage: "Organization account activated successfully.",
-  auditActivated: AuditAction.ORGANIZATION_ACCOUNT_ACTIVATED,
-  auditResent: AuditAction.ORGANIZATION_ACTIVATION_RESENT,
 };
 
 const ASSOCIATION_PROFILE: ActivationProfile = {
   role: Role.ASSOCIATION,
-  purpose: OtpPurpose.ASSOCIATION_ACTIVATION,
-  lockKeyPrefix: "association-activation",
-  urlConfigKey: "ASSOCIATION_ACTIVATION_URL",
-  urlFallbackPath: "/auth/association/activate",
-  loginUrlConfigKey: "ASSOCIATION_LOGIN_URL",
   nameKey: "associationName",
   fallbackName: "your Association",
+  lockKeyPrefix: "association-activation",
+  purpose: OtpPurpose.ASSOCIATION_ACTIVATION,
+  loginUrlConfigKey: "ASSOCIATION_LOGIN_URL",
+  urlConfigKey: "ASSOCIATION_ACTIVATION_URL",
+  urlFallbackPath: "/auth/association/activate",
+  auditResent: AuditAction.ASSOCIATION_ACTIVATION_RESENT,
+  auditActivated: AuditAction.ASSOCIATION_ACCOUNT_ACTIVATED,
   activatedCode: AuthMessageCode.ASSOCIATION_ACCOUNT_ACTIVATED,
   activatedMessage: "Association account activated successfully.",
-  auditActivated: AuditAction.ASSOCIATION_ACCOUNT_ACTIVATED,
-  auditResent: AuditAction.ASSOCIATION_ACTIVATION_RESENT,
 };
 
 const MEMBER_INVITE_PROFILE: ActivationLinkProfile = {
@@ -96,8 +80,8 @@ const MEMBER_INVITE_PROFILE: ActivationLinkProfile = {
 };
 
 const PROFILE_BY_ROLE: Record<string, ActivationProfile> = {
-  ORGANIZATION: ORGANIZATION_PROFILE,
   ASSOCIATION: ASSOCIATION_PROFILE,
+  ORGANIZATION: ORGANIZATION_PROFILE,
 };
 
 @Injectable()
@@ -105,31 +89,31 @@ export class AuthAccountActivationService {
   private readonly logger = new Logger(AuthAccountActivationService.name);
 
   constructor(
-    private readonly prisma: PrismaService,
-    private readonly config: ConfigService,
-    private readonly mail: MailService,
-    private readonly authCommon: AuthCommonService,
+    private readonly prismaService: PrismaService,
+    private readonly configService: ConfigService,
+    private readonly mailService: MailService,
+    private readonly authCommonService: AuthCommonService,
     private readonly roleProfiles: RoleProfileRegistry,
   ) {}
 
   async issueActivationLink({
+    role,
     userId,
     destination,
-    role,
   }: T.IssueActivationLinkArgs) {
     const profile = this.profileFor(role);
-    return this.prisma.$transaction((tx) =>
+    return this.prismaService.$transaction((tx) =>
       this.createActivationLink(tx, profile, { userId, destination }),
     );
   }
 
   async resendActivationLink({
+    role,
     userId,
     destination,
-    role,
   }: T.IssueActivationLinkArgs) {
     const profile = this.profileFor(role);
-    return this.prisma.$transaction(async (tx) => {
+    return this.prismaService.$transaction(async (tx) => {
       await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtext(${`${profile.lockKeyPrefix}:${userId}`}))`;
       if (!(await this.canResend(userId, profile, tx))) return null;
       const link = await this.createActivationLink(tx, profile, {
@@ -151,8 +135,8 @@ export class AuthAccountActivationService {
   async issueMemberInvitation({
     userId,
     destination,
-    associationMemberId,
     atomicContext,
+    associationMemberId,
   }: IssueMemberInvitationCommand): Promise<MemberInvitationIssue> {
     const tx = atomicContext as Prisma.TransactionClient;
     const refusal = await this.resendRefusal(
@@ -346,7 +330,7 @@ export class AuthAccountActivationService {
   private async findMemberInvitation(token: string) {
     if (token.length < MIN_ACTIVATION_TOKEN_LENGTH) return null;
     if (token.length > MAX_ACTIVATION_TOKEN_LENGTH) return null;
-    return this.prisma.otpCode.findFirst({
+    return this.prismaService.otpCode.findFirst({
       where: {
         codeHash: this.hashToken(token),
         purpose: MEMBER_INVITE_PROFILE.purpose,
@@ -367,10 +351,6 @@ export class AuthAccountActivationService {
     if (!user || user.deletedAt) return rejected(ActivationTokenStatus.INVALID);
     if (!associationMember) return rejected(ActivationTokenStatus.INVALID);
     if (record.consumedAt) return rejected(ActivationTokenStatus.USED);
-    // The membership having moved on — activated by this same token racing a
-    // concurrent accept, or deactivated by the association in the meantime —
-    // is exactly as terminal as the token itself being consumed: either way
-    // this link no longer does anything.
     if (associationMember.status !== AssociationMemberStatus.PENDING_ACTIVATION)
       return rejected(ActivationTokenStatus.USED);
     if (record.expiresAt <= new Date())
@@ -454,7 +434,7 @@ export class AuthAccountActivationService {
 
     const passwordHash = await argon2.hash(input.password);
     const activatedAt = new Date();
-    const user = await this.prisma.$transaction(async (tx) => {
+    const user = await this.prismaService.$transaction(async (tx) => {
       const consumed = await tx.otpCode.updateMany({
         where: { id: check.otpCodeId, consumedAt: null },
         data: { consumedAt: activatedAt },
@@ -524,7 +504,7 @@ export class AuthAccountActivationService {
 
   async resendActivation(input: ResendOrganizationActivationInput) {
     const profile = ORGANIZATION_PROFILE;
-    const email = this.authCommon.normalizeEmail(input.email);
+    const email = this.authCommonService.normalizeEmail(input.email);
     const genericResult = {
       success: true,
       code: AuthMessageCode.ACTIVATION_EMAIL_SENT,
@@ -532,7 +512,7 @@ export class AuthAccountActivationService {
         "If this account is awaiting activation, a new activation email has been sent.",
       user: null,
     };
-    const user = await this.prisma.user.findFirst({
+    const user = await this.prismaService.user.findFirst({
       where: {
         email,
         role: profile.role,
@@ -551,7 +531,7 @@ export class AuthAccountActivationService {
     try {
       const supportEmail = this.requiredConfig("SUPPORT_EMAIL");
       const loginUrl = this.requiredConfig(profile.loginUrlConfigKey);
-      const invitation = await this.prisma.$transaction(async (tx) => {
+      const invitation = await this.prismaService.$transaction(async (tx) => {
         await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtext(${`${profile.lockKeyPrefix}:${user.id}`}))`;
         if (!(await this.canResend(user.id, profile, tx))) return null;
         const activationLink = await this.createActivationLink(tx, profile, {
@@ -578,7 +558,7 @@ export class AuthAccountActivationService {
         loginUrl,
         expiresInMinutes,
       });
-      void this.mail
+      void this.mailService
         .sendEmail({ to: destination, ...template })
         .catch((error: unknown) => {
           this.logger.error("Account activation email delivery failed", {
@@ -614,7 +594,7 @@ export class AuthAccountActivationService {
       expiresInMinutes: number;
     },
   ) {
-    const appName = this.config.get<string>("APP_NAME", "LoopsKey");
+    const appName = this.configService.get<string>("APP_NAME", "LoopsKey");
     if (profile.role === Role.ASSOCIATION)
       return buildAssociationActivationEmail({
         appName,
@@ -642,11 +622,11 @@ export class AuthAccountActivationService {
     accountName: string,
   ) {
     if (profile.role === Role.ASSOCIATION)
-      return this.authCommon.sendAssociationPasswordChangedEmail(
+      return this.authCommonService.sendAssociationPasswordChangedEmail(
         email,
         accountName,
       );
-    return this.authCommon.sendOrganizationPasswordChangedEmail(
+    return this.authCommonService.sendOrganizationPasswordChangedEmail(
       email,
       accountName,
     );
@@ -655,7 +635,7 @@ export class AuthAccountActivationService {
   private async findActivation(profile: ActivationProfile, token: string) {
     if (token.length < MIN_ACTIVATION_TOKEN_LENGTH) return null;
     if (token.length > MAX_ACTIVATION_TOKEN_LENGTH) return null;
-    return this.prisma.otpCode.findFirst({
+    return this.prismaService.otpCode.findFirst({
       where: {
         codeHash: this.hashToken(token),
         purpose: profile.purpose,
@@ -778,7 +758,7 @@ export class AuthAccountActivationService {
   }
 
   private buildActivationUrl(profile: ActivationLinkProfile, rawToken: string) {
-    const configured = this.config.get<string>(profile.urlConfigKey);
+    const configured = this.configService.get<string>(profile.urlConfigKey);
     const base = configured
       ? configured
       : `${this.requiredConfig("APPLICATION_BASE_URL").replace(/\/$/, "")}${profile.urlFallbackPath}`;
@@ -788,7 +768,7 @@ export class AuthAccountActivationService {
 
   private activationExpiryMinutes() {
     const minutes = Number(
-      this.config.get<string>("ACTIVATION_TOKEN_EXPIRY_MINUTES", "60"),
+      this.configService.get<string>("ACTIVATION_TOKEN_EXPIRY_MINUTES", "60"),
     );
     if (!Number.isFinite(minutes) || minutes <= 0)
       throw new Error("ACTIVATION_TOKEN_EXPIRY_MINUTES is not configured.");
@@ -797,20 +777,23 @@ export class AuthAccountActivationService {
 
   private resendCooldownSeconds() {
     const seconds = Number(
-      this.config.get<string>("ACTIVATION_RESEND_COOLDOWN_SECONDS", "120"),
+      this.configService.get<string>(
+        "ACTIVATION_RESEND_COOLDOWN_SECONDS",
+        "120",
+      ),
     );
     return Number.isFinite(seconds) && seconds > 0 ? seconds : 120;
   }
 
   private maxResendsPerDay() {
     const max = Number(
-      this.config.get<string>("ACTIVATION_MAX_RESENDS_PER_DAY", "5"),
+      this.configService.get<string>("ACTIVATION_MAX_RESENDS_PER_DAY", "5"),
     );
     return Number.isFinite(max) && max > 0 ? max : 5;
   }
 
   private requiredConfig(name: string) {
-    const value = this.config.get<string>(name);
+    const value = this.configService.get<string>(name);
     if (!value) throw new Error(`${name} is not configured.`);
     return value;
   }

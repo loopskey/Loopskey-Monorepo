@@ -1,10 +1,10 @@
 import { Injectable, Logger, UnauthorizedException } from "@nestjs/common";
 import { Role, SessionStatus, UserStatus } from "@prisma/client";
-import { requestContext } from "@infrastructure/observability/request-context";
 import { RequestContextInfo } from "@auth/types/auth-service.types";
 import { AuthCommonService } from "@auth/services/auth-common.service";
 import { AUTH_USER_SELECT } from "@auth/types/auth-user-select.constant";
 import { AuthMessageCode } from "@auth/enums/message-code.enum";
+import { requestContext } from "@infrastructure/observability/request-context";
 import { PrismaService } from "@prisma/prisma.service";
 import { ConfigService } from "@nestjs/config";
 import { StringValue } from "ms";
@@ -15,13 +15,13 @@ import { Response } from "express";
 
 import * as argon2 from "argon2";
 import {
-  ACCESS_TOKEN_COOKIE_DEFAULT,
-  JWT_ACCESS_AUDIENCE,
-  JWT_ALGORITHM,
   JWT_ISSUER,
-  JWT_REFRESH_AUDIENCE,
-  REFRESH_TOKEN_COOKIE_DEFAULT,
   TOKEN_TYPE,
+  JWT_ALGORITHM,
+  JWT_ACCESS_AUDIENCE,
+  JWT_REFRESH_AUDIENCE,
+  ACCESS_TOKEN_COOKIE_DEFAULT,
+  REFRESH_TOKEN_COOKIE_DEFAULT,
 } from "@loopskey/api-contracts/auth";
 
 @Injectable()
@@ -29,10 +29,10 @@ export class AuthSessionService {
   private readonly logger = new Logger(AuthSessionService.name);
 
   constructor(
-    private readonly prisma: PrismaService,
+    private readonly prismaService: PrismaService,
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService,
-    private readonly authCommon: AuthCommonService,
+    private readonly authCommonService: AuthCommonService,
   ) {}
 
   async login(
@@ -40,8 +40,8 @@ export class AuthSessionService {
     response: Response,
     contextInfo?: RequestContextInfo,
   ) {
-    const email = this.authCommon.normalizeEmail(input.email);
-    const user = await this.prisma.user.findUnique({
+    const email = this.authCommonService.normalizeEmail(input.email);
+    const user = await this.prismaService.user.findUnique({
       where: { email },
       select: {
         ...AUTH_USER_SELECT,
@@ -73,7 +73,7 @@ export class AuthSessionService {
     });
     await this.storeRefreshToken(session.id, tokens.refreshToken);
     this.setAuthCookies(response, tokens.accessToken, tokens.refreshToken);
-    await this.prisma.user.update({
+    await this.prismaService.user.update({
       where: { id: user.id },
       data: {
         lastLoginAt: new Date(),
@@ -107,7 +107,7 @@ export class AuthSessionService {
         code: AuthMessageCode.SESSION_NOT_FOUND,
         message: "Session not found.",
       });
-    const session = await this.prisma.authSession.findFirst({
+    const session = await this.prismaService.authSession.findFirst({
       where: {
         id: payload.sessionId,
         userId: payload.sub,
@@ -123,17 +123,6 @@ export class AuthSessionService {
         code: AuthMessageCode.SESSION_NOT_FOUND,
         message: "Session not found or expired.",
       });
-    // Reuse is decided before the hash is checked, and it has to be: a
-    // superseded token no longer matches the stored hash, so verifying first
-    // would report every replay as a merely invalid token and never revoke
-    // anything. The JWT signature has already been checked, so the generation
-    // this token claims is trustworthy enough to act on.
-    //
-    // A token minted before this session last rotated should no longer exist
-    // anywhere. That is replay rather than a race, and it costs the session; a
-    // request that merely loses the compare-and-swap below is left alone,
-    // because two browser tabs refreshing at the same instant are not an attack
-    // and should not sign the user out.
     if ((payload.rot ?? 0) < session.rotationCounter) {
       await this.revokeSessionOnReuse(session.id, session.userId);
       throw new UnauthorizedException({
@@ -141,9 +130,6 @@ export class AuthSessionService {
         message: "Invalid refresh token.",
       });
     }
-    // Argon2 is deliberately slow, so it runs before any conditional write. A
-    // rotation that held a row lock for the length of a hash would turn a burst
-    // of refreshes into a queue.
     const isRefreshValid = await argon2.verify(
       session.refreshTokenHash,
       refreshToken,
@@ -153,7 +139,7 @@ export class AuthSessionService {
         code: AuthMessageCode.REFRESH_TOKEN_INVALID,
         message: "Invalid refresh token.",
       });
-    const user = await this.prisma.user.findFirst({
+    const user = await this.prismaService.user.findFirst({
       where: {
         id: payload.sub,
         deletedAt: null,
@@ -182,15 +168,6 @@ export class AuthSessionService {
     };
   }
 
-  /**
-   * Mint the next token pair for a session and commit it under compare-and-swap.
-   *
-   * The new refresh token carries the counter value it is minted at, and the
-   * write only lands while the stored counter is still the one that was read.
-   * Two requests presenting the same refresh token therefore produce at most
-   * one committed rotation: the loser matches no row, has changed nothing, and
-   * is answered as unauthenticated.
-   */
   private async rotateSessionTokens(
     session: { id: string; rotationCounter: number },
     payload: JwtPayload,
@@ -198,7 +175,7 @@ export class AuthSessionService {
     const nextRotation = session.rotationCounter + 1;
     const tokens = await this.generateTokens({ ...payload, rot: nextRotation });
     const refreshTokenHash = await argon2.hash(tokens.refreshToken);
-    const { count } = await this.prisma.authSession.updateMany({
+    const { count } = await this.prismaService.authSession.updateMany({
       where: {
         id: session.id,
         rotationCounter: session.rotationCounter,
@@ -218,12 +195,8 @@ export class AuthSessionService {
     });
   }
 
-  /**
-   * Reuse of a superseded refresh token means the token left the browser it was
-   * issued to. The session goes with it and the user signs in again.
-   */
   private async revokeSessionOnReuse(sessionId: string, userId: string) {
-    await this.prisma.authSession.updateMany({
+    await this.prismaService.authSession.updateMany({
       where: { id: sessionId, status: SessionStatus.ACTIVE },
       data: { status: SessionStatus.REVOKED, revokedAt: new Date() },
     });
@@ -236,7 +209,7 @@ export class AuthSessionService {
 
   async logout(user: JwtPayload | null, response: Response) {
     if (user?.sessionId) {
-      await this.prisma.authSession.updateMany({
+      await this.prismaService.authSession.updateMany({
         where: {
           id: user.sessionId,
           userId: user.sub,
@@ -258,7 +231,7 @@ export class AuthSessionService {
   }
 
   async currentUser(userId: string) {
-    const user = await this.prisma.user.findFirst({
+    const user = await this.prismaService.user.findFirst({
       where: {
         id: userId,
         deletedAt: null,
@@ -282,7 +255,7 @@ export class AuthSessionService {
     const expiresInDays = Number(
       this.configService.get<string>("JWT_REFRESH_EXPIRES_IN_DAYS"),
     );
-    return this.prisma.authSession.create({
+    return this.prismaService.authSession.create({
       data: {
         userId,
         refreshTokenHash: "pending",
@@ -332,16 +305,9 @@ export class AuthSessionService {
     };
   }
 
-  /**
-   * Attach the first refresh token to a session the same request just created.
-   *
-   * There is nothing to compare against yet, so this write is unconditional and
-   * leaves `rotationCounter` at 0 — the value the token it stores implicitly
-   * carries. Every later rotation goes through `rotateSessionTokens`.
-   */
   async storeRefreshToken(sessionId: string, refreshToken: string) {
     const refreshTokenHash = await argon2.hash(refreshToken);
-    await this.prisma.authSession.update({
+    await this.prismaService.authSession.update({
       where: { id: sessionId },
       data: { refreshTokenHash },
     });

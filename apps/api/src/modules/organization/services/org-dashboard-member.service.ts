@@ -2,7 +2,6 @@ import { ForbiddenException, NotFoundException } from "@nestjs/common";
 import { UpdateOrganizationMemberNotesInput } from "@org/dtos/update-org-member-notes.input";
 import { OrganizationMemberStatus, Prisma } from "@prisma/client";
 import { OrganizationDashboardMessageCode } from "@org/enums/org-dashboard-message-code.enum";
-import { type ProfessionalProvisioningApi } from "@professional/public/professional-provisioning-api";
 import { BulkAddOrganizationMembersInput } from "@org/dtos/bulk-add-org-members.input";
 import { OrganizationMemberFilterInput } from "@org/dtos/org-member-filter";
 import { UpdateOrganizationMemberInput } from "@org/dtos/upadte-org-member.input";
@@ -10,11 +9,13 @@ import { PROFESSIONAL_PROVISIONING_API } from "@professional/public/professional
 import { OrganizationPaginationInput } from "@org/dtos/org-pagination.input";
 import { TOrganizationDashboardUser } from "@org/types/org-dashboard-service.types";
 import { AddOrganizationMemberInput } from "@org/dtos/add-org-member.input";
-import { type IdentityProfileApi } from "@user/public/identity-profile-api";
 import { IDENTITY_PROFILE_API } from "@user/public/identity-profile-api";
 import { Inject, Injectable } from "@nestjs/common";
 import { PrismaService } from "@prisma/prisma.service";
 import { Role } from "@prisma/client";
+
+import { type ProfessionalProvisioningApi } from "@professional/public/professional-provisioning-api";
+import { type IdentityProfileApi } from "@user/public/identity-profile-api";
 
 const memberInclude = {
   user: true,

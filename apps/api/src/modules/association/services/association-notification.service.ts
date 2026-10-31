@@ -1,46 +1,21 @@
 import { AssociationMessageDeliveryState, Prisma } from "@prisma/client";
 import { AssociationMessageSkipReason } from "@association/enums/association-attention.enum";
-import { AssociationMessageType } from "@prisma/client";
-import { Injectable, Logger } from "@nestjs/common";
+import { LIFECYCLE_TEMPLATE_VERSION } from "@mail/templates/association-lifecycle.template";
 import { LIFECYCLE_EVENT_BY_TYPE } from "@association/enums/association-notification.enum";
-import { LIFECYCLE_TEMPLATE_VERSION } from "@association/enums/association-notification.enum";
+import { AssociationMessageType } from "@prisma/client";
+import { InvitationNotification } from "@association/types/association-notif.types";
+import { LifecycleNotification } from "@association/types/association-notif.types";
+import { Injectable, Logger } from "@nestjs/common";
 import { AUTOMATIC_AUDIENCE } from "@association/enums/association-notification.enum";
-import { occurrenceKeys } from "@association/enums/association-notification.enum";
 import { cooldownBucketFor } from "@association/services/association-message.service";
+import { DeliverySettings } from "@association/types/association-notif.types";
+import { occurrenceKeys } from "@association/enums/association-notification.enum";
 import { requestContext } from "@infrastructure/observability/request-context";
 import { OutboxService } from "@infrastructure/outbox/outbox.service";
 
 import { type AutomaticMessageType } from "@association/enums/association-notification.enum";
-import { type TSendEmailInput } from "@mail/mail-service.type";
 
 export const LIFECYCLE_DELIVERY_AGGREGATE = "AssociationMessageDelivery";
-
-export type LifecycleSubject = {
-  groupId?: string;
-  requirementId?: string;
-  assignmentId?: string;
-  learningContentId?: string;
-  recipientId?: string;
-};
-
-export type LifecycleNotification = {
-  associationId: string;
-  memberId: string;
-  recipientUserId: string;
-  messageType: AutomaticMessageType;
-  occurrenceKey: string;
-  subject: LifecycleSubject;
-};
-
-export type InvitationNotification = {
-  associationId: string;
-  memberId: string;
-  recipientUserId: string;
-  tokenId: string;
-  mail: TSendEmailInput;
-};
-
-type DeliverySettings = { suppressAllEmail: boolean; welcomeMessages: boolean };
 
 const DEFAULT_SETTINGS: DeliverySettings = {
   suppressAllEmail: false,

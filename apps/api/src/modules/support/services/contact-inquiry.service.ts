@@ -7,7 +7,7 @@ import { buildContactInquiryEmail } from "@support/templates/contact-email.templ
 import { createHash, randomUUID } from "node:crypto";
 import { requestContext } from "@infrastructure/observability/request-context";
 import { ConfigService } from "@nestjs/config";
-import { MailService } from "@mail/mail.service";
+import { MailService } from "@mail/services/mail.service";
 
 const HOUR_MS = 60 * 60 * 1000;
 
@@ -16,9 +16,9 @@ export class ContactInquiryService {
   private readonly logger = new Logger(ContactInquiryService.name);
 
   constructor(
-    private readonly config: ConfigService,
+    private readonly configService: ConfigService,
     private readonly mailService: MailService,
-    private readonly rateLimiter: ContactRateLimiterService,
+    private readonly rateLimiterService: ContactRateLimiterService,
   ) {}
 
   async submitInquiry(input: SubmitContactInquiryInput, clientIp?: string) {
@@ -34,7 +34,7 @@ export class ContactInquiryService {
 
     const referenceId = randomUUID();
     const claimKey = this.claimKey(input);
-    const isFirstAttempt = this.rateLimiter.claim(
+    const isFirstAttempt = this.rateLimiterService.claim(
       claimKey,
       this.duplicateWindowMs(),
     );
@@ -74,7 +74,7 @@ export class ContactInquiryService {
         text: email.text,
       });
     } catch (error) {
-      this.rateLimiter.release(claimKey);
+      this.rateLimiterService.release(claimKey);
       this.logger.error("Contact inquiry delivery request failed", {
         correlationId,
         referenceId,
@@ -115,7 +115,11 @@ export class ContactInquiryService {
     ];
 
     for (const check of checks) {
-      const result = this.rateLimiter.consume(check.key, check.limit, windowMs);
+      const result = this.rateLimiterService.consume(
+        check.key,
+        check.limit,
+        windowMs,
+      );
       if (result.allowed) continue;
       this.logger.warn("Contact inquiry rate limited", {
         correlationId,
@@ -141,14 +145,16 @@ export class ContactInquiryService {
   }
 
   private recipient() {
-    const recipient = this.config.get<string>("CONTACT_RECIPIENT_EMAIL");
+    const recipient = this.configService.get<string>("CONTACT_RECIPIENT_EMAIL");
     if (!recipient)
       throw new Error("CONTACT_RECIPIENT_EMAIL is not configured.");
     return recipient;
   }
 
   private numericConfig(name: string, fallback: number) {
-    const value = Number(this.config.get<string>(name, String(fallback)));
+    const value = Number(
+      this.configService.get<string>(name, String(fallback)),
+    );
     return Number.isFinite(value) && value > 0 ? value : fallback;
   }
 

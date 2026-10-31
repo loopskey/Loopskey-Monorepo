@@ -7,7 +7,7 @@ import {
 import type { PrismaService } from "@prisma/prisma.service";
 
 import { OrgAccessRequestService } from "./org-access-request.service";
-import type { MailService } from "@mail/mail.service";
+import type { MailService } from "@mail/services/mail.service";
 import type { ConfigService } from "@nestjs/config";
 
 const input = {

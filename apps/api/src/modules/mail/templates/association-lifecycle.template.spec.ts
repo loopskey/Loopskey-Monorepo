@@ -1,7 +1,12 @@
 import { AppLanguage, AssociationMessageType } from "@prisma/client";
 
-import { buildAssociationLifecycleEmail } from "@mail/association-lifecycle.template";
-import { type TAssociationLifecycleInput } from "@mail/mail-service.type";
+import { buildAssociationLifecycleEmail } from "@mail/templates/association-lifecycle.template";
+import { type TAssociationLifecycleInput } from "@mail/types/mail-service.types";
+
+// Rows queued before the copy refresh carry template version 1 and must keep
+// their original copy, so these tests pin that version.
+const buildVersionOne = (input: TAssociationLifecycleInput) =>
+  buildAssociationLifecycleEmail(input, 1);
 
 const base = {
   appName: "LoopsKey",
@@ -40,7 +45,7 @@ describe("the association lifecycle templates", () => {
   it.each(inputs.map((input) => [input.messageType, input.language, input]))(
     "%s in %s has a subject, a text alternative and the call to action",
     (_type, _language, input) => {
-      const email = buildAssociationLifecycleEmail(input);
+      const email = buildVersionOne(input);
 
       expect(email.subject.length).toBeGreaterThan(0);
       expect(email.text).toContain(base.actionUrl);
@@ -53,7 +58,7 @@ describe("the association lifecycle templates", () => {
   it.each(inputs.map((input) => [input.messageType, input.language, input]))(
     "%s in %s escapes every dynamic value in the html",
     (_type, _language, input) => {
-      const { html } = buildAssociationLifecycleEmail(input);
+      const { html } = buildVersionOne(input);
 
       expect(html).not.toMatch(/<script>|<b>101<\/b>|Member <One>/);
       expect(html).toContain("Institute &amp; Practice");
@@ -61,7 +66,7 @@ describe("the association lifecycle templates", () => {
   );
 
   it("states the deadline when the requirement has one", () => {
-    const email = buildAssociationLifecycleEmail({
+    const email = buildVersionOne({
       ...base,
       language: AppLanguage.EN,
       messageType: AssociationMessageType.REQUIREMENT_ASSIGNED,
@@ -73,7 +78,7 @@ describe("the association lifecycle templates", () => {
   });
 
   it("says so when the requirement has no deadline", () => {
-    const email = buildAssociationLifecycleEmail({
+    const email = buildVersionOne({
       ...base,
       language: AppLanguage.EN,
       messageType: AssociationMessageType.REQUIREMENT_ASSIGNED,
@@ -85,7 +90,7 @@ describe("the association lifecycle templates", () => {
   });
 
   it("names the requirement a learning item counts toward", () => {
-    const email = buildAssociationLifecycleEmail({
+    const email = buildVersionOne({
       ...base,
       language: AppLanguage.FR,
       messageType: AssociationMessageType.LEARNING_CONTENT_ASSIGNED,

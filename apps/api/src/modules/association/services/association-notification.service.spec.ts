@@ -6,7 +6,7 @@ import { LIFECYCLE_EVENT_BY_TYPE } from "@association/enums/association-notifica
 import { cooldownBucketFor } from "@association/services/association-message.service";
 import { AssociationNotificationService } from "./association-notification.service";
 
-import type { LifecycleNotification } from "./association-notification.service";
+import type { LifecycleNotification } from "@association/types/association-notif.types";
 
 const now = new Date("2026-09-27T10:00:00.000Z");
 
@@ -135,6 +135,14 @@ describe("AssociationNotificationService record", () => {
     );
 
     expect(createdData(tx)[0].cooldownBucket).toBe(cooldownBucketFor(now));
+  });
+
+  it("stamps new rows with the current lifecycle template version", async () => {
+    const { service, tx } = setup();
+
+    await service.record(tx as never, [notification()], now);
+
+    expect(createdData(tx)[0]).toMatchObject({ templateVersion: 2 });
   });
 
   it("records a suppressed notification as skipped and queues no email", async () => {

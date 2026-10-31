@@ -161,6 +161,51 @@ describe("AssociationLifecycleMessageHandler registration", () => {
 });
 
 describe("AssociationLifecycleMessageHandler delivery", () => {
+  it("renders a version 1 welcome with the copy it was queued under", async () => {
+    const { handler, mail, prisma } = setup();
+    prisma.associationMessageDelivery.findUnique.mockResolvedValue(
+      delivery({ templateVersion: 1 }),
+    );
+
+    await handler.handle({ deliveryId: "delivery-1" }, event);
+
+    expect(sentEmail(mail).subject).toBe("Institute <of> Practice: welcome");
+  });
+
+  it("renders a version 2 requirement notice with the refreshed copy", async () => {
+    const { handler, mail, prisma } = setup();
+    prisma.associationMessageDelivery.findUnique.mockResolvedValue(
+      delivery({
+        templateVersion: 2,
+        context: { assignmentId: "assignment-1" },
+        messageType: AssociationMessageType.REQUIREMENT_ASSIGNED,
+      }),
+    );
+
+    await handler.handle({ deliveryId: "delivery-1" }, event);
+
+    expect(sentEmail(mail).subject).toBe("New requirement: Annual CPD");
+    expect(sentEmail(mail).text).toContain("Due 31 December 2026.");
+    expect(sentEmail(mail).text).toContain("requirement=association%3Areq-1");
+  });
+
+  it("renders a version 1 requirement notice with the copy it was queued under", async () => {
+    const { handler, mail, prisma } = setup();
+    prisma.associationMessageDelivery.findUnique.mockResolvedValue(
+      delivery({
+        templateVersion: 1,
+        context: { assignmentId: "assignment-1" },
+        messageType: AssociationMessageType.REQUIREMENT_ASSIGNED,
+      }),
+    );
+
+    await handler.handle({ deliveryId: "delivery-1" }, event);
+
+    expect(sentEmail(mail).subject).toBe(
+      'Institute <of> Practice: new requirement "Annual CPD"',
+    );
+  });
+
   it("sends the consolidated welcome with the outbox idempotency key and settles it", async () => {
     const { handler, mail, prisma } = setup();
 
@@ -170,7 +215,7 @@ describe("AssociationLifecycleMessageHandler delivery", () => {
       expect.objectContaining({ to: "ada@example.org" }),
       "outbox-event-1",
     );
-    expect(sentEmail(mail).subject).toContain("welcome");
+    expect(sentEmail(mail).subject).toContain("Welcome to");
     expect(settledState(prisma)).toMatchObject({
       where: { state: AssociationMessageDeliveryState.QUEUED },
       data: {
@@ -242,7 +287,7 @@ describe("AssociationLifecycleMessageHandler delivery", () => {
 
     await handler.handle({ deliveryId: "delivery-1" }, event);
 
-    expect(sentEmail(mail).subject).toContain("bienvenue");
+    expect(sentEmail(mail).subject).toContain("Bienvenue chez");
     expect(settledState(prisma)?.data.language).toBe(AppLanguage.FR);
   });
 

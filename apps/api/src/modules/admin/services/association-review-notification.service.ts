@@ -1,15 +1,16 @@
 import { ConflictException, Inject, Injectable, Logger } from "@nestjs/common";
 import { AuditAction, OrganizationAccessRequestStatus } from "@prisma/client";
-import { buildAssociationActivationEmail } from "@mail/association-email.template";
-import { buildAssociationRejectionEmail } from "@mail/association-email.template";
+import { buildAssociationActivationEmail } from "@mail/templates/association-email.template";
+import { buildAssociationRejectionEmail } from "@mail/templates/association-email.template";
 import { NotificationDeliveryStatus } from "@prisma/client";
-import { type OrganizationReviewApi } from "@org/public/organization-review-api";
-import { type AccountActivationApi } from "@auth/public/account-activation-api";
 import { ORGANIZATION_REVIEW_API } from "@org/public/organization-review-api";
 import { ACCOUNT_ACTIVATION_API } from "@auth/public/account-activation-api";
 import { ConfigService } from "@nestjs/config";
 import { PrismaService } from "@prisma/prisma.service";
-import { MailService } from "@mail/mail.service";
+import { MailService } from "@mail/services/mail.service";
+
+import { type OrganizationReviewApi } from "@org/public/organization-review-api";
+import { type AccountActivationApi } from "@auth/public/account-activation-api";
 
 @Injectable()
 export class AssociationReviewNotificationService {
@@ -18,9 +19,9 @@ export class AssociationReviewNotificationService {
   );
 
   constructor(
-    private readonly prisma: PrismaService,
-    private readonly mail: MailService,
-    private readonly config: ConfigService,
+    private readonly prismaService: PrismaService,
+    private readonly mailService: MailService,
+    private readonly configService: ConfigService,
     @Inject(ACCOUNT_ACTIVATION_API)
     private readonly accountActivation: AccountActivationApi,
     @Inject(ORGANIZATION_REVIEW_API)
@@ -43,7 +44,7 @@ export class AssociationReviewNotificationService {
         request.status === OrganizationAccessRequestStatus.APPROVED
           ? await this.buildApproval(request)
           : this.buildRejection(request);
-      await this.mail.sendEmail({ to: request.workEmail, ...template });
+      await this.mailService.sendEmail({ to: request.workEmail, ...template });
       await this.organizationReview.markNotificationSent(requestId);
       return NotificationDeliveryStatus.SENT;
     } catch (error) {
@@ -55,7 +56,7 @@ export class AssociationReviewNotificationService {
         requestId,
         failureCode,
       );
-      await this.prisma.auditLog.create({
+      await this.prismaService.auditLog.create({
         data: {
           action: AuditAction.ORGANIZATION_NOTIFICATION_FAILED,
           entityType: "OrganizationAccessRequest",
@@ -86,7 +87,7 @@ export class AssociationReviewNotificationService {
         role: "ASSOCIATION",
       });
     return buildAssociationActivationEmail({
-      appName: this.config.get<string>("APP_NAME", "LoopsKey"),
+      appName: this.configService.get<string>("APP_NAME", "LoopsKey"),
       associationName: request.organizationName,
       supportEmail: this.requiredConfig("SUPPORT_EMAIL"),
       username: request.workEmail,
@@ -103,7 +104,7 @@ export class AssociationReviewNotificationService {
     if (!request.rejectReason)
       throw new ConflictException("Rejected request has no rejection reason.");
     return buildAssociationRejectionEmail({
-      appName: this.config.get<string>("APP_NAME", "LoopsKey"),
+      appName: this.configService.get<string>("APP_NAME", "LoopsKey"),
       associationName: request.organizationName,
       supportEmail: this.requiredConfig("SUPPORT_EMAIL"),
       reason: request.rejectReason,
@@ -111,7 +112,7 @@ export class AssociationReviewNotificationService {
   }
 
   private requiredConfig(name: string) {
-    const value = this.config.get<string>(name);
+    const value = this.configService.get<string>(name);
     if (!value) throw new Error(`${name} is not configured.`);
     return value;
   }

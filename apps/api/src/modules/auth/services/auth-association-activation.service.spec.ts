@@ -1,7 +1,7 @@
 import { AuditAction, OtpPurpose, Role, UserStatus } from "@prisma/client";
 import { BadRequestException } from "@nestjs/common";
 import type { ConfigService } from "@nestjs/config";
-import type { MailService } from "@mail/mail.service";
+import type { MailService } from "@mail/services/mail.service";
 import type { PrismaService } from "@prisma/prisma.service";
 
 import { AssociationActivationTokenStatus } from "@auth/enums/association-activation-token-status.enum";

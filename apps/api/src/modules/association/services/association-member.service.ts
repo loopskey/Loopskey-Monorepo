@@ -1,9 +1,8 @@
-import { MEMBER_INVITATION_DELIVERIES } from "@association/types/association-invitation-delivery.types";
 import { AssociationLearningContentRecipientService } from "@association/services/association-learning-content-recipient.service";
 import { AssociationRequirementAssignmentService } from "@association/services/association-requirement-assignment.service";
 import { ResendAssociationMemberInvitationInput } from "@association/dtos/resend-association-member-invitation.input";
 import { Injectable, Logger, NotFoundException } from "@nestjs/common";
-import { buildAssociationMemberInvitationEmail } from "@mail/association-email.template";
+import { buildAssociationMemberInvitationEmail } from "@mail/templates/association-email.template";
 import { AssociationMemberStatus, Prisma, Role } from "@prisma/client";
 import { AssociationMemberRequirementsService } from "@association/services/association-member-requirements.service";
 import { BulkInviteAssociationMemberRowInput } from "@association/dtos/bulk-invite-association-members.input";
@@ -18,6 +17,7 @@ import { AssociationRequirementStatus } from "@prisma/client";
 import { AssociationMemberFilterInput } from "@association/dtos/association-member-filter.input";
 import { UpdateAssociationMemberInput } from "@association/dtos/update-association-member.input";
 import { InviteAssociationMemberInput } from "@association/dtos/invite-association-member.input";
+import { MEMBER_INVITATION_DELIVERIES } from "@association/types/association-invitation-delivery.types";
 import { AssociationPaginationInput } from "@association/dtos/association-pagination.input";
 import { AssociationMemberJoinedVia } from "@prisma/client";
 import { ConflictException, Inject } from "@nestjs/common";
@@ -30,6 +30,7 @@ import { ACCOUNT_ACTIVATION_API } from "@auth/public/account-activation-api";
 import { IDENTITY_PROFILE_API } from "@user/public/identity-profile-api";
 import { TAssociationUser } from "@association/types/association-service.types";
 import { PrismaService } from "@prisma/prisma.service";
+import { InviteCommand } from "@association/types/association-member-profile.types";
 import { ConfigService } from "@nestjs/config";
 
 import { type ProfessionalProvisioningApi } from "@professional/public/professional-provisioning-api";
@@ -92,35 +93,28 @@ const project = ({ user, messageDeliveries, ...member }: MemberRecord) => ({
   complianceSummary: null,
 });
 
-type InviteCommand = {
-  email: string;
-  fullName: string;
-  groupId?: string | null;
-  memberNumber?: string | null;
-};
-
 @Injectable()
 export class AssociationMemberService {
   private readonly logger = new Logger(AssociationMemberService.name);
 
   constructor(
-    private readonly prisma: PrismaService,
-    private readonly config: ConfigService,
-    private readonly notifications: AssociationNotificationService,
-    private readonly lifecycle: AssociationMemberLifecycleService,
-    private readonly learningRecipients: AssociationLearningContentRecipientService,
-    private readonly access: AssociationAccessService,
-    private readonly groups: AssociationGroupService,
+    private readonly prismaService: PrismaService,
+    private readonly configService: ConfigService,
+    private readonly notificationsService: AssociationNotificationService,
+    private readonly lifecycleService: AssociationMemberLifecycleService,
+    private readonly learningRecipientsService: AssociationLearningContentRecipientService,
+    private readonly groupsService: AssociationGroupService,
+    private readonly accessService: AssociationAccessService,
     @Inject(IDENTITY_PROFILE_API)
     private readonly identity: IdentityProfileApi,
     @Inject(PROFESSIONAL_PROVISIONING_API)
     private readonly professional: ProfessionalProvisioningApi,
     @Inject(ACCOUNT_ACTIVATION_API)
     private readonly activation: AccountActivationApi,
-    private readonly assignments: AssociationRequirementAssignmentService,
-    private readonly complianceRead: AssociationComplianceReadService,
-    private readonly memberRequirements: AssociationMemberRequirementsService,
-    private readonly requirements: AssociationRequirementService,
+    private readonly assignmentsService: AssociationRequirementAssignmentService,
+    private readonly complianceReadService: AssociationComplianceReadService,
+    private readonly memberRequirementsService: AssociationMemberRequirementsService,
+    private readonly requirementsService: AssociationRequirementService,
   ) {}
 
   async list(
@@ -129,7 +123,10 @@ export class AssociationMemberService {
     pagination?: AssociationPaginationInput,
     associationId?: string,
   ) {
-    const association = await this.access.requireReadable(user, associationId);
+    const association = await this.accessService.requireReadable(
+      user,
+      associationId,
+    );
     const take = pagination?.take ?? 20;
     const search = filter?.search?.trim();
     const where: Prisma.AssociationMemberWhereInput = {
@@ -153,7 +150,7 @@ export class AssociationMemberService {
           }
         : {}),
     };
-    const rows = await this.prisma.associationMember.findMany({
+    const rows = await this.prismaService.associationMember.findMany({
       where,
       take: take + 1,
       ...(pagination?.cursor
@@ -169,7 +166,7 @@ export class AssociationMemberService {
     );
     return {
       items,
-      totalCount: await this.prisma.associationMember.count({ where }),
+      totalCount: await this.prismaService.associationMember.count({ where }),
       pageInfo: {
         hasNextPage: rows.length > take,
         nextCursor: rows.length > take ? (items.at(-1)?.id ?? null) : null,
@@ -182,7 +179,7 @@ export class AssociationMemberService {
     email: string,
     associationId?: string,
   ) {
-    await this.access.requireReadable(user, associationId);
+    await this.accessService.requireReadable(user, associationId);
     return { exists: await this.identity.existsByEmail(email) };
   }
 
@@ -197,12 +194,12 @@ export class AssociationMemberService {
     const memberIds = items.map((item) => item.id);
 
     const [summaries, assignments] = await Promise.all([
-      this.complianceRead.memberComplianceList(
+      this.complianceReadService.memberComplianceList(
         user,
         { memberIds },
         user.role === Role.ASSOCIATION ? undefined : associationId,
       ),
-      this.prisma.associationRequirementAssignment.findMany({
+      this.prismaService.associationRequirementAssignment.findMany({
         where: {
           memberId: { in: memberIds },
           isTargeted: true,
@@ -230,18 +227,21 @@ export class AssociationMemberService {
   }
 
   async stats(user: TAssociationUser, associationId?: string) {
-    const association = await this.access.requireReadable(user, associationId);
+    const association = await this.accessService.requireReadable(
+      user,
+      associationId,
+    );
     const [totalMembers, activeMembers, pendingActivation] = await Promise.all([
-      this.prisma.associationMember.count({
+      this.prismaService.associationMember.count({
         where: { associationId: association.id },
       }),
-      this.prisma.associationMember.count({
+      this.prismaService.associationMember.count({
         where: {
           associationId: association.id,
           status: AssociationMemberStatus.ACTIVE,
         },
       }),
-      this.prisma.associationMember.count({
+      this.prismaService.associationMember.count({
         where: {
           associationId: association.id,
           status: AssociationMemberStatus.PENDING_ACTIVATION,
@@ -252,9 +252,9 @@ export class AssociationMemberService {
   }
 
   async invite(user: TAssociationUser, input: InviteAssociationMemberInput) {
-    const association = await this.access.requireOwned(user);
+    const association = await this.accessService.requireOwned(user);
     if (input.groupId)
-      await this.groups.requireGroup(association.id, input.groupId);
+      await this.groupsService.requireGroup(association.id, input.groupId);
     const result = await this.inviteOne(
       association.id,
       association.name,
@@ -268,7 +268,7 @@ export class AssociationMemberService {
     );
     await this.refreshTargeting(result.member.id);
     if (input.requirementIds?.length)
-      await this.memberRequirements.setRequirements(user, {
+      await this.memberRequirementsService.setRequirements(user, {
         memberId: result.member.id,
         requirementIds: input.requirementIds,
       });
@@ -279,7 +279,7 @@ export class AssociationMemberService {
     user: TAssociationUser,
     input: BulkInviteAssociationMembersInput,
   ) {
-    const association = await this.access.requireOwned(user);
+    const association = await this.accessService.requireOwned(user);
     const failures: {
       row: number;
       email: string;
@@ -358,18 +358,19 @@ export class AssociationMemberService {
   ) {
     if (!memberIds.length) return;
 
-    const requirements = await this.prisma.associationRequirement.findMany({
-      where: {
-        id: { in: requirementIds },
-        associationId,
-        status: AssociationRequirementStatus.PUBLISHED,
-      },
-      select: {
-        id: true,
-        audienceKind: true,
-        targets: { select: { memberId: true } },
-      },
-    });
+    const requirements =
+      await this.prismaService.associationRequirement.findMany({
+        where: {
+          id: { in: requirementIds },
+          associationId,
+          status: AssociationRequirementStatus.PUBLISHED,
+        },
+        select: {
+          id: true,
+          audienceKind: true,
+          targets: { select: { memberId: true } },
+        },
+      });
 
     for (const requirement of requirements) {
       if (
@@ -388,7 +389,7 @@ export class AssociationMemberService {
       const next = [...new Set([...current, ...memberIds])];
 
       try {
-        await this.requirements.updateAudience(user, {
+        await this.requirementsService.updateAudience(user, {
           requirementId: requirement.id,
           audienceKind: AssociationAudienceKind.SPECIFIC_MEMBERS,
           memberIds: next,
@@ -407,7 +408,7 @@ export class AssociationMemberService {
     user: TAssociationUser,
     input: ResendAssociationMemberInvitationInput,
   ) {
-    const association = await this.access.requireOwned(user);
+    const association = await this.accessService.requireOwned(user);
     const member = await this.requireMember(association.id, input.memberId);
     if (member.status !== AssociationMemberStatus.PENDING_ACTIVATION)
       throw new ConflictException({
@@ -421,7 +422,7 @@ export class AssociationMemberService {
       });
 
     const email = member.email;
-    const outcome = await this.prisma
+    const outcome = await this.prismaService
       .$transaction((tx) =>
         this.queueInvitation(tx, {
           associationId: association.id,
@@ -448,17 +449,17 @@ export class AssociationMemberService {
   }
 
   async update(user: TAssociationUser, input: UpdateAssociationMemberInput) {
-    const association = await this.access.requireOwned(user);
+    const association = await this.accessService.requireOwned(user);
     const current = await this.requireMember(association.id, input.memberId);
     if (input.fullName !== undefined)
       await this.rename(current.userId, input.fullName);
     if (input.groupId)
-      await this.groups.requireGroup(association.id, input.groupId);
+      await this.groupsService.requireGroup(association.id, input.groupId);
     const groupId = input.groupId;
     const member = await this.recoverMemberNumberClash(
-      this.prisma.$transaction(async (tx) => {
+      this.prismaService.$transaction(async (tx) => {
         if (groupId)
-          await this.lifecycle.moveToGroup(
+          await this.lifecycleService.moveToGroup(
             tx,
             { id: input.memberId, associationId: association.id },
             groupId,
@@ -498,13 +499,13 @@ export class AssociationMemberService {
     user: TAssociationUser,
     input: SetAssociationMemberStatusInput,
   ) {
-    const association = await this.access.requireOwned(user);
+    const association = await this.accessService.requireOwned(user);
     await this.requireMember(association.id, input.memberId);
     const scope = { id: input.memberId, associationId: association.id };
     const now = new Date();
 
     if (input.status === AssociationMemberStatus.INACTIVE) {
-      const claimed = await this.prisma.associationMember.updateMany({
+      const claimed = await this.prismaService.associationMember.updateMany({
         where: {
           ...scope,
           status: {
@@ -531,7 +532,7 @@ export class AssociationMemberService {
           "Pending activation is reached by invitation, not by setting it.",
       });
 
-    const reactivated = await this.prisma.associationMember.updateMany({
+    const reactivated = await this.prismaService.associationMember.updateMany({
       where: {
         ...scope,
         status: AssociationMemberStatus.INACTIVE,
@@ -544,17 +545,18 @@ export class AssociationMemberService {
       return project(await this.readMember(association.id, input.memberId));
     }
 
-    const returnedToPending = await this.prisma.associationMember.updateMany({
-      where: {
-        ...scope,
-        status: AssociationMemberStatus.INACTIVE,
-        activatedAt: null,
-      },
-      data: {
-        status: AssociationMemberStatus.PENDING_ACTIVATION,
-        deactivatedAt: null,
-      },
-    });
+    const returnedToPending =
+      await this.prismaService.associationMember.updateMany({
+        where: {
+          ...scope,
+          status: AssociationMemberStatus.INACTIVE,
+          activatedAt: null,
+        },
+        data: {
+          status: AssociationMemberStatus.PENDING_ACTIVATION,
+          deactivatedAt: null,
+        },
+      });
     if (returnedToPending.count !== 1) throw this.statusConflict();
     await this.refreshTargeting(input.memberId);
     return project(await this.readMember(association.id, input.memberId));
@@ -576,92 +578,94 @@ export class AssociationMemberService {
     const memberNumber = command.memberNumber?.trim() || null;
 
     try {
-      const { member, outcome } = await this.prisma.$transaction(async (tx) => {
-        const person = await this.identity.resolveAssociationMemberUser({
-          email,
-          fullName,
-          atomicContext: tx,
-        });
-        await this.professional.ensureProfile(person.id, tx);
+      const { member, outcome } = await this.prismaService.$transaction(
+        async (tx) => {
+          const person = await this.identity.resolveAssociationMemberUser({
+            email,
+            fullName,
+            atomicContext: tx,
+          });
+          await this.professional.ensureProfile(person.id, tx);
 
-        const existing = await tx.associationMember.findUnique({
-          where: {
-            associationId_userId: { associationId, userId: person.id },
-          },
-          select: { id: true },
-        });
+          const existing = await tx.associationMember.findUnique({
+            where: {
+              associationId_userId: { associationId, userId: person.id },
+            },
+            select: { id: true },
+          });
 
-        if (existing) {
-          if (command.groupId)
-            await this.lifecycle.moveToGroup(
-              tx,
-              { id: existing.id, associationId },
-              command.groupId,
-            );
-          const updated = await tx.associationMember.update({
-            where: { id: existing.id },
-            data: memberNumber === null ? {} : { memberNumber },
+          if (existing) {
+            if (command.groupId)
+              await this.lifecycleService.moveToGroup(
+                tx,
+                { id: existing.id, associationId },
+                command.groupId,
+              );
+            const updated = await tx.associationMember.update({
+              where: { id: existing.id },
+              data: memberNumber === null ? {} : { memberNumber },
+              select: MEMBER_SELECT,
+            });
+            if (updated.status === AssociationMemberStatus.ACTIVE)
+              return {
+                member: updated,
+                outcome: AssociationInviteOutcome.LINKED_EXISTING_USER,
+              };
+            if (updated.status === AssociationMemberStatus.INACTIVE)
+              throw this.memberDeactivated();
+            const outcome = await this.queueInvitation(tx, {
+              associationId,
+              memberId: updated.id,
+              userId: updated.userId,
+              email,
+              fullName: updated.user.fullName ?? email,
+              associationName,
+            });
+            return { member: updated, outcome };
+          }
+
+          const created = await tx.associationMember.create({
+            data: {
+              associationId,
+              userId: person.id,
+              groupId: command.groupId ?? null,
+              memberNumber,
+              status: person.linkedExisting
+                ? AssociationMemberStatus.ACTIVE
+                : AssociationMemberStatus.PENDING_ACTIVATION,
+              activatedAt: person.linkedExisting ? new Date() : null,
+              joinedVia: person.linkedExisting
+                ? AssociationMemberJoinedVia.LINKED_EXISTING_ACCOUNT
+                : channel,
+            },
             select: MEMBER_SELECT,
           });
-          if (updated.status === AssociationMemberStatus.ACTIVE)
+
+          if (person.linkedExisting) {
+            await this.lifecycleService.announceActivation(tx, {
+              id: created.id,
+              associationId,
+              userId: person.id,
+              groupId: command.groupId ?? null,
+            });
             return {
-              member: updated,
+              member: created,
               outcome: AssociationInviteOutcome.LINKED_EXISTING_USER,
             };
-          if (updated.status === AssociationMemberStatus.INACTIVE)
-            throw this.memberDeactivated();
+          }
+
           const outcome = await this.queueInvitation(tx, {
             associationId,
-            memberId: updated.id,
-            userId: updated.userId,
+            memberId: created.id,
+            userId: person.id,
             email,
-            fullName: updated.user.fullName ?? email,
+            fullName,
             associationName,
           });
-          return { member: updated, outcome };
-        }
 
-        const created = await tx.associationMember.create({
-          data: {
-            associationId,
-            userId: person.id,
-            groupId: command.groupId ?? null,
-            memberNumber,
-            status: person.linkedExisting
-              ? AssociationMemberStatus.ACTIVE
-              : AssociationMemberStatus.PENDING_ACTIVATION,
-            activatedAt: person.linkedExisting ? new Date() : null,
-            joinedVia: person.linkedExisting
-              ? AssociationMemberJoinedVia.LINKED_EXISTING_ACCOUNT
-              : channel,
-          },
-          select: MEMBER_SELECT,
-        });
-
-        if (person.linkedExisting) {
-          await this.lifecycle.announceActivation(tx, {
-            id: created.id,
-            associationId,
-            userId: person.id,
-            groupId: command.groupId ?? null,
-          });
-          return {
-            member: created,
-            outcome: AssociationInviteOutcome.LINKED_EXISTING_USER,
-          };
-        }
-
-        const outcome = await this.queueInvitation(tx, {
-          associationId,
-          memberId: created.id,
-          userId: person.id,
-          email,
-          fullName,
-          associationName,
-        });
-
-        return { member: created, outcome };
-      });
+          return { member: created, outcome };
+        },
+      );
 
       this.logger.log("Association member invited", {
         associationId,
@@ -672,7 +676,7 @@ export class AssociationMemberService {
     } catch (error) {
       if (this.isMemberNumberClash(error)) throw this.memberNumberTaken();
       if (!this.isUniqueViolation(error)) throw error;
-      const winner = await this.prisma.associationMember.findFirst({
+      const winner = await this.prismaService.associationMember.findFirst({
         where: { associationId, user: { email } },
         select: MEMBER_SELECT,
       });
@@ -749,9 +753,9 @@ export class AssociationMemberService {
     invitation: MemberInvitation,
   ) {
     const template = buildAssociationMemberInvitationEmail({
-      appName: this.config.get<string>("APP_NAME", "LoopsKey"),
+      appName: this.configService.get<string>("APP_NAME", "LoopsKey"),
       associationName: invite.associationName,
-      supportEmail: this.config.get<string>(
+      supportEmail: this.configService.get<string>(
         "SUPPORT_EMAIL",
         "support@loopskey.com",
       ),
@@ -759,7 +763,7 @@ export class AssociationMemberService {
       invitationUrl: invitation.activationUrl,
       expiresInMinutes: invitation.expiresInMinutes,
     });
-    return this.notifications.recordInvitation(tx, {
+    return this.notificationsService.recordInvitation(tx, {
       associationId: invite.associationId,
       memberId: invite.memberId,
       recipientUserId: invite.userId,
@@ -769,8 +773,8 @@ export class AssociationMemberService {
   }
 
   private async refreshTargeting(memberId: string) {
-    await this.assignments.materialiseForMember(memberId);
-    await this.learningRecipients.syncMember(memberId);
+    await this.assignmentsService.materialiseForMember(memberId);
+    await this.learningRecipientsService.syncMember(memberId);
   }
 
   private async readRow(
@@ -788,10 +792,10 @@ export class AssociationMemberService {
         message: "A first or last name is required.",
       });
     let groupId = row.groupId ?? null;
-    if (groupId) await this.groups.requireGroup(associationId, groupId);
+    if (groupId) await this.groupsService.requireGroup(associationId, groupId);
     else if (row.groupTitle?.trim())
-      groupId = await this.prisma.$transaction((tx) =>
-        this.groups.ensureByTitle(tx, associationId, row.groupTitle!),
+      groupId = await this.prismaService.$transaction((tx) =>
+        this.groupsService.ensureByTitle(tx, associationId, row.groupTitle!),
       );
     return {
       email,
@@ -821,7 +825,7 @@ export class AssociationMemberService {
   }
 
   private async readMember(associationId: string, memberId: string) {
-    const member = await this.prisma.associationMember.findFirst({
+    const member = await this.prismaService.associationMember.findFirst({
       where: { id: memberId, associationId },
       select: MEMBER_SELECT,
     });

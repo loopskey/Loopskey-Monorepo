@@ -1,9 +1,7 @@
 import { AssociationGeneratedReportState } from "@prisma/client";
-import { type ProfessionalComplianceApi } from "@professional/public/professional-compliance-api";
 import { AssociationAttentionSection } from "@association/enums/association-attention.enum";
 import { PROFESSIONAL_COMPLIANCE_API } from "@professional/public/professional-compliance-api";
 import { ServiceUnavailableException } from "@nestjs/common";
-import { type CategoryAttentionGroup } from "@association/types/association-attention.types";
 import { Inject, Injectable, Logger } from "@nestjs/common";
 import { AssociationComplianceBand } from "@prisma/client";
 import { AssociationReportService } from "@association/services/association-report.service";
@@ -12,12 +10,15 @@ import { AssociationMemberStatus } from "@prisma/client";
 import { AssociationReportPeriod } from "@association/utils/association-report-period.util";
 import { AssociationMessageType } from "@prisma/client";
 import { AssociationMessageCode } from "@association/enums/association-message-code.enum";
+import { calendarDaysUntil } from "@association/utils/compliance-attribution.util";
+import { PrismaService } from "@prisma/prisma.service";
+
+import { type ProfessionalComplianceApi } from "@professional/public/professional-compliance-api";
+import { type CategoryAttentionGroup } from "@association/types/association-attention.types";
 import { type TAssociationUser } from "@association/types/association-service.types";
 import { type ReportMemberRow } from "@association/types/association-report.types";
 import { type AttentionCounts } from "@association/types/association-attention.types";
 import { type AttentionRow } from "@association/types/association-attention.types";
-import { calendarDaysUntil } from "@association/utils/compliance-attribution.util";
-import { PrismaService } from "@prisma/prisma.service";
 
 import * as A from "@association/types/association-attention.types";
 
@@ -32,15 +33,18 @@ export class AssociationAttentionService {
   private readonly logger = new Logger(AssociationAttentionService.name);
 
   constructor(
-    private readonly prisma: PrismaService,
-    private readonly access: AssociationAccessService,
-    private readonly reports: AssociationReportService,
+    private readonly prismaService: PrismaService,
+    private readonly accessService: AssociationAccessService,
+    private readonly reportsService: AssociationReportService,
     @Inject(PROFESSIONAL_COMPLIANCE_API)
     private readonly professional: ProfessionalComplianceApi,
   ) {}
 
   async lists(user: TAssociationUser, associationId?: string) {
-    const association = await this.access.requireReadable(user, associationId);
+    const association = await this.accessService.requireReadable(
+      user,
+      associationId,
+    );
     const now = new Date();
 
     const [needingAttention, newJoiners, categoryBehind, expiring] =
@@ -51,12 +55,13 @@ export class AssociationAttentionService {
         this.expiringCertificates(association.id, now),
       ]);
 
-    const readyReports = await this.prisma.associationGeneratedReport.count({
-      where: {
-        associationId: association.id,
-        state: AssociationGeneratedReportState.READY,
-      },
-    });
+    const readyReports =
+      await this.prismaService.associationGeneratedReport.count({
+        where: {
+          associationId: association.id,
+          state: AssociationGeneratedReportState.READY,
+        },
+      });
 
     const counts: AttentionCounts = {
       readyReports,
@@ -114,7 +119,10 @@ export class AssociationAttentionService {
     if (section === AssociationAttentionSection.CATEGORY_BEHIND)
       return this.categoryBehind(user, associationId);
 
-    const association = await this.access.requireReadable(user, associationId);
+    const association = await this.accessService.requireReadable(
+      user,
+      associationId,
+    );
     const now = new Date();
 
     if (section === AssociationAttentionSection.NEW_JOINERS)
@@ -158,7 +166,7 @@ export class AssociationAttentionService {
   }
 
   async atRiskThreshold(associationId: string) {
-    const settings = await this.prisma.associationSettings.findUnique({
+    const settings = await this.prismaService.associationSettings.findUnique({
       where: { associationId },
       select: { atRiskThreshold: true },
     });
@@ -170,10 +178,10 @@ export class AssociationAttentionService {
     user: TAssociationUser,
     associationId?: string,
   ): Promise<AttentionRow[]> {
-    await this.access.requireReadable(user, associationId);
+    await this.accessService.requireReadable(user, associationId);
     const now = new Date();
 
-    const report = await this.reports.memberProgressReport(
+    const report = await this.reportsService.memberProgressReport(
       user,
       ATTENTION_FILTER,
       { take: A.ATTENTION_PAGE_MAX },
@@ -207,6 +215,7 @@ export class AssociationAttentionService {
           requiredCredits: earliest.requiredCredits,
           completedCredits: earliest.completedCredits,
           detail: earliest.requirementName,
+          requirementId: earliest.requirementId,
         },
       ];
     });
@@ -216,10 +225,13 @@ export class AssociationAttentionService {
     user: TAssociationUser,
     associationId?: string,
   ): Promise<AttentionRow[]> {
-    const association = await this.access.requireReadable(user, associationId);
+    const association = await this.accessService.requireReadable(
+      user,
+      associationId,
+    );
     const threshold = await this.atRiskThreshold(association.id);
 
-    const report = await this.reports.memberProgressReport(
+    const report = await this.reportsService.memberProgressReport(
       user,
       ATTENTION_FILTER,
       { take: A.ATTENTION_PAGE_MAX },
@@ -228,7 +240,12 @@ export class AssociationAttentionService {
 
     return report.items.flatMap((member) => {
       const weakest = member.assignments
-        .flatMap((assignment) => assignment.categories)
+        .flatMap((assignment) =>
+          assignment.categories.map((category) => ({
+            ...category,
+            requirementId: assignment.requirementId,
+          })),
+        )
         .filter(
           (category) =>
             category.requiredCredits > 0 && category.percent < threshold,
@@ -243,6 +260,7 @@ export class AssociationAttentionService {
           ...this.rowOf(member),
           percent: weakest.percent,
           detail: weakest.categoryName,
+          requirementId: weakest.requirementId,
           requiredCredits: weakest.requiredCredits,
           completedCredits: weakest.completedCredits,
         },
@@ -254,10 +272,13 @@ export class AssociationAttentionService {
     user: TAssociationUser,
     associationId?: string,
   ): Promise<CategoryAttentionGroup[]> {
-    const association = await this.access.requireReadable(user, associationId);
+    const association = await this.accessService.requireReadable(
+      user,
+      associationId,
+    );
     const threshold = await this.atRiskThreshold(association.id);
 
-    const report = await this.reports.memberProgressReport(
+    const report = await this.reportsService.memberProgressReport(
       user,
       ATTENTION_FILTER,
       { take: A.ATTENTION_PAGE_MAX },
@@ -322,7 +343,7 @@ export class AssociationAttentionService {
   ): Promise<AttentionRow[]> {
     const since = new Date(now.getTime() - A.NEW_JOINER_WINDOW_DAYS * DAY_MS);
 
-    const members = await this.prisma.associationMember.findMany({
+    const members = await this.prismaService.associationMember.findMany({
       where: {
         associationId,
         status: AssociationMemberStatus.ACTIVE,
@@ -380,7 +401,7 @@ export class AssociationAttentionService {
     associationId: string,
     now: Date,
   ): Promise<AttentionRow[]> {
-    const members = await this.prisma.associationMember.findMany({
+    const members = await this.prismaService.associationMember.findMany({
       where: {
         associationId,
         status: { not: AssociationMemberStatus.INACTIVE },

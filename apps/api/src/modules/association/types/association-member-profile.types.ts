@@ -6,11 +6,11 @@ export const PROFILE_MEMBER_SELECT = {
   messageDeliveries: MEMBER_INVITATION_DELIVERIES,
   id: true,
   userId: true,
-  memberNumber: true,
   status: true,
   joinedVia: true,
   invitedAt: true,
   activatedAt: true,
+  memberNumber: true,
   deactivatedAt: true,
   group: { select: { id: true, title: true, isActive: true } },
   user: {
@@ -23,10 +23,10 @@ export type ProfileMemberRecord = Prisma.AssociationMemberGetPayload<{
 }>;
 
 export type MemberActivityScope = {
-  activityId: string;
-  activityDate: Date;
-  state: AssociationAttributionState;
   isLate: boolean;
+  activityDate: Date;
+  activityId: string;
+  state: AssociationAttributionState;
   requirements: {
     id: string;
     name: string;
@@ -38,4 +38,11 @@ export type MemberActivityScope = {
 export type MemberActivityFilter = {
   state?: AssociationAttributionState;
   requirementId?: string;
+};
+
+export type InviteCommand = {
+  email: string;
+  fullName: string;
+  groupId?: string | null;
+  memberNumber?: string | null;
 };

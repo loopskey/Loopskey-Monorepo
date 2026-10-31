@@ -19,7 +19,7 @@ import { AssociationAudienceKind } from "@prisma/client";
 import { AssociationMemberStatus } from "@prisma/client";
 import { OtpPurpose, UserStatus } from "@prisma/client";
 import { CreditType, Role } from "@prisma/client";
-import { MailService } from "@mail/mail.service";
+import { MailService } from "@mail/services/mail.service";
 import { PrismaService } from "@prisma/prisma.service";
 import { INestApplication } from "@nestjs/common";
 import {

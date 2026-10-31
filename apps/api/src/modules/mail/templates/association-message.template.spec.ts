@@ -1,7 +1,12 @@
 import { AppLanguage, AssociationMessageType } from "@prisma/client";
 
-import { buildAssociationMessageEmail } from "@mail/association-message.template";
-import { type TAssociationMessageInput } from "@mail/mail-service.type";
+import { buildAssociationMessageEmail } from "@mail/templates/association-message.template";
+import { type TAssociationMessageInput } from "@mail/types/mail-service.types";
+
+// Rows queued before the copy refresh carry template version 1 and must keep
+// their original copy, so these tests pin that version.
+const buildVersionOne = (input: TAssociationMessageInput) =>
+  buildAssociationMessageEmail(input, { version: 1 });
 
 const base = {
   appName: "LoopsKey",
@@ -17,7 +22,7 @@ const input = (
   language: AppLanguage = AppLanguage.EN,
 ) => ({ ...base, language, ...overrides }) as TAssociationMessageInput;
 
-describe("the association message templates", () => {
+describe("the association message templates (version 1)", () => {
   describe("every type in both languages", () => {
     const types = [
       AssociationMessageType.WELCOME,
@@ -30,7 +35,7 @@ describe("the association message templates", () => {
       messageType: (typeof types)[number],
       language: AppLanguage,
     ) =>
-      buildAssociationMessageEmail(
+      buildVersionOne(
         input(
           {
             messageType,
@@ -82,7 +87,7 @@ describe("the association message templates", () => {
 
   describe("the figures each type states", () => {
     it("states credits, percent and deadline when a member is behind", () => {
-      const built = buildAssociationMessageEmail(
+      const built = buildVersionOne(
         input({
           messageType: AssociationMessageType.BEHIND_THRESHOLD,
           percent: 25,
@@ -98,7 +103,7 @@ describe("the association message templates", () => {
     });
 
     it("does not invent a deadline when the member has none", () => {
-      const built = buildAssociationMessageEmail(
+      const built = buildVersionOne(
         input({
           messageType: AssociationMessageType.BEHIND_THRESHOLD,
           percent: 25,
@@ -113,7 +118,7 @@ describe("the association message templates", () => {
     });
 
     it("names the weak category", () => {
-      const built = buildAssociationMessageEmail(
+      const built = buildVersionOne(
         input({
           messageType: AssociationMessageType.CATEGORY_BEHIND,
           percent: 10,
@@ -126,7 +131,7 @@ describe("the association message templates", () => {
     });
 
     it("says a certificate has expired rather than naming no date", () => {
-      const built = buildAssociationMessageEmail(
+      const built = buildVersionOne(
         input({
           messageType: AssociationMessageType.CERTIFICATE_EXPIRING,
           expiresOn: null,
@@ -138,7 +143,7 @@ describe("the association message templates", () => {
     });
 
     it("formats French numbers and dates for a French recipient", () => {
-      const built = buildAssociationMessageEmail(
+      const built = buildVersionOne(
         input(
           {
             messageType: AssociationMessageType.BEHIND_THRESHOLD,
@@ -158,7 +163,7 @@ describe("the association message templates", () => {
 
   describe("what never reaches the recipient", () => {
     it("escapes an association name carrying markup", () => {
-      const built = buildAssociationMessageEmail(
+      const built = buildVersionOne(
         input({
           messageType: AssociationMessageType.WELCOME,
           associationName: "<script>alert(1)</script>",
@@ -171,7 +176,7 @@ describe("the association message templates", () => {
     });
 
     it("escapes a member name carrying markup", () => {
-      const built = buildAssociationMessageEmail(
+      const built = buildVersionOne(
         input({
           messageType: AssociationMessageType.WELCOME,
           memberName: '"><img src=x onerror=1>',

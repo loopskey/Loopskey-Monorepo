@@ -1,5 +1,7 @@
 import { AssociationLearningContentPublishedHandler } from "@association/application/association-learning-content-published.handler";
 import { AssociationComplianceReconciliationService } from "@association/services/association-compliance-reconciliation.service";
+import { AssociationLearningContentRecipientService } from "@association/services/association-learning-content-recipient.service";
+import { AssociationLearningContentAudienceHandler } from "@association/application/association-learning-content-audience.handler";
 import { AssociationRequirementAssignmentService } from "@association/services/association-requirement-assignment.service";
 import { AssociationRequirementPublishedHandler } from "@association/application/association-requirement-published.handler";
 import { AssociationMemberRequirementsService } from "@association/services/association-member-requirements.service";
@@ -7,11 +9,13 @@ import { AssociationMemberInvitationResolver } from "@association/resolvers/asso
 import { AssociationSettingsRecomputeHandler } from "@association/application/association-settings-recompute.handler";
 import { AssociationMemberInvitationService } from "@association/services/association-member-invitation.service";
 import { AssociationReportGenerationService } from "@association/services/association-report-generation.service";
+import { AssociationLifecycleMessageHandler } from "@association/application/association-lifecycle-message.handler";
 import { AssociationLearningContentResolver } from "@association/resolvers/association-learning-content.resolver";
 import { AssociationLearningActivityHandler } from "@association/application/association-learning-activity.handler";
 import { AssociationReportRetentionService } from "@association/services/association-report-retention.service";
 import { AssociationLearningContentService } from "@association/services/association-learning-content.service";
 import { AssociationMyRequirementsResolver } from "@association/resolvers/association-my-requirements.resolver";
+import { AssociationMemberLifecycleService } from "@association/services/association-member-lifecycle.service";
 import { AssociationMyRequirementsService } from "@association/services/association-my-requirements.service";
 import { AssociationMemberProfileResolver } from "@association/resolvers/association-member-profile.resolver";
 import { AssociationComplianceReadService } from "@association/services/association-compliance-read.service";
@@ -23,6 +27,7 @@ import { AssociationMemberProfileService } from "@association/services/associati
 import { AssociationMemberFileController } from "@association/controllers/association-member-file.controller";
 import { AssociationAccessRequestService } from "@association/services/association-access-request.service";
 import { AssociationReportExportHandler } from "@association/application/association-report-export.handler";
+import { AssociationNotificationService } from "@association/services/association-notification.service";
 import { AssociationReportExportService } from "@association/services/association-report-export.service";
 import { AssociationRequirementResolver } from "@association/resolvers/association-requirement.resolver";
 import { AssociationComplianceResolver } from "@association/resolvers/association-compliance.resolver";
@@ -40,11 +45,6 @@ import { AssociationMessageResolver } from "@association/resolvers/association-m
 import { AssociationLogoController } from "@association/controllers/association-logo.controller";
 import { AssociationMessageService } from "@association/services/association-message.service";
 import { AssociationMessageHandler } from "@association/application/association-message.handler";
-import { AssociationLifecycleMessageHandler } from "@association/application/association-lifecycle-message.handler";
-import { AssociationLearningContentAudienceHandler } from "@association/application/association-learning-content-audience.handler";
-import { AssociationLearningContentRecipientService } from "@association/services/association-learning-content-recipient.service";
-import { AssociationMemberLifecycleService } from "@association/services/association-member-lifecycle.service";
-import { AssociationNotificationService } from "@association/services/association-notification.service";
 import { AssociationReportResolver } from "@association/resolvers/association-report.resolver";
 import { AssociationMemberResolver } from "@association/resolvers/association-member.resolver";
 import { AssociationAccountService } from "@association/services/association-account.service";
@@ -96,16 +96,9 @@ import "@association/enums/association-register.enum";
     AssociationReportService,
     AssociationReportResolver,
     AssociationMemberResolver,
-    AssociationMemberInvitationService,
-    AssociationMemberInvitationResolver,
     AssociationAccountService,
     AssociationMessageService,
     AssociationMessageHandler,
-    AssociationNotificationService,
-    AssociationMemberLifecycleService,
-    AssociationLifecycleMessageHandler,
-    AssociationLearningContentAudienceHandler,
-    AssociationLearningContentRecipientService,
     AssociationMessageResolver,
     AssociationSettingsService,
     AssociationSettingsResolver,
@@ -121,24 +114,31 @@ import "@association/enums/association-register.enum";
     AssociationRequirementResolver,
     AssociationReportExportService,
     AssociationReportExportHandler,
+    AssociationNotificationService,
     AssociationReportExportResolver,
     AssociationReportDatasetService,
+    AssociationAccessRequestService,
     AssociationMemberProfileService,
     AssociationMyRequirementsService,
-    AssociationMyRequirementsResolver,
-    AssociationAccessRequestService,
     AssociationComplianceReadService,
     AssociationMemberProfileResolver,
     AssociationAccessRequestResolver,
+    AssociationMemberLifecycleService,
+    AssociationMyRequirementsResolver,
     AssociationLearningContentService,
     AssociationReportRetentionService,
+    AssociationMemberInvitationService,
+    AssociationLifecycleMessageHandler,
     AssociationReportGenerationService,
     AssociationLearningActivityHandler,
     AssociationLearningContentResolver,
+    AssociationMemberInvitationResolver,
     AssociationSettingsRecomputeHandler,
     AssociationMemberRequirementsService,
     AssociationRequirementPublishedHandler,
     AssociationRequirementAssignmentService,
+    AssociationLearningContentAudienceHandler,
+    AssociationLearningContentRecipientService,
     AssociationLearningContentPublishedHandler,
     AssociationComplianceReconciliationService,
     {

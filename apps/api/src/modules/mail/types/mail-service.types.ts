@@ -12,20 +12,21 @@ export type TBuildOtpEmailTemplateInput = {
   code: string;
   appName: string;
   purpose: OtpPurpose;
+  supportEmail: string;
   expiresInMinutes: number;
 };
 
 export type TOrganizationEmailBase = {
   appName: string;
-  organizationName: string;
   supportEmail: string;
+  organizationName: string;
 };
 
 export type TOrganizationApprovalEmail = TOrganizationEmailBase & {
-  activationUrl: string;
-  expiresInMinutes: number;
   loginUrl: string;
   username: string;
+  activationUrl: string;
+  expiresInMinutes: number;
 };
 
 export type TOrganizationRejectionEmail = TOrganizationEmailBase & {
@@ -34,15 +35,15 @@ export type TOrganizationRejectionEmail = TOrganizationEmailBase & {
 
 export type TAssociationEmailBase = {
   appName: string;
-  associationName: string;
   supportEmail: string;
+  associationName: string;
 };
 
 export type TAssociationActivationEmail = TAssociationEmailBase & {
-  activationUrl: string;
-  expiresInMinutes: number;
   loginUrl: string;
   username: string;
+  activationUrl: string;
+  expiresInMinutes: number;
 };
 
 export type TAssociationRejectionEmail = TAssociationEmailBase & {
@@ -62,6 +63,7 @@ export type TAssociationMessageBase = {
   supportEmail: string;
   language: AppLanguage;
   associationName: string;
+  requirementsUrl?: string;
 };
 
 export type TAssociationMessageInput = TAssociationMessageBase &
@@ -88,8 +90,8 @@ export type TAssociationMessageInput = TAssociationMessageBase &
 
 export type TAssociationLifecycleBase = {
   appName: string;
-  memberName: string;
   actionUrl: string;
+  memberName: string;
   supportEmail: string;
   language: AppLanguage;
   associationName: string;

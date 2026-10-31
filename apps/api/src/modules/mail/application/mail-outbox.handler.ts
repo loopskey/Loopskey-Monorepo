@@ -1,9 +1,10 @@
 import { Injectable, OnModuleInit } from "@nestjs/common";
 import { OutboxHandlerRegistry } from "@infrastructure/outbox/outbox-handler.port";
+import { TSendEmailInput } from "@mail/types/mail-service.types";
+import { MailService } from "@mail/services/mail.service";
+
 import { type OutboxEventContext } from "@infrastructure/outbox/outbox-handler.port";
 import { type OutboxHandler } from "@infrastructure/outbox/outbox-handler.port";
-import { TSendEmailInput } from "@mail/mail-service.type";
-import { MailService } from "@mail/mail.service";
 
 @Injectable()
 export class MailOutboxHandler implements OutboxHandler, OnModuleInit {

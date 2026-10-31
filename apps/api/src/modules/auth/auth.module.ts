@@ -2,7 +2,6 @@ import { AuthAccountActivationService } from "@auth/services/auth-account-activa
 import { OAuthCallbackExceptionFilter } from "@auth/filters/oauth-callback.filter";
 import { AuthOAuthProvisioningService } from "@auth/services/auth-oauth-provisioning.service";
 import { ConfigModule, ConfigService } from "@nestjs/config";
-import { AuthConfigValidator } from "@auth/services/auth-config-validator.service";
 import { AuthLinkedInOAuthService } from "@auth/services/auth-linkedin-oauth.service";
 import { AuthRegistrationService } from "@auth/services/auth-registration.service";
 import { AuthEmailChangeService } from "@auth/services/auth-email-change.service";
@@ -10,6 +9,7 @@ import { AuthGoogleOAuthService } from "@auth/services/auth-google-oauth.service
 import { ACCOUNT_ACTIVATION_API } from "@auth/public/account-activation-api";
 import { AuthOAuthStateService } from "@auth/services/auth-oauth-state.service";
 import { AuthPasswordService } from "@auth/services/auth-password.service";
+import { AuthConfigValidator } from "@auth/services/auth-config-validator.service";
 import { AuthSessionService } from "@auth/services/auth-session.service";
 import { AuthCommonService } from "@auth/services/auth-common.service";
 import { LinkedInStrategy } from "@auth/strategies/linkedin.strategy";
@@ -26,7 +26,6 @@ import { Module } from "@nestjs/common";
 
 export const AUTH_SERVICE_PROVIDERS = [
   AuthService,
-  AuthConfigValidator,
   JwtStrategy,
   AuthResolver,
   GoogleStrategy,
@@ -34,6 +33,7 @@ export const AUTH_SERVICE_PROVIDERS = [
   AuthCommonService,
   AuthSessionService,
   AuthPasswordService,
+  AuthConfigValidator,
   AuthOAuthStateService,
   AuthEmailChangeService,
   AuthGoogleOAuthService,

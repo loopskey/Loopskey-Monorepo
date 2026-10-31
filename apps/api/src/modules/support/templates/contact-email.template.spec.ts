@@ -12,7 +12,7 @@ const baseInput = {
 describe("buildContactInquiryEmail", () => {
   it("labels the inquiry type in the subject", () => {
     const email = buildContactInquiryEmail(baseInput);
-    expect(email.subject).toBe("[Contact] Security concern - Ada Lovelace");
+    expect(email.subject).toBe("New contact inquiry — Security concern");
   });
 
   it("escapes user-supplied content in the HTML body", () => {
@@ -25,6 +25,36 @@ describe("buildContactInquiryEmail", () => {
     expect(email.html).not.toContain("<script>");
     expect(email.html).not.toContain("<img src=x");
     expect(email.html).toContain("&lt;script&gt;");
+  });
+
+  it("keeps a user-supplied name out of the subject and on one line", () => {
+    const email = buildContactInquiryEmail({
+      ...baseInput,
+      fullName: "Ada\r\nBcc: attacker@example.com",
+    });
+
+    expect(email.subject).not.toContain("Ada");
+    expect(email.subject).not.toMatch(/[\r\n]/);
+    expect(email.text).toContain("Name: Ada Bcc: attacker@example.com");
+  });
+
+  it("shows the message in its own block, unchanged in the text", () => {
+    const email = buildContactInquiryEmail({
+      ...baseInput,
+      message: "Line one\nLine <two> & more",
+    });
+
+    expect(email.text.endsWith("Message:\nLine one\nLine <two> & more")).toBe(
+      true,
+    );
+    expect(email.html).toContain("Line one\nLine &lt;two&gt; &amp; more");
+  });
+
+  it("does not link the sender address", () => {
+    const email = buildContactInquiryEmail(baseInput);
+
+    expect(email.html).not.toContain("mailto:");
+    expect(email.html).not.toContain("<a ");
   });
 
   it("marks a missing organization explicitly", () => {

@@ -1,30 +1,33 @@
-import { AssociationLearningContentStatus } from "@prisma/client";
-import { AssociationMemberStatus } from "@prisma/client";
-import { AppLanguage } from "@prisma/client";
-import { AssociationMessageDeliveryState } from "@prisma/client";
-import { Prisma } from "@prisma/client";
-import { AssociationMessageType } from "@prisma/client";
-import { AssociationRequirementStatus } from "@prisma/client";
 import { Inject, Injectable, Logger, OnModuleInit } from "@nestjs/common";
-import { type ProfessionalComplianceApi } from "@professional/public/professional-compliance-api";
-import { PROFESSIONAL_COMPLIANCE_API } from "@professional/public/professional-compliance-api";
+import { AssociationLearningContentStatus } from "@prisma/client";
+import { AssociationMessageDeliveryState } from "@prisma/client";
+import { buildAssociationLifecycleEmail } from "@mail/templates/association-lifecycle.template";
+import { buildAssociationMessageEmail } from "@mail/templates/association-message.template";
 import { AssociationMessageSkipReason } from "@association/enums/association-attention.enum";
-import { AssociationMessageCode } from "@association/enums/association-message-code.enum";
+import { AssociationRequirementStatus } from "@prisma/client";
+import { PROFESSIONAL_COMPLIANCE_API } from "@professional/public/professional-compliance-api";
+import { professionalRequirementsUrl } from "@association/utils/association-message-links.util";
+import { professionalDashboardUrl } from "@association/utils/association-message-links.util";
+import { AssociationMemberStatus } from "@prisma/client";
 import { LIFECYCLE_MESSAGE_TYPES } from "@association/enums/association-notification.enum";
 import { LIFECYCLE_EVENT_BY_TYPE } from "@association/enums/association-notification.enum";
-import { messageTemplateInput } from "@association/utils/association-message-context.util";
-import { readMessageContext } from "@association/utils/association-message-context.util";
-import { type CatalogEndorsementApi } from "@landing/public/catalog-endorsement-api";
 import { CATALOG_ENDORSEMENT_API } from "@landing/public/catalog-endorsement-api";
-import { buildAssociationLifecycleEmail } from "@mail/association-lifecycle.template";
-import { buildAssociationMessageEmail } from "@mail/association-message.template";
+import { AssociationMessageType } from "@prisma/client";
+import { AssociationMessageCode } from "@association/enums/association-message-code.enum";
 import { OutboxHandlerRegistry } from "@infrastructure/outbox/outbox-handler.port";
-import { type IdentityProfileApi } from "@user/public/identity-profile-api";
+import { messageTemplateInput } from "@association/utils/association-message-context.util";
 import { IDENTITY_PROFILE_API } from "@user/public/identity-profile-api";
-import { type TSendEmailInput } from "@mail/mail-service.type";
+import { readMessageContext } from "@association/utils/association-message-context.util";
 import { PrismaService } from "@prisma/prisma.service";
 import { ConfigService } from "@nestjs/config";
-import { MailService } from "@mail/mail.service";
+import { AppLanguage } from "@prisma/client";
+import { MailService } from "@mail/services/mail.service";
+import { Prisma } from "@prisma/client";
+
+import { type ProfessionalComplianceApi } from "@professional/public/professional-compliance-api";
+import { type CatalogEndorsementApi } from "@landing/public/catalog-endorsement-api";
+import { type IdentityProfileApi } from "@user/public/identity-profile-api";
+import { type TSendEmailInput } from "@mail/types/mail-service.types";
 
 import { type OutboxEventContext } from "@infrastructure/outbox/outbox-handler.port";
 
@@ -43,6 +46,7 @@ const DELIVERY_SELECT = {
   createdAt: true,
   context: true,
   messageType: true,
+  templateVersion: true,
   recipientUserId: true,
   association: { select: { name: true } },
   member: {
@@ -60,8 +64,6 @@ const CONTENT_PATH_BY_TYPE: Record<string, string> = {
   PODCAST: "podcasts",
   YOUTUBE: "youtube",
 };
-
-const REQUIREMENTS_TAB = "cpd-pdu-progress";
 
 const readId = (context: Prisma.JsonValue, key: string) => {
   if (typeof context !== "object" || context === null || Array.isArray(context))
@@ -243,6 +245,7 @@ export class AssociationLifecycleMessageHandler implements OnModuleInit {
           dashboardUrl: this.dashboardUrl(),
           context: readMessageContext(null),
         }),
+        { version: delivery.templateVersion },
       );
 
     if (delivery.messageType === AssociationMessageType.GROUP_ADDED)
@@ -276,14 +279,17 @@ export class AssociationLifecycleMessageHandler implements OnModuleInit {
     });
     if (!group) return null;
 
-    return buildAssociationLifecycleEmail({
-      ...addressee,
-      ...this.brand(),
-      messageType: AssociationMessageType.GROUP_ADDED,
-      associationName: delivery.association.name,
-      actionUrl: this.requirementsUrl(),
-      groupTitle: group.title,
-    });
+    return buildAssociationLifecycleEmail(
+      {
+        ...addressee,
+        ...this.brand(),
+        messageType: AssociationMessageType.GROUP_ADDED,
+        associationName: delivery.association.name,
+        actionUrl: this.requirementsUrl(),
+        groupTitle: group.title,
+      },
+      delivery.templateVersion,
+    );
   }
 
   private async renderRequirementAssigned(
@@ -311,15 +317,18 @@ export class AssociationLifecycleMessageHandler implements OnModuleInit {
       });
     if (!assignment) return null;
 
-    return buildAssociationLifecycleEmail({
-      ...addressee,
-      ...this.brand(),
-      messageType: AssociationMessageType.REQUIREMENT_ASSIGNED,
-      associationName: delivery.association.name,
-      actionUrl: this.requirementsUrl(assignment.requirement.id),
-      requirementName: assignment.requirement.name,
-      deadline: assignment.dueDate,
-    });
+    return buildAssociationLifecycleEmail(
+      {
+        ...addressee,
+        ...this.brand(),
+        messageType: AssociationMessageType.REQUIREMENT_ASSIGNED,
+        associationName: delivery.association.name,
+        actionUrl: this.requirementsUrl(assignment.requirement.id),
+        requirementName: assignment.requirement.name,
+        deadline: assignment.dueDate,
+      },
+      delivery.templateVersion,
+    );
   }
 
   private async renderLearningContentAssigned(
@@ -363,17 +372,20 @@ export class AssociationLifecycleMessageHandler implements OnModuleInit {
     const target = await this.contentTarget(content);
     if (!target) return null;
 
-    return buildAssociationLifecycleEmail({
-      ...addressee,
-      ...this.brand(),
-      messageType: AssociationMessageType.LEARNING_CONTENT_ASSIGNED,
-      associationName: delivery.association.name,
-      contentTitle: target.title,
-      requirementName: requirement?.name ?? null,
-      actionUrl: target.slugPath
-        ? this.contentUrl(target.slugPath, content.id, requirement?.id)
-        : this.requirementsUrl(requirement?.id),
-    });
+    return buildAssociationLifecycleEmail(
+      {
+        ...addressee,
+        ...this.brand(),
+        messageType: AssociationMessageType.LEARNING_CONTENT_ASSIGNED,
+        associationName: delivery.association.name,
+        contentTitle: target.title,
+        requirementName: requirement?.name ?? null,
+        actionUrl: target.slugPath
+          ? this.contentUrl(target.slugPath, content.id, requirement?.id)
+          : this.requirementsUrl(requirement?.id),
+      },
+      delivery.templateVersion,
+    );
   }
 
   private async contentTarget(content: {
@@ -470,14 +482,11 @@ export class AssociationLifecycleMessageHandler implements OnModuleInit {
   }
 
   private dashboardUrl() {
-    return `${this.origin()}/dashboard/professional`;
+    return professionalDashboardUrl(this.origin());
   }
 
   private requirementsUrl(requirementId?: string) {
-    const params = new URLSearchParams({ tab: REQUIREMENTS_TAB });
-    if (requirementId)
-      params.set("requirement", `association:${requirementId}`);
-    return `${this.dashboardUrl()}?${params.toString()}`;
+    return professionalRequirementsUrl(this.origin(), requirementId);
   }
 
   private contentUrl(

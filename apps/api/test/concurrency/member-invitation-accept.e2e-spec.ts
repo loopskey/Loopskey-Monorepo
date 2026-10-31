@@ -13,7 +13,7 @@ import { AssociationMemberService } from "@association/services/association-memb
 import { AuthAccountActivationService } from "@auth/services/auth-account-activation.service";
 import { AuthMessageCode } from "@auth/enums/message-code.enum";
 import { HttpException } from "@nestjs/common";
-import { MailService } from "@mail/mail.service";
+import { MailService } from "@mail/services/mail.service";
 import {
   bootApp,
   fulfilled,

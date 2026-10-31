@@ -1,6 +1,6 @@
 import { InternalServerErrorException } from "@nestjs/common";
 import { Injectable, Logger } from "@nestjs/common";
-import { TSendEmailInput } from "@mail/mail-service.type";
+import { TSendEmailInput } from "@mail/types/mail-service.types";
 import { requestContext } from "@infrastructure/observability/request-context";
 import { OutboxService } from "@infrastructure/outbox/outbox.service";
 import { ConfigService } from "@nestjs/config";
