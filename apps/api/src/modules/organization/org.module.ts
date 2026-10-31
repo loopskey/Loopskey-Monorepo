@@ -25,10 +25,10 @@ import "@org/enums/org-dashboard-register.enum";
 
 @Module({
   imports: [
-    PrismaModule,
     MailModule,
-    LandingModule,
     UserModule,
+    PrismaModule,
+    LandingModule,
     ProfessionalModule,
   ],
   providers: [
@@ -40,11 +40,11 @@ import "@org/enums/org-dashboard-register.enum";
     OrgAccessRequestResolver,
     OrgDashboardMemberService,
     OrgDashboardMemberResolver,
+    OrganizationReviewApiService,
     OrgDashboardAssignmentService,
     OrgDashboardDepartmentService,
     OrgDashboardDepartmentResolver,
     OrgDashboardAssignmentResolver,
-    OrganizationReviewApiService,
     OrganizationRoleProfileHandler,
     OrganizationAdministrationService,
     {
@@ -56,10 +56,10 @@ import "@org/enums/org-dashboard-register.enum";
     OrgDashboardService,
     OrgDashboardCPDService,
     OrgAccessRequestService,
+    ORGANIZATION_REVIEW_API,
     OrgDashboardMemberService,
     OrgDashboardDepartmentService,
     OrgDashboardAssignmentService,
-    ORGANIZATION_REVIEW_API,
     OrganizationAdministrationService,
   ],
 })

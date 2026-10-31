@@ -1,7 +1,7 @@
 import { INestApplication, ValidationPipe } from "@nestjs/common";
 import { Test } from "@nestjs/testing";
 import { AppModule } from "@app/app.module";
-import { MailService } from "@mail/mail.service";
+import { MailService } from "@mail/services/mail.service";
 
 import cookieParser from "cookie-parser";
 import request from "supertest";

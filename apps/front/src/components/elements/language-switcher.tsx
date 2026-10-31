@@ -2,45 +2,54 @@
 
 import { DropdownMenuItem, DropdownMenuTrigger } from "@ui/dropdown-menu";
 import { DropdownMenu, DropdownMenuContent } from "@ui/dropdown-menu";
-import { LanguageLinks } from "@elements/language-links";
-import { isDetailPath } from "@/lib/i18n/locale";
-import { usePathname } from "next/navigation";
-import { Languages } from "lucide-react";
+import { LanguageIconButton } from "@elements/language-icon-button";
+import { PublicLanguageMenu } from "@elements/public-language-menu";
 import { useI18n } from "@/hooks/useI18n";
-import { Button } from "@ui/button";
+import { Check } from "lucide-react";
+
+const LANGUAGES = [
+  { code: "en", nameKey: "common.english" },
+  { code: "fr", nameKey: "common.french" },
+] as const;
 
 export const LanguageToggleBtn = () => {
   const { language, isRouteLocked, setLanguage, t } = useI18n();
-  const pathname = usePathname();
 
-  if (isRouteLocked) {
-    if (isDetailPath(pathname)) return null;
-    return <LanguageLinks variant="menu" />;
-  }
+  if (isRouteLocked) return <PublicLanguageMenu />;
+
+  const current = LANGUAGES.find((entry) => entry.code === language);
 
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button type="button" variant="outline" className="rounded-full">
-          <Languages className="mr-2 h-4 w-4" />
-          {language.toUpperCase()}
-        </Button>
+        <LanguageIconButton
+          code={language}
+          aria-label={t("common.languageSwitcher.current", {
+            name: t(current?.nameKey ?? "common.english"),
+          })}
+        />
       </DropdownMenuTrigger>
 
-      <DropdownMenuContent align="end">
-        <DropdownMenuItem
-          disabled={language === "en"}
-          onClick={() => setLanguage("en")}
-        >
-          {t("common.english")}
-        </DropdownMenuItem>
-
-        <DropdownMenuItem
-          disabled={language === "fr"}
-          onClick={() => setLanguage("fr")}
-        >
-          {t("common.french")}
-        </DropdownMenuItem>
+      <DropdownMenuContent align="end" className="min-w-44 rounded-xl p-1.5">
+        {LANGUAGES.map(({ code, nameKey }) => (
+          <DropdownMenuItem
+            key={code}
+            lang={code}
+            className="gap-2"
+            aria-current={code === language ? "true" : undefined}
+            onClick={() => code !== language && setLanguage(code)}
+          >
+            {code === language ? (
+              <Check aria-hidden className="size-4 shrink-0 text-primary" />
+            ) : (
+              <span aria-hidden className="size-4 shrink-0" />
+            )}
+            {t(nameKey)}
+            <span className="ml-auto text-[11px] font-bold text-muted-foreground">
+              {code.toUpperCase()}
+            </span>
+          </DropdownMenuItem>
+        ))}
       </DropdownMenuContent>
     </DropdownMenu>
   );

@@ -15,6 +15,7 @@ import { requestContext } from "@infrastructure/observability/request-context";
 import { PrismaService } from "@prisma/prisma.service";
 import { OutboxService } from "@infrastructure/outbox/outbox.service";
 import { RegisterInput } from "@auth/dtos/register.input";
+import { TReservedOtp } from "@auth/types/auth-registration.types";
 import { Response } from "express";
 
 import * as argon2 from "argon2";
@@ -23,31 +24,22 @@ const isUniqueViolation = (error: unknown) =>
   error instanceof Prisma.PrismaClientKnownRequestError &&
   error.code === "P2002";
 
-type ReservedOtp = {
-  id: string;
-  role: Role;
-  email: string;
-  fullName: string;
-  otpCodeHash: string;
-  passwordHash: string;
-};
-
 @Injectable()
 export class AuthRegistrationService {
   private readonly logger = new Logger(AuthRegistrationService.name);
 
   constructor(
-    private readonly prisma: PrismaService,
-    private readonly authCommon: AuthCommonService,
-    private readonly authSession: AuthSessionService,
-    private readonly roleProfiles: RoleProfileRegistry,
-    private readonly outbox: OutboxService,
+    private readonly prismaService: PrismaService,
+    private readonly authCommonService: AuthCommonService,
+    private readonly authSessionService: AuthSessionService,
+    private readonly roleProfilesService: RoleProfileRegistry,
+    private readonly outboxService: OutboxService,
   ) {}
 
   async register(input: RegisterInput) {
-    const email = this.authCommon.normalizeEmail(input.email);
+    const email = this.authCommonService.normalizeEmail(input.email);
     this.validateRegisterInput(input);
-    const existingUser = await this.prisma.user.findUnique({
+    const existingUser = await this.prismaService.user.findUnique({
       where: { email },
       select: { id: true },
     });
@@ -56,10 +48,10 @@ export class AuthRegistrationService {
         code: AuthMessageCode.USER_ALREADY_EXISTS,
         message: "User already exists.",
       });
-    const otpCode = this.authCommon.generateOtpCode();
+    const otpCode = this.authCommonService.generateOtpCode();
     const otpCodeHash = await argon2.hash(otpCode);
     const passwordHash = await argon2.hash(input.password);
-    await this.prisma.pendingRegistration.upsert({
+    await this.prismaService.pendingRegistration.upsert({
       where: { email },
       create: {
         email,
@@ -67,22 +59,26 @@ export class AuthRegistrationService {
         passwordHash,
         role: input.role as Role,
         otpCodeHash,
-        otpExpiresAt: this.authCommon.getOtpExpiryDate(),
-        resendAfter: this.authCommon.getOtpResendAfterDate(),
-        maxAttempts: this.authCommon.getOtpMaxAttempts(),
+        otpExpiresAt: this.authCommonService.getOtpExpiryDate(),
+        resendAfter: this.authCommonService.getOtpResendAfterDate(),
+        maxAttempts: this.authCommonService.getOtpMaxAttempts(),
       },
       update: {
         otpCodeHash,
-        resendAfter: this.authCommon.getOtpResendAfterDate(),
+        resendAfter: this.authCommonService.getOtpResendAfterDate(),
         attempts: 0,
-        otpExpiresAt: this.authCommon.getOtpExpiryDate(),
+        otpExpiresAt: this.authCommonService.getOtpExpiryDate(),
         passwordHash,
         role: input.role as Role,
         fullName: input.fullName.trim(),
-        maxAttempts: this.authCommon.getOtpMaxAttempts(),
+        maxAttempts: this.authCommonService.getOtpMaxAttempts(),
       },
     });
-    await this.authCommon.sendOtpEmail(email, otpCode, OtpPurpose.SIGNUP);
+    await this.authCommonService.sendOtpEmail(
+      email,
+      otpCode,
+      OtpPurpose.SIGNUP,
+    );
     return {
       success: true,
       code: AuthMessageCode.REGISTER_OTP_SENT,
@@ -96,7 +92,7 @@ export class AuthRegistrationService {
     response: Response,
     contextInfo?: RequestContextInfo,
   ) {
-    const email = this.authCommon.normalizeEmail(input.email);
+    const email = this.authCommonService.normalizeEmail(input.email);
     const code = input.code.trim();
     const pending = await this.reserveOtpAttempt(email);
     const isValidOtp = await argon2.verify(pending.otpCodeHash, code);
@@ -106,21 +102,27 @@ export class AuthRegistrationService {
         message: "Invalid OTP code.",
       });
     const user = await this.consumeOtpAndCreateUser(pending);
-    const session = await this.authSession.createSession(user.id, contextInfo);
-    const tokens = await this.authSession.generateTokens({
+    const session = await this.authSessionService.createSession(
+      user.id,
+      contextInfo,
+    );
+    const tokens = await this.authSessionService.generateTokens({
       sub: user.id,
       email: user.email,
       role: user.role,
       status: user.status,
       sessionId: session.id,
     });
-    await this.authSession.storeRefreshToken(session.id, tokens.refreshToken);
-    this.authSession.setAuthCookies(
+    await this.authSessionService.storeRefreshToken(
+      session.id,
+      tokens.refreshToken,
+    );
+    this.authSessionService.setAuthCookies(
       response,
       tokens.accessToken,
       tokens.refreshToken,
     );
-    await this.prisma.user.update({
+    await this.prismaService.user.update({
       where: { id: user.id },
       data: { lastLoginAt: new Date() },
     });
@@ -133,8 +135,8 @@ export class AuthRegistrationService {
   }
 
   async resendEmailOtp(input: ResendEmailOtpInput) {
-    const email = this.authCommon.normalizeEmail(input.email);
-    const pending = await this.prisma.pendingRegistration.findUnique({
+    const email = this.authCommonService.normalizeEmail(input.email);
+    const pending = await this.prismaService.pendingRegistration.findUnique({
       where: { email },
     });
     if (!pending)
@@ -147,17 +149,17 @@ export class AuthRegistrationService {
         code: AuthMessageCode.OTP_RESEND_TOO_SOON,
         message: "Please wait before requesting a new OTP.",
       });
-    const otpCode = this.authCommon.generateOtpCode();
+    const otpCode = this.authCommonService.generateOtpCode();
     const otpCodeHash = await argon2.hash(otpCode);
-    const { count } = await this.prisma.pendingRegistration.updateMany({
+    const { count } = await this.prismaService.pendingRegistration.updateMany({
       where: {
         email,
         OR: [{ resendAfter: null }, { resendAfter: { lte: new Date() } }],
       },
       data: {
         otpCodeHash,
-        otpExpiresAt: this.authCommon.getOtpExpiryDate(),
-        resendAfter: this.authCommon.getOtpResendAfterDate(),
+        otpExpiresAt: this.authCommonService.getOtpExpiryDate(),
+        resendAfter: this.authCommonService.getOtpResendAfterDate(),
         attempts: 0,
       },
     });
@@ -166,7 +168,11 @@ export class AuthRegistrationService {
         code: AuthMessageCode.OTP_RESEND_TOO_SOON,
         message: "Please wait before requesting a new OTP.",
       });
-    await this.authCommon.sendOtpEmail(email, otpCode, OtpPurpose.SIGNUP);
+    await this.authCommonService.sendOtpEmail(
+      email,
+      otpCode,
+      OtpPurpose.SIGNUP,
+    );
     return {
       success: true,
       code: AuthMessageCode.REGISTER_OTP_SENT,
@@ -175,8 +181,8 @@ export class AuthRegistrationService {
     };
   }
 
-  private async reserveOtpAttempt(email: string): Promise<ReservedOtp> {
-    const [reserved] = await this.prisma.$queryRaw<ReservedOtp[]>`
+  private async reserveOtpAttempt(email: string): Promise<TReservedOtp> {
+    const [reserved] = await this.prismaService.$queryRaw<TReservedOtp[]>`
       UPDATE "PendingRegistration"
       SET "attempts" = "attempts" + 1, "updatedAt" = NOW()
       WHERE "email" = ${email}
@@ -184,7 +190,7 @@ export class AuthRegistrationService {
         AND "otpExpiresAt" > NOW()
       RETURNING "id", "email", "fullName", "passwordHash", "role", "otpCodeHash"`;
     if (reserved) return reserved;
-    const pending = await this.prisma.pendingRegistration.findUnique({
+    const pending = await this.prismaService.pendingRegistration.findUnique({
       where: { email },
       select: { attempts: true, maxAttempts: true, otpExpiresAt: true },
     });
@@ -204,9 +210,9 @@ export class AuthRegistrationService {
     });
   }
 
-  private async consumeOtpAndCreateUser(pending: ReservedOtp) {
+  private async consumeOtpAndCreateUser(pending: TReservedOtp) {
     try {
-      return await this.prisma.$transaction(async (tx) => {
+      return await this.prismaService.$transaction(async (tx) => {
         const consumed = await tx.pendingRegistration.deleteMany({
           where: { id: pending.id, otpCodeHash: pending.otpCodeHash },
         });
@@ -226,8 +232,12 @@ export class AuthRegistrationService {
           },
           select: AUTH_USER_SELECT,
         });
-        await this.roleProfiles.provision(pending.role, createdUser.id, tx);
-        await this.outbox.append(
+        await this.roleProfilesService.provision(
+          pending.role,
+          createdUser.id,
+          tx,
+        );
+        await this.outboxService.append(
           {
             eventName: REGISTRATION_COMPLETED_EVENT,
             aggregateType: "User",

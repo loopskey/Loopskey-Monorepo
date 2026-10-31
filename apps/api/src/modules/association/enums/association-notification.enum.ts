@@ -25,8 +25,6 @@ export const LIFECYCLE_EVENT_BY_TYPE = {
     "association.learning-content.assigned.v1",
 } as const satisfies Record<LifecycleMessageType, string>;
 
-export const LIFECYCLE_TEMPLATE_VERSION = 1;
-
 export const AUTOMATIC_AUDIENCE = { trigger: "AUTOMATIC" } as const;
 
 export const occurrenceKeys = {

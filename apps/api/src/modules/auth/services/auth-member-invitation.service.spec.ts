@@ -1,6 +1,6 @@
 import { AssociationMemberStatus, UserStatus } from "@prisma/client";
 import type { ConfigService } from "@nestjs/config";
-import type { MailService } from "@mail/mail.service";
+import type { MailService } from "@mail/services/mail.service";
 import type { PrismaService } from "@prisma/prisma.service";
 
 import { AuthMessageCode } from "@auth/enums/message-code.enum";

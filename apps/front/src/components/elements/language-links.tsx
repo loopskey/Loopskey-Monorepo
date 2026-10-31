@@ -1,18 +1,12 @@
 "use client";
 
-import { PUBLIC_LOCALES, switchLocalePath } from "@/lib/i18n/locale";
 import { usePathname, useSearchParams } from "next/navigation";
 import { TLanguageLinksProps } from "@/types/element.types";
 import { stripLocalePrefix } from "@/lib/i18n/locale";
 import { LanguageMenu } from "@elements/language-menu";
-import { Languages } from "lucide-react";
 import { Suspense } from "react";
-import { useI18n } from "@/hooks/useI18n";
-import { cn } from "@/lib/utils";
 
 import type { PublicLocale } from "@/lib/i18n/locale";
-
-import Link from "next/link";
 
 type TLinkListProps = TLanguageLinksProps & { search: string };
 
@@ -24,80 +18,14 @@ const LANGUAGE_NAME_KEY: Record<PublicLocale, string> = {
 const isCatalogPath = (pathname: string) =>
   stripLocalePrefix(pathname).startsWith("/content");
 
-const LinkList = ({
-  search,
-  iconOnly,
-  available,
-  className,
-  variant = "inline",
-}: TLinkListProps) => {
-  const { language, t } = useI18n();
-  const pathname = usePathname();
-
-  if (variant === "menu")
-    return (
-      <LanguageMenu
-        search={search}
-        iconOnly={iconOnly}
-        available={available}
-        className={className}
-        nameKeys={LANGUAGE_NAME_KEY}
-      />
-    );
-
-  return (
-    <nav
-      aria-label={t("common.languageSwitcher.label")}
-      className={cn("flex items-center gap-1 text-sm font-semibold", className)}
-    >
-      <Languages className="size-4 text-muted-foreground" aria-hidden />
-      {PUBLIC_LOCALES.map((locale) => {
-        const name = t(LANGUAGE_NAME_KEY[locale]);
-        const isCurrent = locale === language;
-        const isAvailable =
-          !available || isCurrent || available.includes(locale);
-        const itemClass = cn(
-          "rounded-full px-2.5 py-1 outline-none focus-visible:ring-2 focus-visible:ring-ring",
-          isCurrent
-            ? "bg-primary text-primary-foreground"
-            : "text-muted-foreground hover:text-foreground",
-        );
-
-        if (!isAvailable)
-          return (
-            <span
-              key={locale}
-              lang={locale}
-              title={t("common.languageSwitcher.unavailable")}
-              className={cn(
-                itemClass,
-                "cursor-not-allowed text-muted-foreground line-through",
-              )}
-            >
-              {locale.toUpperCase()}
-              <span className="sr-only">
-                {` ${name}: ${t("common.languageSwitcher.unavailable")}`}
-              </span>
-            </span>
-          );
-
-        return (
-          <Link
-            key={locale}
-            lang={locale}
-            hrefLang={locale}
-            aria-label={name}
-            className={itemClass}
-            aria-current={isCurrent ? "true" : undefined}
-            href={switchLocalePath(pathname, search, locale)}
-          >
-            {locale.toUpperCase()}
-          </Link>
-        );
-      })}
-    </nav>
-  );
-};
+const LinkList = ({ search, available, className }: TLinkListProps) => (
+  <LanguageMenu
+    search={search}
+    available={available}
+    className={className}
+    nameKeys={LANGUAGE_NAME_KEY}
+  />
+);
 
 const LinksWithSearch = (props: TLanguageLinksProps) => {
   const query = useSearchParams().toString();

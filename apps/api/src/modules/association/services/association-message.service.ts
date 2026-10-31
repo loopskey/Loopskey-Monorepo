@@ -1,33 +1,36 @@
 import { AppLanguage, AssociationMessageDeliveryState } from "@prisma/client";
-import { ASSOCIATION_MESSAGE_TEMPLATE_VERSION } from "@mail/association-message.template";
+import { ASSOCIATION_MESSAGE_TEMPLATE_VERSION } from "@mail/templates/association-message.template";
 import { AssociationMessageType, Prisma } from "@prisma/client";
-import { type ProfessionalComplianceApi } from "@professional/public/professional-compliance-api";
-import { type TAssociationMessageInput } from "@mail/mail-service.type";
 import { AssociationMessageSkipReason } from "@association/enums/association-attention.enum";
-import { buildAssociationMessageEmail } from "@mail/association-message.template";
+import { buildAssociationMessageEmail } from "@mail/templates/association-message.template";
+import { professionalRequirementsUrl } from "@association/utils/association-message-links.util";
 import { PROFESSIONAL_COMPLIANCE_API } from "@professional/public/professional-compliance-api";
 import { AssociationAttentionService } from "@association/services/association-attention.service";
 import { Inject, Injectable, Logger } from "@nestjs/common";
 import { AssociationSettingsService } from "@association/services/association-settings.service";
+import { professionalDashboardUrl } from "@association/utils/association-message-links.util";
 import { AssociationAccessService } from "@association/services/association-access.service";
-import { type IdentityProfileApi } from "@user/public/identity-profile-api";
 import { SECTION_BY_MESSAGE_TYPE } from "@association/enums/association-attention.enum";
-import { isManualMessageType } from "@association/enums/association-attention.enum";
-import { type ManualMessageType } from "@association/enums/association-attention.enum";
 import { AssociationMessageCode } from "@association/enums/association-message-code.enum";
-import { type TAssociationUser } from "@association/types/association-service.types";
 import { messageTemplateInput } from "@association/utils/association-message-context.util";
 import { IDENTITY_PROFILE_API } from "@user/public/identity-profile-api";
-import { type MessageAudience } from "@association/types/association-attention.types";
+import { isManualMessageType } from "@association/enums/association-attention.enum";
 import { BadRequestException } from "@nestjs/common";
 import { readMessageContext } from "@association/utils/association-message-context.util";
-import { type AttentionRow } from "@association/types/association-attention.types";
 import { messageContextOf } from "@association/utils/association-message-context.util";
-import { type MessageSkip } from "@association/types/association-attention.types";
 import { requestContext } from "@infrastructure/observability/request-context";
 import { OutboxService } from "@infrastructure/outbox/outbox.service";
 import { ConfigService } from "@nestjs/config";
 import { PrismaService } from "@prisma/prisma.service";
+
+import { type ProfessionalComplianceApi } from "@professional/public/professional-compliance-api";
+import { type TAssociationMessageInput } from "@mail/types/mail-service.types";
+import { type IdentityProfileApi } from "@user/public/identity-profile-api";
+import { type ManualMessageType } from "@association/enums/association-attention.enum";
+import { type TAssociationUser } from "@association/types/association-service.types";
+import { type MessageAudience } from "@association/types/association-attention.types";
+import { type AttentionRow } from "@association/types/association-attention.types";
+import { type MessageSkip } from "@association/types/association-attention.types";
 
 export const ASSOCIATION_MESSAGE_EVENT = "association.message.requested.v1";
 
@@ -256,6 +259,9 @@ export class AssociationMessageService {
       associationName,
       language: recipient.language,
       dashboardUrl: this.dashboardUrl(),
+      requirementsUrl: this.requirementsUrl(
+        recipient.row.requirementId ?? undefined,
+      ),
       memberName: recipient.row.fullName ?? recipient.row.email ?? "member",
       appName: this.config.get<string>("APP_NAME", "LoopsKey"),
       supportEmail: this.config.get<string>(
@@ -458,11 +464,15 @@ export class AssociationMessageService {
       yield recipients.slice(index, index + MESSAGE_CHUNK_SIZE);
   }
 
-  private dashboardUrl() {
-    const origin = this.config
-      .get<string>("FRONTEND_URL", "http://localhost:3000")
-      .replace(/\/+$/, "");
+  private origin() {
+    return this.config.get<string>("FRONTEND_URL", "http://localhost:3000");
+  }
 
-    return `${origin}/dashboard/professional`;
+  private dashboardUrl() {
+    return professionalDashboardUrl(this.origin());
+  }
+
+  private requirementsUrl(requirementId?: string) {
+    return professionalRequirementsUrl(this.origin(), requirementId);
   }
 }

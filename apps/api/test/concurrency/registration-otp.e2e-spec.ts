@@ -2,7 +2,7 @@ import { HttpException, INestApplication } from "@nestjs/common";
 import { AuthRegistrationService } from "@auth/services/auth-registration.service";
 import { AuthMessageCode } from "@auth/enums/message-code.enum";
 import { PrismaService } from "@prisma/prisma.service";
-import { MailService } from "@mail/mail.service";
+import { MailService } from "@mail/services/mail.service";
 import { Response } from "express";
 import { Role } from "@prisma/client";
 import {

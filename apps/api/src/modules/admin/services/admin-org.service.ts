@@ -6,13 +6,17 @@ import { Injectable } from "@nestjs/common";
 @Injectable()
 export class AdminOrgService {
   constructor(
-    private readonly orgApi: OrganizationAdministrationService,
-    private readonly dashboard: AdminDashboardService,
+    private readonly orgApiService: OrganizationAdministrationService,
+    private readonly dashboardService: AdminDashboardService,
   ) {}
 
-  organizationDetail = this.orgApi.organizationDetail.bind(this.orgApi);
-  organizationMembers = this.orgApi.organizationMembers.bind(this.orgApi);
-  organizationsList = this.orgApi.organizations.bind(this.orgApi);
+  organizationDetail = this.orgApiService.organizationDetail.bind(
+    this.orgApiService,
+  );
+  organizationMembers = this.orgApiService.organizationMembers.bind(
+    this.orgApiService,
+  );
+  organizationsList = this.orgApiService.organizations.bind(this.orgApiService);
 
   organizations(
     ...args: Parameters<OrganizationAdministrationService["organizations"]>
@@ -25,9 +29,9 @@ export class AdminOrgService {
       OrganizationAdministrationService["updateOrganizationMember"]
     >
   ) {
-    const result = await this.orgApi.updateOrganizationMember(...args);
+    const result = await this.orgApiService.updateOrganizationMember(...args);
     const [user, input] = args;
-    await this.dashboard.createAudit(
+    await this.dashboardService.createAudit(
       user.id,
       AuditAction.ORGANIZATION_MEMBER_UPDATED,
       "OrganizationMember",
@@ -42,9 +46,9 @@ export class AdminOrgService {
       OrganizationAdministrationService["removeOrganizationMember"]
     >
   ) {
-    const result = await this.orgApi.removeOrganizationMember(...args);
+    const result = await this.orgApiService.removeOrganizationMember(...args);
     const [user, memberId] = args;
-    await this.dashboard.createAudit(
+    await this.dashboardService.createAudit(
       user.id,
       AuditAction.ORGANIZATION_MEMBER_REMOVED,
       "OrganizationMember",
@@ -59,9 +63,9 @@ export class AdminOrgService {
       OrganizationAdministrationService["updateOrganizationSettings"]
     >
   ) {
-    const result = await this.orgApi.updateOrganizationSettings(...args);
+    const result = await this.orgApiService.updateOrganizationSettings(...args);
     const [user, input] = args;
-    await this.dashboard.createAudit(
+    await this.dashboardService.createAudit(
       user.id,
       AuditAction.ORGANIZATION_SETTINGS_UPDATED,
       "Organization",

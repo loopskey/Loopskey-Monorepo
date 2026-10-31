@@ -1,17 +1,18 @@
-import { SubmitAssociationAccessRequestInput } from "@association/dtos/submit-association-access-request.input";
 import { ConflictException, Injectable, Logger } from "@nestjs/common";
+import { SubmitAssociationAccessRequestInput } from "@association/dtos/submit-association-access-request.input";
 import { OrganizationAccessRequestStatus } from "@prisma/client";
-import { buildAssociationSubmittedEmail } from "@mail/association-email.template";
+import { buildAssociationSubmittedEmail } from "@mail/templates/association-email.template";
 import { NotificationDeliveryStatus } from "@prisma/client";
-import { type IdentityProfileApi } from "@user/public/identity-profile-api";
 import { AssociationMessageCode } from "@association/enums/association-message-code.enum";
 import { OrganizationType, Role } from "@prisma/client";
 import { IDENTITY_PROFILE_API } from "@user/public/identity-profile-api";
 import { PrismaService } from "@prisma/prisma.service";
 import { ConfigService } from "@nestjs/config";
-import { MailService } from "@mail/mail.service";
+import { MailService } from "@mail/services/mail.service";
 import { Inject } from "@nestjs/common";
 import { Prisma } from "@prisma/client";
+
+import { type IdentityProfileApi } from "@user/public/identity-profile-api";
 
 const REQUEST_MESSAGE_CODE = {
   USER_ALREADY_EXISTS: "USER_ALREADY_EXISTS",

@@ -1,4 +1,5 @@
 import { CONTACT_INQUIRY_TYPE_LABELS } from "@support/enums/contact-inquiry.enum";
+import { escapeHtml, singleLine } from "@mail/utils/email-layout";
 import { ContactInquiryType } from "@support/enums/contact-inquiry.enum";
 
 export type TContactInquiryEmail = {
@@ -10,28 +11,25 @@ export type TContactInquiryEmail = {
   inquiryType: ContactInquiryType;
 };
 
-const escapeHtml = (value: string) =>
-  value
-    .replaceAll("&", "&amp;")
-    .replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;")
-    .replaceAll('"', "&quot;")
-    .replaceAll("'", "&#39;");
-
 const row = (label: string, value: string) =>
   `<tr><td style="padding:6px 12px 6px 0;color:#64748b;vertical-align:top">${escapeHtml(label)}</td><td style="padding:6px 0;color:#0f172a">${escapeHtml(value)}</td></tr>`;
 
 export const buildContactInquiryEmail = (input: TContactInquiryEmail) => {
   const typeLabel = CONTACT_INQUIRY_TYPE_LABELS[input.inquiryType];
-  const organization = input.organization ?? "Not provided";
-  const subject = `[Contact] ${typeLabel} - ${input.fullName}`;
+  const fullName = singleLine(input.fullName);
+  const email = singleLine(input.email);
+  const organization = singleLine(input.organization ?? "") || "Not provided";
+  const referenceId = singleLine(input.referenceId);
+  const subject = singleLine(`New contact inquiry — ${typeLabel}`);
 
   const text = [
-    `Inquiry type: ${typeLabel}`,
-    `Name: ${input.fullName}`,
-    `Email: ${input.email}`,
+    "New inquiry received",
+    "",
+    `Type: ${typeLabel}`,
+    `Name: ${fullName}`,
+    `Email: ${email}`,
     `Organization: ${organization}`,
-    `Reference: ${input.referenceId}`,
+    `Reference: ${referenceId}`,
     "",
     "Message:",
     input.message,
@@ -39,13 +37,13 @@ export const buildContactInquiryEmail = (input: TContactInquiryEmail) => {
 
   const html = [
     `<div style="font-family:system-ui,-apple-system,Segoe UI,sans-serif;max-width:640px">`,
-    `<h2 style="color:#0f172a;margin:0 0 16px">New contact inquiry</h2>`,
+    `<h2 style="color:#0f172a;margin:0 0 16px">New inquiry received</h2>`,
     `<table style="border-collapse:collapse;font-size:14px;margin-bottom:20px">`,
-    row("Inquiry type", typeLabel),
-    row("Name", input.fullName),
-    row("Email", input.email),
+    row("Type", typeLabel),
+    row("Name", fullName),
+    row("Email", email),
     row("Organization", organization),
-    row("Reference", input.referenceId),
+    row("Reference", referenceId),
     `</table>`,
     `<div style="border-top:1px solid #e2e8f0;padding-top:16px">`,
     `<p style="color:#64748b;font-size:13px;margin:0 0 8px">Message</p>`,

@@ -3,10 +3,10 @@
 import { useEffect, useId, useRef, useState } from "react";
 import { PUBLIC_LOCALES, switchLocalePath } from "@/lib/i18n/locale";
 import { TLanguageMenuProps } from "@/types/element.types";
-import { Check, Languages } from "lucide-react";
+import { LanguageIconButton } from "@elements/language-icon-button";
 import { usePathname } from "next/navigation";
 import { useI18n } from "@/hooks/useI18n";
-import { Button } from "@ui/button";
+import { Check } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 import type { PublicLocale } from "@/lib/i18n/locale";
@@ -19,7 +19,6 @@ const ITEM_CLASS =
 export const LanguageMenu = ({
   search,
   nameKeys,
-  iconOnly,
   available,
   className,
 }: TLanguageMenuProps) => {
@@ -52,55 +51,24 @@ export const LanguageMenu = ({
 
   return (
     <div ref={rootRef} className="relative">
-      {iconOnly ? (
-        <Button
-          size="icon"
-          radius="xl"
-          type="button"
-          variant="ghost"
-          ref={triggerRef}
-          aria-haspopup="true"
-          aria-expanded={isOpen}
-          aria-controls={menuId}
-          onClick={() => setIsOpen((open) => !open)}
-          aria-label={t("common.languageSwitcher.current", {
-            name: t(nameKeys[language as PublicLocale]),
-          })}
-          className={cn(
-            "relative size-9 text-muted-foreground hover:text-primary aria-expanded:bg-accent aria-expanded:text-primary min-[380px]:size-10",
-            className,
-          )}
-        >
-          <Languages className="size-5" />
-          <span
-            aria-hidden
-            className="absolute bottom-1 right-0.5 rounded bg-primary px-1 py-px text-[9px] font-bold leading-none tracking-wide text-primary-foreground"
-          >
-            {language.toUpperCase()}
-          </span>
-        </Button>
-      ) : (
-        <Button
-          type="button"
-          ref={triggerRef}
-          variant="outline"
-          aria-expanded={isOpen}
-          aria-controls={menuId}
-          className={cn("rounded-full", className)}
-          onClick={() => setIsOpen((open) => !open)}
-          aria-label={t("common.languageSwitcher.label")}
-        >
-          <Languages className="mr-2 h-4 w-4" />
-          {language.toUpperCase()}
-        </Button>
-      )}
+      <LanguageIconButton
+        ref={triggerRef}
+        code={language}
+        className={className}
+        aria-haspopup="true"
+        aria-expanded={isOpen}
+        aria-controls={menuId}
+        onClick={() => setIsOpen((open) => !open)}
+        aria-label={t("common.languageSwitcher.current", {
+          name: t(nameKeys[language as PublicLocale]),
+        })}
+      />
 
       <ul
         id={menuId}
         hidden={!isOpen}
         className={cn(
-          "absolute right-0 top-full z-50 mt-2 min-w-[8rem] rounded-md border bg-popover p-1 text-popover-foreground shadow-md animate-in fade-in-0 zoom-in-95",
-          iconOnly && "min-w-44 rounded-xl p-1.5 shadow-lg",
+          "absolute right-0 top-full z-50 mt-2 min-w-44 rounded-xl border bg-popover p-1.5 text-popover-foreground shadow-lg animate-in fade-in-0 zoom-in-95",
         )}
       >
         {PUBLIC_LOCALES.map((locale) => {
@@ -119,15 +87,11 @@ export const LanguageMenu = ({
                   onClick={() => setIsOpen(false)}
                   href={switchLocalePath(pathname, search, locale)}
                 >
-                  {iconOnly ? (
-                    <span aria-hidden className="size-4 shrink-0" />
-                  ) : null}
+                  <span aria-hidden className="size-4 shrink-0" />
                   {name}
-                  {iconOnly ? (
-                    <span className="ml-auto text-[11px] font-bold text-muted-foreground">
-                      {locale.toUpperCase()}
-                    </span>
-                  ) : null}
+                  <span className="ml-auto text-[11px] font-bold text-muted-foreground">
+                    {locale.toUpperCase()}
+                  </span>
                 </Link>
               ) : (
                 <span
@@ -146,20 +110,18 @@ export const LanguageMenu = ({
                       : "text-muted-foreground line-through",
                   )}
                 >
-                  {iconOnly && isCurrent ? (
+                  {isCurrent ? (
                     <Check
                       aria-hidden
                       className="size-4 shrink-0 text-primary"
                     />
-                  ) : iconOnly ? (
+                  ) : (
                     <span aria-hidden className="size-4 shrink-0" />
-                  ) : null}
+                  )}
                   {name}
-                  {iconOnly ? (
-                    <span className="ml-auto text-[11px] font-bold">
-                      {locale.toUpperCase()}
-                    </span>
-                  ) : null}
+                  <span className="ml-auto text-[11px] font-bold">
+                    {locale.toUpperCase()}
+                  </span>
                   {!isAvailable && (
                     <span className="sr-only">
                       {`: ${t("common.languageSwitcher.unavailable")}`}

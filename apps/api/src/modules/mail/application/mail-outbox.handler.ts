@@ -1,0 +1,27 @@
+import { Injectable, OnModuleInit } from "@nestjs/common";
+import { OutboxHandlerRegistry } from "@infrastructure/outbox/outbox-handler.port";
+import { TSendEmailInput } from "@mail/types/mail-service.types";
+import { MailService } from "@mail/services/mail.service";
+
+import { type OutboxEventContext } from "@infrastructure/outbox/outbox-handler.port";
+import { type OutboxHandler } from "@infrastructure/outbox/outbox-handler.port";
+
+@Injectable()
+export class MailOutboxHandler implements OutboxHandler, OnModuleInit {
+  readonly eventName = "mail.delivery.requested";
+  readonly handlerName = "mail-v1";
+  readonly lane = "realtime" as const;
+
+  constructor(
+    private readonly mail: MailService,
+    private readonly registry: OutboxHandlerRegistry,
+  ) {}
+
+  onModuleInit() {
+    this.registry.register(this);
+  }
+
+  async handle(payload: unknown, event: OutboxEventContext) {
+    await this.mail.deliver(payload as TSendEmailInput, event.idempotencyKey);
+  }
+}

@@ -1,20 +1,17 @@
 import { BadRequestException, Injectable } from "@nestjs/common";
+import { JwtService, JwtVerifyOptions } from "@nestjs/jwt";
+import { JWT_OAUTH_STATE_AUDIENCE } from "@loopskey/api-contracts/auth";
+import { JWT_ISSUER, TOKEN_TYPE } from "@loopskey/api-contracts/auth";
 import { TOAuthStatePayload } from "@auth/types/oauth-service.types";
 import { Request, Response } from "express";
 import { AuthMessageCode } from "@auth/enums/message-code.enum";
 import { TOAuthProvider } from "@auth/types/oauth-service.types";
+import { JWT_ALGORITHM } from "@loopskey/api-contracts/auth";
 import { ConfigService } from "@nestjs/config";
 import { StringValue } from "ms";
-import { JwtService, JwtVerifyOptions } from "@nestjs/jwt";
 import { Role } from "@prisma/client";
 
 import * as crypto from "crypto";
-import {
-  JWT_ALGORITHM,
-  JWT_ISSUER,
-  JWT_OAUTH_STATE_AUDIENCE,
-  TOKEN_TYPE,
-} from "@loopskey/api-contracts/auth";
 
 export const OAUTH_STATE_TTL: StringValue = "10m";
 export const OAUTH_STATE_TTL_MS = 10 * 60 * 1000;

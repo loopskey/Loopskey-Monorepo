@@ -1,5 +1,3 @@
-import type { PublicLocale } from "@/lib/i18n/locale";
-
 import type { TextareaHTMLAttributes, InputHTMLAttributes } from "react";
 import type { Control, FieldPath, FieldValues, Path } from "react-hook-form";
 import type { HTMLAttributes, ReactNode } from "react";
@@ -7,6 +5,7 @@ import type { ExternalLearningProvider } from "@/lib/graphql/base";
 import type { CourseCategory } from "@/lib/graphql/base";
 import type { ComponentProps } from "react";
 import type { buttonVariants } from "@ui/button";
+import type { PublicLocale } from "@/lib/i18n/locale";
 import type { VariantProps } from "class-variance-authority";
 import type { ElementType } from "react";
 import type { AvatarImage } from "@ui/avatar";
@@ -286,15 +285,12 @@ export type THeaderSearchOption = {
 };
 
 export type TLanguageLinksProps = {
-  iconOnly?: boolean;
   className?: string;
-  variant?: "inline" | "menu";
   available?: readonly PublicLocale[];
 };
 
 export type TLanguageMenuProps = {
   search: string;
-  iconOnly?: boolean;
   className?: string;
   available?: readonly PublicLocale[];
   nameKeys: Record<PublicLocale, string>;

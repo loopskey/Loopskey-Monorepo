@@ -1,7 +1,8 @@
-import { type AssociationAttentionSection } from "@association/enums/association-attention.enum";
 import { AssociationComplianceBand, PDUCategory } from "@prisma/client";
 import { AssociationMessageType } from "@prisma/client";
 import { AttributionRequirement } from "../utils/compliance-attribution.util";
+
+import { type AssociationAttentionSection } from "@association/enums/association-attention.enum";
 
 export const CERTIFICATE_EXPIRY_WINDOW_DAYS = 30;
 
@@ -27,6 +28,7 @@ export type AttentionRow = {
   fullName: string | null;
   groupTitle: string | null;
   memberNumber: string | null;
+  requirementId?: string | null;
   requiredCredits: number | null;
   completedCredits: number | null;
   band: AssociationComplianceBand | null;

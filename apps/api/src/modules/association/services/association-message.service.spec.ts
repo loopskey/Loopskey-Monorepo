@@ -40,6 +40,7 @@ const row = (
   deadline: new Date("2026-12-31T00:00:00.000Z"),
   detail: null,
   detailDate: null,
+  requirementId: "req-2",
   ...overrides,
 });
 
@@ -256,6 +257,14 @@ describe("AssociationMessageService", () => {
       expect(writer).toBeDefined();
     });
 
+    it("stamps new rows with the current template version", async () => {
+      const { service, create } = setup();
+
+      await service.send(owner, TYPE, audience);
+
+      expect(create.mock.calls[0][0].data.templateVersion).toBe(2);
+    });
+
     it("carries the figures the template needs, and no rendered body", async () => {
       const { service, create } = setup();
 
@@ -270,6 +279,7 @@ describe("AssociationMessageService", () => {
         deadline: "2026-12-31T00:00:00.000Z",
         detail: "",
         detailDate: null,
+        requirementId: "req-2",
       });
       expect(written).not.toHaveProperty("body");
       expect(written).not.toHaveProperty("html");
@@ -414,8 +424,9 @@ describe("AssociationMessageService", () => {
       const preview = await service.preview(owner, TYPE, audience);
 
       expect(preview.language).toBe(AppLanguage.FR);
-      expect(preview.subject).toContain("votre progression est en retard");
+      expect(preview.subject).toBe("Votre progression chez Institute");
       expect(preview.body).toContain("Bonjour Member 1");
+      expect(preview.body).toContain("requirement=association%3Areq-2");
       expect(preview.recipientCount).toBe(1);
     });
   });

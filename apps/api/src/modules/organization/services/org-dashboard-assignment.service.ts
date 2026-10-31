@@ -8,13 +8,12 @@ import { OrganizationMemberStatus, Prisma } from "@prisma/client";
 import { Injectable, NotFoundException } from "@nestjs/common";
 import { OrganizationPaginationInput } from "@org/dtos/org-pagination.input";
 import { TOrganizationDashboardUser } from "@org/types/org-dashboard-service.types";
+import { CATALOG_ORGANIZATION_API } from "@landing/public/catalog-organization-api";
 import { AssignmentTargetKind } from "@prisma/client";
 import { PrismaService } from "@prisma/prisma.service";
 import { Inject } from "@nestjs/common";
-import {
-  CATALOG_ORGANIZATION_API,
-  type CatalogOrganizationApi,
-} from "@landing/public/catalog-organization-api";
+
+import { type CatalogOrganizationApi } from "@landing/public/catalog-organization-api";
 
 @Injectable()
 export class OrgDashboardAssignmentService {
