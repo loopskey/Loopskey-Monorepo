@@ -848,12 +848,12 @@ describe("Association lifecycle notifications (concurrency e2e)", () => {
         renewLease: async () => undefined,
       };
       const firstKey = mailTo(retry.email).find((one) =>
-        one.subject.includes("welcome"),
+        /welcome/i.test(one.subject),
       )?.key;
 
       await handler.handle({ deliveryId: welcome.id }, context);
       expect(
-        mailTo(retry.email).filter((one) => one.subject.includes("welcome")),
+        mailTo(retry.email).filter((one) => /welcome/i.test(one.subject)),
       ).toHaveLength(1);
 
       await prisma.associationMessageDelivery.update({
@@ -863,7 +863,7 @@ describe("Association lifecycle notifications (concurrency e2e)", () => {
       await handler.handle({ deliveryId: welcome.id }, context);
 
       const keys = mailTo(retry.email)
-        .filter((one) => one.subject.includes("welcome"))
+        .filter((one) => /welcome/i.test(one.subject))
         .map((one) => one.key);
       expect(new Set([firstKey, ...keys])).toEqual(
         new Set([`outbox-${outboxEvent.id}`]),
