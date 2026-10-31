@@ -2,14 +2,16 @@
 
 import { getAuthHrefForSolutionHref, siteLinks } from "@/utils/site-navigation";
 import { HEADER_CONTAINER_CLASS_NAME } from "@/utils/site-navigation";
-import { HEADER_SEARCH_INPUT_ID } from "@/utils/site-navigation";
+import { HEADER_SEARCH_ROW_ID } from "@layouts/parts/header-search-control";
+import { useEffect, useState } from "react";
+import { HeaderSearchControl } from "@layouts/parts/header-search-control";
 import { getDashboardPath } from "@/utils/site-navigation";
-import { Menu, Search, X } from "lucide-react";
+import { HeaderSearchRow } from "@layouts/parts/header-search-control";
 import { solutionEntries } from "@/utils/site-navigation";
 import { useActiveRole } from "@/providers/active-role-provider";
-import { useEffect, useState } from "react";
 import { RoleStrip } from "@layouts/parts/role-strip";
 import { useHeader } from "@hooks/useHeader";
+import { Menu, X } from "lucide-react";
 import { Button } from "@ui/button";
 import { Logo } from "@layouts/parts/logo";
 import { cn } from "@lib/utils";
@@ -21,12 +23,6 @@ import Link from "@elements/localized-link";
 
 const PublicUserMenu = dynamic(() => import("@layouts/parts/public-user-menu"));
 
-const loadHeaderSearch = () =>
-  import("@layouts/parts/header-search").then((module) => module.HeaderSearch);
-const HeaderSearch = dynamic(loadHeaderSearch, { ssr: false });
-const preloadHeaderSearch = () => void loadHeaderSearch();
-
-// The drawer is only for narrow screens, so desktop visitors never download it.
 const loadMobileMenu = () => import("@layouts/parts/header-mobile-menu");
 const HeaderMobileMenu = dynamic(loadMobileMenu, { ssr: false });
 const preloadMobileMenu = () => void loadMobileMenu();
@@ -36,7 +32,6 @@ type THeaderProps = {
 };
 
 const MOBILE_NAV_ID = "header-mobile-navigation";
-const SEARCH_ROW_ID = "header-search-row";
 
 const Header = ({ languageControl }: THeaderProps) => {
   const {
@@ -114,10 +109,10 @@ const Header = ({ languageControl }: THeaderProps) => {
                 aria-current={isActive ? "page" : undefined}
                 className={cn(
                   "relative whitespace-nowrap rounded-md px-2.5 py-2 text-sm font-semibold outline-none transition-colors duration-200 focus-visible:ring-2 focus-visible:ring-ring xl:px-3",
-                  "after:absolute after:inset-x-2.5 after:-bottom-[14px] after:h-0.5 after:rounded-t-full after:bg-primary after:opacity-0 after:transition-opacity after:duration-200 xl:after:inset-x-3",
+                  "after:absolute after:inset-x-2.5 after:-bottom-[14px] after:h-0.5 after:origin-center after:scale-x-0 after:rounded-t-full after:bg-primary after:transition-transform after:duration-300 after:ease-out motion-reduce:after:transition-none xl:after:inset-x-3",
                   isActive
-                    ? "text-primary after:opacity-100"
-                    : "text-muted-foreground hover:text-primary",
+                    ? "text-primary after:scale-x-100"
+                    : "text-muted-foreground hover:text-primary hover:after:scale-x-100 focus-visible:after:scale-x-100",
                 )}
               >
                 {item.label}
@@ -127,56 +122,12 @@ const Header = ({ languageControl }: THeaderProps) => {
         </nav>
 
         <div className="ml-auto flex items-center gap-0.5 min-[380px]:gap-1.5 sm:gap-2">
-          {isInlineSearchActive ? (
-            <HeaderSearch
-              autoFocus
-              variant="inline"
-              className="hidden w-72 xl:block"
-            />
-          ) : (
-            <button
-              type="button"
-              id={HEADER_SEARCH_INPUT_ID}
-              onFocus={preloadHeaderSearch}
-              onPointerEnter={preloadHeaderSearch}
-              aria-label={t("navigation.search.label")}
-              onClick={() => setIsInlineSearchActive(true)}
-              className="relative hidden h-10 w-72 items-center gap-2 rounded-xl border border-border bg-muted/60 pl-3 pr-2.5 text-left text-sm font-medium text-muted-foreground outline-none transition-[border-color,background-color] hover:border-primary/25 focus-visible:border-primary focus-visible:ring-4 focus-visible:ring-primary/15 xl:flex"
-            >
-              <Search aria-hidden className="size-4 shrink-0" />
-              <span className="min-w-0 flex-1 truncate">
-                {t("navigation.search.placeholder")}
-              </span>
-              <kbd
-                aria-hidden
-                className="rounded-md border bg-background px-1.5 py-0.5 text-[11px] font-semibold"
-              >
-                /
-              </kbd>
-            </button>
-          )}
-
-          <Button
-            size="icon"
-            radius="xl"
-            type="button"
-            variant="ghost"
-            onClick={toggleSearch}
-            aria-expanded={isSearchOpen}
-            aria-controls={SEARCH_ROW_ID}
-            className="size-9 text-muted-foreground hover:text-primary min-[380px]:size-10 xl:hidden"
-            aria-label={
-              isSearchOpen
-                ? t("navigation.search.close")
-                : t("navigation.search.open")
-            }
-          >
-            {isSearchOpen ? (
-              <X className="size-5" />
-            ) : (
-              <Search className="size-5" />
-            )}
-          </Button>
+          <HeaderSearchControl
+            isRowOpen={isSearchOpen}
+            onToggleRow={toggleSearch}
+            isInlineActive={isInlineSearchActive}
+            onActivateInline={() => setIsInlineSearchActive(true)}
+          />
 
           {languageControl}
 
@@ -199,8 +150,8 @@ const Header = ({ languageControl }: THeaderProps) => {
             type="button"
             variant="ghost"
             ref={menuToggle}
-            onFocus={preloadMobileMenu}
             onClick={toggleMobileMenu}
+            onFocus={preloadMobileMenu}
             aria-expanded={isMobileOpen}
             onPointerEnter={preloadMobileMenu}
             aria-controls={hasOpenedMobileMenu ? MOBILE_NAV_ID : undefined}
@@ -221,9 +172,12 @@ const Header = ({ languageControl }: THeaderProps) => {
       </div>
 
       {isSearchOpen ? (
-        <div id={SEARCH_ROW_ID} className="border-t bg-background xl:hidden">
+        <div
+          id={HEADER_SEARCH_ROW_ID}
+          className="border-t bg-background xl:hidden"
+        >
           <div className="mx-auto max-w-7xl px-4 py-3 sm:px-6 lg:px-8">
-            <HeaderSearch autoFocus variant="row" onClose={closeSearch} />
+            <HeaderSearchRow onClose={closeSearch} />
           </div>
         </div>
       ) : null}
@@ -231,14 +185,14 @@ const Header = ({ languageControl }: THeaderProps) => {
       {hasOpenedMobileMenu ? (
         <HeaderMobileMenu
           id={MOBILE_NAV_ID}
-          isOpen={isMobileOpen}
           joinHref={joinHref}
           navItems={navItems}
+          isOpen={isMobileOpen}
           joinLabel={joinLabel}
           onClose={closeMobileMenu}
-          onDismiss={dismissMobileMenu}
           isActive={isActiveNavItem}
           showJoin={!isAuthenticated}
+          onDismiss={dismissMobileMenu}
           showRoleMenu={showRoleMenuMobile}
         />
       ) : null}
