@@ -1,8 +1,11 @@
-import type { TNavItem } from "./element.types";
+import { PublicLocale } from "@/lib/i18n/locale";
+import { ReactNode } from "react";
+
 import type { THeaderSearchVariant } from "./element.types";
 import type { TPublicSessionUser } from "@/lib/session/public-session";
 import type { THeaderSearchItem } from "@/lib/search/catalog-search";
 import type { I18nContextValue } from "./providers.types";
+import type { TNavItem } from "./element.types";
 
 export type THeaderSearchPanelProps = {
   term: string;
@@ -62,4 +65,16 @@ export type THeaderMobileMenuProps = {
   onDismiss: () => void;
   showRoleMenu: boolean;
   isActive: (href: string) => boolean;
+};
+
+export type TPublicChromeProps = {
+  children: ReactNode;
+  locale: PublicLocale;
+};
+
+export type THeaderSearchControlProps = {
+  isRowOpen: boolean;
+  isInlineActive: boolean;
+  onToggleRow: () => void;
+  onActivateInline: () => void;
 };

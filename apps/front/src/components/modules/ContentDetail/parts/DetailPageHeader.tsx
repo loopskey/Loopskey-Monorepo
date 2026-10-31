@@ -1,9 +1,9 @@
 "use client";
 
+import { useReportContentLocales } from "@/providers/content-locale-provider";
 import { TDetailPageHeaderProps } from "@/types/content-module.types";
 import { ArrowLeft, Star } from "lucide-react";
 import { fromApiLanguage } from "@/lib/i18n/locale";
-import { LanguageLinks } from "@elements/language-links";
 import { useI18n } from "@/hooks/useI18n";
 
 import Link from "@elements/localized-link";
@@ -20,6 +20,7 @@ const DetailPageHeader = ({
   availableLocales,
 }: TDetailPageHeaderProps) => {
   const { t, language } = useI18n();
+  useReportContentLocales((availableLocales ?? []).map(fromApiLanguage));
   const bodyLanguage = contentLanguage
     ? fromApiLanguage(contentLanguage)
     : null;
@@ -29,19 +30,13 @@ const DetailPageHeader = ({
 
   return (
     <header className="space-y-4">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <Link
-          href="/content"
-          className="inline-flex items-center gap-1.5 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
-        >
-          <ArrowLeft className="h-4 w-4" aria-hidden />
-          {t("contentDetails.common.backToContent")}
-        </Link>
-
-        <LanguageLinks
-          available={(availableLocales ?? []).map(fromApiLanguage)}
-        />
-      </div>
+      <Link
+        href="/content"
+        className="inline-flex items-center gap-1.5 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
+      >
+        <ArrowLeft className="h-4 w-4" aria-hidden />
+        {t("contentDetails.common.backToContent")}
+      </Link>
 
       <div className="flex flex-wrap items-center gap-2">
         <span className="rounded-full bg-primary/10 px-3 py-1.5 text-xs font-extrabold text-primary">
