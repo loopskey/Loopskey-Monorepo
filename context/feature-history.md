@@ -170,3 +170,4 @@ into this index and do not rewrite previous records.
 - [`remove-hero-search`](feature-runs/active/remove-hero-search.md) — PR [#343](https://github.com/loopskey/Loopskey-Monorepo/pull/343)
 - [`transactional-email-copy-refresh`](feature-runs/active/transactional-email-copy-refresh.md) — PR [#345](https://github.com/loopskey/Loopskey-Monorepo/pull/345)
 - [`header-search-dashboard-language`](feature-runs/active/header-search-dashboard-language.md) — PR [#346](https://github.com/loopskey/Loopskey-Monorepo/pull/346)
+- [`header-redesign-v2`](feature-runs/active/header-redesign-v2.md) — PR [#348](https://github.com/loopskey/Loopskey-Monorepo/pull/348)
