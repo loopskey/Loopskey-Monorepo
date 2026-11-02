@@ -1,9 +1,8 @@
 "use client";
 
-import { EllipsisVertical, LayoutDashboard } from "lucide-react";
 import { getDashboardPath, solutionEntries } from "@/utils/site-navigation";
+import { ChevronDown, LayoutDashboard } from "lucide-react";
 import { getDashboardProfilePath } from "@/utils/site-navigation";
-import type { TUserMenuViewProps } from "@/types/layouts.types";
 import { LogOut, UserRound } from "lucide-react";
 import { UserAvatar } from "@elements/user-avatar";
 import { useI18n } from "@/hooks/useI18n";
@@ -11,6 +10,8 @@ import { Button } from "@ui/button";
 import { cn } from "@/lib/utils";
 
 import Link from "next/link";
+
+import type { TUserMenuViewProps } from "@/types/layouts.types";
 
 import * as D from "@ui/dropdown-menu";
 
@@ -89,21 +90,23 @@ export const UserMenuView = ({
         <Button
           type="button"
           radius="full"
-          variant="outline"
+          variant="ghost"
           aria-label={t("userMenu.open")}
-          className="h-10 gap-0.5 p-1 pr-1 hover:border-primary/30 aria-expanded:border-primary/30 aria-expanded:bg-accent/60 min-[380px]:h-11 min-[380px]:pr-1.5"
+          className="group relative size-11 shrink-0 p-0 hover:bg-transparent focus-visible:ring-offset-2 min-[380px]:size-12"
         >
           <UserAvatar
             email={user.email}
             fullName={user.fullName}
             avatarUrl={user.avatarUrl}
-            className="size-8 border border-primary/20 min-[380px]:size-9"
-            fallbackClassName="bg-primary/10 text-sm font-bold text-primary"
+            className="size-9 ring-2 ring-primary/20 transition-shadow duration-200 group-hover:shadow-[0_6px_14px_-6px_oklch(0.3351_0.1745_271.87/0.45)] group-hover:ring-primary/55 group-aria-expanded:ring-primary min-[380px]:size-10"
+            fallbackClassName="bg-accent text-sm font-extrabold text-primary"
           />
-          <EllipsisVertical
+          <span
             aria-hidden
-            className="size-[18px] shrink-0 text-muted-foreground"
-          />
+            className="absolute -bottom-0.5 -right-0.5 grid size-[18px] place-items-center rounded-full border-[1.5px] border-border bg-background text-primary transition-colors duration-200 group-hover:border-background group-hover:bg-primary group-hover:text-primary-foreground group-aria-expanded:border-background group-aria-expanded:bg-primary group-aria-expanded:text-primary-foreground"
+          >
+            <ChevronDown className="size-2.5 stroke-[3] transition-transform duration-200 group-aria-expanded:rotate-180 motion-reduce:transition-none" />
+          </span>
         </Button>
       </D.DropdownMenuTrigger>
       <D.DropdownMenuContent

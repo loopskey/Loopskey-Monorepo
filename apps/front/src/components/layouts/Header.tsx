@@ -2,11 +2,10 @@
 
 import { getAuthHrefForSolutionHref, siteLinks } from "@/utils/site-navigation";
 import { HEADER_CONTAINER_CLASS_NAME } from "@/utils/site-navigation";
-import { HEADER_SEARCH_ROW_ID } from "@layouts/parts/header-search-control";
+import { HeaderSearchRowField } from "@layouts/parts/header-search-control";
 import { useEffect, useState } from "react";
-import { HeaderSearchControl } from "@layouts/parts/header-search-control";
+import { HeaderSearchField } from "@layouts/parts/header-search-control";
 import { getDashboardPath } from "@/utils/site-navigation";
-import { HeaderSearchRow } from "@layouts/parts/header-search-control";
 import { solutionEntries } from "@/utils/site-navigation";
 import { useActiveRole } from "@/providers/active-role-provider";
 import { RoleStrip } from "@layouts/parts/role-strip";
@@ -40,16 +39,17 @@ const Header = ({ languageControl }: THeaderProps) => {
     menuToggle,
     isScrolled,
     closeSearch,
-    toggleSearch,
-    isSearchOpen,
     isMobileOpen,
     showRoleStrip,
+    drawerNavItems,
     isAuthenticated,
     currentUserRole,
     isActiveNavItem,
     closeMobileMenu,
     toggleMobileMenu,
+    isRowFieldActive,
     dismissMobileMenu,
+    setIsRowFieldActive,
     isInlineSearchActive,
     setIsInlineSearchActive,
   } = useHeader();
@@ -121,12 +121,10 @@ const Header = ({ languageControl }: THeaderProps) => {
           })}
         </nav>
 
-        <div className="ml-auto flex items-center gap-0.5 min-[380px]:gap-1.5 sm:gap-2">
-          <HeaderSearchControl
-            isRowOpen={isSearchOpen}
-            onToggleRow={toggleSearch}
-            isInlineActive={isInlineSearchActive}
-            onActivateInline={() => setIsInlineSearchActive(true)}
+        <div className="ml-auto flex min-w-0 items-center gap-0.5 min-[380px]:gap-1.5 sm:gap-2 lg:flex-1 lg:justify-end lg:gap-3">
+          <HeaderSearchField
+            isActive={isInlineSearchActive}
+            onActivate={() => setIsInlineSearchActive(true)}
           />
 
           {languageControl}
@@ -171,24 +169,19 @@ const Header = ({ languageControl }: THeaderProps) => {
         </div>
       </div>
 
-      {isSearchOpen ? (
-        <div
-          id={HEADER_SEARCH_ROW_ID}
-          className="border-t bg-background xl:hidden"
-        >
-          <div className="mx-auto max-w-7xl px-4 py-3 sm:px-6 lg:px-8">
-            <HeaderSearchRow onClose={closeSearch} />
-          </div>
-        </div>
-      ) : null}
+      <HeaderSearchRowField
+        onClose={closeSearch}
+        isActive={isRowFieldActive}
+        onActivate={() => setIsRowFieldActive(true)}
+      />
 
       {hasOpenedMobileMenu ? (
         <HeaderMobileMenu
           id={MOBILE_NAV_ID}
           joinHref={joinHref}
-          navItems={navItems}
           isOpen={isMobileOpen}
           joinLabel={joinLabel}
+          navItems={drawerNavItems}
           onClose={closeMobileMenu}
           isActive={isActiveNavItem}
           showJoin={!isAuthenticated}

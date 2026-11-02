@@ -1080,6 +1080,7 @@
       "recent": "Recent searches",
       "results": "Results",
       "seeAll": "See all results for “{{query}}”",
+      "submit": "Search",
       "types": {
         "courses": "Courses",
         "events": "Events",

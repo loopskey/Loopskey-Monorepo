@@ -1,10 +1,10 @@
 "use client";
 
 import { HEADER_SEARCH_MIN_LENGTH } from "@/hooks/useHeaderSearch";
-import type { THeaderSearchPanelProps } from "@/types/layouts.types";
 import { buildCatalogHref } from "@/lib/content-catalog/catalog-href";
 import { cn } from "@/lib/utils";
 
+import type { THeaderSearchPanelProps } from "@/types/layouts.types";
 import type { TContentCardKind } from "@/types/content-module.types";
 
 import Link from "@elements/localized-link";
@@ -91,7 +91,7 @@ export const HeaderSearchPanel = ({
         "absolute top-full z-50 mt-2 max-h-[min(30rem,70vh)] overflow-y-auto rounded-2xl border bg-popover p-1.5 text-popover-foreground shadow-lg",
         "animate-in fade-in-0 slide-in-from-top-1 duration-150 motion-reduce:animate-none",
         variant === "inline"
-          ? "right-0 w-[26rem] max-w-[calc(100vw-2rem)]"
+          ? "right-0 w-full min-w-[26rem] max-w-[calc(100vw-2rem)]"
           : "inset-x-0",
       )}
     >
@@ -139,9 +139,9 @@ export const HeaderSearchPanel = ({
                   key={entry}
                   role="option"
                   id={optionId(index)}
-                  aria-selected={isActive(index)}
-                  onClick={() => onPick(entry)}
                   href={searchHrefFor(entry)}
+                  onClick={() => onPick(entry)}
+                  aria-selected={isActive(index)}
                   className={cn(ROW_CLASS_NAME, isActive(index) && "bg-accent")}
                 >
                   <L.Clock3

@@ -1,21 +1,13 @@
 "use client";
 
-import {
-  useCallback,
-  useEffect,
-  useId,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
-import {
-  HeaderSearchPanel,
-  searchHrefFor,
-} from "@layouts/parts/header-search-panel";
+import { useCallback, useEffect, useId } from "react";
+import { useMemo, useRef, useState } from "react";
 import { HEADER_SEARCH_MIN_LENGTH } from "@/hooks/useHeaderSearch";
 import { HEADER_SEARCH_INPUT_ID } from "@/utils/site-navigation";
+import { HeaderSearchPanel } from "@layouts/parts/header-search-panel";
 import { useLocalizedHref } from "@/hooks/useLocalizedHref";
 import { useHeaderSearch } from "@/hooks/useHeaderSearch";
+import { searchHrefFor } from "@layouts/parts/header-search-panel";
 import { useRouter } from "next/navigation";
 import { useI18n } from "@/hooks/useI18n";
 import { cn } from "@/lib/utils";
@@ -85,6 +77,15 @@ export const HeaderSearch = ({
     router.push(localize(option.href));
   };
 
+  const submit = () => {
+    if (term.length < MIN_SUBMIT_LENGTH) {
+      inputRef.current?.focus();
+      return;
+    }
+    finish(term);
+    router.push(localize(searchHrefFor(term)));
+  };
+
   const onKeyDown = (event: KeyboardEvent<HTMLInputElement>) => {
     if (event.key === "Escape") {
       event.preventDefault();
@@ -112,9 +113,7 @@ export const HeaderSearch = ({
     event.preventDefault();
     const active = options[activeIndex];
     if (active) return go(active);
-    if (term.length < MIN_SUBMIT_LENGTH) return;
-    finish(term);
-    router.push(localize(searchHrefFor(term)));
+    submit();
   };
 
   const onBlur = (event: FocusEvent<HTMLDivElement>) => {
@@ -124,23 +123,25 @@ export const HeaderSearch = ({
   };
 
   const showClear = query.length > 0;
+  const isRow = variant === "row";
 
   return (
     <div ref={rootRef} onBlur={onBlur} className={cn("relative", className)}>
       <div className="relative">
         <L.Search
           aria-hidden
-          className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground"
+          strokeWidth={2.25}
+          className="pointer-events-none absolute left-3.5 top-1/2 size-[18px] -translate-y-1/2 text-primary"
         />
         <input
-          ref={inputRef}
           value={query}
           type="search"
+          ref={inputRef}
           role="combobox"
           autoComplete="off"
           enterKeyHint="search"
-          aria-autocomplete="list"
           aria-expanded={isOpen}
+          aria-autocomplete="list"
           aria-controls={isOpen ? listId : undefined}
           aria-label={t("navigation.search.label")}
           aria-activedescendant={
@@ -156,32 +157,45 @@ export const HeaderSearch = ({
             setIsOpen(true);
           }}
           className={cn(
-            "h-10 w-full rounded-xl border border-border bg-muted/60 pl-9 text-sm font-medium text-foreground outline-none transition-[border-color,background-color,box-shadow]",
-            "placeholder:text-muted-foreground hover:border-primary/25 focus:border-primary focus:bg-background focus:ring-4 focus:ring-primary/15",
+            "w-full rounded-[14px] border-[1.5px] border-primary/30 bg-background pl-11 font-medium text-foreground shadow-[0_1px_2px_oklch(0.2_0.05_270/0.06),0_6px_16px_-6px_oklch(0.3351_0.1745_271.87/0.22)] outline-none transition-[border-color,box-shadow]",
+            "placeholder:text-muted-foreground hover:border-primary/50 focus:border-primary focus:ring-4 focus:ring-primary/15",
             "[&::-webkit-search-cancel-button]:hidden [&::-webkit-search-decoration]:hidden",
-            variant === "inline" ? "pr-10" : "pr-9",
+            isRow ? "h-12 pr-[4.5rem] text-[15px]" : "h-[46px] pr-28 text-sm",
           )}
         />
-        {showClear ? (
+        <div className="absolute right-1.5 top-1/2 flex -translate-y-1/2 items-center gap-1.5">
+          {showClear ? (
+            <button
+              type="button"
+              aria-label={t("navigation.search.clearRecent")}
+              onClick={() => {
+                setQuery("");
+                inputRef.current?.focus();
+              }}
+              className="grid size-7 place-items-center rounded-lg text-muted-foreground outline-none hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring"
+            >
+              <L.X aria-hidden className="size-4" />
+            </button>
+          ) : variant === "inline" ? (
+            <kbd
+              aria-hidden
+              className="pointer-events-none rounded-md border bg-muted/50 px-1.5 py-0.5 text-[11px] font-bold text-muted-foreground"
+            >
+              /
+            </kbd>
+          ) : null}
           <button
             type="button"
-            aria-label={t("navigation.search.clearRecent")}
-            onClick={() => {
-              setQuery("");
-              inputRef.current?.focus();
-            }}
-            className="absolute right-2 top-1/2 grid size-6 -translate-y-1/2 place-items-center rounded-md text-muted-foreground outline-none hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring"
+            onClick={submit}
+            aria-label={t("navigation.search.submit")}
+            className={cn(
+              "grid shrink-0 place-items-center rounded-[10px] bg-primary text-primary-foreground outline-none transition-colors hover:bg-primary-hover focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1",
+              isRow ? "size-[38px]" : "size-9",
+            )}
           >
-            <L.X aria-hidden className="size-4" />
+            <L.Search aria-hidden strokeWidth={2.5} className="size-[17px]" />
           </button>
-        ) : variant === "inline" ? (
-          <kbd
-            aria-hidden
-            className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 rounded-md border bg-background px-1.5 py-0.5 text-[11px] font-semibold text-muted-foreground"
-          >
-            /
-          </kbd>
-        ) : null}
+        </div>
       </div>
 
       {isOpen ? (
