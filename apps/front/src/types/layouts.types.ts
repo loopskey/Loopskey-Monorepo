@@ -72,9 +72,18 @@ export type TPublicChromeProps = {
   locale: PublicLocale;
 };
 
-export type THeaderSearchControlProps = {
-  isRowOpen: boolean;
-  isInlineActive: boolean;
-  onToggleRow: () => void;
-  onActivateInline: () => void;
+export type THeaderSearchFieldProps = {
+  isActive: boolean;
+  onActivate: () => void;
+};
+
+export type THeaderSearchToggleProps = {
+  isOpen: boolean;
+  onToggle: () => void;
+};
+
+export type THeaderSearchRowFieldProps = {
+  isActive: boolean;
+  onClose: () => void;
+  onActivate: () => void;
 };

@@ -8,8 +8,12 @@ export const useHeaderSearchState = (onOpenRow?: () => void) => {
   const pathname = usePathname();
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isInlineSearchActive, setIsInlineSearchActive] = useState(false);
+  const [isRowFieldActive, setIsRowFieldActive] = useState(false);
 
-  const closeSearch = useCallback(() => setIsSearchOpen(false), []);
+  const closeSearch = useCallback(() => {
+    setIsSearchOpen(false);
+    setIsRowFieldActive(false);
+  }, []);
 
   const toggleSearch = () => {
     onOpenRow?.();
@@ -34,6 +38,7 @@ export const useHeaderSearchState = (onOpenRow?: () => void) => {
       } else {
         onOpenRow?.();
         setIsSearchOpen(true);
+        setIsRowFieldActive(true);
       }
     };
     document.addEventListener("keydown", onKeyDown);
@@ -48,6 +53,8 @@ export const useHeaderSearchState = (onOpenRow?: () => void) => {
     closeSearch,
     toggleSearch,
     isSearchOpen,
+    isRowFieldActive,
+    setIsRowFieldActive,
     isInlineSearchActive,
     setIsInlineSearchActive,
   };

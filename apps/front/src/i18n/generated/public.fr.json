@@ -1080,6 +1080,7 @@
       "recent": "Recherches récentes",
       "results": "Résultats",
       "seeAll": "Voir tous les résultats pour « {{query}} »",
+      "submit": "Rechercher",
       "types": {
         "courses": "Cours",
         "events": "Événements",

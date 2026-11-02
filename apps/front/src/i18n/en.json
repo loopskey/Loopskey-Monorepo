@@ -2685,6 +2685,7 @@
       "placeholder": "Search courses, events, podcasts…",
       "open": "Open search",
       "close": "Close search",
+      "submit": "Search",
       "browse": "Browse",
       "recent": "Recent searches",
       "clearRecent": "Clear",
