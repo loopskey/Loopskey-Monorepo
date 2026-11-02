@@ -21,9 +21,9 @@ export const useHeader = () => {
   const closeMobileMenu = useCallback(() => setIsMobileOpen(false), []);
 
   const {
-    isSearchOpen,
     closeSearch,
-    toggleSearch,
+    isRowFieldActive,
+    setIsRowFieldActive,
     isInlineSearchActive,
     setIsInlineSearchActive,
   } = useHeaderSearchState(closeMobileMenu);
@@ -35,7 +35,7 @@ export const useHeader = () => {
     void refreshPublicSession();
   }, []);
 
-  const navItems = useMemo<TNavItem[]>(() => {
+  const drawerNavItems = useMemo<TNavItem[]>(() => {
     return [
       { href: siteLinks.content, label: t("navigation.content") },
       { href: siteLinks.services, label: t("navigation.services") },
@@ -44,6 +44,15 @@ export const useHeader = () => {
       { href: siteLinks.contact, label: t("navigation.contact") },
     ].filter((item) => isValidHref(item.href) && item.label?.trim());
   }, [t]);
+
+  const navItems = useMemo(
+    () =>
+      drawerNavItems.filter(
+        (item) =>
+          item.href !== siteLinks.about && item.href !== siteLinks.contact,
+      ),
+    [drawerNavItems],
+  );
 
   const currentPath = normalizePath(stripLocalePrefix(pathname ?? "/"));
 
@@ -110,15 +119,16 @@ export const useHeader = () => {
     isScrolled,
     closeSearch,
     isMobileOpen,
-    isSearchOpen,
-    toggleSearch,
     showRoleStrip,
+    drawerNavItems,
     isAuthenticated,
     currentUserRole,
     isActiveNavItem,
     closeMobileMenu,
     toggleMobileMenu,
+    isRowFieldActive,
     dismissMobileMenu,
+    setIsRowFieldActive,
     isInlineSearchActive,
     setIsInlineSearchActive,
   };

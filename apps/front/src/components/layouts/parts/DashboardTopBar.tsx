@@ -5,8 +5,9 @@ import { DASHBOARD_MENU_BUTTON_ID } from "@utils/constant";
 import { useHeaderSearchState } from "@/hooks/useHeaderSearchState";
 import { HEADER_SEARCH_ROW_ID } from "@layouts/parts/header-search-control";
 import { OVERLAY_LAYER_CLASS } from "@ui/overlay-layer";
-import { HeaderSearchControl } from "@layouts/parts/header-search-control";
+import { HeaderSearchToggle } from "@layouts/parts/header-search-control";
 import { useDashboardDrawer } from "@/providers/dashboard-drawer-provider";
+import { HeaderSearchField } from "@layouts/parts/header-search-control";
 import { LanguageToggleBtn } from "@elements/language-switcher";
 import { HeaderSearchRow } from "@layouts/parts/header-search-control";
 import { UserMenu } from "@layouts/parts/user-menu";
@@ -21,8 +22,8 @@ export const DashboardTopBar = () => {
   const { t } = useI18n();
   const { isOpen, open } = useDashboardDrawer();
   const {
-    isSearchOpen,
     closeSearch,
+    isSearchOpen,
     toggleSearch,
     isInlineSearchActive,
     setIsInlineSearchActive,
@@ -58,22 +59,23 @@ export const DashboardTopBar = () => {
           <Logo />
         </div>
 
-        <div className="flex items-center gap-0.5 min-[380px]:gap-1.5 sm:gap-2">
-          <HeaderSearchControl
-            isRowOpen={isSearchOpen}
-            onToggleRow={toggleSearch}
-            isInlineActive={isInlineSearchActive}
-            onActivateInline={() => setIsInlineSearchActive(true)}
+        <div className="flex min-w-0 flex-1 items-center gap-0.5 min-[380px]:gap-1.5 sm:gap-2 lg:gap-3 lg:pl-6">
+          <HeaderSearchField
+            isActive={isInlineSearchActive}
+            onActivate={() => setIsInlineSearchActive(true)}
           />
-          <LanguageToggleBtn />
-          <UserMenu />
+          <div className="ml-auto flex items-center gap-0.5 min-[380px]:gap-1.5 sm:gap-2 lg:gap-3">
+            <HeaderSearchToggle isOpen={isSearchOpen} onToggle={toggleSearch} />
+            <LanguageToggleBtn />
+            <UserMenu />
+          </div>
         </div>
       </div>
 
       {isSearchOpen ? (
         <div
           id={HEADER_SEARCH_ROW_ID}
-          className="absolute inset-x-0 top-full border-b bg-background shadow-md xl:hidden"
+          className="absolute inset-x-0 top-full border-b bg-background shadow-md lg:hidden"
         >
           <div className="mx-auto max-w-7xl px-4 py-3 sm:px-6 lg:px-8">
             <HeaderSearchRow onClose={closeSearch} />
