@@ -4619,15 +4619,10 @@
       "viewContent": "View content",
       "nextStepTag": "Next",
       "hero": {
-        "phasesCount": "{{count}} phases",
-        "moreActions": "More actions",
-        "progressRingLabel": "{{progress}}% complete"
+        "phasesCount": "{{count}} phases"
       },
-      "myRoadmaps": "My roadmaps",
-      "searchMyRoadmaps": "Search your roadmaps...",
       "emptyMyRoadmapsTitle": "No roadmaps yet",
       "emptyMyRoadmapsDescription": "Build one with the roadmap coach to get a step-by-step learning path.",
-      "exploreUnavailable": "Previewing and enrolling in catalog roadmaps is not available yet.",
       "searchExploreRoadmaps": "Search available roadmaps...",
       "emptyExploreTitle": "No roadmaps available",
       "emptyExploreDescription": "There are no published roadmaps available right now, or no roadmap matches your search.",
@@ -4646,7 +4641,6 @@
       "creditsOf": "{{earned}} of {{required}} credits",
       "cpdTarget": "CPD target",
       "cpdTargetComplete": "complete",
-      "recommendedDescription": "Content that fits your goal and is not already in your roadmap.",
       "weekRange": "Weeks {{start}}-{{end}}",
       "pduValue": "{{count}} PDU",
       "closeMatchDisclosure": {
@@ -4689,28 +4683,26 @@
       "noRoadmapMatches": "No roadmap matches your search.",
       "enrolledTag": "Enrolled",
       "weekSingle": "Week {{week}}",
-      "openContent": "Open",
       "stepActions": "More actions for {{title}}",
       "showDetails": "Show details",
       "hideDetails": "Hide details",
       "showMore": "Show more",
       "showLess": "Show less",
       "sections": {
-        "path": "Learning path",
-        "recommended": "Recommended",
-        "explore": "Explore"
+        "path": "Learning path"
       },
       "focus": {
         "startHere": "Start here",
         "upNext": "Up next",
         "completedTitle": "Roadmap completed",
         "completedDescription": "You finished all {{count}} steps.",
-        "findNext": "Find your next roadmap"
+        "findNext": "Find your next roadmap",
+        "eyebrow": "Phase {{phase}} · Step {{step}} of {{total}}",
+        "startStep": "Start step"
       },
       "summary": {
         "phasesDone": "Phases done",
         "countOf": "{{completed}} of {{total}}",
-        "doneThisWeek": "Steps done this week",
         "streak": "Streak",
         "days": "{{count}} days"
       },
@@ -4724,7 +4716,8 @@
         "edit": "Edit",
         "continueLabel": "Continue {{title}}",
         "reviewLabel": "Review {{title}}",
-        "editLabel": "Edit {{title}}"
+        "start": "Start",
+        "startLabel": "Start {{title}}"
       },
       "edit": {
         "startFailed": "We couldn’t open this roadmap for editing. Please try again.",
@@ -4741,7 +4734,81 @@
       "progressCannotBePreserved": {
         "title": "This roadmap can't be regenerated yet.",
         "description": "Progress on an activity without linked content can't be carried over safely. Your current roadmap and progress are unchanged."
-      }
+      },
+      "switcher": {
+        "label": "Roadmap {{current}} of {{total}}",
+        "open": "Switch roadmap",
+        "title": "Your roadmaps",
+        "search": "Search your roadmaps",
+        "filters": "Filter roadmaps",
+        "manageAll": "Manage all roadmaps",
+        "generating": "Building your roadmap… you can keep working",
+        "partial": "Showing {{shown}} of {{total}}. Manage all roadmaps to see the rest."
+      },
+      "states": {
+        "all": "All",
+        "inProgress": "In progress",
+        "notStarted": "Not started",
+        "completed": "Completed"
+      },
+      "header": {
+        "allRoadmaps": "All roadmaps",
+        "editRoadmap": "Edit roadmap",
+        "phasesSteps": "{{phases}} phases · {{steps}} steps"
+      },
+      "strip": {
+        "thisWeek": "This week",
+        "stepsCount": "{{count}} steps",
+        "phaseLabel": "Phase {{number}}: {{title}}"
+      },
+      "path": {
+        "all": "All {{count}}",
+        "remaining": "Remaining {{count}}",
+        "show": "Show steps",
+        "expandAll": "Expand all",
+        "collapseAll": "Collapse all",
+        "empty": "Every step in this roadmap is done.",
+        "startStep": "Start {{title}}",
+        "completeStep": "Mark {{title}} complete",
+        "openStep": "Open {{title}}"
+      },
+      "recommendedCard": {
+        "title": "Recommended for this goal",
+        "description": "Fits your goal and isn’t in this roadmap yet.",
+        "seeAll": "See all {{count}}",
+        "showFewer": "Show fewer"
+      },
+      "editCard": {
+        "title": "Not quite right?",
+        "description": "Tell the roadmap coach what to change. Steps you finished stay finished."
+      },
+      "catalogCard": {
+        "title": "Catalog roadmaps",
+        "description": "Ready-made roadmaps you can browse. Enrolling opens soon.",
+        "action": "Browse the catalog"
+      },
+      "library": {
+        "back": "Back to your roadmap",
+        "title": "Your roadmaps",
+        "summary": "{{total}} roadmaps · {{inProgress}} in progress · {{completed}} completed",
+        "sort": "Sort",
+        "sorts": {
+          "newest": "Newest first",
+          "progress": "Most progress",
+          "name": "Name"
+        },
+        "columns": {
+          "roadmap": "Roadmap",
+          "progress": "Progress",
+          "nextStep": "Next step",
+          "actions": "Actions"
+        },
+        "allDone": "All steps done",
+        "current": "Current",
+        "emptyFilter": "No roadmap matches these filters.",
+        "catalogBadge": "Enrolling opens soon"
+      },
+      "aside": "More for this roadmap"
     },
     "calendar": {
       "eyebrow": "Professional calendar",

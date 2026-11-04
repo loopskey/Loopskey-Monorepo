@@ -39,7 +39,10 @@ const buildHarness = (options: { records?: unknown[] } = {}) => {
     completeRoadmapStep: jest.fn().mockResolvedValue({}),
     completeRoadmapEnrollment: jest.fn().mockResolvedValue(undefined),
   };
-  const catalog = { roadmaps: jest.fn().mockResolvedValue([ROADMAP]) };
+  const catalog = {
+    roadmaps: jest.fn().mockResolvedValue([ROADMAP]),
+    contentSlugs: jest.fn().mockResolvedValue({}),
+  };
   const candidates = { build: jest.fn().mockResolvedValue([]) };
   const drafts = { findEditableDraft: jest.fn().mockResolvedValue(null) };
   const prisma = {
@@ -211,6 +214,32 @@ describe("ProfessionalRoadmapProgressService", () => {
       expect(candidates.build).toHaveBeenCalledWith(
         expect.objectContaining({ subjects: ["term-leadership"] }),
       );
+    });
+
+    it("gives each recommendation the slug of its published page, or null", async () => {
+      const { service, drafts, candidates, catalog } = buildHarness();
+      drafts.findEditableDraft.mockResolvedValue({
+        subjects: ["term-data"],
+        skillLevel: "BEGINNER",
+        budgetPreference: "FREE_ONLY",
+        preferredContentTypes: ["COURSE"],
+      });
+      candidates.build.mockResolvedValue([
+        { title: "SQL basics", contentId: "c-1", contentType: "COURSE" },
+        { title: "Data talk", contentId: "e-1", contentType: "EVENT" },
+      ]);
+      catalog.contentSlugs.mockResolvedValue({ "COURSE:c-1": "sql-basics" });
+
+      const result = await service.recommendations(USER);
+
+      expect(catalog.contentSlugs).toHaveBeenCalledWith([
+        { contentId: "c-1", contentType: "COURSE" },
+        { contentId: "e-1", contentType: "EVENT" },
+      ]);
+      expect(result.map((item) => item.contentSlug)).toEqual([
+        "sql-basics",
+        null,
+      ]);
     });
 
     it("returns nothing when there is neither an enrollment nor an editable draft", async () => {

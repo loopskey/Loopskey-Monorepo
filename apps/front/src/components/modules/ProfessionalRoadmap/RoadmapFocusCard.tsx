@@ -3,11 +3,13 @@
 import { ROADMAP_NEXT_STEP_ELEMENT_ID } from "@/utils/roadmap-navigation.util";
 import { RoadmapStepProgressStatus } from "@/lib/graphql/base";
 import { findNextActionableStep } from "@/utils/roadmap-journey.util";
+import { formatDurationMinutes } from "@/utils/content-source.helper";
+import { translateWithFallback } from "@/utils/function-helper";
+import { ROADMAP_CATALOG_HREF } from "@/utils/roadmap-navigation.util";
 import { roadmapContentHref } from "@/utils/roadmap-navigation.util";
-import { RoadmapStepMeta } from "@modules/ProfessionalRoadmap/RoadmapStepMeta";
+import { humanizeEnumValue } from "@/utils/function-helper";
 import { useI18n } from "@/hooks/useI18n";
 import { Button } from "@ui/button";
-import { cn } from "@/lib/utils";
 
 import type { TRoadmapFocusCardProps } from "@/types/professional-roadmap-chat.types";
 
@@ -17,14 +19,10 @@ import * as L from "lucide-react";
 
 const KEY = "professionalDashboard.roadmap";
 
-const EYEBROW_CLASS_NAME = "text-xs font-semibold uppercase tracking-wider";
-
 export const RoadmapFocusCard = ({
   roadmap,
   pending,
   onStart,
-  focusRef,
-  onExplore,
   onComplete,
   failedStepId,
 }: TRoadmapFocusCardProps) => {
@@ -35,25 +33,29 @@ export const RoadmapFocusCard = ({
     (phase) => phase.id === next?.phaseId,
   );
   const phase = roadmap.phases[phaseIndex];
-  const step = phase?.steps.find((candidate) => candidate.id === next?.stepId);
+  const stepIndex =
+    phase?.steps.findIndex((candidate) => candidate.id === next?.stepId) ?? -1;
+  const step = phase?.steps[stepIndex];
 
   if (!phase || !step)
     return (
       <section
-        tabIndex={-1}
-        ref={focusRef}
         id={ROADMAP_NEXT_STEP_ELEMENT_ID}
-        className="flex flex-col gap-4 rounded-xl border border-success/20 bg-success-soft p-5 outline-none scroll-mt-24 sm:flex-row sm:items-center sm:justify-between"
+        aria-labelledby="roadmap-focus-title"
+        className="flex scroll-mt-24 flex-col gap-4 rounded-2xl border border-success/25 bg-success-soft p-5 sm:flex-row sm:items-center sm:justify-between"
       >
         <div className="min-w-0 space-y-1">
-          <p className={cn(EYEBROW_CLASS_NAME, "text-success-soft-foreground")}>
+          <p className="text-xs font-bold uppercase tracking-wider text-success-soft-foreground">
             {t(`${KEY}.focus.completedTitle`)}
           </p>
-          <h3 className="text-lg font-medium">
+          <h2
+            id="roadmap-focus-title"
+            className="text-lg font-semibold text-foreground"
+          >
             {t(`${KEY}.focus.completedDescription`, {
               count: roadmap.totalSteps,
             })}
-          </h3>
+          </h2>
           {roadmap.completedAt ? (
             <p className="text-xs text-muted-foreground">
               {t(`${KEY}.card.completedOn`, {
@@ -65,8 +67,8 @@ export const RoadmapFocusCard = ({
           ) : null}
         </div>
 
-        <Button type="button" variant="outline" onClick={onExplore}>
-          {t(`${KEY}.focus.findNext`)}
+        <Button asChild variant="outline" className="bg-background">
+          <Link href={ROADMAP_CATALOG_HREF}>{t(`${KEY}.focus.findNext`)}</Link>
         </Button>
       </section>
     );
@@ -74,42 +76,57 @@ export const RoadmapFocusCard = ({
   const isStarted = step.status === RoadmapStepProgressStatus.InProgress;
   const isBusy = pending?.stepId === step.id;
   const contentHref = roadmapContentHref(step.contentType, step.contentSlug);
+  const duration = formatDurationMinutes(step.estimatedMinutes);
+  const meta = [
+    step.contentType
+      ? translateWithFallback(
+          t,
+          `common.contentTypes.${step.contentType}`,
+          humanizeEnumValue(step.contentType),
+        )
+      : null,
+    duration,
+    typeof step.credits === "number"
+      ? t(`${KEY}.pduValue`, { count: step.credits })
+      : null,
+    phase.title,
+  ].filter(Boolean);
 
   return (
     <section
-      tabIndex={-1}
-      ref={focusRef}
       id={ROADMAP_NEXT_STEP_ELEMENT_ID}
-      className="flex flex-col gap-4 rounded-xl border border-primary/15 bg-primary/5 p-5 outline-none scroll-mt-24 focus-visible:ring-2 focus-visible:ring-ring sm:flex-row sm:items-center sm:justify-between"
+      aria-labelledby="roadmap-focus-title"
+      className="flex scroll-mt-24 flex-col gap-4 rounded-2xl bg-primary p-5 text-primary-foreground sm:flex-row sm:items-center sm:justify-between sm:px-6"
     >
       <div className="min-w-0 space-y-1.5">
-        <p className={cn(EYEBROW_CLASS_NAME, "text-primary")}>
+        <p className="text-xs font-bold uppercase tracking-wider text-primary-foreground/80">
           {t(
             roadmap.completedSteps === 0 && !isStarted
               ? `${KEY}.focus.startHere`
               : `${KEY}.focus.upNext`,
           )}
           {" · "}
-          {t(`${KEY}.card.phaseOf`, {
-            current: phaseIndex + 1,
-            total: roadmap.phases.length,
+          {t(`${KEY}.focus.eyebrow`, {
+            phase: phaseIndex + 1,
+            step: stepIndex + 1,
+            total: phase.steps.length,
           })}
         </p>
 
-        <h3 className="text-lg font-medium leading-snug break-words">
-          {step.title}
-        </h3>
-
-        <RoadmapStepMeta
-          credits={step.credits}
-          contentType={step.contentType}
-          estimatedMinutes={step.estimatedMinutes}
+        <h2
+          id="roadmap-focus-title"
+          className="text-lg font-semibold leading-snug break-words sm:text-xl"
         >
-          <span className="min-w-0 truncate">{phase.title}</span>
-        </RoadmapStepMeta>
+          {step.title}
+        </h2>
+
+        <p className="text-sm text-primary-foreground/85">{meta.join(" · ")}</p>
 
         {failedStepId === step.id ? (
-          <p role="alert" className="text-xs font-medium text-destructive">
+          <p
+            role="alert"
+            className="inline-block rounded-md bg-background px-2 py-1 text-xs font-medium text-destructive"
+          >
             {t(`${KEY}.stepFailed`)}
           </p>
         ) : null}
@@ -117,17 +134,24 @@ export const RoadmapFocusCard = ({
 
       <div className="flex shrink-0 flex-col gap-2 sm:flex-row">
         {contentHref ? (
-          <Button asChild variant="outline">
+          <Button
+            asChild
+            size="lg"
+            variant="ghost"
+            className="border border-primary-foreground/45 text-primary-foreground hover:bg-primary-foreground/10 hover:text-primary-foreground"
+          >
             <Link href={contentHref} target="_blank" rel="noopener noreferrer">
               {t(`${KEY}.viewContent`)}
-              <L.ArrowUpRight aria-hidden className="size-4" />
+              <L.ArrowUpRight aria-hidden />
             </Link>
           </Button>
         ) : null}
 
         <Button
+          size="lg"
           type="button"
           disabled={isBusy}
+          className="bg-background text-primary shadow-none hover:bg-background/90"
           onClick={() =>
             isStarted
               ? onComplete(roadmap.id, step.id)
@@ -135,9 +159,13 @@ export const RoadmapFocusCard = ({
           }
         >
           {isBusy ? (
-            <L.Loader2 aria-hidden className="size-4 animate-spin" />
-          ) : null}
-          {t(isStarted ? `${KEY}.markComplete` : `${KEY}.start`)}
+            <L.Loader2 aria-hidden className="animate-spin" />
+          ) : isStarted ? (
+            <L.CheckCircle2 aria-hidden />
+          ) : (
+            <L.Play aria-hidden />
+          )}
+          {t(isStarted ? `${KEY}.markComplete` : `${KEY}.focus.startStep`)}
         </Button>
       </div>
     </section>

@@ -84,6 +84,7 @@ export class RoadmapRecommendationEntity {
   @Field(() => ContentType) contentType: ContentType;
   @Field(() => Float, { nullable: true }) credits?: number | null;
   @Field(() => String, { nullable: true }) summary?: string | null;
+  @Field(() => String, { nullable: true }) contentSlug?: string | null;
   @Field(() => Int, { nullable: true }) durationMinutes?: number | null;
 }
 

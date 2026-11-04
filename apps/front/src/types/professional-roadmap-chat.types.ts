@@ -4,10 +4,10 @@ import { PatchRoadmapDraftInput } from "@/lib/graphql/base";
 import { RoadmapDraftStatus } from "@/lib/graphql/base";
 import { StepPending } from "@/hooks/useRoadmapStepProgress";
 
-import type { ChangeEvent, ReactNode, Ref, RefObject } from "react";
 import type { RoadmapGenerationRecoveryAction } from "@/lib/graphql/base";
 import type { RoadmapGenerationFailureCode } from "@/lib/graphql/base";
 import type { TProfessionalExploreRoadmap } from "@/types/professional-dashboard.types";
+import type { ReactNode, RefObject } from "react";
 import type { RoadmapDraftFieldKey } from "@/lib/graphql/base";
 import type { TProfessionalRoadmap } from "@/types/professional-dashboard.types";
 import type { RoadmapChatStage } from "@/utils/roadmap-chat-step.util";
@@ -103,6 +103,7 @@ export type Recommendation = {
   contentType: string;
   summary?: string | null;
   credits?: number | null;
+  contentSlug?: string | null;
   durationMinutes?: number | null;
 };
 
@@ -140,12 +141,12 @@ export type Row = {
 };
 
 export type TRowProps = {
-  idPrefix: string;
   row: Row;
+  idPrefix: string;
   isAsking: boolean;
-  isRequired: boolean;
   isEditing: boolean;
   onEdit: () => void;
+  isRequired: boolean;
   isPatching: boolean;
   onCancel: () => void;
   draft: TRoadmapDraft;
@@ -170,53 +171,62 @@ export type TRoadmapSuggestionOption = TRoadmapWidgetOption;
 
 export type TRoadmapSuggestionExpansion = {
   draftId: string;
-  field: TRoadmapWidget["field"];
   disabled?: boolean;
+  field: TRoadmapWidget["field"];
   onPick: (option: TRoadmapSuggestionOption) => void;
 };
 
-export type RoadmapSection = "path" | "recommended" | "explore";
-
-export type TRoadmapActionHandlers = {
-  onEdit: (roadmapId: string) => void;
-  onContinue: (roadmapId: string) => void;
+export type TRoadmapEditHandlers = {
   editingRoadmapId?: string | null;
+  onEdit: (roadmapId: string) => void;
 };
 
-export type TRoadmapActionButtonsProps = TRoadmapActionHandlers & {
-  className?: string;
-  size?: "default" | "sm";
-  roadmap: TProfessionalRoadmap;
-};
-
-export type TRoadmapSwitcherProps = TRoadmapActionHandlers & {
-  search: string;
-  showSearch: boolean;
-  isFetching: boolean;
-  activeRoadmapId?: string;
-  roadmaps: TProfessionalRoadmap[];
-  onSearchChange: (event: ChangeEvent<HTMLInputElement>) => void;
-};
-
-export type TRoadmapWorkspaceHeaderProps = TRoadmapActionHandlers & {
-  isUnenrolling: boolean;
-  roadmap: TProfessionalRoadmap;
+export type TRoadmapUnenrollHandlers = {
+  unenrollingId: string | null;
   onUnenroll: (enrollmentId: string) => void;
+};
+
+export type TRoadmapSwitcherProps = {
+  totalCount: number;
+  generatingGoal?: string | null;
+  roadmap: TProfessionalRoadmap;
+  roadmaps: TProfessionalRoadmap[];
   headingRef: RefObject<HTMLHeadingElement | null>;
 };
 
+export type TRoadmapSwitcherPanelProps = {
+  totalCount: number;
+  onNavigate: () => void;
+  activeRoadmapId: string;
+  generatingGoal?: string | null;
+  roadmaps: TProfessionalRoadmap[];
+};
+
+export type TRoadmapActionsMenuProps = TRoadmapUnenrollHandlers &
+  Partial<TRoadmapEditHandlers> & {
+    className?: string;
+    roadmap: TProfessionalRoadmap;
+  };
+
+export type TRoadmapWorkspaceHeaderProps = TRoadmapEditHandlers &
+  TRoadmapUnenrollHandlers & {
+    totalCount: number;
+    generatingGoal?: string | null;
+    roadmap: TProfessionalRoadmap;
+    roadmaps: TProfessionalRoadmap[];
+    headingRef: RefObject<HTMLHeadingElement | null>;
+  };
+
+export type TRoadmapProgressStripProps = {
+  roadmap: TProfessionalRoadmap;
+};
+
 export type TRoadmapFocusCardProps = {
-  onExplore: () => void;
-  focusRef: Ref<HTMLElement>;
   pending: StepPending | null;
   failedStepId: string | null;
   roadmap: TProfessionalRoadmap;
   onStart: (enrollmentId: string, stepId: string) => void;
   onComplete: (enrollmentId: string, stepId: string) => void;
-};
-
-export type RoadmapSummaryRailProps = {
-  roadmap: TProfessionalRoadmap;
 };
 
 export type RoadmapStepMetaProps = {
@@ -226,24 +236,43 @@ export type RoadmapStepMetaProps = {
   estimatedMinutes?: number | null;
 };
 
-export type RoadmapRecommendationsListProps = {
+export type TRoadmapRecommendationsCardProps = {
   recommendations: Recommendation[];
 };
 
-export type RoadmapExploreListProps = {
+export type TRoadmapEditCardProps = TRoadmapEditHandlers & {
+  roadmap: TProfessionalRoadmap;
+};
+
+export type TRoadmapListPaging = {
   page: number;
+  hasNextPage: boolean;
+  totalCount?: number;
+  goNext: () => void;
+  goPrevious: () => void;
+};
+
+export type TRoadmapCatalogProps = TRoadmapListPaging & {
   search: string;
   isError: boolean;
-  onNext: () => void;
   isLoading: boolean;
   isFetching: boolean;
-  totalCount?: number;
   onRetry: () => void;
-  hasNextPage: boolean;
-  onPrevious: () => void;
   roadmaps: TProfessionalExploreRoadmap[];
-  onSearchChange: (event: ChangeEvent<HTMLInputElement>) => void;
+  onSearchChange: (value: string) => void;
 };
+
+export type TRoadmapLibraryProps = TRoadmapEditHandlers &
+  TRoadmapUnenrollHandlers & {
+    totalRoadmaps: number;
+    activeRoadmapId?: string;
+  };
+
+export type TRoadmapLibraryRowProps = TRoadmapEditHandlers &
+  TRoadmapUnenrollHandlers & {
+    isActive: boolean;
+    roadmap: TProfessionalRoadmap;
+  };
 
 export type RoadmapBriefRingProps = {
   completed: number;

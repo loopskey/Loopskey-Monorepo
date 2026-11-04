@@ -815,6 +815,7 @@ query ProfessionalRoadmapRecommendations($enrollmentId: ID) {
     credits
     summary
     contentId
+    contentSlug
     contentType
     durationMinutes
   }
