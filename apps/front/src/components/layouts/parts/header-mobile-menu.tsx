@@ -12,7 +12,6 @@ import Link from "@elements/localized-link";
 
 const STAGGER_MS = 50;
 
-// The guest menu below lg: pick a role, then join.
 const HeaderMobileMenu = ({
   id,
   isOpen,

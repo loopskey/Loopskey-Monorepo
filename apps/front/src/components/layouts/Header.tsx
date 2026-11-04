@@ -117,7 +117,6 @@ const Header = ({ languageControl }: THeaderProps) => {
                   <Link href={joinHref}>{joinLabel}</Link>
                 </Button>
 
-                {/* Below lg the menu holds the role choice and the join button. */}
                 <Button
                   size="icon"
                   radius="xl"

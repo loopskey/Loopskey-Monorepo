@@ -79,7 +79,6 @@ export const useHeader = () => {
     closeMobileMenu();
   }, [pathname, closeMobileMenu]);
 
-  // The menu is for guests only, so signing in closes it.
   useEffect(() => {
     if (isAuthenticated) closeMobileMenu();
   }, [isAuthenticated, closeMobileMenu]);
