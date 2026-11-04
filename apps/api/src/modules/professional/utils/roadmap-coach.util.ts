@@ -1,5 +1,12 @@
 export const COACH_INTRO_CODE = "ROADMAP_COACH_INTRO";
 export const COACH_QUESTION_CODE = "ROADMAP_COACH_QUESTION";
+export const COACH_EDIT_GREETING_CODE = "ROADMAP_COACH_EDIT_GREETING";
+export const COACH_EDIT_CHANGE_REJECTED_CODE = "ROADMAP_EDIT_CHANGE_REJECTED";
 
-export const isCoachMessage = (content: string) =>
-  content === COACH_INTRO_CODE || content === COACH_QUESTION_CODE;
+const COACH_CODES: ReadonlySet<string> = new Set([
+  COACH_INTRO_CODE,
+  COACH_QUESTION_CODE,
+  COACH_EDIT_GREETING_CODE,
+]);
+
+export const isCoachMessage = (content: string) => COACH_CODES.has(content);

@@ -47,6 +47,15 @@ export const RoadmapGenerationStatus = ({
   if (status === RoadmapDraftStatus.Failed) {
     const isNoContent =
       failure?.code === RoadmapGenerationFailureCode.NoMatchingContent;
+    const isUnpreservable =
+      failure?.code === RoadmapGenerationFailureCode.ProgressCannotBePreserved;
+    const failureKey = isNoContent
+      ? "noContent"
+      : isUnpreservable
+        ? "progressCannotBePreserved"
+        : failure?.code === RoadmapGenerationFailureCode.ProgressNotPreserved
+          ? "progressNotPreserved"
+          : "genericFailure";
 
     return (
       <GlassCard className="p-8">
@@ -56,15 +65,11 @@ export const RoadmapGenerationStatus = ({
           </div>
 
           <h2 className="mt-4 text-xl font-medium">
-            {isNoContent
-              ? t(`${key}.noContent.title`)
-              : t(`${key}.genericFailure.title`)}
+            {t(`${key}.${failureKey}.title`)}
           </h2>
 
           <p className="mt-2 max-w-md text-sm leading-6 text-muted-foreground">
-            {isNoContent
-              ? t(`${key}.noContent.description`)
-              : t(`${key}.genericFailure.description`)}
+            {t(`${key}.${failureKey}.description`)}
           </p>
 
           {isEdit ? (
@@ -74,7 +79,7 @@ export const RoadmapGenerationStatus = ({
           ) : null}
 
           <div className="mt-6 flex flex-wrap justify-center gap-3">
-            {isNoContent ? (
+            {isUnpreservable ? null : isNoContent ? (
               <Button asChild radius="xl">
                 <Link href={reviewPreferencesHref}>
                   {t(`${key}.noContent.action`)}

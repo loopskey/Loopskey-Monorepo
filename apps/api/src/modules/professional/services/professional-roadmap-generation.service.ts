@@ -1,5 +1,7 @@
+import { ProfessionalRoadmapEditContextService } from "@professional/services/professional-roadmap-edit-context.service";
 import { Injectable, Logger, NotFoundException } from "@nestjs/common";
 import { ProfessionalRoadmapCandidateService } from "@professional/services/professional-roadmap-candidate.service";
+import { RoadmapProgressNotPreservedError } from "@contentAction/public/professional-engagement-api";
 import { getRoadmapDraftContractReadiness } from "@professional/utils/roadmap-draft-readiness.util";
 import { Prisma, ProfileTaxonomyKind } from "@prisma/client";
 import { PROFESSIONAL_ENGAGEMENT_API } from "@contentAction/public/professional-engagement-api";
@@ -13,7 +15,12 @@ import { verifyGeneratedRoadmap } from "@professional/utils/roadmap-generation-v
 import { mapGenerationFailure } from "@professional/utils/roadmap-generation-failure.util";
 import { NO_CANDIDATES_REASON } from "@professional/utils/roadmap-generation-failure.util";
 import { BadRequestException } from "@nestjs/common";
+import { unaffectedPhaseIds } from "@professional/utils/roadmap-edit-preservation.util";
+import { verifyPreservation } from "@professional/utils/roadmap-edit-preservation.util";
 import { SERVICE_AI_LIMITS } from "@infrastructure/service-ai/service-ai.port";
+import { FULL_PRESERVATION } from "@professional/utils/roadmap-edit-preservation.util";
+import { toCurrentRoadmap } from "@professional/utils/roadmap-edit-shape.util";
+import { preservedContent } from "@professional/utils/roadmap-edit-preservation.util";
 import { SERVICE_AI_PORT } from "@infrastructure/service-ai/service-ai.port";
 import { subjectLabelsOf } from "@professional/utils/roadmap-draft-merge.util";
 import { mapCarriedSteps } from "@professional/utils/roadmap-carry-over.util";
@@ -66,6 +73,7 @@ export class ProfessionalRoadmapGenerationService {
     private readonly catalog: ProfessionalCatalogApi,
     @Inject(PROFESSIONAL_ENGAGEMENT_API)
     private readonly engagement: ProfessionalEngagementApi,
+    private readonly editContext: ProfessionalRoadmapEditContextService,
   ) {}
 
   private assertProfessional(user: TUser) {
@@ -97,6 +105,14 @@ export class ProfessionalRoadmapGenerationService {
       throw new BadRequestException(
         ProfessionalMessageCode.ROADMAP_DRAFT_NOT_READY,
       );
+
+    if (draft.replacesRoadmapId) {
+      const edit = await this.editContext.state(draft);
+      if (this.editContext.blockReason(draft, edit))
+        throw new BadRequestException(
+          ProfessionalMessageCode.ROADMAP_DRAFT_NOT_READY,
+        );
+    }
 
     const correlationId = requestContext.correlationId() ?? undefined;
     const claimed = await this.prisma.$transaction(async (tx) => {
@@ -236,7 +252,45 @@ export class ProfessionalRoadmapGenerationService {
       (value): value is string => Boolean(value?.trim()),
     );
     const started = Date.now();
-    const maxPhases = SERVICE_AI_LIMITS.maxPhasesDefault;
+
+    const edit = draft.replacesRoadmapId
+      ? await this.editContext.state(draft)
+      : null;
+    if (draft.replacesRoadmapId) {
+      const refusal = this.editRefusal(draft, edit);
+      if (refusal) {
+        await this.fail(draftId, refusal);
+        return;
+      }
+    }
+    const editContext = edit?.context ?? null;
+    const unaffected = editContext
+      ? unaffectedPhaseIds(
+          editContext.roadmap,
+          edit!.validation.accepted,
+          edit!.changedFields.length > 0,
+        )
+      : [];
+    const preserved = editContext
+      ? preservedContent(
+          editContext.roadmap,
+          edit!.protectedSteps,
+          unaffected,
+          draft.budgetPreference !== LearningBudgetPreference.FREE_ONLY,
+        )
+      : [];
+    const maxPhases = editContext
+      ? Math.min(
+          SERVICE_AI_LIMITS.maxPhasesMaximum,
+          Math.max(
+            SERVICE_AI_LIMITS.maxPhasesDefault,
+            editContext.roadmap.phases.length +
+              edit!.validation.accepted.filter(
+                (operation) => operation.operation === "ADD_PHASE",
+              ).length,
+          ),
+        )
+      : SERVICE_AI_LIMITS.maxPhasesDefault;
 
     let cap: number = SERVICE_AI_LIMITS.candidatesMaxItems;
     let attempted = 0;
@@ -255,19 +309,33 @@ export class ProfessionalRoadmapGenerationService {
         creditsNeeded: (cpd?.remainingCredits ?? 0) > 0,
       });
 
-      if (selected.length === 0) {
+      if (selected.length === 0 && !editContext) {
         await this.fail(draftId, NO_CANDIDATES_REASON);
         return;
       }
 
       await assertLeaseHeld?.();
-      const result = await this.ai.generate({
-        cpd,
-        today: new Date(),
-        draft: this.toDraftState(draft, subjects),
-        maxPhases,
-        candidates: selected.map(toContentCandidate),
-      });
+      const result = editContext
+        ? await this.ai.regenerate({
+            cpd,
+            today: new Date(),
+            draft: this.toDraftState(draft, subjects),
+            maxPhases,
+            candidates: selected.map(toContentCandidate),
+            currentRoadmap: toCurrentRoadmap(
+              editContext.roadmap,
+              editContext.progress,
+            ),
+            changeOperations: edit!.validation.accepted,
+            preservation: FULL_PRESERVATION,
+          })
+        : await this.ai.generate({
+            cpd,
+            today: new Date(),
+            draft: this.toDraftState(draft, subjects),
+            maxPhases,
+            candidates: selected.map(toContentCandidate),
+          });
 
       if (result.ok) {
         data = result.data;
@@ -327,6 +395,7 @@ export class ProfessionalRoadmapGenerationService {
       maxPhases,
       freeOnly: draft.budgetPreference === LearningBudgetPreference.FREE_ONLY,
       candidates: selected.map(toCandidateKey),
+      preserved,
     });
 
     if (!verdict.ok) {
@@ -340,6 +409,25 @@ export class ProfessionalRoadmapGenerationService {
       return;
     }
 
+    if (editContext) {
+      const kept = verifyPreservation({
+        roadmap: editContext.roadmap,
+        protectedSteps: edit!.protectedSteps,
+        unaffected,
+        generated: verdict.phases,
+      });
+      if (!kept.ok) {
+        this.logger.error("Regenerated roadmap did not preserve progress", {
+          draftId,
+          violation: kept.violation,
+          offending: kept.offending,
+          correlationId: requestContext.correlationId() ?? null,
+        });
+        await this.fail(draftId, kept.violation);
+        return;
+      }
+    }
+
     const persisted = await this.persist({
       draft,
       data,
@@ -350,6 +438,9 @@ export class ProfessionalRoadmapGenerationService {
 
     this.logger.log("Roadmap generated", {
       draftId,
+      regenerated: Boolean(editContext),
+      protectedSteps: edit?.protectedSteps.length ?? 0,
+      operations: edit?.validation.accepted.length ?? 0,
       attempts: attempted,
       candidateCount: selected.length,
       phaseCount: verdict.phases.length,
@@ -490,12 +581,40 @@ export class ProfessionalRoadmapGenerationService {
       });
       return true;
     } catch (error) {
+      if (error instanceof RoadmapProgressNotPreservedError) {
+        this.logger.error("Regenerated roadmap would have lost progress", {
+          draftId,
+          uncarriedSteps: error.uncarriedSteps,
+          correlationId: requestContext.correlationId() ?? null,
+        });
+        await this.fail(
+          draftId,
+          RoadmapGenerationViolation.PROTECTED_CONTENT_DROPPED,
+        );
+        return false;
+      }
       if (!(error instanceof GenerationClaimLostError)) throw error;
       this.logger.warn("Generated roadmap discarded, draft left generating", {
         draftId,
       });
       return false;
     }
+  }
+
+  private editRefusal(
+    draft: DraftRow,
+    edit: Awaited<ReturnType<ProfessionalRoadmapEditContextService["state"]>>,
+  ): string | null {
+    const reason = this.editContext.blockReason(draft, edit);
+    if (reason === "PRESERVATION_UNSUPPORTED")
+      return RoadmapGenerationViolation.PROTECTED_STEP_WITHOUT_IDENTITY;
+    if (
+      reason === "NOT_EDITABLE" ||
+      reason === "STALE_CHANGES" ||
+      reason === "NO_CHANGES"
+    )
+      return ProfessionalMessageCode.ROADMAP_GENERATION_FAILED;
+    return null;
   }
 
   async fail(draftId: string, reason: string) {

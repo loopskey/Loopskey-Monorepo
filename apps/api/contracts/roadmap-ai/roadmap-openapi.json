@@ -12,6 +12,56 @@
         "title": "BudgetPreference",
         "type": "string"
       },
+      "ChangeOperation": {
+        "additionalProperties": false,
+        "description": "One pending change, written by this service and stored by the Backend.\n\nThe Backend treats the list as opaque: it stores what edit-turn returned\nand sends it back unchanged, as `pending_changes` on the next edit-turn\nand as `change_operations` on regenerate.",
+        "properties": {
+          "instruction": {
+            "maxLength": 500,
+            "minLength": 1,
+            "title": "Instruction",
+            "type": "string"
+          },
+          "operation": {
+            "$ref": "#/components/schemas/ChangeOperationType"
+          },
+          "target_id": {
+            "anyOf": [
+              {
+                "maxLength": 128,
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Target Id"
+          }
+        },
+        "required": [
+          "operation",
+          "instruction"
+        ],
+        "title": "ChangeOperation",
+        "type": "object"
+      },
+      "ChangeOperationType": {
+        "description": "One requested change to an existing roadmap.\n\nThe model may propose every member except UPDATE_DRAFT, which the service\nwrites itself — one per changed draft field — so a regeneration can tell\nwhat changed without the Backend sending the draft as it was before.",
+        "enum": [
+          "MODIFY_ROADMAP",
+          "REBUILD_ROADMAP",
+          "ADD_PHASE",
+          "MODIFY_PHASE",
+          "REMOVE_PHASE",
+          "ADD_STEP",
+          "MODIFY_STEP",
+          "REMOVE_STEP",
+          "UPDATE_DRAFT"
+        ],
+        "title": "ChangeOperationType",
+        "type": "string"
+      },
       "ChatMessage": {
         "additionalProperties": false,
         "properties": {
@@ -329,6 +379,199 @@
         "title": "CpdContext",
         "type": "object"
       },
+      "CurrentPhase": {
+        "additionalProperties": false,
+        "properties": {
+          "description": {
+            "anyOf": [
+              {
+                "maxLength": 1500,
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Description"
+          },
+          "estimated_weeks": {
+            "minimum": 1.0,
+            "title": "Estimated Weeks",
+            "type": "integer"
+          },
+          "phase_id": {
+            "maxLength": 128,
+            "minLength": 1,
+            "title": "Phase Id",
+            "type": "string"
+          },
+          "steps": {
+            "items": {
+              "$ref": "#/components/schemas/CurrentStep"
+            },
+            "maxItems": 50,
+            "title": "Steps",
+            "type": "array"
+          },
+          "title": {
+            "maxLength": 300,
+            "minLength": 1,
+            "title": "Title",
+            "type": "string"
+          }
+        },
+        "required": [
+          "phase_id",
+          "title",
+          "estimated_weeks"
+        ],
+        "title": "CurrentPhase",
+        "type": "object"
+      },
+      "CurrentRoadmap": {
+        "additionalProperties": false,
+        "description": "The roadmap being edited, as stored, with this learner's progress.",
+        "properties": {
+          "description": {
+            "anyOf": [
+              {
+                "maxLength": 1500,
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Description"
+          },
+          "phases": {
+            "items": {
+              "$ref": "#/components/schemas/CurrentPhase"
+            },
+            "maxItems": 8,
+            "minItems": 1,
+            "title": "Phases",
+            "type": "array"
+          },
+          "title": {
+            "anyOf": [
+              {
+                "maxLength": 300,
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Title"
+          }
+        },
+        "required": [
+          "phases"
+        ],
+        "title": "CurrentRoadmap",
+        "type": "object"
+      },
+      "CurrentStep": {
+        "additionalProperties": false,
+        "properties": {
+          "content_id": {
+            "anyOf": [
+              {
+                "maxLength": 128,
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Content Id"
+          },
+          "content_type": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ContentType"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "credits": {
+            "anyOf": [
+              {
+                "minimum": 0.0,
+                "type": "number"
+              },
+              {
+                "pattern": "^(?!^[-+.]*$)[+-]?0*(?:\\d{0,6}|(?=[\\d.]{1,9}0*$)\\d{0,6}\\.\\d{0,2}0*$)",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Credits"
+          },
+          "description": {
+            "anyOf": [
+              {
+                "maxLength": 1500,
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Description"
+          },
+          "estimated_minutes": {
+            "anyOf": [
+              {
+                "minimum": 0.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Estimated Minutes"
+          },
+          "progress": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/StepProgress"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "step_id": {
+            "maxLength": 128,
+            "minLength": 1,
+            "title": "Step Id",
+            "type": "string"
+          },
+          "title": {
+            "maxLength": 300,
+            "minLength": 1,
+            "title": "Title",
+            "type": "string"
+          }
+        },
+        "required": [
+          "step_id",
+          "title"
+        ],
+        "title": "CurrentStep",
+        "type": "object"
+      },
       "DraftState": {
         "additionalProperties": false,
         "properties": {
@@ -497,6 +740,125 @@
           }
         },
         "title": "DraftState",
+        "type": "object"
+      },
+      "EditTurnRequest": {
+        "additionalProperties": false,
+        "properties": {
+          "current_roadmap": {
+            "$ref": "#/components/schemas/CurrentRoadmap"
+          },
+          "draft": {
+            "$ref": "#/components/schemas/DraftState"
+          },
+          "history": {
+            "items": {
+              "$ref": "#/components/schemas/ChatMessage"
+            },
+            "maxItems": 12,
+            "title": "History",
+            "type": "array"
+          },
+          "locale": {
+            "default": "en",
+            "enum": [
+              "fa",
+              "en"
+            ],
+            "title": "Locale",
+            "type": "string"
+          },
+          "pending_changes": {
+            "items": {
+              "$ref": "#/components/schemas/ChangeOperation"
+            },
+            "maxItems": 30,
+            "title": "Pending Changes",
+            "type": "array"
+          },
+          "subject_options": {
+            "items": {
+              "$ref": "#/components/schemas/SubjectOption"
+            },
+            "maxItems": 100,
+            "title": "Subject Options",
+            "type": "array"
+          },
+          "today": {
+            "format": "date",
+            "title": "Today",
+            "type": "string"
+          },
+          "user_message": {
+            "anyOf": [
+              {
+                "maxLength": 2000,
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "User Message"
+          }
+        },
+        "required": [
+          "draft",
+          "current_roadmap",
+          "today"
+        ],
+        "title": "EditTurnRequest",
+        "type": "object"
+      },
+      "EditTurnResponse": {
+        "additionalProperties": false,
+        "properties": {
+          "assistant_message": {
+            "maxLength": 1500,
+            "minLength": 1,
+            "title": "Assistant Message",
+            "type": "string"
+          },
+          "change_operations": {
+            "items": {
+              "$ref": "#/components/schemas/ChangeOperation"
+            },
+            "maxItems": 30,
+            "title": "Change Operations",
+            "type": "array"
+          },
+          "extracted": {
+            "$ref": "#/components/schemas/ExtractedFields"
+          },
+          "is_ready_to_regenerate": {
+            "title": "Is Ready To Regenerate",
+            "type": "boolean"
+          },
+          "needs_clarification": {
+            "title": "Needs Clarification",
+            "type": "boolean"
+          },
+          "widget": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Widget"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "assistant_message",
+          "extracted",
+          "change_operations",
+          "needs_clarification",
+          "is_ready_to_regenerate",
+          "widget"
+        ],
+        "title": "EditTurnResponse",
         "type": "object"
       },
       "ErrorResponse": {
@@ -992,6 +1354,104 @@
         "title": "LearningFormat",
         "type": "string"
       },
+      "Preservation": {
+        "additionalProperties": false,
+        "properties": {
+          "preserve_completed_steps": {
+            "default": true,
+            "title": "Preserve Completed Steps",
+            "type": "boolean"
+          },
+          "preserve_in_progress_steps": {
+            "default": true,
+            "title": "Preserve In Progress Steps",
+            "type": "boolean"
+          },
+          "preserve_unaffected_phases": {
+            "default": true,
+            "title": "Preserve Unaffected Phases",
+            "type": "boolean"
+          }
+        },
+        "title": "Preservation",
+        "type": "object"
+      },
+      "RegenerateRequest": {
+        "additionalProperties": false,
+        "properties": {
+          "candidates": {
+            "items": {
+              "$ref": "#/components/schemas/ContentCandidate"
+            },
+            "maxItems": 50,
+            "title": "Candidates",
+            "type": "array"
+          },
+          "change_operations": {
+            "items": {
+              "$ref": "#/components/schemas/ChangeOperation"
+            },
+            "maxItems": 30,
+            "title": "Change Operations",
+            "type": "array"
+          },
+          "cpd": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/CpdContext"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "current_roadmap": {
+            "$ref": "#/components/schemas/CurrentRoadmap"
+          },
+          "draft": {
+            "$ref": "#/components/schemas/DraftState"
+          },
+          "locale": {
+            "default": "en",
+            "enum": [
+              "fa",
+              "en"
+            ],
+            "title": "Locale",
+            "type": "string"
+          },
+          "max_phases": {
+            "default": 4,
+            "maximum": 8.0,
+            "minimum": 1.0,
+            "title": "Max Phases",
+            "type": "integer"
+          },
+          "preservation": {
+            "$ref": "#/components/schemas/Preservation"
+          },
+          "subject_options": {
+            "items": {
+              "$ref": "#/components/schemas/SubjectOption"
+            },
+            "maxItems": 100,
+            "title": "Subject Options",
+            "type": "array"
+          },
+          "today": {
+            "format": "date",
+            "title": "Today",
+            "type": "string"
+          }
+        },
+        "required": [
+          "draft",
+          "current_roadmap",
+          "today"
+        ],
+        "title": "RegenerateRequest",
+        "type": "object"
+      },
       "RoadmapField": {
         "description": "Exact public ``DraftState`` JSON property names.",
         "enum": [
@@ -1030,7 +1490,13 @@
           "chat": {
             "$ref": "#/components/schemas/GateStatsResponse"
           },
+          "edit": {
+            "$ref": "#/components/schemas/GateStatsResponse"
+          },
           "generate": {
+            "$ref": "#/components/schemas/GateStatsResponse"
+          },
+          "regenerate": {
             "$ref": "#/components/schemas/GateStatsResponse"
           },
           "uptime_seconds": {
@@ -1042,6 +1508,8 @@
         "required": [
           "chat",
           "generate",
+          "edit",
+          "regenerate",
           "uptime_seconds"
         ],
         "title": "StatsResponse",
@@ -1056,6 +1524,15 @@
           "REVIEW"
         ],
         "title": "StepKey",
+        "type": "string"
+      },
+      "StepProgress": {
+        "description": "A learner's progress on one step of an existing roadmap.\n\nMirrors the Backend's RoadmapStepProgressStatus. A step with no progress\nrecord is sent with `progress` null.",
+        "enum": [
+          "COMPLETED",
+          "IN_PROGRESS"
+        ],
+        "title": "StepProgress",
         "type": "string"
       },
       "SubjectOption": {
@@ -1172,7 +1649,7 @@
   "info": {
     "description": "Stateless service for learning-roadmap interviews and planning.",
     "title": "LoopsKey Roadmap AI Service",
-    "version": "1.1.0"
+    "version": "1.2.0"
   },
   "openapi": "3.1.0",
   "paths": {
@@ -1512,6 +1989,200 @@
         ]
       }
     },
+    "/v1/roadmap/edit-turn": {
+      "post": {
+        "operationId": "edit_turn_v1_roadmap_edit_turn_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EditTurnRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EditTurnResponse"
+                }
+              }
+            },
+            "description": "Successful Response",
+            "headers": {
+              "X-Contract-Version": {
+                "description": "Contract version this service implements.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "X-Correlation-Id": {
+                "description": "The caller's correlation id, or one generated here.",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unauthorized",
+            "headers": {
+              "X-Contract-Version": {
+                "description": "Contract version this service implements.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "X-Correlation-Id": {
+                "description": "The caller's correlation id, or one generated here.",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Entity",
+            "headers": {
+              "X-Contract-Version": {
+                "description": "Contract version this service implements.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "X-Correlation-Id": {
+                "description": "The caller's correlation id, or one generated here.",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Internal Server Error",
+            "headers": {
+              "X-Contract-Version": {
+                "description": "Contract version this service implements.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "X-Correlation-Id": {
+                "description": "The caller's correlation id, or one generated here.",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "502": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Bad Gateway",
+            "headers": {
+              "X-Contract-Version": {
+                "description": "Contract version this service implements.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "X-Correlation-Id": {
+                "description": "The caller's correlation id, or one generated here.",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Service Unavailable",
+            "headers": {
+              "X-Contract-Version": {
+                "description": "Contract version this service implements.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "X-Correlation-Id": {
+                "description": "The caller's correlation id, or one generated here.",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "504": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Gateway Timeout",
+            "headers": {
+              "X-Contract-Version": {
+                "description": "Contract version this service implements.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "X-Correlation-Id": {
+                "description": "The caller's correlation id, or one generated here.",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Edit Turn",
+        "tags": [
+          "roadmap"
+        ]
+      }
+    },
     "/v1/roadmap/generate": {
       "post": {
         "operationId": "generate_v1_roadmap_generate_post",
@@ -1701,6 +2372,200 @@
           }
         ],
         "summary": "Generate",
+        "tags": [
+          "roadmap"
+        ]
+      }
+    },
+    "/v1/roadmap/regenerate": {
+      "post": {
+        "operationId": "regenerate_v1_roadmap_regenerate_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RegenerateRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GenerateResponse"
+                }
+              }
+            },
+            "description": "Successful Response",
+            "headers": {
+              "X-Contract-Version": {
+                "description": "Contract version this service implements.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "X-Correlation-Id": {
+                "description": "The caller's correlation id, or one generated here.",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unauthorized",
+            "headers": {
+              "X-Contract-Version": {
+                "description": "Contract version this service implements.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "X-Correlation-Id": {
+                "description": "The caller's correlation id, or one generated here.",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Entity",
+            "headers": {
+              "X-Contract-Version": {
+                "description": "Contract version this service implements.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "X-Correlation-Id": {
+                "description": "The caller's correlation id, or one generated here.",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Internal Server Error",
+            "headers": {
+              "X-Contract-Version": {
+                "description": "Contract version this service implements.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "X-Correlation-Id": {
+                "description": "The caller's correlation id, or one generated here.",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "502": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Bad Gateway",
+            "headers": {
+              "X-Contract-Version": {
+                "description": "Contract version this service implements.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "X-Correlation-Id": {
+                "description": "The caller's correlation id, or one generated here.",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Service Unavailable",
+            "headers": {
+              "X-Contract-Version": {
+                "description": "Contract version this service implements.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "X-Correlation-Id": {
+                "description": "The caller's correlation id, or one generated here.",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "504": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Gateway Timeout",
+            "headers": {
+              "X-Contract-Version": {
+                "description": "Contract version this service implements.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "X-Correlation-Id": {
+                "description": "The caller's correlation id, or one generated here.",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Regenerate",
         "tags": [
           "roadmap"
         ]

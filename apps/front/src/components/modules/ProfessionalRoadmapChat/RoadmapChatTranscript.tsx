@@ -1,5 +1,6 @@
 "use client";
 
+import { ROADMAP_COACH_EDIT_GREETING_CODE } from "@/utils/roadmap-chat.constant";
 import { ROADMAP_COACH_QUESTION_CODE } from "@/utils/roadmap-chat.constant";
 import { ROADMAP_COACH_INTRO_CODE } from "@/utils/roadmap-chat.constant";
 import { usePrefersReducedMotion } from "@/hooks/usePrefersReducedMotion";
@@ -61,6 +62,7 @@ export const RoadmapChatTranscript = ({
   isSending,
   isLoading,
   retryAfter,
+  historyMessages,
 }: T.RoadmapChatTranscriptProps) => {
   const { t } = useI18n();
   const endRef = useRef<HTMLDivElement>(null);
@@ -70,6 +72,8 @@ export const RoadmapChatTranscript = ({
     if (message.role !== "ASSISTANT") return null;
     if (message.content === ROADMAP_COACH_INTRO_CODE)
       return t("professionalRoadmapChat.coach.intro");
+    if (message.content === ROADMAP_COACH_EDIT_GREETING_CODE)
+      return t("professionalRoadmapChat.coach.editGreeting");
     if (message.content === ROADMAP_COACH_QUESTION_CODE) {
       const field = message.widget?.field;
       const fieldLine = field
@@ -96,6 +100,58 @@ export const RoadmapChatTranscript = ({
     });
   }, [messages.length, pending, isSending, reducedMotion]);
 
+  const renderMessages = (list: T.TRoadmapChatMessage[], isHistory: boolean) =>
+    list.map((message, index) => {
+      if (message.role === "SYSTEM")
+        return <SystemMessage key={message.id} content={message.content} />;
+
+      const isEntering =
+        !isHistory &&
+        !reducedMotion &&
+        "motion-safe:animate-in motion-safe:fade-in";
+
+      if (message.role === "PROFESSIONAL")
+        return (
+          <div
+            key={message.id}
+            className={cn(
+              BUBBLE_CLASS_NAME,
+              "max-w-[85%] self-end rounded-2xl rounded-tr-sm",
+              isHistory
+                ? "bg-secondary text-secondary-foreground"
+                : "bg-primary text-primary-foreground",
+              isEntering,
+            )}
+          >
+            {message.content}
+          </div>
+        );
+
+      const followsCoach = list[index - 1]?.role === "ASSISTANT";
+
+      return (
+        <div
+          key={message.id}
+          className={cn("flex max-w-[85%] items-start gap-2.5", isEntering)}
+        >
+          <CoachAvatar isHidden={followsCoach} />
+          <div
+            className={cn(
+              BUBBLE_CLASS_NAME,
+              "rounded-2xl rounded-tl-sm bg-muted text-foreground",
+            )}
+          >
+            {followsCoach ? null : (
+              <span className="block text-[11px] font-semibold tracking-wide text-primary">
+                {t("professionalRoadmapChat.coach.name")}
+              </span>
+            )}
+            {coachLine(message) ?? message.content}
+          </div>
+        </div>
+      );
+    });
+
   if (isLoading)
     return (
       <div className="flex flex-col gap-4" aria-busy="true">
@@ -112,128 +168,106 @@ export const RoadmapChatTranscript = ({
     );
 
   return (
-    <div
-      role="log"
-      aria-live="polite"
-      aria-relevant="additions"
-      aria-label={t("professionalRoadmapChat.transcriptLabel")}
-      className="flex flex-col gap-3.5"
-    >
-      {messages.map((message, index) => {
-        if (message.role === "SYSTEM")
-          return <SystemMessage key={message.id} content={message.content} />;
-
-        const isEntering =
-          !reducedMotion && "motion-safe:animate-in motion-safe:fade-in";
-
-        if (message.role === "PROFESSIONAL")
-          return (
-            <div
-              key={message.id}
-              className={cn(
-                BUBBLE_CLASS_NAME,
-                "max-w-[85%] self-end rounded-2xl rounded-tr-sm bg-primary text-primary-foreground",
-                isEntering,
-              )}
-            >
-              {message.content}
-            </div>
-          );
-
-        const followsCoach = messages[index - 1]?.role === "ASSISTANT";
-
-        return (
+    <div className="flex flex-col gap-3.5">
+      {historyMessages.length ? (
+        <section
+          className="flex flex-col gap-3.5 opacity-80"
+          aria-label={t("professionalRoadmapChat.history.label")}
+        >
+          <h2 className="self-center text-xs font-medium text-muted-foreground">
+            {t("professionalRoadmapChat.history.title")}
+          </h2>
+          {renderMessages(historyMessages, true)}
           <div
-            key={message.id}
-            className={cn("flex max-w-[85%] items-start gap-2.5", isEntering)}
+            role="separator"
+            className="flex items-center gap-3 text-xs text-muted-foreground"
           >
-            <CoachAvatar isHidden={followsCoach} />
+            <span aria-hidden className="h-px flex-1 bg-border" />
+            {t("professionalRoadmapChat.history.editStarts")}
+            <span aria-hidden className="h-px flex-1 bg-border" />
+          </div>
+        </section>
+      ) : null}
+
+      <div
+        role="log"
+        aria-live="polite"
+        aria-relevant="additions"
+        aria-label={t("professionalRoadmapChat.transcriptLabel")}
+        className="flex flex-col gap-3.5"
+      >
+        {renderMessages(messages, false)}
+
+        {showWidget && widget ? (
+          <div className="sm:pl-[2.625rem]">
+            <RoadmapWidgetControl
+              widget={widget}
+              draftId={draftId}
+              onAnswer={onAnswer}
+              disabled={retryAfter > 0}
+            />
+          </div>
+        ) : null}
+
+        {pending ? (
+          <div className="flex max-w-[85%] flex-col items-end gap-2 self-end">
             <div
               className={cn(
                 BUBBLE_CLASS_NAME,
-                "rounded-2xl rounded-tl-sm bg-muted text-foreground",
+                "rounded-2xl rounded-tr-sm text-primary-foreground",
+                pending.failed ? "bg-primary/60" : "bg-primary",
               )}
             >
-              {followsCoach ? null : (
-                <span className="block text-[11px] font-semibold tracking-wide text-primary">
-                  {t("professionalRoadmapChat.coach.name")}
+              {pending.content}
+            </div>
+
+            {pending.failed ? (
+              <div className="flex flex-wrap items-center justify-end gap-2">
+                <span role="alert" className="text-xs text-destructive">
+                  {retryAfter > 0
+                    ? t("professionalRoadmapChat.error.retryIn", {
+                        seconds: retryAfter,
+                      })
+                    : t("professionalRoadmapChat.error.sendFailed")}
                 </span>
+
+                <Button
+                  size="sm"
+                  radius="full"
+                  variant="outline"
+                  onClick={onRetry}
+                  disabled={retryAfter > 0}
+                >
+                  {t("professionalRoadmapChat.error.retry")}
+                </Button>
+              </div>
+            ) : null}
+          </div>
+        ) : null}
+
+        {isSending ? (
+          <div className="flex items-start gap-2.5">
+            <CoachAvatar />
+            <div
+              className={cn(
+                BUBBLE_CLASS_NAME,
+                "rounded-2xl rounded-tl-sm bg-muted",
               )}
-              {coachLine(message) ?? message.content}
-            </div>
-          </div>
-        );
-      })}
-
-      {showWidget && widget ? (
-        <div className="sm:pl-[2.625rem]">
-          <RoadmapWidgetControl
-            widget={widget}
-            draftId={draftId}
-            onAnswer={onAnswer}
-            disabled={retryAfter > 0}
-          />
-        </div>
-      ) : null}
-
-      {pending ? (
-        <div className="flex max-w-[85%] flex-col items-end gap-2 self-end">
-          <div
-            className={cn(
-              BUBBLE_CLASS_NAME,
-              "rounded-2xl rounded-tr-sm text-primary-foreground",
-              pending.failed ? "bg-primary/60" : "bg-primary",
-            )}
-          >
-            {pending.content}
-          </div>
-
-          {pending.failed ? (
-            <div className="flex flex-wrap items-center justify-end gap-2">
-              <span role="alert" className="text-xs text-destructive">
-                {retryAfter > 0
-                  ? t("professionalRoadmapChat.error.retryIn", {
-                      seconds: retryAfter,
-                    })
-                  : t("professionalRoadmapChat.error.sendFailed")}
+            >
+              <span className="sr-only">
+                {t("professionalRoadmapChat.thinking")}
               </span>
-
-              <Button
-                size="sm"
-                radius="full"
-                variant="outline"
-                onClick={onRetry}
-                disabled={retryAfter > 0}
-              >
-                {t("professionalRoadmapChat.error.retry")}
-              </Button>
+              <span aria-hidden className="flex gap-1 py-2">
+                <span className="size-1.5 animate-pulse rounded-full bg-muted-foreground motion-reduce:animate-none" />
+                <span className="size-1.5 animate-pulse rounded-full bg-muted-foreground [animation-delay:150ms] motion-reduce:animate-none" />
+                <span className="size-1.5 animate-pulse rounded-full bg-muted-foreground [animation-delay:300ms] motion-reduce:animate-none" />
+              </span>
             </div>
-          ) : null}
-        </div>
-      ) : null}
-
-      {isSending ? (
-        <div className="flex items-start gap-2.5">
-          <CoachAvatar />
-          <div
-            className={cn(
-              BUBBLE_CLASS_NAME,
-              "rounded-2xl rounded-tl-sm bg-muted",
-            )}
-          >
-            <span className="sr-only">
-              {t("professionalRoadmapChat.thinking")}
-            </span>
-            <span aria-hidden className="flex gap-1 py-2">
-              <span className="size-1.5 animate-pulse rounded-full bg-muted-foreground motion-reduce:animate-none" />
-              <span className="size-1.5 animate-pulse rounded-full bg-muted-foreground [animation-delay:150ms] motion-reduce:animate-none" />
-              <span className="size-1.5 animate-pulse rounded-full bg-muted-foreground [animation-delay:300ms] motion-reduce:animate-none" />
-            </span>
           </div>
-        </div>
-      ) : null}
+        ) : null}
 
-      <div ref={endRef} />
+        <div ref={endRef} />
+      </div>
     </div>
   );
 };

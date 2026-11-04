@@ -2516,6 +2516,9 @@ model RoadmapDraft {
   needsClarification Boolean @default(false)
   wasRefused         Boolean @default(false)
 
+  pendingChanges    Json    @default("[]")
+  readyToRegenerate Boolean @default(false)
+
   failureReason String?
 
   messages   RoadmapChatMessage[]

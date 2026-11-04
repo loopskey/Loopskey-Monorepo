@@ -1,11 +1,12 @@
 import { BadRequestException, ForbiddenException } from "@nestjs/common";
 import { Inject, Injectable, NotFoundException } from "@nestjs/common";
+import { RoadmapDraftStep, RoadmapSource, Role } from "@prisma/client";
 import { ProfessionalRoadmapDraftService } from "@professional/services/professional-roadmap-draft.service";
 import { ProfessionalRoadmapChatService } from "@professional/services/professional-roadmap-chat.service";
 import { PROFESSIONAL_ENGAGEMENT_API } from "@contentAction/public/professional-engagement-api";
 import { PROFESSIONAL_CATALOG_API } from "@course/public/professional-catalog-api";
+import { COACH_EDIT_GREETING_CODE } from "@professional/utils/roadmap-coach.util";
 import { ProfessionalMessageCode } from "@professional/enums/message-code.enum";
-import { RoadmapSource, Role } from "@prisma/client";
 import { TUser } from "@common/types/user.types";
 
 import { type ProfessionalEngagementApi } from "@contentAction/public/professional-engagement-api";
@@ -18,8 +19,8 @@ export class ProfessionalRoadmapEditService {
     private readonly engagement: ProfessionalEngagementApi,
     @Inject(PROFESSIONAL_CATALOG_API)
     private readonly catalog: ProfessionalCatalogApi,
-    private readonly drafts: ProfessionalRoadmapDraftService,
-    private readonly chat: ProfessionalRoadmapChatService,
+    private readonly draftsService: ProfessionalRoadmapDraftService,
+    private readonly chatService: ProfessionalRoadmapChatService,
   ) {}
 
   private assertProfessional(user: TUser) {
@@ -32,15 +33,18 @@ export class ProfessionalRoadmapEditService {
   async startEdit(user: TUser, roadmapId: string) {
     this.assertProfessional(user);
 
-    const open = await this.drafts.findOpenEditDraft(user.id, roadmapId);
-    if (open) return this.chat.draft(user, open.id);
+    const open = await this.draftsService.findOpenEditDraft(user.id, roadmapId);
+    if (open) {
+      await this.greet(user, open.id);
+      return this.chatService.draft(user, open.id);
+    }
 
     const enrollment = await this.enrollmentOf(user, roadmapId);
     await this.assertEditable(user, roadmapId);
 
     const source =
       typeof enrollment.draftId === "string"
-        ? await this.drafts.findDraft(user.id, enrollment.draftId)
+        ? await this.draftsService.findDraft(user.id, enrollment.draftId)
         : null;
     if (!source)
       throw new BadRequestException({
@@ -48,17 +52,25 @@ export class ProfessionalRoadmapEditService {
         message: ProfessionalMessageCode.ROADMAP_BRIEF_UNAVAILABLE,
       });
 
-    const { draft } = await this.drafts.openEditDraft(
+    const { draft } = await this.draftsService.openEditDraft(
       user.id,
       roadmapId,
       source,
     );
-    return this.chat.draft(user, draft.id);
+    await this.greet(user, draft.id);
+    return this.chatService.draft(user, draft.id);
+  }
+
+  private async greet(user: TUser, draftId: string) {
+    await this.draftsService.ensureEditGreeting(user.id, draftId, {
+      content: COACH_EDIT_GREETING_CODE,
+      stepKey: RoadmapDraftStep.REVIEW,
+    });
   }
 
   async discardEdit(user: TUser, draftId: string) {
     this.assertProfessional(user);
-    return this.drafts.discardEditDraft(user.id, draftId);
+    return this.draftsService.discardEditDraft(user.id, draftId);
   }
 
   private async enrollmentOf(user: TUser, roadmapId: string) {

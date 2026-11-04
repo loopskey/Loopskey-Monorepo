@@ -1,9 +1,12 @@
 import { RoadmapDraftStatus, RoadmapDraftStep } from "@prisma/client";
 import { Prisma, RoadmapChatRole } from "@prisma/client";
+import { ResetInPlaceResult } from "@professional/types/professional-roadmap-chat.types";
+import { TranscriptPage } from "@professional/types/professional-roadmap-chat.types";
 import { PrismaService } from "@prisma/prisma.service";
 import { Injectable } from "@nestjs/common";
 
 const DEFAULT_TRANSCRIPT_PAGE = 30;
+const MAX_EDIT_CHAIN_DEPTH = 10;
 
 const OPEN_EDIT_STATUSES: RoadmapDraftStatus[] = [
   RoadmapDraftStatus.COLLECTING,
@@ -53,11 +56,6 @@ const RESET_FIELDS: Prisma.RoadmapDraftUncheckedUpdateInput = {
   wasRefused: false,
   failureReason: null,
 };
-
-export type ResetInPlaceResult =
-  | { outcome: "reset"; draft: Prisma.RoadmapDraftGetPayload<object> }
-  | { outcome: "not_found" }
-  | { outcome: "locked" };
 
 @Injectable()
 export class ProfessionalRoadmapDraftService {
@@ -197,10 +195,15 @@ export class ProfessionalRoadmapDraftService {
   ): Promise<ResetInPlaceResult> {
     return this.prismaService.$transaction(async (tx) => {
       const rows = await tx.$queryRaw<
-        { id: string; status: RoadmapDraftStatus }[]
-      >`SELECT id, status FROM "RoadmapDraft" WHERE id = ${draftId} AND "userId" = ${userId} FOR UPDATE`;
+        {
+          id: string;
+          status: RoadmapDraftStatus;
+          replacesRoadmapId: string | null;
+        }[]
+      >`SELECT id, status, "replacesRoadmapId" FROM "RoadmapDraft" WHERE id = ${draftId} AND "userId" = ${userId} FOR UPDATE`;
       const row = rows[0];
       if (!row) return { outcome: "not_found" };
+      if (row.replacesRoadmapId) return { outcome: "edit" };
       if (!RESETTABLE_STATUSES.includes(row.status))
         return { outcome: "locked" };
 
@@ -316,21 +319,93 @@ export class ProfessionalRoadmapDraftService {
     userId: string,
     draftId: string,
     pagination?: { take?: number; cursor?: string },
-  ) {
+  ): Promise<TranscriptPage | null> {
     const draft = await this.findDraft(userId, draftId);
     if (!draft) return null;
-    const take = pagination?.take ?? DEFAULT_TRANSCRIPT_PAGE;
-    const [totalCount, rows] = await Promise.all([
-      this.prismaService.roadmapChatMessage.count({ where: { draftId } }),
-      this.prismaService.roadmapChatMessage.findMany({
+    return this.messagePage({ draftId }, pagination);
+  }
+
+  async historyPage(
+    userId: string,
+    draftId: string,
+    pagination?: { take?: number; cursor?: string },
+  ): Promise<TranscriptPage | null> {
+    const draft = await this.findDraft(userId, draftId);
+    if (!draft) return null;
+    const sourceIds = await this.editSourceChain(userId, draft);
+    return this.messagePage({ draftId: { in: sourceIds } }, pagination);
+  }
+
+  async editSourceChain(
+    userId: string,
+    draft: { replacesRoadmapId: string | null },
+  ) {
+    const ids: string[] = [];
+    let roadmapId = draft.replacesRoadmapId;
+    while (roadmapId && ids.length < MAX_EDIT_CHAIN_DEPTH) {
+      const source = await this.prismaService.roadmapDraft.findFirst({
+        where: { userId, enrollment: { is: { userId, roadmapId } } },
+        select: { id: true, replacesRoadmapId: true },
+      });
+      if (!source || ids.includes(source.id)) break;
+      ids.unshift(source.id);
+      roadmapId = source.replacesRoadmapId;
+    }
+    return ids;
+  }
+
+  async ensureEditGreeting(
+    userId: string,
+    draftId: string,
+    message: Omit<
+      Prisma.RoadmapChatMessageUncheckedCreateInput,
+      "draftId" | "role"
+    >,
+  ) {
+    return this.prismaService.$transaction(async (tx) => {
+      const rows = await tx.$queryRaw<{ id: string }[]>`
+        SELECT id FROM "RoadmapDraft" WHERE id = ${draftId} AND "userId" = ${userId} AND "replacesRoadmapId" IS NOT NULL FOR UPDATE`;
+      if (!rows[0]) return false;
+      const existing = await tx.roadmapChatMessage.count({
         where: { draftId },
-        orderBy: { createdAt: "asc" },
-        take: take + 1,
-        ...(pagination?.cursor
-          ? { cursor: { id: pagination.cursor }, skip: 1 }
-          : {}),
-      }),
-    ]);
+      });
+      if (existing > 0) return false;
+      await tx.roadmapChatMessage.create({
+        data: { ...message, draftId, role: RoadmapChatRole.ASSISTANT },
+      });
+      return true;
+    });
+  }
+
+  private async messagePage(
+    where: Prisma.RoadmapChatMessageWhereInput,
+    pagination?: { take?: number; cursor?: string },
+  ): Promise<TranscriptPage> {
+    const take = pagination?.take ?? DEFAULT_TRANSCRIPT_PAGE;
+    const totalCount = await this.prismaService.roadmapChatMessage.count({
+      where,
+    });
+
+    if (!pagination?.cursor) {
+      const latest = await this.prismaService.roadmapChatMessage.findMany({
+        where,
+        orderBy: [{ createdAt: "desc" }, { id: "desc" }],
+        take,
+      });
+      return {
+        totalCount,
+        items: latest.reverse(),
+        pageInfo: { hasNextPage: false, nextCursor: null },
+      };
+    }
+
+    const rows = await this.prismaService.roadmapChatMessage.findMany({
+      where,
+      orderBy: [{ createdAt: "asc" }, { id: "asc" }],
+      take: take + 1,
+      cursor: { id: pagination.cursor },
+      skip: 1,
+    });
     const items = rows.slice(0, take);
     return {
       items,

@@ -1,5 +1,6 @@
 import {
   parseChatTurnResponse,
+  parseEditTurnResponse,
   parseErrorEnvelope,
   parseGenerateResponse,
 } from "./service-ai.response";
@@ -254,5 +255,163 @@ describe("error envelopes", () => {
 
   it("does not mistake a success body for an envelope", () => {
     expect(parseErrorEnvelope(chatTurnBody())).toBeUndefined();
+  });
+});
+
+const editBody = (overrides: Record<string, unknown> = {}) => ({
+  assistant_message: "What is your new weekly time?",
+  extracted: {},
+  change_operations: [
+    {
+      operation: "MODIFY_PHASE",
+      target_id: "p1",
+      instruction: "Make it project based.",
+    },
+  ],
+  needs_clarification: true,
+  is_ready_to_regenerate: false,
+  widget: null,
+  ...overrides,
+});
+
+describe("edit turn responses", () => {
+  it("returns platform types for every part of the answer", () => {
+    const data = parseEditTurnResponse(
+      editBody({
+        extracted: {
+          available_time: "ONE_TO_THREE_HOURS",
+          budget: "FREE_ONLY",
+          cleared_fields: ["target_role"],
+        },
+        widget: {
+          type: "single_select",
+          field: "available_time",
+          options: [{ value: "ONE_TO_THREE_HOURS", label: "1-3 hours" }],
+          max_selections: null,
+        },
+      }),
+    );
+
+    expect(data).toEqual({
+      assistantMessage: "What is your new weekly time?",
+      needsClarification: true,
+      isReadyToRegenerate: false,
+      extracted: expect.objectContaining({
+        timeCommitment: "TWO_TO_THREE_HOURS",
+        budgetPreference: "FREE_ONLY",
+      }),
+      clearedFields: ["targetRole"],
+      changeOperations: [
+        {
+          operation: "MODIFY_PHASE",
+          targetId: "p1",
+          instruction: "Make it project based.",
+        },
+      ],
+      widget: {
+        type: "SINGLE_SELECT",
+        field: "timeCommitment",
+        maxSelections: null,
+        options: [{ value: "ONE_TO_THREE_HOURS", label: "1-3 hours" }],
+      },
+    });
+  });
+
+  it.each([
+    "MODIFY_ROADMAP",
+    "REBUILD_ROADMAP",
+    "ADD_PHASE",
+    "MODIFY_PHASE",
+    "REMOVE_PHASE",
+    "ADD_STEP",
+    "MODIFY_STEP",
+    "REMOVE_STEP",
+    "UPDATE_DRAFT",
+  ])("accepts the %s operation", (operation) => {
+    const data = parseEditTurnResponse(
+      editBody({
+        change_operations: [
+          { operation, target_id: null, instruction: "Do it." },
+        ],
+      }),
+    );
+
+    expect(data?.changeOperations).toEqual([
+      { operation, targetId: null, instruction: "Do it." },
+    ]);
+  });
+
+  it("accepts an answer with no changes", () => {
+    expect(
+      parseEditTurnResponse(editBody({ change_operations: [] }))
+        ?.changeOperations,
+    ).toEqual([]);
+  });
+
+  it("reads a missing target as none", () => {
+    const data = parseEditTurnResponse(
+      editBody({
+        change_operations: [
+          { operation: "MODIFY_ROADMAP", instruction: "Lighter." },
+        ],
+      }),
+    );
+
+    expect(data?.changeOperations[0].targetId).toBeNull();
+  });
+
+  it.each([
+    [
+      "an operation the contract does not define",
+      {
+        change_operations: [
+          { operation: "DELETE_EVERYTHING", target_id: null, instruction: "x" },
+        ],
+      },
+    ],
+    [
+      "an operation with no instruction",
+      { change_operations: [{ operation: "MODIFY_PHASE", target_id: "p1" }] },
+    ],
+    [
+      "an operation with a blank instruction",
+      {
+        change_operations: [
+          { operation: "MODIFY_PHASE", target_id: "p1", instruction: "  " },
+        ],
+      },
+    ],
+    [
+      "a target that is not text",
+      {
+        change_operations: [
+          { operation: "MODIFY_PHASE", target_id: 4, instruction: "x" },
+        ],
+      },
+    ],
+    ["a change list that is not a list", { change_operations: {} }],
+    ["no change list", { change_operations: undefined }],
+    ["no assistant message", { assistant_message: "" }],
+    [
+      "a readiness flag that is not a boolean",
+      { is_ready_to_regenerate: "yes" },
+    ],
+    [
+      "a clarification flag that is not a boolean",
+      { needs_clarification: null },
+    ],
+    [
+      "a widget with an unknown type",
+      { widget: { type: "slider", field: "goal", options: [] } },
+    ],
+    ["an extraction that is not an object", { extracted: "goal" }],
+  ])("rejects %s", (_label, overrides) => {
+    expect(parseEditTurnResponse(editBody(overrides))).toBeUndefined();
+  });
+
+  it("rejects a body that is not an object", () => {
+    expect(parseEditTurnResponse(null)).toBeUndefined();
+    expect(parseEditTurnResponse("ok")).toBeUndefined();
+    expect(parseEditTurnResponse([])).toBeUndefined();
   });
 });

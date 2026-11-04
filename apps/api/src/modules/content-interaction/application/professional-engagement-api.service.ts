@@ -1,5 +1,6 @@
 import { PaymentStatus, Prisma, RoadmapEnrollmentStatus } from "@prisma/client";
 import { ContentEnrollmentStatus, ContentType } from "@prisma/client";
+import { RoadmapProgressNotPreservedError } from "@contentAction/public/professional-engagement-api";
 import { RoadmapStepProgressStatus } from "@prisma/client";
 import { ProfessionalEngagementApi } from "@contentAction/public/professional-engagement-api";
 import { PrismaService } from "@prisma/prisma.service";
@@ -13,7 +14,7 @@ import type { UnitOfWork } from "@contentAction/public/professional-engagement-a
 export class ProfessionalEngagementApiService
   implements ProfessionalEngagementApi
 {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly prismaService: PrismaService) {}
 
   async courseEnrollments(input: {
     userId: string;
@@ -26,7 +27,7 @@ export class ProfessionalEngagementApiService
       contentType: ContentType.COURSE,
       ...(input.courseIds ? { contentId: { in: input.courseIds } } : {}),
     };
-    const rows = await this.prisma.contentEnrollment.findMany({
+    const rows = await this.prismaService.contentEnrollment.findMany({
       where,
       take: input.take + 1,
       ...(input.cursor ? { cursor: { id: input.cursor }, skip: 1 } : {}),
@@ -34,20 +35,20 @@ export class ProfessionalEngagementApiService
     });
     return {
       rows,
-      totalCount: await this.prisma.contentEnrollment.count({ where }),
+      totalCount: await this.prismaService.contentEnrollment.count({ where }),
     };
   }
 
   async courseCounts(userId: string) {
     const base = { userId, contentType: ContentType.COURSE };
     const [active, completed, total] = await Promise.all([
-      this.prisma.contentEnrollment.count({
+      this.prismaService.contentEnrollment.count({
         where: { ...base, status: ContentEnrollmentStatus.ACTIVE },
       }),
-      this.prisma.contentEnrollment.count({
+      this.prismaService.contentEnrollment.count({
         where: { ...base, status: ContentEnrollmentStatus.COMPLETED },
       }),
-      this.prisma.contentEnrollment.count({ where: base }),
+      this.prismaService.contentEnrollment.count({ where: base }),
     ]);
     return { active, completed, total };
   }
@@ -63,7 +64,7 @@ export class ProfessionalEngagementApiService
       status: { not: RoadmapEnrollmentStatus.UNENROLLED },
       ...(input.roadmapIds ? { roadmapId: { in: input.roadmapIds } } : {}),
     };
-    const rows = await this.prisma.roadmapEnrollment.findMany({
+    const rows = await this.prismaService.roadmapEnrollment.findMany({
       where,
       take: input.take + 1,
       ...(input.cursor ? { cursor: { id: input.cursor }, skip: 1 } : {}),
@@ -71,12 +72,12 @@ export class ProfessionalEngagementApiService
     });
     return {
       rows,
-      totalCount: await this.prisma.roadmapEnrollment.count({ where }),
+      totalCount: await this.prismaService.roadmapEnrollment.count({ where }),
     };
   }
 
   async enrolledRoadmapIds(userId: string) {
-    const rows = await this.prisma.roadmapEnrollment.findMany({
+    const rows = await this.prismaService.roadmapEnrollment.findMany({
       where: { userId, status: { not: RoadmapEnrollmentStatus.UNENROLLED } },
       select: { roadmapId: true },
     });
@@ -88,7 +89,7 @@ export class ProfessionalEngagementApiService
     enrollmentIds: string[];
   }) {
     if (!input.enrollmentIds.length) return {};
-    const groups = await this.prisma.roadmapStepProgress.groupBy({
+    const groups = await this.prismaService.roadmapStepProgress.groupBy({
       by: ["enrollmentId", "status"],
       where: {
         enrollmentId: { in: input.enrollmentIds },
@@ -108,7 +109,7 @@ export class ProfessionalEngagementApiService
   }
 
   roadmapEnrollmentById(input: { userId: string; enrollmentId: string }) {
-    return this.prisma.roadmapEnrollment.findFirst({
+    return this.prismaService.roadmapEnrollment.findFirst({
       where: { id: input.enrollmentId, userId: input.userId },
       select: {
         id: true,
@@ -128,7 +129,7 @@ export class ProfessionalEngagementApiService
     enrollmentIds: string[];
   }) {
     if (input.enrollmentIds.length === 0) return [];
-    return this.prisma.roadmapStepProgress.findMany({
+    return this.prismaService.roadmapStepProgress.findMany({
       where: {
         enrollmentId: { in: input.enrollmentIds },
         enrollment: { userId: input.userId },
@@ -146,7 +147,7 @@ export class ProfessionalEngagementApiService
     userId: string;
     enrollmentId: string;
   }) {
-    await this.prisma.roadmapEnrollment.updateMany({
+    await this.prismaService.roadmapEnrollment.updateMany({
       where: {
         id: input.enrollmentId,
         userId: input.userId,
@@ -163,7 +164,7 @@ export class ProfessionalEngagementApiService
     userId: string;
     enrollmentId: string;
   }) {
-    await this.prisma.roadmapEnrollment.updateMany({
+    await this.prismaService.roadmapEnrollment.updateMany({
       where: {
         id: input.enrollmentId,
         userId: input.userId,
@@ -177,7 +178,7 @@ export class ProfessionalEngagementApiService
   }
 
   private async ownedEnrollment(userId: string, enrollmentId: string) {
-    return this.prisma.roadmapEnrollment.findFirst({
+    return this.prismaService.roadmapEnrollment.findFirst({
       where: { id: enrollmentId, userId },
       select: { id: true },
     });
@@ -193,7 +194,7 @@ export class ProfessionalEngagementApiService
       input.enrollmentId,
     );
     if (!enrollment) return null;
-    return this.prisma.roadmapStepProgress.upsert({
+    return this.prismaService.roadmapStepProgress.upsert({
       where: {
         enrollmentId_stepId: {
           enrollmentId: input.enrollmentId,
@@ -226,13 +227,13 @@ export class ProfessionalEngagementApiService
         stepId: input.stepId,
       },
     };
-    const existing = await this.prisma.roadmapStepProgress.findUnique({
+    const existing = await this.prismaService.roadmapStepProgress.findUnique({
       where: key,
     });
     if (existing?.status === RoadmapStepProgressStatus.COMPLETED)
       return existing;
     const completedAt = new Date();
-    return this.prisma.roadmapStepProgress.upsert({
+    return this.prismaService.roadmapStepProgress.upsert({
       where: key,
       create: {
         enrollmentId: input.enrollmentId,
@@ -259,13 +260,13 @@ export class ProfessionalEngagementApiService
         ? { title: { contains: input.search, mode: "insensitive" as const } }
         : {}),
     };
-    const rows = await this.prisma.payment.findMany({
+    const rows = await this.prismaService.payment.findMany({
       where,
       take: input.take + 1,
       ...(input.cursor ? { cursor: { id: input.cursor }, skip: 1 } : {}),
       orderBy: { createdAt: "desc" },
     });
-    const overview = await this.prisma.payment.aggregate({
+    const overview = await this.prismaService.payment.aggregate({
       where: { userId: input.userId, status: PaymentStatus.PAID },
       _sum: { amount: true },
       _count: { id: true },
@@ -273,7 +274,7 @@ export class ProfessionalEngagementApiService
     const items = rows.slice(0, input.take);
     return {
       items,
-      totalCount: await this.prisma.payment.count({ where }),
+      totalCount: await this.prismaService.payment.count({ where }),
       totalSpent: Number(overview._sum.amount ?? 0),
       totalTransactions: overview._count.id,
       pageInfo: {
@@ -284,7 +285,7 @@ export class ProfessionalEngagementApiService
   }
 
   async hasRoadmapEnrollmentForDraft(draftId: string) {
-    const found = await this.prisma.roadmapEnrollment.findUnique({
+    const found = await this.prismaService.roadmapEnrollment.findUnique({
       where: { draftId },
       select: { id: true },
     });
@@ -341,13 +342,9 @@ export class ProfessionalEngagementApiService
     const targetByStep = new Map(
       replaces.carriedSteps.map((step) => [step.fromStepId, step.toStepId]),
     );
-    if (targetByStep.size === 0) return;
 
-    const records = await writer.roadmapStepProgress.findMany({
-      where: {
-        enrollmentId: previous.id,
-        stepId: { in: [...targetByStep.keys()] },
-      },
+    const progressed = await writer.roadmapStepProgress.findMany({
+      where: { enrollmentId: previous.id },
       select: {
         stepId: true,
         status: true,
@@ -355,6 +352,12 @@ export class ProfessionalEngagementApiService
         completedAt: true,
       },
     });
+    const uncarried = progressed.filter(
+      (record) => !targetByStep.has(record.stepId),
+    );
+    if (uncarried.length > 0)
+      throw new RoadmapProgressNotPreservedError(uncarried.length);
+    const records = progressed;
 
     const carried = new Map<string, (typeof records)[number]>();
     for (const record of records) {
@@ -392,7 +395,7 @@ export class ProfessionalEngagementApiService
   }
 
   async unenrollRoadmap(input: { userId: string; enrollmentId: string }) {
-    await this.prisma.roadmapEnrollment.updateMany({
+    await this.prismaService.roadmapEnrollment.updateMany({
       where: {
         id: input.enrollmentId,
         userId: input.userId,

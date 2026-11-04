@@ -5,6 +5,7 @@ import { Field, Float, ID, Int, ObjectType } from "@nestjs/graphql";
 import { RoadmapGenerationRecoveryAction } from "@professional/enums/roadmap-generation-failure.enum";
 import { RoadmapGenerationFailureCode } from "@professional/enums/roadmap-generation-failure.enum";
 import { ProfessionalGqlObjectNames } from "@professional/enums/gql-names.enum";
+import { RoadmapChangeOperationKind } from "@professional/enums/roadmap-draft.enum";
 import { LearningBudgetPreference } from "@prisma/client";
 import { RoadmapDraftFieldKey } from "@professional/enums/roadmap-draft.enum";
 import { RoadmapWidgetKind } from "@professional/enums/roadmap-draft.enum";
@@ -39,6 +40,15 @@ export class RoadmapWidgetEntity {
 export class RoadmapSubjectOptionEntity {
   @Field() label: string;
   @Field(() => ID) id: string;
+}
+
+@ObjectType(ProfessionalGqlObjectNames.ROADMAP_PENDING_CHANGE)
+export class RoadmapPendingChangeEntity {
+  @Field() instruction: string;
+  @Field(() => String, { nullable: true }) targetId?: string | null;
+  @Field(() => String, { nullable: true }) targetLabel?: string | null;
+  @Field(() => RoadmapChangeOperationKind)
+  operation: RoadmapChangeOperationKind;
 }
 
 @ObjectType(ProfessionalGqlObjectNames.ROADMAP_CHAT_MESSAGE)
@@ -103,6 +113,14 @@ export class ProfessionalRoadmapDraftEntity {
   @Field(() => Boolean) needsClarification: boolean;
 
   @Field(() => Boolean) canGenerate: boolean;
+  @Field(() => Boolean) hasChanges: boolean;
+  @Field(() => Boolean) readyToRegenerate: boolean;
+  @Field(() => Int) protectedStepCount: number;
+  @Field(() => [String]) blockedStepTitles: string[];
+  @Field(() => String, { nullable: true }) editBlockReason?: string | null;
+  @Field(() => [RoadmapDraftFieldKey]) changedFields: RoadmapDraftFieldKey[];
+  @Field(() => [RoadmapPendingChangeEntity])
+  pendingChanges: RoadmapPendingChangeEntity[];
   @Field(() => Int) completedFieldCount: number;
   @Field(() => Int) requiredFieldCount: number;
   @Field(() => [RoadmapDraftStep]) remainingFields: RoadmapDraftStep[];

@@ -1,6 +1,7 @@
 import { ProfessionalRoadmapGenerationService } from "@professional/services/professional-roadmap-generation.service";
 import { Args, ID, Mutation, Query, Resolver } from "@nestjs/graphql";
 import { ProfessionalRoadmapGenerationEntity } from "@professional/entities/professional-roadmap-draft.entity";
+import { PaginatedRoadmapChatMessagesEntity } from "@professional/entities/professional-roadmap-draft.entity";
 import { ProfessionalRoadmapChatService } from "@professional/services/professional-roadmap-chat.service";
 import { ProfessionalRoadmapEditService } from "@professional/services/professional-roadmap-edit.service";
 import { ProfessionalRoadmapDraftEntity } from "@professional/entities/professional-roadmap-draft.entity";
@@ -41,6 +42,18 @@ export class ProfessionalRoadmapChatResolver {
     transcript?: ProfessionalPaginationInput,
   ) {
     return this.chatService.draft(this.getUser(user), draftId, transcript);
+  }
+
+  @Query(() => PaginatedRoadmapChatMessagesEntity, {
+    name: ProfessionalGqlQueryNames.PROFESSIONAL_ROADMAP_HISTORY,
+  })
+  professionalRoadmapHistory(
+    @CurrentUser() user: TResolverUser,
+    @Args("draftId", { type: () => ID }) draftId: string,
+    @Args("pagination", { nullable: true })
+    pagination?: ProfessionalPaginationInput,
+  ) {
+    return this.chatService.history(this.getUser(user), draftId, pagination);
   }
 
   @Query(() => [RoadmapWidgetOptionEntity], {

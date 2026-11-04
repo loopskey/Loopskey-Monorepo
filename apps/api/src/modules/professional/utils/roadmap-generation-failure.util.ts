@@ -41,6 +41,12 @@ const REASON_TO_CODE: Record<string, RoadmapGenerationFailureCode> = {
     RoadmapGenerationFailureCode.INVALID_GENERATED_ROADMAP,
   [RoadmapGenerationViolation.BLANK_TEXT]:
     RoadmapGenerationFailureCode.INVALID_GENERATED_ROADMAP,
+  [RoadmapGenerationViolation.UNAFFECTED_PHASE_CHANGED]:
+    RoadmapGenerationFailureCode.INVALID_GENERATED_ROADMAP,
+  [RoadmapGenerationViolation.PROTECTED_CONTENT_DROPPED]:
+    RoadmapGenerationFailureCode.PROGRESS_NOT_PRESERVED,
+  [RoadmapGenerationViolation.PROTECTED_STEP_WITHOUT_IDENTITY]:
+    RoadmapGenerationFailureCode.PROGRESS_CANNOT_BE_PRESERVED,
 };
 
 const CODE_TO_RECOVERY: Record<
@@ -60,6 +66,10 @@ const CODE_TO_RECOVERY: Record<
     RoadmapGenerationRecoveryAction.RETRY,
     RoadmapGenerationRecoveryAction.START_OVER,
   ],
+  [RoadmapGenerationFailureCode.PROGRESS_NOT_PRESERVED]: [
+    RoadmapGenerationRecoveryAction.RETRY,
+  ],
+  [RoadmapGenerationFailureCode.PROGRESS_CANNOT_BE_PRESERVED]: [],
   [RoadmapGenerationFailureCode.UNKNOWN]: [
     RoadmapGenerationRecoveryAction.RETRY,
     RoadmapGenerationRecoveryAction.START_OVER,

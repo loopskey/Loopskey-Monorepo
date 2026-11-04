@@ -45,6 +45,7 @@ const setup = (options: TSetup = {}) => {
       .fn()
       .mockResolvedValue({ draft: { id: "edit-1" }, created: true }),
     discardEditDraft: jest.fn().mockResolvedValue(true),
+    ensureEditGreeting: jest.fn().mockResolvedValue(true),
   };
   const chat = {
     draft: jest.fn(async (_user: TUser, draftId: string) => ({ id: draftId })),
@@ -70,6 +71,40 @@ describe("ProfessionalRoadmapEditService.startEdit", () => {
     });
     expect(chat.draft).toHaveBeenCalledWith(USER, "edit-1");
     expect(view).toEqual({ id: "edit-1" });
+  });
+
+  it("greets a new edit once, with the edit greeting at the review step", async () => {
+    const { service, drafts } = setup();
+
+    await service.startEdit(USER, "roadmap-1");
+
+    expect(drafts.ensureEditGreeting).toHaveBeenCalledTimes(1);
+    expect(drafts.ensureEditGreeting).toHaveBeenCalledWith("user-1", "edit-1", {
+      content: "ROADMAP_COACH_EDIT_GREETING",
+      stepKey: "REVIEW",
+    });
+  });
+
+  it("makes sure an edit that was already open has its greeting, without a second draft", async () => {
+    const { service, drafts } = setup({ open: { id: "edit-open" } });
+
+    await service.startEdit(USER, "roadmap-1");
+
+    expect(drafts.openEditDraft).not.toHaveBeenCalled();
+    expect(drafts.ensureEditGreeting).toHaveBeenCalledWith(
+      "user-1",
+      "edit-open",
+      expect.objectContaining({ content: "ROADMAP_COACH_EDIT_GREETING" }),
+    );
+  });
+
+  it("writes no greeting when the roadmap cannot be edited", async () => {
+    const { service, drafts } = setup({ enrollment: null });
+
+    await expect(service.startEdit(USER, "roadmap-1")).rejects.toBeInstanceOf(
+      NotFoundException,
+    );
+    expect(drafts.ensureEditGreeting).not.toHaveBeenCalled();
   });
 
   it("returns the edit that is already open instead of starting another", async () => {
