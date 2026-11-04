@@ -5,7 +5,6 @@ import type { THeaderSearchVariant } from "./element.types";
 import type { TPublicSessionUser } from "@/lib/session/public-session";
 import type { THeaderSearchItem } from "@/lib/search/catalog-search";
 import type { I18nContextValue } from "./providers.types";
-import type { TNavItem } from "./element.types";
 
 export type THeaderSearchPanelProps = {
   term: string;
@@ -58,13 +57,9 @@ export type THeaderMobileMenuProps = {
   id: string;
   isOpen: boolean;
   joinHref: string;
-  showJoin: boolean;
   joinLabel: string;
   onClose: () => void;
-  navItems: TNavItem[];
   onDismiss: () => void;
-  showRoleMenu: boolean;
-  isActive: (href: string) => boolean;
 };
 
 export type TPublicChromeProps = {

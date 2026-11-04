@@ -2670,14 +2670,8 @@
   },
   "navigation": {
     "home": "Home",
-    "content": "Content",
-    "services": "Services",
-    "about": "About",
-    "contact": "Contact",
-    "faq": "FAQ",
     "openMenu": "Open menu",
     "closeMenu": "Close menu",
-    "primary": "Main",
     "homeLink": "LoopsKey home",
     "skipToContent": "Skip to main content",
     "search": {
@@ -2779,6 +2773,8 @@
       "terms": "Terms of Use",
       "privacy": "Privacy Policy",
       "cookies": "Cookie Statement",
+      "content": "Content library",
+      "services": "Services",
       "about": "About LoopsKey",
       "associationPartners": "Association Partners",
       "companyContentProviders": "Content Providers"

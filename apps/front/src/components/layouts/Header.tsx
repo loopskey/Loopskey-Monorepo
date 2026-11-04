@@ -30,21 +30,18 @@ type THeaderProps = {
   languageControl: ReactNode;
 };
 
-const MOBILE_NAV_ID = "header-mobile-navigation";
+const MOBILE_MENU_ID = "header-mobile-menu";
 
 const Header = ({ languageControl }: THeaderProps) => {
   const {
     t,
-    navItems,
     menuToggle,
     isScrolled,
     closeSearch,
     isMobileOpen,
     showRoleStrip,
-    drawerNavItems,
     isAuthenticated,
     currentUserRole,
-    isActiveNavItem,
     closeMobileMenu,
     toggleMobileMenu,
     isRowFieldActive,
@@ -67,7 +64,6 @@ const Header = ({ languageControl }: THeaderProps) => {
     isAuthenticated && currentUserRole
       ? solutionEntries.find((entry) => entry.role === currentUserRole)
       : undefined;
-  const showRoleMenuMobile = showRoleStrip && !isAuthenticated;
   const [hasOpenedMobileMenu, setHasOpenedMobileMenu] = useState(false);
 
   useEffect(() => {
@@ -94,78 +90,63 @@ const Header = ({ languageControl }: THeaderProps) => {
         />
       )}
 
-      <div className={cn(HEADER_CONTAINER_CLASS_NAME, "gap-4 xl:gap-8")}>
+      <div
+        className={cn(HEADER_CONTAINER_CLASS_NAME, "gap-1 min-[380px]:gap-3")}
+      >
         <Logo label={t("navigation.homeLink")} />
-        <nav
-          aria-label={t("navigation.primary")}
-          className="hidden items-center lg:flex"
-        >
-          {navItems.map((item) => {
-            const isActive = isActiveNavItem(item.href);
-            return (
-              <Link
-                key={`${item.href}-${item.label}`}
-                href={item.href}
-                aria-current={isActive ? "page" : undefined}
-                className={cn(
-                  "relative whitespace-nowrap rounded-md px-2.5 py-2 text-sm font-semibold outline-none transition-colors duration-200 focus-visible:ring-2 focus-visible:ring-ring xl:px-3",
-                  "after:absolute after:inset-x-2.5 after:-bottom-[14px] after:h-0.5 after:origin-center after:scale-x-0 after:rounded-t-full after:bg-primary after:transition-transform after:duration-300 after:ease-out motion-reduce:after:transition-none xl:after:inset-x-3",
-                  isActive
-                    ? "text-primary after:scale-x-100"
-                    : "text-muted-foreground hover:text-primary hover:after:scale-x-100 focus-visible:after:scale-x-100",
-                )}
-              >
-                {item.label}
-              </Link>
-            );
-          })}
-        </nav>
 
-        <div className="ml-auto flex min-w-0 items-center gap-0.5 min-[380px]:gap-1.5 sm:gap-2 lg:flex-1 lg:justify-end lg:gap-3">
+        <div className="flex min-w-0 flex-1 items-center gap-0.5 min-[380px]:gap-1.5 sm:gap-2 lg:gap-3 lg:pl-6">
           <HeaderSearchField
             isActive={isInlineSearchActive}
             onActivate={() => setIsInlineSearchActive(true)}
           />
 
-          {languageControl}
+          <div className="ml-auto flex items-center gap-0.5 min-[380px]:gap-1.5 sm:gap-2 lg:gap-3">
+            {languageControl}
 
-          {isAuthenticated ? (
-            <PublicUserMenu />
-          ) : (
-            <Button
-              asChild
-              size="lg"
-              radius="full"
-              className="hidden lg:inline-flex"
-            >
-              <Link href={joinHref}>{joinLabel}</Link>
-            </Button>
-          )}
-
-          <Button
-            size="icon"
-            radius="xl"
-            type="button"
-            variant="ghost"
-            ref={menuToggle}
-            onClick={toggleMobileMenu}
-            onFocus={preloadMobileMenu}
-            aria-expanded={isMobileOpen}
-            onPointerEnter={preloadMobileMenu}
-            aria-controls={hasOpenedMobileMenu ? MOBILE_NAV_ID : undefined}
-            className="size-9 text-muted-foreground hover:text-primary min-[380px]:size-10 lg:hidden"
-            aria-label={
-              isMobileOpen
-                ? t("navigation.closeMenu")
-                : t("navigation.openMenu")
-            }
-          >
-            {isMobileOpen ? (
-              <X className="size-5" />
+            {isAuthenticated ? (
+              <PublicUserMenu />
             ) : (
-              <Menu className="size-5" />
+              <>
+                <Button
+                  asChild
+                  size="lg"
+                  radius="full"
+                  className="hidden lg:inline-flex"
+                >
+                  <Link href={joinHref}>{joinLabel}</Link>
+                </Button>
+
+                {/* Below lg the menu holds the role choice and the join button. */}
+                <Button
+                  size="icon"
+                  radius="xl"
+                  type="button"
+                  variant="ghost"
+                  ref={menuToggle}
+                  onClick={toggleMobileMenu}
+                  onFocus={preloadMobileMenu}
+                  aria-expanded={isMobileOpen}
+                  onPointerEnter={preloadMobileMenu}
+                  aria-controls={
+                    hasOpenedMobileMenu ? MOBILE_MENU_ID : undefined
+                  }
+                  className="size-9 text-muted-foreground hover:text-primary min-[380px]:size-10 lg:hidden"
+                  aria-label={
+                    isMobileOpen
+                      ? t("navigation.closeMenu")
+                      : t("navigation.openMenu")
+                  }
+                >
+                  {isMobileOpen ? (
+                    <X className="size-5" />
+                  ) : (
+                    <Menu className="size-5" />
+                  )}
+                </Button>
+              </>
             )}
-          </Button>
+          </div>
         </div>
       </div>
 
@@ -175,18 +156,14 @@ const Header = ({ languageControl }: THeaderProps) => {
         onActivate={() => setIsRowFieldActive(true)}
       />
 
-      {hasOpenedMobileMenu ? (
+      {hasOpenedMobileMenu && !isAuthenticated ? (
         <HeaderMobileMenu
-          id={MOBILE_NAV_ID}
+          id={MOBILE_MENU_ID}
           joinHref={joinHref}
           isOpen={isMobileOpen}
           joinLabel={joinLabel}
-          navItems={drawerNavItems}
           onClose={closeMobileMenu}
-          isActive={isActiveNavItem}
-          showJoin={!isAuthenticated}
           onDismiss={dismissMobileMenu}
-          showRoleMenu={showRoleMenuMobile}
         />
       ) : null}
     </header>

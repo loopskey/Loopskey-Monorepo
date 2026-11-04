@@ -1,14 +1,10 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { isValidHref, normalizePath } from "@/utils/path.util";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { refreshPublicSession } from "@/lib/session/public-session";
 import { useHeaderSearchState } from "@/hooks/useHeaderSearchState";
-import { stripLocalePrefix } from "@/lib/i18n/locale";
 import { usePublicSession } from "@/hooks/usePublicSession";
 import { usePathname } from "next/navigation";
-import { siteLinks } from "@/utils/site-navigation";
-import { TNavItem } from "@/types/element.types";
 import { useI18n } from "@hooks/useI18n";
 
 export const useHeader = () => {
@@ -35,36 +31,7 @@ export const useHeader = () => {
     void refreshPublicSession();
   }, []);
 
-  const drawerNavItems = useMemo<TNavItem[]>(() => {
-    return [
-      { href: siteLinks.content, label: t("navigation.content") },
-      { href: siteLinks.services, label: t("navigation.services") },
-      { href: siteLinks.about, label: t("navigation.about") },
-      { href: siteLinks.faq, label: t("navigation.faq") },
-      { href: siteLinks.contact, label: t("navigation.contact") },
-    ].filter((item) => isValidHref(item.href) && item.label?.trim());
-  }, [t]);
-
-  const navItems = useMemo(
-    () =>
-      drawerNavItems.filter(
-        (item) =>
-          item.href !== siteLinks.about && item.href !== siteLinks.contact,
-      ),
-    [drawerNavItems],
-  );
-
-  const currentPath = normalizePath(stripLocalePrefix(pathname ?? "/"));
-
   const showRoleStrip = true;
-
-  const isActiveNavItem = (href: string) => {
-    const targetPath = normalizePath(href);
-    if (targetPath === "/") return currentPath === "/";
-    return (
-      currentPath === targetPath || currentPath.startsWith(`${targetPath}/`)
-    );
-  };
 
   const menuToggle = useRef<HTMLButtonElement>(null);
 
@@ -112,18 +79,20 @@ export const useHeader = () => {
     closeMobileMenu();
   }, [pathname, closeMobileMenu]);
 
+  // The menu is for guests only, so signing in closes it.
+  useEffect(() => {
+    if (isAuthenticated) closeMobileMenu();
+  }, [isAuthenticated, closeMobileMenu]);
+
   return {
     t,
-    navItems,
     menuToggle,
     isScrolled,
     closeSearch,
     isMobileOpen,
     showRoleStrip,
-    drawerNavItems,
     isAuthenticated,
     currentUserRole,
-    isActiveNavItem,
     closeMobileMenu,
     toggleMobileMenu,
     isRowFieldActive,

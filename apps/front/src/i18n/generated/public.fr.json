@@ -993,12 +993,14 @@
       "associations": "Pour les associations",
       "companyContentProviders": "Fournisseurs de contenu",
       "contactUs": "Nous contacter",
+      "content": "Bibliothèque de contenu",
       "cookies": "Déclaration relative aux cookies",
       "helpCenter": "Centre d’aide",
       "organizations": "Pour les organisations",
       "privacy": "Politique de confidentialité",
       "professionals": "Pour les professionnels",
       "security": "Sécurité et protection des données",
+      "services": "Services",
       "solutionContentProviders": "Pour les fournisseurs de contenu",
       "terms": "Conditions d’utilisation"
     },
@@ -1036,14 +1038,9 @@
     }
   },
   "navigation": {
-    "about": "À propos",
     "closeMenu": "Fermer le menu",
-    "contact": "Contact",
-    "content": "Contenu",
-    "faq": "FAQ",
     "homeLink": "Accueil LoopsKey",
     "openMenu": "Ouvrir le menu",
-    "primary": "Principale",
     "roleBar": {
       "dashboard": "Accéder à votre tableau de bord",
       "label": "Public",
@@ -1088,7 +1085,6 @@
         "youtube": "YouTube"
       }
     },
-    "services": "Services",
     "skipToContent": "Aller au contenu principal"
   },
   "notFound": {
