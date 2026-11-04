@@ -196,7 +196,7 @@ export const ProfessionalRoadmapChatPage = () => {
           </Sh.Sheet>
         ) : null}
 
-        {chat.draft ? (
+        {chat.draft && !chat.draft.replacesRoadmapId ? (
           <ConfirmDialog
             open={startOverOpen}
             confirmVariant="destructive"
@@ -252,6 +252,7 @@ export const ProfessionalRoadmapChatPage = () => {
               retryAfter={chat.retryAfter}
               onAnswer={chat.answerWidget}
               draftId={chat.draft?.id ?? ""}
+              historyMessages={chat.historyMessages}
             />
           </div>
 

@@ -23,11 +23,26 @@ export enum RoadmapWidgetKind {
   TEXT = "TEXT",
   DATE = "DATE",
   YES_NO = "YES_NO",
-  SINGLE_SELECT = "SINGLE_SELECT",
   MULTI_SELECT = "MULTI_SELECT",
+  SINGLE_SELECT = "SINGLE_SELECT",
+}
+
+export enum RoadmapChangeOperationKind {
+  ADD_STEP = "ADD_STEP",
+  ADD_PHASE = "ADD_PHASE",
+  REMOVE_STEP = "REMOVE_STEP",
+  MODIFY_STEP = "MODIFY_STEP",
+  MODIFY_PHASE = "MODIFY_PHASE",
+  UPDATE_DRAFT = "UPDATE_DRAFT",
+  REMOVE_PHASE = "REMOVE_PHASE",
+  MODIFY_ROADMAP = "MODIFY_ROADMAP",
+  REBUILD_ROADMAP = "REBUILD_ROADMAP",
 }
 
 registerEnumType(RoadmapDraftFieldKey, { name: "RoadmapDraftFieldKey" });
+registerEnumType(RoadmapChangeOperationKind, {
+  name: "RoadmapChangeOperationKind",
+});
 registerEnumType(RoadmapWidgetKind, { name: "RoadmapWidgetKind" });
 registerEnumType(Prisma.RoadmapChatRole, { name: "RoadmapChatRole" });
 registerEnumType(Prisma.RoadmapDraftStep, { name: "RoadmapDraftStep" });

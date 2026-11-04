@@ -1,5 +1,7 @@
+import { ProfessionalRoadmapEditContextService } from "@professional/services/professional-roadmap-edit-context.service";
 import { getRoadmapDraftContractReadiness } from "@professional/utils/roadmap-draft-readiness.util";
 import { ProfessionalRoadmapDraftService } from "@professional/services/professional-roadmap-draft.service";
+import { COACH_EDIT_CHANGE_REJECTED_CODE } from "@professional/utils/roadmap-coach.util";
 import { RoadmapSuggestionOptionsInput } from "@professional/dtos/roadmap-suggestion-options.input";
 import { ServiceUnavailableException } from "@nestjs/common";
 import { ProfessionalPaginationInput } from "@professional/dtos/professional-pagination.input";
@@ -9,6 +11,7 @@ import { ProfessionalProfileService } from "@professional/services/professional-
 import { CertificationSearchService } from "@professional/services/certification-search.service";
 import { PatchRoadmapCpdSetupInput } from "@professional/dtos/patch-roadmap-cpd-setup.input";
 import { PROFESSIONAL_CATALOG_API } from "@course/public/professional-catalog-api";
+import { validateChangeOperations } from "@professional/utils/roadmap-edit-operations.util";
 import { ProfessionalMessageCode } from "@professional/enums/message-code.enum";
 import { roadmapContractProgress } from "@professional/utils/roadmap-draft-readiness.util";
 import { stepOfFirstMissingField } from "@professional/utils/roadmap-draft-readiness.util";
@@ -28,6 +31,7 @@ import { NotFoundException } from "@nestjs/common";
 import { TAXONOMY_PAGE_MAX } from "@professional/enums/profile-section.enum";
 import { groupKeysMatching } from "@professional/utils/roadmap-relevance.util";
 import { SERVICE_AI_LIMITS } from "@infrastructure/service-ai/service-ai.port";
+import { toCurrentRoadmap } from "@professional/utils/roadmap-edit-shape.util";
 import { ProfileTermUsage } from "@prisma/client";
 import { RoadmapDraftStep } from "@prisma/client";
 import { RoadmapChatRole } from "@prisma/client";
@@ -37,6 +41,7 @@ import { requestContext } from "@infrastructure/observability/request-context";
 import { validateWidget } from "@professional/utils/roadmap-widget-validation.util";
 import { isCoachMessage } from "@professional/utils/roadmap-coach.util";
 import { HttpException } from "@nestjs/common";
+import { toDraftFields } from "@professional/utils/roadmap-draft-fields.util";
 import { PrismaService } from "@prisma/prisma.service";
 import { Injectable } from "@nestjs/common";
 import { rankTerms } from "@professional/utils/roadmap-relevance.util";
@@ -46,12 +51,14 @@ import { Inject } from "@nestjs/common";
 import { TUser } from "@common/types/user.types";
 import { Role } from "@prisma/client";
 
+import type { RoadmapChangeOperation } from "@infrastructure/service-ai/service-ai.port";
+import type { EditTurnData } from "@infrastructure/service-ai/service-ai.port";
+
 import { type WidgetValidationContext } from "@professional/utils/roadmap-widget-validation.util";
 import { type ProfessionalCatalogApi } from "@course/public/professional-catalog-api";
 import { type CertificationOption } from "@professional/utils/roadmap-widget-validation.util";
 import { type RankableTerm } from "@professional/utils/roadmap-relevance.util";
 import { type TaxonomyTerm } from "@professional/utils/profile-taxonomy.util";
-
 import {
   type ChatTurnData,
   type ServiceAiPort,
@@ -64,6 +71,9 @@ import {
 import * as T from "@professional/types/professional-roadmap-chat.types";
 
 const CERTIFICATION_SEARCH_LIMIT = 8;
+
+const parseStoredCount = (value: unknown) =>
+  Array.isArray(value) ? value.length : 0;
 
 type DraftRow = Prisma.RoadmapDraftGetPayload<object>;
 type MessageRow = Prisma.RoadmapChatMessageGetPayload<object>;
@@ -123,6 +133,7 @@ export class ProfessionalRoadmapChatService {
     private readonly prisma: PrismaService,
     @Inject(PROFESSIONAL_CATALOG_API)
     private readonly catalog: ProfessionalCatalogApi,
+    private readonly editContext: ProfessionalRoadmapEditContextService,
   ) {}
 
   private assertProfessional(user: TUser) {
@@ -316,26 +327,7 @@ export class ProfessionalRoadmapChatService {
   }
 
   private fields(draft: DraftRow): T.RoadmapDraftFields {
-    return {
-      goal: draft.goal,
-      targetRole: draft.targetRole,
-      goalReason: draft.goalReason,
-      context: draft.context,
-      targetDate: draft.targetDate,
-      skillLevel: draft.skillLevel,
-      timeCommitment: draft.timeCommitment,
-      budgetPreference: draft.budgetPreference,
-      subjects: draft.subjects,
-      preferredFormats: draft.preferredFormats,
-      preferredContentTypes: draft.preferredContentTypes,
-      preferredDeliveryFormats: draft.preferredDeliveryFormats,
-      cpdEnabled: draft.cpdEnabled,
-      cpdAnswered: draft.cpdAnswered,
-      certificationId: draft.certificationId,
-      certificationName: draft.certificationName,
-      requiredCredits: draft.requiredCredits,
-      completedCredits: draft.completedCredits,
-    };
+    return toDraftFields(draft);
   }
 
   private toProviderDraft(
@@ -408,13 +400,19 @@ export class ProfessionalRoadmapChatService {
       draft.cpdPlanId ? this.cpdPlans.plan(user, draft.cpdPlanId) : null,
     ]);
     const subjectOptions = catalogue.options;
-    const replacesRoadmapTitle = await this.replacedRoadmapTitle(draft);
+    const edit = await this.editContext.state(draft);
+    const replacesRoadmapTitle =
+      edit?.context?.roadmap.title ?? (await this.replacedRoadmapTitle(draft));
     const pending = await this.drafts.lastAssistantMessage(user.id, draft.id);
     const completion = roadmapContractProgress(fields, catalogue.knownIds);
+    const editBlockReason = draft.replacesRoadmapId
+      ? this.editContext.blockReason(draft, edit)
+      : null;
     const canGenerate =
       (draft.status === RoadmapDraftStatus.READY ||
         draft.status === RoadmapDraftStatus.FAILED) &&
-      completion.missingFields.length === 0;
+      completion.missingFields.length === 0 &&
+      editBlockReason === null;
     const isComplete =
       canGenerate ||
       draft.status === RoadmapDraftStatus.GENERATING ||
@@ -433,6 +431,15 @@ export class ProfessionalRoadmapChatService {
       wasRefused: draft.wasRefused,
       isComplete,
       canGenerate,
+      editBlockReason,
+      readyToRegenerate: draft.readyToRegenerate,
+      hasChanges: edit?.hasChanges ?? false,
+      changedFields: edit?.changedFields ?? [],
+      pendingChanges: this.pendingChangesView(edit),
+      protectedStepCount: edit?.protectedSteps.length ?? 0,
+      blockedStepTitles: (edit?.unidentifiable ?? [])
+        .slice(0, 5)
+        .map((step) => step.title),
       completedFieldCount: completion.completedFieldCount,
       requiredFieldCount: completion.requiredFieldCount,
       remainingFields: completion.remainingFields,
@@ -446,6 +453,26 @@ export class ProfessionalRoadmapChatService {
         pageInfo: { hasNextPage: false, nextCursor: null },
       },
     };
+  }
+
+  private pendingChangesView(
+    edit: Awaited<ReturnType<ProfessionalRoadmapEditContextService["state"]>>,
+  ) {
+    if (!edit?.context) return [];
+    const labels = new Map<string, string>();
+    labels.set(edit.context.roadmap.id, edit.context.roadmap.title);
+    for (const phase of edit.context.roadmap.phases) {
+      labels.set(phase.id, phase.title);
+      for (const step of phase.steps) labels.set(step.id, step.title);
+    }
+    return edit.validation.accepted.map((operation) => ({
+      operation: operation.operation,
+      targetId: operation.targetId,
+      targetLabel: operation.targetId
+        ? (labels.get(operation.targetId) ?? null)
+        : null,
+      instruction: operation.instruction,
+    }));
   }
 
   private async turnInput(
@@ -559,12 +586,7 @@ export class ProfessionalRoadmapChatService {
       extracted: data.extracted,
       cleared: data.clearedFields,
     });
-    for (const key of Object.keys(
-      chosen ?? {},
-    ) as (keyof T.RoadmapDraftFields)[]) {
-      if (chosen![key] === current[key]) delete changes[key];
-      else (changes as Record<string, unknown>)[key] = chosen![key];
-    }
+    this.overrideWithChoice(changes, current, chosen);
     const merged = { ...current, ...changes };
     const credits = await this.creditsFor(user, current, merged);
     Object.assign(merged, credits);
@@ -614,20 +636,11 @@ export class ProfessionalRoadmapChatService {
       throw new RoadmapDraftLockedException();
     }
 
-    const proposedContext = await this.withProposedRoles(
+    const validatedWidget = await this.validatedWidget(
+      draft,
       data.widget,
       widgetContext,
     );
-    const validatedWidget = validateWidget(data.widget, proposedContext);
-    if (data.widget && !validatedWidget)
-      this.logger.warn({
-        event: "roadmap-chat.widget-rejected",
-        draftId: draft.id,
-        field: data.widget.field,
-        type: data.widget.type,
-        reason: widgetRejectionReason(data.widget, proposedContext),
-        correlationId: requestContext.correlationId() ?? null,
-      });
     this.logState("turn", draft, updated, merged, readiness);
     await this.appendAssistantIfNew(
       user,
@@ -703,6 +716,22 @@ export class ProfessionalRoadmapChatService {
       : await this.drafts.findEditableDraft(user.id);
     if (!draft) return null;
     return this.view(user, draft, pagination);
+  }
+
+  async history(
+    user: TUser,
+    draftId: string,
+    pagination?: ProfessionalPaginationInput,
+  ) {
+    this.assertProfessional(user);
+    await this.ownedDraft(user, draftId);
+    return (
+      (await this.drafts.historyPage(user.id, draftId, pagination)) ?? {
+        items: [],
+        totalCount: 0,
+        pageInfo: { hasNextPage: false, nextCursor: null },
+      }
+    );
   }
 
   async suggestionOptions(user: TUser, input: RoadmapSuggestionOptionsInput) {
@@ -783,7 +812,8 @@ export class ProfessionalRoadmapChatService {
         throw new NotFoundException(
           ProfessionalMessageCode.ROADMAP_DRAFT_NOT_FOUND,
         );
-      if (result.outcome === "locked") throw new RoadmapDraftLockedException();
+      if (result.outcome === "locked" || result.outcome === "edit")
+        throw new RoadmapDraftLockedException();
       const updated = await this.initialTurn(user, result.draft);
       return this.view(user, updated, pagination);
     });
@@ -827,6 +857,8 @@ export class ProfessionalRoadmapChatService {
       const draft = await this.ownedDraft(user, input.draftId);
       if (draft.status === RoadmapDraftStatus.GENERATING)
         throw new RoadmapDraftLockedException();
+      if (draft.replacesRoadmapId)
+        return this.editChatTurn(user, draft, message, chosen);
 
       const started = Date.now();
       const expectedUpdatedAt = draft.updatedAt;
@@ -858,6 +890,218 @@ export class ProfessionalRoadmapChatService {
       );
       return this.view(user, updated);
     });
+  }
+
+  private async editChatTurn(
+    user: TUser,
+    draft: DraftRow,
+    message: string,
+    chosen: Partial<T.RoadmapDraftFields> | null,
+  ) {
+    const started = Date.now();
+    const expectedUpdatedAt = draft.updatedAt;
+    const state = await this.editContext.state(draft);
+    if (!state?.context)
+      throw new BadRequestException({
+        code: ProfessionalMessageCode.ROADMAP_NOT_EDITABLE,
+        message: ProfessionalMessageCode.ROADMAP_NOT_EDITABLE,
+      });
+
+    const currentMessageId = await this.recordProfessionalMessage(
+      user,
+      draft,
+      message,
+    );
+    const turn = await this.editTurnInput(
+      user,
+      draft,
+      state.context,
+      state.validation.accepted,
+      message,
+      currentMessageId,
+    );
+    const result = await this.serviceAi.editTurn(turn.input);
+
+    if (!result.ok) {
+      this.log(draft, result.kind, started, result);
+      if (result.kind === "refused")
+        return this.applyRefusal(user, draft, result.messageCode);
+      this.raise(result);
+    }
+
+    this.log(draft, "ok", started);
+    const updated = await this.applyEditTurn(
+      user,
+      draft,
+      result.data,
+      turn,
+      state.context,
+      expectedUpdatedAt,
+      chosen,
+    );
+    return this.view(user, updated);
+  }
+
+  private async editTurnInput(
+    user: TUser,
+    draft: DraftRow,
+    context: T.EditContext,
+    pendingChanges: RoadmapChangeOperation[],
+    userMessage: string | null,
+    currentMessageId: string | null,
+  ) {
+    const fields = this.fields(draft);
+    const [messages, catalogue] = await Promise.all([
+      this.drafts.transcript(user.id, draft.id),
+      this.subjectCatalogue(user),
+    ]);
+    const subjectOptions = catalogue.options;
+    return {
+      input: {
+        today: new Date(),
+        locale: "en" as const,
+        draft: this.toProviderDraft(fields, subjectOptions),
+        history: this.toHistory(messages ?? [], currentMessageId),
+        currentRoadmap: toCurrentRoadmap(context.roadmap, context.progress),
+        userMessage,
+        subjectOptions,
+        pendingChanges,
+      },
+      fullSubjectOptions: subjectOptions,
+      knownSubjectIds: catalogue.knownIds,
+      widgetContext: await this.widgetContext(user, fields, subjectOptions),
+    };
+  }
+
+  private async applyEditTurn(
+    user: TUser,
+    draft: DraftRow,
+    data: EditTurnData,
+    turn: Awaited<ReturnType<ProfessionalRoadmapChatService["editTurnInput"]>>,
+    context: T.EditContext,
+    expectedUpdatedAt: Date,
+    chosen: Partial<T.RoadmapDraftFields> | null,
+  ) {
+    const current = this.fields(draft);
+    const { changes } = mergeExtractedFields({
+      current,
+      subjectOptions: turn.fullSubjectOptions,
+      extracted: data.extracted,
+      cleared: data.clearedFields,
+    });
+    this.overrideWithChoice(changes, current, chosen);
+    const merged = { ...current, ...changes };
+    const credits = await this.creditsFor(user, current, merged);
+    Object.assign(merged, credits);
+
+    const readiness = getRoadmapDraftContractReadiness(
+      merged,
+      turn.knownSubjectIds,
+    );
+    const validation = validateChangeOperations(
+      data.changeOperations,
+      context.roadmap,
+      context.progress,
+    );
+    const isReady =
+      data.isReadyToRegenerate &&
+      !data.needsClarification &&
+      validation.rejected.length === 0;
+    const step = readiness.isValid
+      ? RoadmapDraftStep.REVIEW
+      : (stepOfFirstMissingField(readiness.missingFields) ?? draft.currentStep);
+
+    const updated = await this.drafts.updateDraft(
+      user.id,
+      draft.id,
+      {
+        ...changes,
+        ...credits,
+        currentStep: step,
+        pendingChanges: validation.accepted as unknown as Prisma.InputJsonValue,
+        readyToRegenerate: isReady,
+        needsClarification: data.needsClarification,
+        wasRefused: false,
+        status: readiness.isValid
+          ? RoadmapDraftStatus.READY
+          : RoadmapDraftStatus.COLLECTING,
+      },
+      expectedUpdatedAt,
+    );
+    if (!updated) {
+      this.logger.warn({
+        event: "roadmap-edit.turn-superseded",
+        draftId: draft.id,
+        correlationId: requestContext.correlationId() ?? null,
+      });
+      throw new RoadmapDraftLockedException();
+    }
+
+    this.logger.log({
+      event: "roadmap-edit.turn",
+      draftId: draft.id,
+      pendingBefore: parseStoredCount(draft.pendingChanges),
+      pendingAfter: validation.accepted.length,
+      rejected: validation.rejected.map((entry) => entry.reason),
+      readyToRegenerate: isReady,
+      needsClarification: data.needsClarification,
+      changedFields: Object.keys(changes),
+      correlationId: requestContext.correlationId() ?? null,
+    });
+    this.logState("edit-turn", draft, updated, merged, readiness);
+
+    const widget = await this.validatedWidget(
+      draft,
+      data.widget,
+      turn.widgetContext,
+    );
+    await this.appendAssistantIfNew(
+      user,
+      draft.id,
+      step,
+      data.assistantMessage,
+      widget,
+    );
+    if (validation.rejected.length > 0)
+      await this.drafts.appendMessage(user.id, draft.id, {
+        role: RoadmapChatRole.SYSTEM,
+        stepKey: step,
+        content: COACH_EDIT_CHANGE_REJECTED_CODE,
+      });
+
+    return updated;
+  }
+
+  private overrideWithChoice(
+    changes: Partial<T.RoadmapDraftFields>,
+    current: T.RoadmapDraftFields,
+    chosen: Partial<T.RoadmapDraftFields> | null,
+  ) {
+    for (const key of Object.keys(
+      chosen ?? {},
+    ) as (keyof T.RoadmapDraftFields)[]) {
+      if (chosen![key] === current[key]) delete changes[key];
+      else (changes as Record<string, unknown>)[key] = chosen![key];
+    }
+  }
+
+  private async validatedWidget(
+    draft: DraftRow,
+    widget: RoadmapWidget | null,
+    widgetContext: WidgetValidationContext,
+  ) {
+    const proposedContext = await this.withProposedRoles(widget, widgetContext);
+    const validated = validateWidget(widget, proposedContext);
+    if (widget && !validated)
+      this.logger.warn({
+        event: "roadmap-chat.widget-rejected",
+        draftId: draft.id,
+        field: widget.field,
+        type: widget.type,
+        reason: widgetRejectionReason(widget, proposedContext),
+        correlationId: requestContext.correlationId() ?? null,
+      });
+    return validated;
   }
 
   private async applyRefusal(
@@ -903,12 +1147,18 @@ export class ProfessionalRoadmapChatService {
       const merged = { ...current, ...changes };
       const { knownIds: knownSubjectIds } = await this.subjectCatalogue(user);
 
-      const updated = await this.drafts.updateDraft(user.id, draft.id, {
-        ...changes,
-        wasRefused: false,
-        needsClarification: false,
-        ...this.statusAfterEdit(draft, merged, knownSubjectIds),
-      });
+      const updated = await this.drafts.updateDraft(
+        user.id,
+        draft.id,
+        {
+          ...changes,
+          wasRefused: false,
+          needsClarification: false,
+          ...this.statusAfterEdit(draft, merged, knownSubjectIds),
+        },
+        draft.updatedAt,
+      );
+      if (!updated) throw new RoadmapDraftLockedException();
       if (updated)
         this.logState(
           "patch",
@@ -961,13 +1211,19 @@ export class ProfessionalRoadmapChatService {
       };
 
       const { knownIds: knownSubjectIds } = await this.subjectCatalogue(user);
-      const updated = await this.drafts.updateDraft(user.id, draft.id, {
-        cpdPlanId: plan.id,
-        certificationId: merged.certificationId,
-        certificationName: merged.certificationName,
-        requiredCredits: merged.requiredCredits,
-        ...this.statusAfterEdit(draft, merged, knownSubjectIds),
-      });
+      const updated = await this.drafts.updateDraft(
+        user.id,
+        draft.id,
+        {
+          cpdPlanId: plan.id,
+          certificationId: merged.certificationId,
+          certificationName: merged.certificationName,
+          requiredCredits: merged.requiredCredits,
+          ...this.statusAfterEdit(draft, merged, knownSubjectIds),
+        },
+        draft.updatedAt,
+      );
+      if (!updated) throw new RoadmapDraftLockedException();
       if (updated)
         this.logState(
           "cpd-setup",
@@ -1009,7 +1265,7 @@ export class ProfessionalRoadmapChatService {
   }
 
   private logState(
-    trigger: "turn" | "patch" | "cpd-setup",
+    trigger: "turn" | "patch" | "cpd-setup" | "edit-turn",
     before: DraftRow,
     after: DraftRow,
     merged: T.RoadmapDraftFields,

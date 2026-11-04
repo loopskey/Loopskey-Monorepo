@@ -1,3 +1,4 @@
+export { PROVIDER_DRAFT_FIELD_NAMES } from "@infrastructure/service-ai/service-ai.translation";
 export { SERVICE_AI_LIMITS } from "@infrastructure/service-ai/generated/service-ai.types";
 
 export const SERVICE_AI_PORT = Symbol("SERVICE_AI_PORT");
@@ -41,14 +42,14 @@ export type PlatformChatRole = "ASSISTANT" | "PROFESSIONAL" | "SYSTEM";
 
 export type PlatformDraftStep =
   | "GOAL"
-  | "GOAL_REASON"
+  | "REVIEW"
   | "CONTEXT"
+  | "GOAL_REASON"
   | "TARGET_DATE"
   | "PREFERENCES"
   | "CPD_TRACKING"
   | "CERTIFICATION"
-  | "CPD_REQUIREMENTS"
-  | "REVIEW";
+  | "CPD_REQUIREMENTS";
 
 export type PlatformLocale = "en" | "fa";
 
@@ -66,8 +67,8 @@ export type RoadmapDraftField =
   | "timeCommitment"
   | "budgetPreference"
   | "preferredFormats"
-  | "preferredContentTypes"
-  | "certificationName";
+  | "certificationName"
+  | "preferredContentTypes";
 
 export type RoadmapDraftState = {
   goal?: string | null;
@@ -130,6 +131,74 @@ export type RoadmapContentCandidate = {
   level?: PlatformSkillLevel | null;
 };
 
+export const CHANGE_OPERATION_TYPES = [
+  "ADD_STEP",
+  "ADD_PHASE",
+  "MODIFY_STEP",
+  "REMOVE_STEP",
+  "MODIFY_PHASE",
+  "UPDATE_DRAFT",
+  "REMOVE_PHASE",
+  "MODIFY_ROADMAP",
+  "REBUILD_ROADMAP",
+] as const;
+
+export type ChangeOperationType = (typeof CHANGE_OPERATION_TYPES)[number];
+
+export type RoadmapChangeOperation = {
+  instruction: string;
+  targetId: string | null;
+  operation: ChangeOperationType;
+};
+
+export type CurrentStepProgress = "COMPLETED" | "IN_PROGRESS";
+
+export type CurrentRoadmapStep = {
+  title: string;
+  stepId: string;
+  credits: number | null;
+  contentId: string | null;
+  description: string | null;
+  estimatedMinutes: number | null;
+  progress: CurrentStepProgress | null;
+  contentType: PlatformContentType | null;
+};
+
+export type CurrentRoadmapPhase = {
+  title: string;
+  phaseId: string;
+  estimatedWeeks: number;
+  description: string | null;
+  steps: CurrentRoadmapStep[];
+};
+
+export type CurrentRoadmap = {
+  title: string | null;
+  description: string | null;
+  phases: CurrentRoadmapPhase[];
+};
+
+export type EditTurnInput = {
+  today: Date;
+  locale?: PlatformLocale;
+  draft: RoadmapDraftState;
+  userMessage?: string | null;
+  history?: RoadmapChatEntry[];
+  currentRoadmap: CurrentRoadmap;
+  subjectOptions?: RoadmapSubjectOption[];
+  pendingChanges: RoadmapChangeOperation[];
+};
+
+export type EditTurnData = {
+  assistantMessage: string;
+  needsClarification: boolean;
+  isReadyToRegenerate: boolean;
+  widget: RoadmapWidget | null;
+  extracted: RoadmapDraftState;
+  clearedFields: RoadmapDraftField[];
+  changeOperations: RoadmapChangeOperation[];
+};
+
 export type RoadmapCpdContext = {
   organization: string;
   completedCredits: number;
@@ -147,6 +216,23 @@ export type GenerateInput = {
   cpd?: RoadmapCpdContext | null;
   candidates: RoadmapContentCandidate[];
   subjectOptions?: RoadmapSubjectOption[];
+};
+
+export type RegenerateInput = {
+  today: Date;
+  maxPhases?: number;
+  locale?: PlatformLocale;
+  draft: RoadmapDraftState;
+  currentRoadmap: CurrentRoadmap;
+  cpd?: RoadmapCpdContext | null;
+  candidates: RoadmapContentCandidate[];
+  subjectOptions?: RoadmapSubjectOption[];
+  changeOperations: RoadmapChangeOperation[];
+  preservation: {
+    completedSteps: boolean;
+    inProgressSteps: boolean;
+    unaffectedPhases: boolean;
+  };
 };
 
 export type GeneratedRoadmapStep = {
@@ -238,4 +324,6 @@ export class ServiceAiRequestError extends Error {
 export interface ServiceAiPort {
   chatTurn(input: ChatTurnInput): Promise<ServiceAiResult<ChatTurnData>>;
   generate(input: GenerateInput): Promise<ServiceAiResult<GenerateData>>;
+  editTurn(input: EditTurnInput): Promise<ServiceAiResult<EditTurnData>>;
+  regenerate(input: RegenerateInput): Promise<ServiceAiResult<GenerateData>>;
 }

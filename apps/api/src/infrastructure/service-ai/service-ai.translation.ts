@@ -22,11 +22,6 @@ import {
   type ProviderWidget,
 } from "./generated/service-ai.types";
 
-/**
- * Skill level and the learning-format tables are identity; the time-commitment
- * and budget tables translate, because the platform's weekly-hour and price
- * buckets no longer match the provider's contract 1.1.0 vocabulary.
- */
 export const SKILL_LEVEL_OUTBOUND: Record<
   PlatformSkillLevel,
   ProviderSkillLevel
@@ -88,11 +83,6 @@ export const BUDGET_PREFERENCE_INBOUND: Record<
   EMPLOYER_SPONSORED: "FIVE_HUNDRED_PLUS",
 };
 
-/**
- * Non-nullable since 1.1.0: every format this platform stores has a provider
- * target. Typed that way on purpose — reintroducing a `null` here has to be a
- * deliberate edit, not something a regenerated enum can do quietly.
- */
 export const LEARNING_FORMAT_OUTBOUND: Record<
   PlatformLearningFormat,
   ProviderLearningFormat
@@ -148,21 +138,21 @@ export const CHAT_ROLE_OUTBOUND: Record<
 
 export const STEP_TO_SECTION: Record<PlatformDraftStep, RoadmapSection> = {
   GOAL: "GOAL",
-  GOAL_REASON: "GOAL",
   CONTEXT: "GOAL",
+  REVIEW: "REVIEW",
   TARGET_DATE: "GOAL",
-  PREFERENCES: "PREFERENCES",
+  GOAL_REASON: "GOAL",
   CPD_TRACKING: "CPD_SETUP",
+  PREFERENCES: "PREFERENCES",
   CERTIFICATION: "CPD_SETUP",
   CPD_REQUIREMENTS: "CPD_SETUP",
-  REVIEW: "REVIEW",
 };
 
 export const SECTION_INBOUND: Record<ProviderStepKey, RoadmapSection> = {
   GOAL: "GOAL",
-  PREFERENCES: "PREFERENCES",
-  CPD_SETUP: "CPD_SETUP",
   REVIEW: "REVIEW",
+  CPD_SETUP: "CPD_SETUP",
+  PREFERENCES: "PREFERENCES",
 };
 
 export const DRAFT_FIELD_INBOUND: Record<
@@ -183,6 +173,10 @@ export const DRAFT_FIELD_INBOUND: Record<
   cpd_enabled: "cpdEnabled",
   certification_name: "certificationName",
 };
+
+export const PROVIDER_DRAFT_FIELD_NAMES = Object.keys(
+  DRAFT_FIELD_INBOUND,
+) as ProviderRoadmapField[];
 
 export const WIDGET_TYPE_INBOUND: Record<
   ProviderWidget["type"],
@@ -205,14 +199,6 @@ export const inbound = <TKey extends string, TValue>(
     : undefined;
 };
 
-/**
- * The provider's time and budget bands are coarser than the platform's, so a
- * value it hands back is only ever a band. When that band is the one the stored
- * value was sent as, the provider is repeating what it was told, not hearing a
- * correction, and reading it back would silently narrow the professional's own
- * choice to the band's canonical bucket. Such an echo is dropped; a band that
- * differs from the stored value's is a real correction and passes through.
- */
 export const withoutEchoedBands = (
   sent: RoadmapDraftState,
   extracted: RoadmapDraftState,

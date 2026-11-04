@@ -109,6 +109,10 @@ export type Recommendation = {
 export type Patch = Omit<PatchRoadmapDraftInput, "draftId">;
 export type CpdSetupPatch = Omit<PatchRoadmapCpdSetupInput, "draftId">;
 
+export type TRoadmapEditReviewProps = {
+  draft: TRoadmapDraft;
+};
+
 export type RoadmapBriefProps = {
   isPatching: boolean;
   draft: TRoadmapDraft;
@@ -259,6 +263,7 @@ export type RoadmapChatTranscriptProps = {
   retryAfter: number;
   onRetry: () => void;
   messages: TRoadmapChatMessage[];
+  historyMessages: TRoadmapChatMessage[];
   widget: TRoadmapWidget | null;
   pending: TPendingMessage | null;
   onAnswer: (value: string, label?: string) => void;

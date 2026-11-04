@@ -17,6 +17,16 @@ sendRoadmapChatTurn (free text or a serialised widget answer)
 requestRoadmapGeneration (READY → GENERATING, one outbox event)
   → OutboxProcessor → generation handler → generate (1..50 backend candidates)
   → strict verification → one transaction → COMPLETED
+
+startRoadmapEdit (copy of the saved brief, one platform greeting)
+sendRoadmapChatTurn on an edit draft
+  → edit-turn (current roadmap with ids and progress, pending changes)
+  → strict merge → validate change operations → replace the stored list
+requestRoadmapGeneration on an edit draft (same outbox event)
+  → generation handler → regenerate (0..50 candidates, approved changes,
+    preservation flags) → verification → preservation check
+  → one transaction: new roadmap, new enrollment, old one retired,
+    progress carried by content identity → COMPLETED
 ```
 
 ## Retry policy
@@ -163,3 +173,73 @@ provider is called, and stores exactly that value over whatever the provider
 extracted for that field. Fields the provider extracts for other topics in the
 same message are still merged. A typed answer has no structured value and still
 follows the provider's reading.
+
+## Editing a roadmap
+
+An edit is a second `RoadmapDraft` with `replacesRoadmapId` set. It starts as a
+copy of the brief behind the roadmap's enrollment and one assistant message
+with the code `ROADMAP_COACH_EDIT_GREETING`, written under a row lock so
+reopening the edit never adds another. The original conversation stays on the
+original draft; `professionalRoadmapHistory` returns it, following earlier
+edits back to the first interview, oldest first, for the owner only.
+
+Every chat turn on an edit draft goes to `edit-turn`, never `chat-turn`. The
+platform sends the roadmap as it is stored, with real phase and step ids and
+each step's `COMPLETED`/`IN_PROGRESS` status, the previous pending changes and
+only the edit's own messages as history.
+
+The provider returns the whole list of pending changes each turn. The platform
+replaces the stored `RoadmapDraft.pendingChanges` with that list after checking
+each entry against the learner's roadmap: a phase target must be one of its
+phases, a step target one of its steps, `UPDATE_DRAFT` a known draft field and
+`MODIFY_ROADMAP`/`REBUILD_ROADMAP` this roadmap or none. Removing or rewriting
+a step that holds progress, or removing a phase that holds one, is refused.
+Refused entries are logged by reason (never by instruction text), dropped, and
+reported to the professional as a system message; while any are refused the
+draft is not ready to regenerate. Extracted draft fields merge under the same
+rules as the interview, and the write is conditional on the draft's
+`updatedAt`, so a stale answer is refused (409) rather than overwriting a
+sidebar edit made while the provider was thinking. Sidebar edits are
+conditional the same way.
+
+`is_ready_to_regenerate` is recorded as `readyToRegenerate`, never acted on.
+Regeneration needs an explicit request, and `canGenerate` is true only when the
+draft is valid, something changed (pending changes or a preference that differs
+from the saved brief), the provider is not waiting for a clarification, any
+pending changes are confirmed, and no stored change has gone stale.
+`editBlockReason` names the first condition that fails.
+
+### Regeneration and progress
+
+Regeneration is the same outbox event and handler as generation; the handler
+calls `regenerate` instead of `generate` when the draft has
+`replacesRoadmapId`. It sends the roadmap with progress, the validated pending
+changes and `preservation` with all three flags true. Candidates are optional
+for an edit, because the content already in the roadmap can be enough.
+
+Verification distinguishes two sources of content. New content must be one of
+the candidates offered and must be free under `FREE_ONLY`. Content the learner
+already has is accepted without being a candidate: protected content (steps
+with progress) always, and under any budget other than `FREE_ONLY` every item
+of the current roadmap. Protected paid content stays even after the budget
+changes to `FREE_ONLY`.
+
+After verification the handler checks preservation: every protected item must
+appear somewhere in the new roadmap, and, unless a preference changed or a
+roadmap-wide change was requested, every phase no change names must keep all of
+its content. A failure marks the draft `FAILED` with
+`PROTECTED_CONTENT_DROPPED` or `UNAFFECTED_PHASE_CHANGED`. Inside the commit
+transaction `createRoadmapEnrollment` refuses (`RoadmapProgressNotPreservedError`)
+when any progress record on the old enrollment, including one written after the
+handler read it, has no step to move to; the transaction rolls back and the
+draft fails. In every failure the old roadmap, enrollment and progress are
+untouched and the edit draft keeps its brief and pending changes, so it can be
+retried.
+
+**Limitation.** `GeneratedStep` has no step id, so a regenerated step can be
+matched to an old one only by `content_type` and `content_id`. Progress on a
+step without content (for example a practice project) cannot be carried. Such
+an edit is refused before any provider call: `editBlockReason` is
+`PRESERVATION_UNSUPPORTED`, the request returns `ROADMAP_DRAFT_NOT_READY`, and a
+job that finds it fails with `PROTECTED_STEP_WITHOUT_IDENTITY`. The activity
+itself can be started and completed like any other step.

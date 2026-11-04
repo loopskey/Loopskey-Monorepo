@@ -23,6 +23,7 @@ const CAPABILITIES = {
     "professional-roadmap.service.ts",
     "professional-roadmap-chat.service.ts",
     "professional-roadmap-edit.service.ts",
+    "professional-roadmap-edit-context.service.ts",
     "professional-roadmap-draft.service.ts",
     "professional-roadmap-candidate.service.ts",
     "professional-roadmap-progress.service.ts",
@@ -57,7 +58,11 @@ const ALLOWED_INTERNAL_EDGES: Readonly<Record<string, readonly string[]>> = {
     "professional-cpd-plan.service.ts",
     "professional-profile.service.ts",
     "professional-roadmap-draft.service.ts",
+    "professional-roadmap-edit-context.service.ts",
     "professional-taxonomy.service.ts",
+  ],
+  "professional-roadmap-edit-context.service.ts": [
+    "professional-roadmap-draft.service.ts",
   ],
   // An edit copies the saved brief into a new draft through the draft service
   // and returns the same draft view the coach already renders.
@@ -69,6 +74,7 @@ const ALLOWED_INTERNAL_EDGES: Readonly<Record<string, readonly string[]>> = {
   // owns nothing else inside the module.
   "professional-roadmap-generation.service.ts": [
     "professional-roadmap-candidate.service.ts",
+    "professional-roadmap-edit-context.service.ts",
   ],
   // Recommendations reuse the ranking that chose the roadmap's own content,
   // because the draft behind it is what says what this professional wants.

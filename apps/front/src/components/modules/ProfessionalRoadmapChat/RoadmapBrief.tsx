@@ -7,10 +7,12 @@ import { LEARNING_TIME_COMMITMENTS } from "@/utils/professional-profile.constant
 import { isRoadmapStepReached } from "@/utils/roadmap-chat-step.util";
 import { RoadmapCpdSetupPanel } from "./RoadmapCpdSetupPanel";
 import { RoadmapDraftStatus } from "@/lib/graphql/base";
+import { RoadmapEditReview } from "./RoadmapEditReview";
 import { DELIVERY_FORMATS } from "@/utils/professional-profile.constant";
 import { LEARNING_FORMATS } from "@/utils/professional-profile.constant";
 import { RoadmapDraftStep } from "@/lib/graphql/base";
 import { RoadmapBriefRing } from "./RoadmapBriefRing";
+import { ConfirmDialog } from "@/components/elements/confirm-dialog";
 import { SKILL_LEVELS } from "@/utils/professional-profile.constant";
 import { Textarea } from "@/components/ui/textarea";
 import { useI18n } from "@/hooks/useI18n";
@@ -87,11 +89,11 @@ const WIDGET_FIELD: Record<RoadmapDraftFieldKey, PatchField> = {
 
 const MISSING_ORDER = [
   "goal",
-  "skillLevel",
-  "timeCommitment",
   "subjects",
-  "budgetPreference",
+  "skillLevel",
   "cpdAnswered",
+  "timeCommitment",
+  "budgetPreference",
   "certificationName",
 ] as const;
 
@@ -100,9 +102,9 @@ const MISSING_TARGET: Record<(typeof MISSING_ORDER)[number], EditTarget> = {
   subjects: "subjects",
   skillLevel: "skillLevel",
   cpdAnswered: "cpdEnabled",
+  certificationName: "cpdSetup",
   timeCommitment: "timeCommitment",
   budgetPreference: "budgetPreference",
-  certificationName: "cpdSetup",
 };
 
 const MISSING_LABEL_FIELD: Record<(typeof MISSING_ORDER)[number], string> = {
@@ -234,6 +236,8 @@ export const RoadmapBrief = ({
   const { t } = useI18n();
   const idPrefix = useId();
   const [editing, setEditing] = useState<EditTarget | null>(null);
+  const [confirmOpen, setConfirmOpen] = useState(false);
+  const isEdit = Boolean(draft.replacesRoadmapId);
 
   useEffect(() => {
     if (!focusStage) return;
@@ -298,6 +302,8 @@ export const RoadmapBrief = ({
       </div>
 
       <div className="relative space-y-4 overflow-y-auto px-4 pb-4">
+        {isEdit ? <RoadmapEditReview draft={draft} /> : null}
+
         {GROUPS.map((group) => {
           const fields = group.fields.filter(isRowVisible);
           const showCpdSetup =
@@ -325,14 +331,14 @@ export const RoadmapBrief = ({
                     <BriefRow
                       key={field}
                       draft={draft}
-                      idPrefix={idPrefix}
                       row={rows[field]}
+                      idPrefix={idPrefix}
                       isPatching={isPatching}
                       isAsking={field === asking}
-                      isRequired={REQUIRED_FIELDS.has(field)}
-                      isEditing={editing === field && !isBusy}
                       onEdit={() => setEditing(field)}
                       onCancel={() => setEditing(null)}
+                      isRequired={REQUIRED_FIELDS.has(field)}
+                      isEditing={editing === field && !isBusy}
                       onCommit={(target, value) => void commit(target, value)}
                     />
                   ))}
@@ -385,9 +391,29 @@ export const RoadmapBrief = ({
 
       {onGenerate ? (
         <div className="space-y-2 border-t bg-card px-4 pb-4 pt-3">
+          {isEdit ? (
+            <ConfirmDialog
+              open={confirmOpen}
+              isLoading={isGenerating}
+              onOpenChange={setConfirmOpen}
+              cancelText={t(`${KEY}.cancel`)}
+              title={t("professionalRoadmapChat.editReview.confirmTitle")}
+              confirmText={t(`${KEY}.regenerate`)}
+              description={t(
+                draft.protectedStepCount > 0
+                  ? "professionalRoadmapChat.editReview.confirmDescriptionProtected"
+                  : "professionalRoadmapChat.editReview.confirmDescription",
+                { count: draft.protectedStepCount },
+              )}
+              onConfirm={() => {
+                setConfirmOpen(false);
+                onGenerate();
+              }}
+            />
+          ) : null}
           <Button
             className="h-11 w-full"
-            onClick={onGenerate}
+            onClick={isEdit ? () => setConfirmOpen(true) : onGenerate}
             disabled={!draft.canGenerate || isPatching || isGenerating}
             aria-describedby={
               draft.canGenerate ? undefined : elementId(idPrefix, "unavailable")
@@ -438,6 +464,17 @@ export const RoadmapBrief = ({
                     </Fragment>
                   ))}
                 </>
+              ) : isEdit && draft.editBlockReason ? (
+                <>
+                  {t(
+                    `professionalRoadmapChat.editReview.block.${draft.editBlockReason}`,
+                  )}
+                  {draft.blockedStepTitles.length ? (
+                    <span className="mt-1 block font-medium text-foreground">
+                      {draft.blockedStepTitles.join(", ")}
+                    </span>
+                  ) : null}
+                </>
               ) : (
                 t(`${KEY}.waitingForCoach`)
               )}
@@ -451,10 +488,10 @@ export const RoadmapBrief = ({
 
 const BriefRow = ({
   row,
-  idPrefix,
   draft,
   onEdit,
   isAsking,
+  idPrefix,
   onCommit,
   onCancel,
   isEditing,

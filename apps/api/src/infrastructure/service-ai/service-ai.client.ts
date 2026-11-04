@@ -4,8 +4,11 @@ import { SERVICE_AI_CONFIG, type ServiceAiConfig } from "./service-ai.config";
 import { SERVICE_AI_CONTRACT_VERSION } from "./generated/service-ai.types";
 import { Inject, Injectable, Logger } from "@nestjs/common";
 import { translateTransportFailure } from "./service-ai.failure";
+import { buildRegenerateRequest } from "./service-ai.request";
+import { parseEditTurnResponse } from "./service-ai.response";
 import { parseGenerateResponse } from "./service-ai.response";
 import { parseChatTurnResponse } from "./service-ai.response";
+import { buildEditTurnRequest } from "./service-ai.request";
 import { notConfiguredFailure } from "./service-ai.failure";
 import { buildChatTurnRequest } from "./service-ai.request";
 import { withoutEchoedBands } from "./service-ai.translation";
@@ -16,8 +19,11 @@ import { randomUUID } from "crypto";
 import {
   type ChatTurnData,
   type ChatTurnInput,
+  type EditTurnData,
+  type EditTurnInput,
   type GenerateData,
   type GenerateInput,
+  type RegenerateInput,
   type ServiceAiFailure,
   type ServiceAiPort,
   type ServiceAiResult,
@@ -25,6 +31,8 @@ import {
 
 export const CHAT_TURN_PATH = "/v1/roadmap/chat-turn";
 export const GENERATE_PATH = "/v1/roadmap/generate";
+export const EDIT_TURN_PATH = "/v1/roadmap/edit-turn";
+export const REGENERATE_PATH = "/v1/roadmap/regenerate";
 
 const CONTRACT_VERSION_HEADER = "x-contract-version";
 
@@ -37,9 +45,14 @@ const TOKEN_HEADERS = {
   totalTokens: ["x-total-tokens", "x-tokens-total"],
 } as const;
 
-const OPERATION_BY_PATH: Record<string, "chat" | "generate"> = {
+const OPERATION_BY_PATH: Record<
+  string,
+  "chat" | "generate" | "edit" | "regenerate"
+> = {
   [CHAT_TURN_PATH]: "chat",
   [GENERATE_PATH]: "generate",
+  [EDIT_TURN_PATH]: "edit",
+  [REGENERATE_PATH]: "regenerate",
 };
 
 const majorOf = (version: string) => version.split(".")[0];
@@ -92,6 +105,44 @@ export class ServiceAiClient implements ServiceAiPort {
 
     const data = parseGenerateResponse(delivered.body);
     if (!data) return this.rejectResponse(GENERATE_PATH, delivered.status);
+    return { ok: true, data };
+  }
+
+  async editTurn(input: EditTurnInput): Promise<ServiceAiResult<EditTurnData>> {
+    const { body, drops } = buildEditTurnRequest(input);
+    const delivered = await this.send(
+      EDIT_TURN_PATH,
+      body,
+      this.config.timeouts.chatTurn,
+      drops,
+    );
+    if (!delivered.ok) return delivered.failure;
+
+    const data = parseEditTurnResponse(delivered.body);
+    if (!data) return this.rejectResponse(EDIT_TURN_PATH, delivered.status);
+    return {
+      ok: true,
+      data: {
+        ...data,
+        extracted: withoutEchoedBands(input.draft, data.extracted),
+      },
+    };
+  }
+
+  async regenerate(
+    input: RegenerateInput,
+  ): Promise<ServiceAiResult<GenerateData>> {
+    const { body, drops } = buildRegenerateRequest(input);
+    const delivered = await this.send(
+      REGENERATE_PATH,
+      body,
+      this.config.timeouts.generate,
+      drops,
+    );
+    if (!delivered.ok) return delivered.failure;
+
+    const data = parseGenerateResponse(delivered.body);
+    if (!data) return this.rejectResponse(REGENERATE_PATH, delivered.status);
     return { ok: true, data };
   }
 

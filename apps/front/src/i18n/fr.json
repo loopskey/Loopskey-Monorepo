@@ -4740,6 +4740,14 @@
         "generatingTitle": "Mise à jour de votre feuille de route",
         "generatingStep": "Reconstruction de la feuille de route à partir de vos réponses mises à jour. La progression sur les contenus conservés est gardée.",
         "unchanged": "Votre feuille de route actuelle n’a pas été modifiée."
+      },
+      "progressNotPreserved": {
+        "title": "La nouvelle version aurait perdu votre progression.",
+        "description": "Nous nous sommes arrêtés avant toute modification. Votre parcours actuel et votre progression sont inchangés. Vous pouvez réessayer."
+      },
+      "progressCannotBePreserved": {
+        "title": "Ce parcours ne peut pas encore être régénéré.",
+        "description": "La progression sur une activité sans contenu associé ne peut pas être conservée en toute sécurité. Votre parcours actuel et votre progression sont inchangés."
       }
     },
     "calendar": {
@@ -8000,6 +8008,11 @@
       "error": "Échec de l'enregistrement"
     },
     "transcriptLabel": "Conversation avec le coach de parcours",
+    "history": {
+      "label": "Conversation précédente sur ce parcours",
+      "title": "Conversation précédente",
+      "editStarts": "La modification commence ici"
+    },
     "thinking": "Le coach réfléchit…",
     "stepper": {
       "goal": "Objectif",
@@ -8008,6 +8021,7 @@
       "review": "Vérification et génération"
     },
     "coach": {
+      "editGreeting": "Que souhaitez-vous modifier dans votre parcours ? Vous pouvez mettre à jour vos préférences d'apprentissage, les phases ou les activités d'apprentissage.",
       "intro": "Bonjour, je suis votre Coach de parcours Loopskey. Je vais vous poser quelques questions courtes pour construire un parcours adapté. Cela prend environ deux minutes, et vous pourrez modifier chaque réponse ensuite.",
       "question": {
         "GOAL": "Que souhaitez-vous accomplir ? Une certification, un nouveau poste ou une compétence : dites-le avec vos propres mots.",
@@ -8059,7 +8073,8 @@
     },
     "system": {
       "ROADMAP_AI_REFUSED": "Cela semble sans rapport avec la création d'un parcours. Pouvez-vous reformuler ?",
-      "fieldUpdated": "{{field}} mis à jour."
+      "fieldUpdated": "{{field}} mis à jour.",
+      "ROADMAP_EDIT_CHANGE_REJECTED": "Une modification demandée ne correspondait pas à votre parcours et a été mise de côté."
     },
     "error": {
       "retry": "Réessayer",
@@ -8147,6 +8162,35 @@
       "discardConfirmTitle": "Annuler ces modifications ?",
       "discardConfirmDescription": "Votre feuille de route actuelle reste inchangée. Les réponses modifiées ici seront perdues.",
       "discardFailed": "Impossible d’annuler les modifications. Veuillez réessayer."
+    },
+    "editReview": {
+      "title": "Vérifier les modifications",
+      "empty": "Rien n'a encore changé. Dites au coach ce que vous voulez modifier, ou modifiez une préférence ci-dessous.",
+      "preferences": "Préférences mises à jour",
+      "requests": "Modifications demandées",
+      "protected": "{{count}} étape(s) commencée(s) ou terminée(s) seront conservées.",
+      "confirmTitle": "Régénérer votre parcours ?",
+      "confirmDescription": "Nous allons créer une nouvelle version avec ces modifications. Votre parcours actuel reste actif jusqu'à ce que la nouvelle version soit prête.",
+      "confirmDescriptionProtected": "Nous allons créer une nouvelle version avec ces modifications. Votre parcours actuel reste actif jusqu'à ce que la nouvelle version soit prête, et vos {{count}} étape(s) commencée(s) ou terminée(s) sont conservées.",
+      "operation": {
+        "MODIFY_ROADMAP": "Modifier tout le parcours",
+        "REBUILD_ROADMAP": "Reconstruire le parcours",
+        "ADD_PHASE": "Ajouter une phase",
+        "MODIFY_PHASE": "Modifier une phase",
+        "REMOVE_PHASE": "Supprimer une phase",
+        "ADD_STEP": "Ajouter une activité",
+        "MODIFY_STEP": "Modifier une activité",
+        "REMOVE_STEP": "Supprimer une activité",
+        "UPDATE_DRAFT": "Mettre à jour une préférence"
+      },
+      "block": {
+        "NOT_EDITABLE": "Ce parcours ne peut plus être modifié.",
+        "PRESERVATION_UNSUPPORTED": "La progression sur une activité sans contenu associé ne peut pas encore être conservée en toute sécurité, ce parcours ne peut donc pas être régénéré :",
+        "STALE_CHANGES": "Une des modifications demandées ne correspond plus à votre parcours. Dites au coach ce que vous souhaitez à la place.",
+        "NO_CHANGES": "Faites au moins une modification avant de régénérer.",
+        "AWAITING_CLARIFICATION": "Répondez à la question du coach pour terminer votre demande.",
+        "CHANGES_NOT_CONFIRMED": "Le coach confirme encore les modifications demandées."
+      }
     }
   },
   "topicHub": {

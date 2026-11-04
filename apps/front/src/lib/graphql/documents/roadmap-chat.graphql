@@ -63,6 +63,18 @@ fragment ProfessionalRoadmapDraftFields on ProfessionalRoadmapDraft {
   currentStep
   isComplete
   canGenerate
+  hasChanges
+  readyToRegenerate
+  editBlockReason
+  changedFields
+  protectedStepCount
+  blockedStepTitles
+  pendingChanges {
+    operation
+    targetId
+    targetLabel
+    instruction
+  }
   needsClarification
   wasRefused
   failure {
@@ -119,6 +131,18 @@ query ProfessionalRoadmapDraft(
 ) {
   professionalRoadmapDraft(draftId: $draftId, transcript: $transcript) {
     ...ProfessionalRoadmapDraftFields
+  }
+}
+
+query ProfessionalRoadmapHistory(
+  $draftId: ID!
+  $pagination: ProfessionalPaginationInput
+) {
+  professionalRoadmapHistory(draftId: $draftId, pagination: $pagination) {
+    totalCount
+    items {
+      ...RoadmapChatMessageFields
+    }
   }
 }
 

@@ -4,13 +4,17 @@ import { requestContext } from "@infrastructure/observability/request-context";
 
 import {
   CHAT_TURN_PATH,
+  EDIT_TURN_PATH,
   GENERATE_PATH,
+  REGENERATE_PATH,
   ServiceAiClient,
 } from "./service-ai.client";
 import {
   RoadmapAiMessageCode,
   type ChatTurnInput,
+  type EditTurnInput,
   type GenerateInput,
+  type RegenerateInput,
 } from "./service-ai.port";
 import { SERVICE_AI_CONTRACT_VERSION } from "./generated/service-ai.types";
 import { type ServiceAiConfig } from "./service-ai.config";
@@ -677,5 +681,334 @@ describe("ServiceAiClient", () => {
         }),
       );
     });
+  });
+});
+
+describe("ServiceAiClient edit and regenerate", () => {
+  const editInput: EditTurnInput = {
+    today: new Date("2026-08-22T09:00:00.000Z"),
+    draft: { goal: SECRET_GOAL, timeCommitment: "MORE_THAN_FIVE_HOURS" },
+    userMessage: "Reduce my weekly study time.",
+    pendingChanges: [],
+    currentRoadmap: {
+      title: "Python",
+      description: null,
+      phases: [
+        {
+          phaseId: "p1",
+          title: "Basics",
+          description: null,
+          estimatedWeeks: 2,
+          steps: [
+            {
+              stepId: "s1",
+              title: "Intro",
+              description: null,
+              contentId: "course-1",
+              contentType: "COURSE",
+              estimatedMinutes: 60,
+              credits: null,
+              progress: "COMPLETED",
+            },
+          ],
+        },
+      ],
+    },
+  };
+
+  const regenerateInput: RegenerateInput = {
+    today: new Date("2026-08-22T09:00:00.000Z"),
+    draft: { goal: SECRET_GOAL },
+    candidates: [],
+    currentRoadmap: editInput.currentRoadmap,
+    changeOperations: [
+      {
+        operation: "MODIFY_PHASE",
+        targetId: "p1",
+        instruction: "Project based.",
+      },
+    ],
+    preservation: {
+      completedSteps: true,
+      inProgressSteps: true,
+      unaffectedPhases: true,
+    },
+  };
+
+  const editBody = {
+    assistant_message: "How many hours?",
+    extracted: { available_time: "SEVEN_TO_TEN_HOURS" },
+    change_operations: [
+      {
+        operation: "MODIFY_PHASE",
+        target_id: "p1",
+        instruction: "Project based.",
+      },
+    ],
+    needs_clarification: true,
+    is_ready_to_regenerate: false,
+    widget: null,
+  };
+
+  let entries: unknown[];
+
+  beforeEach(() => {
+    entries = captureLogs();
+  });
+
+  afterEach(() => {
+    jest.restoreAllMocks();
+  });
+
+  describe("an edit turn", () => {
+    it("posts to the edit path with the service token and a correlation id", async () => {
+      const fetchMock = respondWith({ body: editBody });
+      global.fetch = fetchMock as unknown as typeof fetch;
+
+      await new ServiceAiClient(config).editTurn(editInput);
+
+      const [url, init] = fetchMock.mock.calls[0];
+      expect(url).toBe(`${BASE_URL}${EDIT_TURN_PATH}`);
+      expect(init.method).toBe("POST");
+      expect(init.headers.authorization).toBe(`Bearer ${SERVICE_TOKEN}`);
+      expect(init.headers["x-correlation-id"]).toMatch(/^[\w.-]{1,128}$/);
+      const body = JSON.parse(init.body);
+      expect(body.current_roadmap.phases[0].phase_id).toBe("p1");
+      expect(body.user_message).toBe("Reduce my weekly study time.");
+    });
+
+    it("is bounded by the same timeout as a chat turn", async () => {
+      global.fetch = respondWith({ body: editBody }) as unknown as typeof fetch;
+      const timeout = jest.spyOn(AbortSignal, "timeout");
+
+      await new ServiceAiClient(config).editTurn(editInput);
+
+      expect(timeout).toHaveBeenLastCalledWith(config.timeouts.chatTurn);
+    });
+
+    it("returns platform data", async () => {
+      global.fetch = respondWith({ body: editBody }) as unknown as typeof fetch;
+
+      const result = await new ServiceAiClient(config).editTurn(editInput);
+
+      expect(result).toMatchObject({
+        ok: true,
+        data: {
+          assistantMessage: "How many hours?",
+          needsClarification: true,
+          isReadyToRegenerate: false,
+          changeOperations: [
+            {
+              operation: "MODIFY_PHASE",
+              targetId: "p1",
+              instruction: "Project based.",
+            },
+          ],
+        },
+      });
+    });
+
+    it("does not hand back a band the provider only repeated", async () => {
+      global.fetch = respondWith({ body: editBody }) as unknown as typeof fetch;
+
+      const result = await new ServiceAiClient(config).editTurn(editInput);
+
+      expect(result).toMatchObject({
+        ok: true,
+        data: { extracted: { timeCommitment: null } },
+      });
+    });
+
+    it("fails when the answer breaks the contract", async () => {
+      global.fetch = respondWith({
+        body: {
+          ...editBody,
+          change_operations: [{ operation: "NOPE", instruction: "x" }],
+        },
+      }) as unknown as typeof fetch;
+
+      const result = await new ServiceAiClient(config).editTurn(editInput);
+
+      expect(result).toMatchObject({ ok: false });
+      expect(entries).toContainEqual(
+        expect.objectContaining({ event: "roadmap-ai.response-rejected" }),
+      );
+    });
+
+    it("reports a retryable unavailable answer as retryable", async () => {
+      global.fetch = respondWith({
+        status: 503,
+        body: { code: "UPSTREAM_TIMEOUT", message: "slow", retryable: true },
+        headers: { "retry-after": "9" },
+      }) as unknown as typeof fetch;
+
+      expect(
+        await new ServiceAiClient(config).editTurn(editInput),
+      ).toMatchObject({
+        ok: false,
+        retryable: true,
+        kind: "unavailable",
+        retryAfterSeconds: 9,
+      });
+    });
+
+    it("names the operation in the call log without logging what was said", async () => {
+      global.fetch = respondWith({ body: editBody }) as unknown as typeof fetch;
+
+      await new ServiceAiClient(config).editTurn(editInput);
+
+      const line = entries.find(
+        (entry) => (entry as { event?: string }).event === "roadmap-ai.call",
+      );
+      expect(line).toMatchObject({
+        operation: "edit",
+        path: EDIT_TURN_PATH,
+        outcome: "ok",
+      });
+      expect(JSON.stringify(entries)).not.toContain(SECRET_GOAL);
+      expect(JSON.stringify(entries)).not.toContain(
+        "Reduce my weekly study time.",
+      );
+      expect(JSON.stringify(entries)).not.toContain(SERVICE_TOKEN);
+    });
+  });
+
+  describe("a regeneration", () => {
+    it("posts to the regenerate path and never to generate", async () => {
+      const fetchMock = respondWith({ body: generateBody });
+      global.fetch = fetchMock as unknown as typeof fetch;
+
+      await new ServiceAiClient(config).regenerate(regenerateInput);
+
+      expect(fetchMock).toHaveBeenCalledTimes(1);
+      expect(fetchMock.mock.calls[0][0]).toBe(`${BASE_URL}${REGENERATE_PATH}`);
+      const body = JSON.parse(fetchMock.mock.calls[0][1].body);
+      expect(body.preservation.preserve_completed_steps).toBe(true);
+      expect(body.change_operations).toHaveLength(1);
+    });
+
+    it("is bounded by the generation timeout, long enough for a repair call", async () => {
+      global.fetch = respondWith({
+        body: generateBody,
+      }) as unknown as typeof fetch;
+      const timeout = jest.spyOn(AbortSignal, "timeout");
+
+      await new ServiceAiClient(config).regenerate(regenerateInput);
+
+      expect(timeout).toHaveBeenLastCalledWith(config.timeouts.generate);
+    });
+
+    it("returns the roadmap in platform types", async () => {
+      global.fetch = respondWith({
+        body: generateBody,
+      }) as unknown as typeof fetch;
+
+      expect(
+        await new ServiceAiClient(config).regenerate(regenerateInput),
+      ).toMatchObject({
+        ok: true,
+        data: { level: "ADVANCED", estimatedWeeks: 10 },
+      });
+    });
+
+    it("fails when the roadmap breaks the contract", async () => {
+      global.fetch = respondWith({
+        body: { ...generateBody, phases: [] },
+      }) as unknown as typeof fetch;
+
+      expect(
+        await new ServiceAiClient(config).regenerate(regenerateInput),
+      ).toMatchObject({ ok: false });
+    });
+
+    it.each([
+      ["MODEL_OUTPUT_TRUNCATED", 502, false, "failed"],
+      ["MODEL_OUTPUT_INVALID", 502, false, "failed"],
+      ["MODEL_REFUSED", 422, false, "refused"],
+      ["UPSTREAM_ERROR", 502, true, "unavailable"],
+      ["UPSTREAM_TIMEOUT", 504, true, "unavailable"],
+      ["OVERLOADED", 503, true, "busy"],
+    ])(
+      "treats %s (HTTP %s, retryable=%s) as %s",
+      async (code, status, retryable, kind) => {
+        global.fetch = respondWith({
+          status,
+          body: { code, message: "no", retryable },
+        }) as unknown as typeof fetch;
+
+        expect(
+          await new ServiceAiClient(config).regenerate(regenerateInput),
+        ).toMatchObject({
+          ok: false,
+          retryable,
+          kind,
+          providerCode: code,
+        });
+      },
+    );
+
+    it("does not retry a 502 the provider said is final", async () => {
+      global.fetch = respondWith({
+        status: 502,
+        body: {
+          code: "MODEL_OUTPUT_TRUNCATED",
+          message: "cut",
+          retryable: false,
+        },
+      }) as unknown as typeof fetch;
+
+      const result = await new ServiceAiClient(config).regenerate(
+        regenerateInput,
+      );
+
+      expect(result).toMatchObject({ ok: false, retryable: false });
+    });
+
+    it("fails as unavailable when the call times out", async () => {
+      global.fetch = jest
+        .fn()
+        .mockRejectedValue(
+          new DOMException("aborted", "TimeoutError"),
+        ) as unknown as typeof fetch;
+
+      expect(
+        await new ServiceAiClient(config).regenerate(regenerateInput),
+      ).toMatchObject({
+        ok: false,
+        retryable: true,
+        kind: "unavailable",
+      });
+    });
+
+    it("names the operation in the call log", async () => {
+      global.fetch = respondWith({
+        body: generateBody,
+      }) as unknown as typeof fetch;
+
+      await new ServiceAiClient(config).regenerate(regenerateInput);
+
+      expect(
+        entries.find(
+          (entry) => (entry as { event?: string }).event === "roadmap-ai.call",
+        ),
+      ).toMatchObject({ operation: "regenerate", path: REGENERATE_PATH });
+      expect(JSON.stringify(entries)).not.toContain(SECRET_GOAL);
+    });
+  });
+
+  it("does nothing when the service is not configured", async () => {
+    const fetchMock = jest.fn();
+    global.fetch = fetchMock as unknown as typeof fetch;
+    const unconfigured = new ServiceAiClient({ ...config, baseUrl: null });
+
+    expect(await unconfigured.editTurn(editInput)).toMatchObject({
+      ok: false,
+      retryable: false,
+    });
+    expect(await unconfigured.regenerate(regenerateInput)).toMatchObject({
+      ok: false,
+      retryable: false,
+    });
+    expect(fetchMock).not.toHaveBeenCalled();
   });
 });

@@ -47,14 +47,40 @@ describe("mapGenerationFailure", () => {
     ).toBe(RoadmapGenerationFailureCode.UNKNOWN);
   });
 
-  it.each(Object.values(RoadmapGenerationViolation))(
-    "reports the %s violation as an invalid generated roadmap",
-    (violation) => {
-      expect(mapGenerationFailure(violation)?.code).toBe(
-        RoadmapGenerationFailureCode.INVALID_GENERATED_ROADMAP,
-      );
-    },
-  );
+  it.each(
+    Object.values(RoadmapGenerationViolation).filter(
+      (violation) =>
+        violation !== RoadmapGenerationViolation.PROTECTED_CONTENT_DROPPED &&
+        violation !==
+          RoadmapGenerationViolation.PROTECTED_STEP_WITHOUT_IDENTITY,
+    ),
+  )("reports the %s violation as an invalid generated roadmap", (violation) => {
+    expect(mapGenerationFailure(violation)?.code).toBe(
+      RoadmapGenerationFailureCode.INVALID_GENERATED_ROADMAP,
+    );
+  });
+
+  it("reports dropped learner progress as a retryable preservation failure", () => {
+    expect(
+      mapGenerationFailure(
+        RoadmapGenerationViolation.PROTECTED_CONTENT_DROPPED,
+      ),
+    ).toEqual({
+      code: RoadmapGenerationFailureCode.PROGRESS_NOT_PRESERVED,
+      recoveryActions: ["RETRY"],
+    });
+  });
+
+  it("reports progress that cannot be matched safely as one with no retry", () => {
+    expect(
+      mapGenerationFailure(
+        RoadmapGenerationViolation.PROTECTED_STEP_WITHOUT_IDENTITY,
+      ),
+    ).toEqual({
+      code: RoadmapGenerationFailureCode.PROGRESS_CANNOT_BE_PRESERVED,
+      recoveryActions: [],
+    });
+  });
 
   it("never leaks the raw reason into the mapped result", () => {
     const result = mapGenerationFailure("internal-provider-stack-trace-ish");

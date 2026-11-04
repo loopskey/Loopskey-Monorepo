@@ -25,10 +25,10 @@ diff, so a provider change cannot land silently.
 
 | Field | Value |
 | ----- | ----- |
-| Contract version | 1.1.0 |
+| Contract version | 1.2.0 |
 | OpenAPI | 3.1.0 |
 | Auth | HTTP Bearer |
-| Operations | `POST /v1/roadmap/chat-turn`, `POST /v1/roadmap/generate` |
+| Operations | `POST /v1/roadmap/chat-turn`, `POST /v1/roadmap/generate`, `POST /v1/roadmap/edit-turn`, `POST /v1/roadmap/regenerate` |
 | Ops endpoints | `GET /health`, `GET /ready` (both unauthenticated), `GET /internal/stats` (Bearer) |
 | Base address | not declared in the document — configuration supplies it |
 
@@ -90,6 +90,35 @@ changes.
 consumer still sending those gets `422 VALIDATION_ERROR`. Nothing here stored
 provider spellings — draft columns are Prisma enums and translation happens at
 the boundary — so no migration was needed.
+
+## What 1.2.0 added
+
+1.2.0 is additive: every 1.1.0 schema is unchanged except `StatsResponse`,
+which gained `edit` and `regenerate` gate counters. It adds two operations for
+editing a roadmap that already exists.
+
+- `POST /v1/roadmap/edit-turn` takes the draft, the `current_roadmap` (phase
+  and step ids, content references and the learner's `progress` per step),
+  up to 12 history messages, the `pending_changes` from the previous turn and
+  the new `user_message`. It answers with `assistant_message`, `extracted`,
+  the **complete** current `change_operations` list (up to 30),
+  `needs_clarification`, `is_ready_to_regenerate` and an optional `widget`.
+- `POST /v1/roadmap/regenerate` takes the same draft and roadmap, the approved
+  `change_operations`, backend candidates (0 to 50; unlike `generate` there is
+  no minimum), `cpd`, `preservation` flags and `max_phases`, and answers with
+  the ordinary `GenerateResponse`.
+
+`ChangeOperation.operation` is one of `MODIFY_ROADMAP`, `REBUILD_ROADMAP`,
+`ADD_PHASE`, `MODIFY_PHASE`, `REMOVE_PHASE`, `ADD_STEP`, `MODIFY_STEP`,
+`REMOVE_STEP`, `UPDATE_DRAFT`. The contract calls the list opaque, but this
+platform still checks every `target_id` against the learner's own roadmap
+before storing it (see `docs/roadmap-ai-operations.md`, "Editing a roadmap").
+
+**`GeneratedStep` carries no `step_id`.** A regenerated step can be matched to
+the step it replaces only by its `content_type` and `content_id`. Progress on a
+step that has no content reference therefore cannot be carried across a
+regeneration; the platform refuses to regenerate rather than guess. A stable
+step identity in the response would remove this limit.
 
 ## Known gaps against this platform, as of 1.1.0
 
