@@ -7601,6 +7601,7 @@ export type RoadmapPendingChange = {
 export type RoadmapRecommendation = {
   __typename?: 'RoadmapRecommendation';
   contentId: Scalars['ID']['output'];
+  contentSlug?: Maybe<Scalars['String']['output']>;
   contentType: ContentType;
   credits?: Maybe<Scalars['Float']['output']>;
   durationMinutes?: Maybe<Scalars['Int']['output']>;

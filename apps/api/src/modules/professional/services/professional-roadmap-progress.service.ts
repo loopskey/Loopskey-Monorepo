@@ -2,13 +2,13 @@ import { Injectable, Logger, NotFoundException } from "@nestjs/common";
 import { ProfessionalRoadmapCandidateService } from "@professional/services/professional-roadmap-candidate.service";
 import { ProfessionalRoadmapDraftService } from "@professional/services/professional-roadmap-draft.service";
 import { RoadmapStepProgressStatus, Role } from "@prisma/client";
-import type { RoadmapDraft } from "@prisma/client";
 import { PROFESSIONAL_ENGAGEMENT_API } from "@contentAction/public/professional-engagement-api";
 import { ForbiddenException, Inject } from "@nestjs/common";
 import { PROFESSIONAL_CATALOG_API } from "@course/public/professional-catalog-api";
 import { ProfessionalMessageCode } from "@professional/enums/message-code.enum";
 import { deriveRoadmapProgress } from "@professional/utils/roadmap-progress.util";
 import { BadRequestException } from "@nestjs/common";
+import { roadmapContentKey } from "@course/public/professional-catalog-api";
 import { requestContext } from "@infrastructure/observability/request-context";
 import { PrismaService } from "@prisma/prisma.service";
 import { RoadmapShape } from "@professional/types/professional-roadmap-chat.types";
@@ -16,6 +16,8 @@ import { TUser } from "@common/types/user.types";
 
 import { type ProfessionalEngagementApi } from "@contentAction/public/professional-engagement-api";
 import { type ProfessionalCatalogApi } from "@course/public/professional-catalog-api";
+
+import type { RoadmapDraft } from "@prisma/client";
 
 @Injectable()
 export class ProfessionalRoadmapProgressService {
@@ -26,9 +28,9 @@ export class ProfessionalRoadmapProgressService {
     private readonly engagement: ProfessionalEngagementApi,
     @Inject(PROFESSIONAL_CATALOG_API)
     private readonly catalog: ProfessionalCatalogApi,
-    private readonly candidates: ProfessionalRoadmapCandidateService,
-    private readonly drafts: ProfessionalRoadmapDraftService,
-    private readonly prisma: PrismaService,
+    private readonly candidatesService: ProfessionalRoadmapCandidateService,
+    private readonly draftsService: ProfessionalRoadmapDraftService,
+    private readonly prismaService: PrismaService,
   ) {}
 
   private assertProfessional(user: TUser) {
@@ -194,7 +196,7 @@ export class ProfessionalRoadmapProgressService {
       );
 
       draft = enrollment.draftId
-        ? await this.prisma.roadmapDraft.findUnique({
+        ? await this.prismaService.roadmapDraft.findUnique({
             where: { id: enrollment.draftId },
             select: {
               subjects: true,
@@ -205,14 +207,12 @@ export class ProfessionalRoadmapProgressService {
           })
         : null;
     } else {
-      // No enrollment yet: source recommendations from the professional's
-      // current in-progress roadmap draft (goal/subjects/preferences) instead.
-      draft = await this.drafts.findEditableDraft(user.id);
+      draft = await this.draftsService.findEditableDraft(user.id);
     }
 
     if (!draft) return [];
 
-    const pool = await this.candidates.build({
+    const pool = await this.candidatesService.build({
       cap: take + alreadyInRoadmap.size,
       subjects: draft.subjects,
       keywords: [],
@@ -223,17 +223,27 @@ export class ProfessionalRoadmapProgressService {
       creditsNeeded: false,
     });
 
-    return pool
+    const picked = pool
       .filter((item) => !alreadyInRoadmap.has(item.contentId))
-      .slice(0, take)
-      .map((item) => ({
-        title: item.title,
-        isFree: item.isFree,
-        summary: item.summary,
-        credits: item.credits,
-        contentId: item.contentId,
-        contentType: item.contentType,
-        durationMinutes: item.durationMinutes,
-      }));
+      .slice(0, take);
+    const slugs = picked.length
+      ? await this.catalog.contentSlugs(
+          picked.map(({ contentId, contentType }) => ({
+            contentId,
+            contentType,
+          })),
+        )
+      : {};
+
+    return picked.map((item) => ({
+      title: item.title,
+      isFree: item.isFree,
+      summary: item.summary,
+      credits: item.credits,
+      contentId: item.contentId,
+      contentType: item.contentType,
+      durationMinutes: item.durationMinutes,
+      contentSlug: slugs[roadmapContentKey(item)] ?? null,
+    }));
   }
 }
