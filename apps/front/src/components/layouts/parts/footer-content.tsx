@@ -62,6 +62,8 @@ export const FooterContent = ({ t }: { t: I18nContextValue["t"] }) => {
   ];
 
   const companyLinks: TFooterLink[] = [
+    { href: siteLinks.content, label: t("footer.links.content") },
+    { href: siteLinks.services, label: t("footer.links.services") },
     { href: siteLinks.about, label: t("footer.links.about") },
     {
       href: siteLinks.associationPartners,

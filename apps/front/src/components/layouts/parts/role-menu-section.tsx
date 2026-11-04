@@ -12,7 +12,7 @@ export const RoleMenuSection = () => {
   const { activeRoleHref, selectRole } = useActiveRole();
 
   return (
-    <div className="border-t border-border/70 pt-4">
+    <div>
       <p className="px-1 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
         {t("common.continueAs")}
       </p>

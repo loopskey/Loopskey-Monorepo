@@ -2672,14 +2672,8 @@
   },
   "navigation": {
     "home": "Accueil",
-    "content": "Contenu",
-    "services": "Services",
-    "about": "À propos",
-    "contact": "Contact",
-    "faq": "FAQ",
     "openMenu": "Ouvrir le menu",
     "closeMenu": "Fermer le menu",
-    "primary": "Principale",
     "homeLink": "Accueil LoopsKey",
     "skipToContent": "Aller au contenu principal",
     "search": {
@@ -2781,6 +2775,8 @@
       "terms": "Conditions d’utilisation",
       "privacy": "Politique de confidentialité",
       "cookies": "Déclaration relative aux cookies",
+      "content": "Bibliothèque de contenu",
+      "services": "Services",
       "about": "À propos de LoopsKey",
       "associationPartners": "Associations partenaires",
       "companyContentProviders": "Fournisseurs de contenu"

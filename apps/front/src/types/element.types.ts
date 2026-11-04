@@ -153,11 +153,6 @@ export type TConfirmDialogProps = {
 };
 
 // ============== Header ================
-export type TNavItem = {
-  href: string;
-  label: string;
-};
-
 export type DashboardNavTab = {
   href: string;
   value: string;
