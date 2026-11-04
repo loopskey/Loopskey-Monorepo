@@ -21,11 +21,17 @@ import {
   type ServiceAiPort,
   type ServiceAiResult,
 } from "@infrastructure/service-ai/service-ai.port";
-import { HttpException, Logger, NotFoundException } from "@nestjs/common";
+import { ForbiddenException, HttpException } from "@nestjs/common";
+import { Logger, NotFoundException } from "@nestjs/common";
 import { requestContext } from "@infrastructure/observability/request-context";
 import { ProfessionalMessageCode } from "@professional/enums/message-code.enum";
 import { RoadmapDraftFieldKey } from "@professional/enums/roadmap-draft.enum";
 
+import { ProfessionalRoadmapEditContextService } from "./professional-roadmap-edit-context.service";
+
+import type { EditTurnData } from "@infrastructure/service-ai/service-ai.port";
+import type { RoadmapChangeOperation } from "@infrastructure/service-ai/service-ai.port";
+import type { EditTurnInput } from "@infrastructure/service-ai/service-ai.port";
 import type { CertificationSearchService } from "./certification-search.service";
 import type { ProfessionalCpdPlanService } from "./professional-cpd-plan.service";
 import type { ProfessionalProfileService } from "./professional-profile.service";
@@ -99,6 +105,9 @@ const emptyDraft = (overrides: Partial<StoredDraft> = {}): StoredDraft => ({
   failureReason: null,
   needsClarification: false,
   wasRefused: false,
+  replacesRoadmapId: null,
+  pendingChanges: [],
+  readyToRegenerate: false,
   updatedAt: new Date("2026-08-23T00:00:00.000Z"),
   ...overrides,
 });
@@ -239,6 +248,21 @@ class FakeDraftStore {
     };
   });
 
+  history: StoredMessage[] = [];
+
+  sourceChain: string[] = [];
+
+  editSourceChain = jest.fn(async () => this.sourceChain);
+
+  historyPage = jest.fn(async (userId: string, draftId: string) => {
+    if (!this.owned(userId, draftId)) return null;
+    return {
+      items: this.history,
+      totalCount: this.history.length,
+      pageInfo: { hasNextPage: false, nextCursor: null },
+    };
+  });
+
   lastAssistantMessage = jest.fn(async (userId: string, draftId: string) => {
     if (!this.owned(userId, draftId)) return null;
     return (
@@ -289,10 +313,12 @@ class FakeDraftStore {
     ): Promise<
       | { outcome: "reset"; draft: StoredDraft }
       | { outcome: "not_found" }
+      | { outcome: "edit" }
       | { outcome: "locked" }
     > => {
       const draft = this.owned(userId, draftId);
       if (!draft) return { outcome: "not_found" };
+      if (draft.replacesRoadmapId) return { outcome: "edit" };
       if (
         !(
           [
@@ -327,8 +353,15 @@ const turnData = (overrides: Partial<ChatTurnData> = {}): ChatTurnData => ({
   ...overrides,
 });
 
+type World = {
+  roadmap?: Record<string, unknown> | null;
+  progress?: { stepId: string; status: string }[];
+  editResults?: ServiceAiResult<EditTurnData>[];
+};
+
 const setup = (
   results: ServiceAiResult<ChatTurnData>[] = [{ ok: true, data: turnData() }],
+  world: World = {},
 ) => {
   const store = new FakeDraftStore();
   const queue = [...results];
@@ -337,9 +370,17 @@ const setup = (
     calls.push(input);
     return queue.length > 1 ? queue.shift()! : queue[0];
   });
+  const editQueue = [...(world.editResults ?? [])];
+  const editCalls: EditTurnInput[] = [];
+  const editTurn = jest.fn(async (input: EditTurnInput) => {
+    editCalls.push(input);
+    return editQueue.length > 1 ? editQueue.shift()! : editQueue[0];
+  });
   const serviceAi = {
     chatTurn,
+    editTurn,
     generate: jest.fn(),
+    regenerate: jest.fn(),
   } as unknown as ServiceAiPort;
 
   const profiles = {
@@ -434,6 +475,28 @@ const setup = (
     })),
   } as unknown as ProfessionalCpdPlanService;
 
+  const catalog = {
+    roadmaps: jest.fn(async () => (world.roadmap ? [world.roadmap] : [])),
+  };
+  const engagement = {
+    roadmapEnrollments: jest.fn(async () => ({
+      rows: [{ id: "enrollment-1" }],
+      totalCount: 1,
+    })),
+    roadmapStepProgress: jest.fn(async () =>
+      (world.progress ?? []).map((record) => ({
+        ...record,
+        enrollmentId: "enrollment-1",
+        completedAt: null,
+      })),
+    ),
+  };
+  const editContext = new ProfessionalRoadmapEditContextService(
+    engagement as never,
+    catalog as never,
+    store as unknown as ProfessionalRoadmapDraftService,
+  );
+
   const service = new ProfessionalRoadmapChatService(
     serviceAi,
     store as unknown as ProfessionalRoadmapDraftService,
@@ -442,12 +505,17 @@ const setup = (
     cpdPlans,
     certifications,
     prisma,
-    { roadmaps: async () => [] } as never,
+    catalog as never,
+    editContext,
   );
 
   return {
     service,
     store,
+    editTurn,
+    editCalls,
+    catalog,
+    engagement,
     chatTurn,
     calls,
     profiles,
@@ -696,6 +764,31 @@ describe("resetting the wizard", () => {
     await service.resetDraft(OWNER);
 
     expect(store.resetInPlace).toHaveBeenCalledWith(OWNER.id, "draft-editable");
+  });
+
+  it("never resets an edit draft, which would erase the saved preferences", async () => {
+    const { service, store, chatTurn } = setup();
+    store.seed(
+      emptyDraft({
+        ...collected,
+        id: "edit-1",
+        replacesRoadmapId: "roadmap-1",
+        status: RoadmapDraftStatus.READY,
+      }),
+    );
+    store.addMessage({ draftId: "edit-1", content: "kept" });
+
+    await expect(service.resetDraft(OWNER, "edit-1")).rejects.toMatchObject({
+      response: { code: ProfessionalMessageCode.ROADMAP_DRAFT_LOCKED },
+    });
+
+    expect(store.drafts[0]).toMatchObject({
+      goal: collected.goal,
+      subjects: collected.subjects,
+      status: RoadmapDraftStatus.READY,
+    });
+    expect(store.messages).toHaveLength(1);
+    expect(chatTurn).not.toHaveBeenCalled();
   });
 
   it("rejects an id belonging to another professional as not found", async () => {
@@ -3551,5 +3644,1151 @@ describe("a widget answer the professional clicked", () => {
       message: ProfessionalMessageCode.ROADMAP_DRAFT_FIELD_INVALID,
     });
     expect(chatTurn).not.toHaveBeenCalled();
+  });
+});
+
+describe("the conversation an edit grew out of", () => {
+  const earlier = (id: string): StoredMessage => ({
+    id,
+    draftId: "source-1",
+    role: RoadmapChatRole.PROFESSIONAL,
+    content: "an earlier answer",
+    stepKey: RoadmapDraftStep.GOAL,
+    widget: null,
+    createdAt: new Date("2026-08-01T00:00:00.000Z"),
+  });
+
+  it("returns the earlier messages of an edit the professional owns", async () => {
+    const { service, store } = setup();
+    store.seed(emptyDraft({ id: "edit-1", replacesRoadmapId: "roadmap-1" }));
+    store.history = [earlier("m-1"), earlier("m-2")];
+
+    const page = await service.history(OWNER, "edit-1");
+
+    expect(store.historyPage).toHaveBeenCalledWith(
+      OWNER.id,
+      "edit-1",
+      undefined,
+    );
+    expect(page.items.map((message) => message.id)).toEqual(["m-1", "m-2"]);
+    expect(page.totalCount).toBe(2);
+  });
+
+  it("passes the pagination through", async () => {
+    const { service, store } = setup();
+    store.seed(emptyDraft({ id: "edit-1", replacesRoadmapId: "roadmap-1" }));
+
+    await service.history(OWNER, "edit-1", { take: 5, cursor: "m-9" });
+
+    expect(store.historyPage).toHaveBeenCalledWith(OWNER.id, "edit-1", {
+      take: 5,
+      cursor: "m-9",
+    });
+  });
+
+  it("refuses another professional's draft without reading any history", async () => {
+    const { service, store } = setup();
+    store.seed(emptyDraft({ id: "edit-1", userId: OWNER.id }));
+    store.history = [earlier("m-1")];
+
+    await expect(service.history(STRANGER, "edit-1")).rejects.toBeInstanceOf(
+      NotFoundException,
+    );
+    expect(store.historyPage).not.toHaveBeenCalled();
+  });
+
+  it("refuses a caller who is not a professional", async () => {
+    const { service, store } = setup();
+    store.seed(emptyDraft({ id: "edit-1" }));
+
+    await expect(
+      service.history({ id: OWNER.id, role: Role.ADMIN }, "edit-1"),
+    ).rejects.toBeInstanceOf(ForbiddenException);
+  });
+
+  it("hides the edit greeting from the provider's history", async () => {
+    const { service, store, calls } = setup();
+    store.seed(emptyDraft({ ...collected, id: "edit-1" }));
+    store.addMessage({
+      draftId: "edit-1",
+      content: "ROADMAP_COACH_EDIT_GREETING",
+      role: RoadmapChatRole.ASSISTANT,
+    });
+
+    await service.chatTurn(OWNER, { draftId: "edit-1", message: "hello" });
+
+    expect(calls[0].history?.map((entry) => entry.content)).toEqual([]);
+  });
+});
+
+const stepRow = (
+  id: string,
+  order: number,
+  contentId: string | null,
+  contentType: string | null,
+) => ({
+  id,
+  order,
+  title: `Step ${id}`,
+  description: "Do it.",
+  contentId,
+  contentType,
+  estimatedMinutes: 60,
+  credits: null,
+});
+
+const EDIT_ROADMAP = {
+  id: "roadmap-1",
+  ownerId: OWNER.id,
+  source: "GENERATED",
+  title: "Python Basics",
+  description: "Learn Python.",
+  phases: [
+    {
+      id: "p1",
+      order: 1,
+      title: "Basics",
+      description: null,
+      estimatedWeeks: 3,
+      steps: [
+        stepRow("s1", 1, "course-1", "COURSE"),
+        stepRow("s2", 2, "course-2", "COURSE"),
+        stepRow("s3", 3, null, null),
+      ],
+    },
+    {
+      id: "p2",
+      order: 2,
+      title: "Data",
+      description: null,
+      estimatedWeeks: 4,
+      steps: [stepRow("s4", 1, "yt-1", "YOUTUBE")],
+    },
+  ],
+};
+
+const editData = (overrides: Partial<EditTurnData> = {}): EditTurnData => ({
+  assistantMessage: "Noted.",
+  needsClarification: false,
+  isReadyToRegenerate: true,
+  widget: null,
+  extracted: {},
+  clearedFields: [],
+  changeOperations: [],
+  ...overrides,
+});
+
+const operation = (
+  kind: RoadmapChangeOperation["operation"],
+  targetId: string | null,
+  instruction = "Do the change.",
+): RoadmapChangeOperation => ({ operation: kind, targetId, instruction });
+
+const editDraftRow = (overrides: Partial<StoredDraft> = {}) =>
+  emptyDraft({
+    ...contractReady,
+    id: "edit-1",
+    replacesRoadmapId: "roadmap-1",
+    status: RoadmapDraftStatus.READY,
+    currentStep: RoadmapDraftStep.REVIEW,
+    ...overrides,
+  });
+
+const editSetup = (
+  data: EditTurnData | EditTurnData[],
+  world: Omit<World, "editResults"> = {},
+  draft: Partial<StoredDraft> = {},
+) => {
+  const list = Array.isArray(data) ? data : [data];
+  const harness = setup(undefined, {
+    roadmap: EDIT_ROADMAP,
+    ...world,
+    editResults: list.map((entry) => ({ ok: true as const, data: entry })),
+  });
+  harness.store.seed(editDraftRow(draft));
+  return harness;
+};
+
+const say = (
+  service: ProfessionalRoadmapChatService,
+  message = "Change something.",
+  extra: Record<string, unknown> = {},
+) => service.chatTurn(OWNER, { draftId: "edit-1", message, ...extra });
+
+describe("a conversation about editing an existing roadmap", () => {
+  describe("which endpoint answers", () => {
+    it("asks the edit endpoint, never the creation coach", async () => {
+      const { service, editTurn, chatTurn } = editSetup(editData());
+
+      await say(service);
+
+      expect(editTurn).toHaveBeenCalledTimes(1);
+      expect(chatTurn).not.toHaveBeenCalled();
+    });
+
+    it("keeps asking the creation coach for a new roadmap", async () => {
+      const { service, store, editTurn, chatTurn } = setup();
+      store.seed(emptyDraft());
+
+      await service.chatTurn(OWNER, { draftId: "draft-1", message: "hello" });
+
+      expect(chatTurn).toHaveBeenCalledTimes(1);
+      expect(editTurn).not.toHaveBeenCalled();
+    });
+
+    it("refuses an edit of a roadmap that is not the professional's, without calling the provider", async () => {
+      const { service, editTurn } = editSetup(editData(), { roadmap: null });
+
+      await expect(say(service)).rejects.toMatchObject({
+        response: { code: ProfessionalMessageCode.ROADMAP_NOT_EDITABLE },
+      });
+      expect(editTurn).not.toHaveBeenCalled();
+    });
+
+    it("refuses an edit of a roadmap another professional owns", async () => {
+      const { service, editTurn } = editSetup(editData(), {
+        roadmap: { ...EDIT_ROADMAP, ownerId: STRANGER.id },
+      });
+
+      await expect(say(service)).rejects.toMatchObject({
+        response: { code: ProfessionalMessageCode.ROADMAP_NOT_EDITABLE },
+      });
+      expect(editTurn).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("what the provider is told", () => {
+    it("sends the roadmap with its real identifiers and the learner's progress", async () => {
+      const { service, editCalls } = editSetup(editData(), {
+        progress: [
+          { stepId: "s1", status: "COMPLETED" },
+          { stepId: "s2", status: "IN_PROGRESS" },
+        ],
+      });
+
+      await say(service, "Make the first phase project based.");
+
+      const request = editCalls[0];
+      expect(request.userMessage).toBe("Make the first phase project based.");
+      expect(request.locale).toBe("en");
+      expect(
+        request.currentRoadmap.phases.map((phase) => phase.phaseId),
+      ).toEqual(["p1", "p2"]);
+      expect(
+        request.currentRoadmap.phases[0].steps.map((step) => [
+          step.stepId,
+          step.progress,
+        ]),
+      ).toEqual([
+        ["s1", "COMPLETED"],
+        ["s2", "IN_PROGRESS"],
+        ["s3", null],
+      ]);
+      expect(request.currentRoadmap.phases[0].steps[2].contentId).toBeNull();
+    });
+
+    it("sends the saved preferences as the current draft", async () => {
+      const { service, editCalls } = editSetup(editData());
+
+      await say(service);
+
+      expect(editCalls[0].draft).toMatchObject({
+        goal: contractReady.goal,
+        skillLevel: contractReady.skillLevel,
+        subjects: ["Data Analysis"],
+        cpdEnabled: false,
+      });
+    });
+
+    it("sends the changes already pending so they survive the next message", async () => {
+      const pending = [
+        operation("MODIFY_PHASE", "p1", "Make it project based."),
+      ];
+      const { service, editCalls } = editSetup(
+        editData(),
+        {},
+        { pendingChanges: pending },
+      );
+
+      await say(service);
+
+      expect(editCalls[0].pendingChanges).toEqual(pending);
+    });
+
+    it("sends only this edit's conversation, not the interview it grew out of", async () => {
+      const { service, store, editCalls } = editSetup(editData());
+      store.history = [
+        {
+          id: "old-1",
+          draftId: "source-1",
+          role: RoadmapChatRole.PROFESSIONAL,
+          content: "an answer from the original interview",
+          stepKey: RoadmapDraftStep.GOAL,
+          widget: null,
+          createdAt: new Date("2026-08-01T00:00:00.000Z"),
+        },
+      ];
+      store.addMessage({
+        draftId: "edit-1",
+        role: RoadmapChatRole.PROFESSIONAL,
+        content: "an earlier edit request",
+      });
+      store.addMessage({
+        draftId: "edit-1",
+        role: RoadmapChatRole.ASSISTANT,
+        content: "ROADMAP_COACH_EDIT_GREETING",
+      });
+
+      await say(service, "next request");
+
+      expect(editCalls[0].history?.map((entry) => entry.content)).toEqual([
+        "an earlier edit request",
+      ]);
+    });
+
+    it("never sends a message the professional is only about to type", async () => {
+      const { service, editCalls } = editSetup(editData());
+
+      await say(service, "only once");
+
+      expect(
+        editCalls[0].history?.some((entry) => entry.content === "only once"),
+      ).toBe(false);
+    });
+  });
+
+  describe("the changes it remembers", () => {
+    it("replaces the stored list with the list the provider returned instead of adding to it", async () => {
+      const { service, store } = editSetup(
+        editData({
+          changeOperations: [operation("MODIFY_PHASE", "p2", "Shorter.")],
+        }),
+        {},
+        {
+          pendingChanges: [
+            operation("MODIFY_PHASE", "p1", "Make it project based."),
+            operation("REMOVE_STEP", "s4", "Drop it."),
+          ],
+        },
+      );
+
+      await say(service);
+
+      expect(store.drafts[0].pendingChanges).toEqual([
+        operation("MODIFY_PHASE", "p2", "Shorter."),
+      ]);
+    });
+
+    it("forgets every change when the provider returns none", async () => {
+      const { service, store } = editSetup(
+        editData({ changeOperations: [] }),
+        {},
+        { pendingChanges: [operation("MODIFY_PHASE", "p1")] },
+      );
+
+      await say(service, "Never mind, leave it as it is.");
+
+      expect(store.drafts[0].pendingChanges).toEqual([]);
+    });
+
+    it("keeps the earlier changes alongside a new one the provider carried forward", async () => {
+      const earlier = operation("MODIFY_PHASE", "p1", "Make it project based.");
+      const { service, store } = editSetup(
+        editData({
+          changeOperations: [
+            earlier,
+            operation("MODIFY_STEP", "s4", "Use a video."),
+          ],
+        }),
+        {},
+        { pendingChanges: [earlier] },
+      );
+
+      await say(service);
+
+      expect(store.drafts[0].pendingChanges).toHaveLength(2);
+      expect((store.drafts[0].pendingChanges as unknown[])[0]).toEqual(earlier);
+    });
+
+    it("stores each change once even if the provider repeats it", async () => {
+      const once = operation("MODIFY_PHASE", "p1");
+      const { service, store } = editSetup(
+        editData({ changeOperations: [once, { ...once }] }),
+      );
+
+      await say(service);
+
+      expect(store.drafts[0].pendingChanges).toEqual([once]);
+    });
+
+    it("accepts every operation the contract defines when its target exists", async () => {
+      const operations = [
+        operation("MODIFY_ROADMAP", null),
+        operation("REBUILD_ROADMAP", "roadmap-1"),
+        operation("ADD_PHASE", null),
+        operation("ADD_PHASE", "p1", "After the basics."),
+        operation("MODIFY_PHASE", "p1"),
+        operation("REMOVE_PHASE", "p2"),
+        operation("ADD_STEP", "p1"),
+        operation("ADD_STEP", "s2", "After control flow."),
+        operation("MODIFY_STEP", "s3"),
+        operation("REMOVE_STEP", "s4"),
+        operation("UPDATE_DRAFT", "available_time", "Weekly time: 1-3 hours."),
+      ];
+      const { service, store } = editSetup(
+        editData({ changeOperations: operations }),
+      );
+
+      await say(service);
+
+      expect(store.drafts[0].pendingChanges).toEqual(operations);
+      expect(store.drafts[0].readyToRegenerate).toBe(true);
+    });
+
+    describe("a change that does not belong to this roadmap", () => {
+      const rejected = async (
+        bad: RoadmapChangeOperation,
+        world: Omit<World, "editResults"> = {},
+      ) => {
+        const good = operation("MODIFY_PHASE", "p1", "Make it project based.");
+        const harness = editSetup(
+          editData({ changeOperations: [good, bad] }),
+          world,
+        );
+        await say(harness.service);
+        return { ...harness, good };
+      };
+
+      it.each([
+        [
+          "a phase of somebody else's roadmap",
+          operation("MODIFY_PHASE", "foreign-phase"),
+        ],
+        [
+          "a step of somebody else's roadmap",
+          operation("MODIFY_STEP", "foreign-step"),
+        ],
+        ["a step used as a phase", operation("MODIFY_PHASE", "s1")],
+        ["a phase used as a step", operation("REMOVE_STEP", "p1")],
+        [
+          "a field the draft does not have",
+          operation("UPDATE_DRAFT", "password"),
+        ],
+        [
+          "a roadmap that is not this one",
+          operation("MODIFY_ROADMAP", "another-roadmap"),
+        ],
+        ["a phase change with no phase named", operation("MODIFY_PHASE", null)],
+        ["a step change with no step named", operation("REMOVE_STEP", null)],
+        [
+          "an instruction with nothing in it",
+          operation("MODIFY_PHASE", "p1", "   "),
+        ],
+      ])("drops %s and keeps the valid change", async (_label, bad) => {
+        const { store, good } = await rejected(bad);
+
+        expect(store.drafts[0].pendingChanges).toEqual([good]);
+      });
+
+      it("will not say the changes are ready when one was dropped", async () => {
+        const { store } = await rejected(
+          operation("MODIFY_PHASE", "foreign-phase"),
+        );
+
+        expect(store.drafts[0].readyToRegenerate).toBe(false);
+      });
+
+      it("tells the professional a change was set aside", async () => {
+        const { store } = await rejected(
+          operation("MODIFY_PHASE", "foreign-phase"),
+        );
+
+        expect(store.messages.at(-1)).toMatchObject({
+          role: RoadmapChatRole.SYSTEM,
+          content: "ROADMAP_EDIT_CHANGE_REJECTED",
+        });
+      });
+
+      it("logs why without logging what the professional wrote", async () => {
+        await rejected(
+          operation("MODIFY_PHASE", "foreign-phase", "SECRET WORDS"),
+        );
+
+        const entry = logEntries.find(
+          (item) => (item as { event?: string }).event === "roadmap-edit.turn",
+        );
+        expect(entry).toMatchObject({
+          draftId: "edit-1",
+          rejected: ["UNKNOWN_TARGET"],
+          pendingAfter: 1,
+        });
+        expect(JSON.stringify(logEntries)).not.toContain("SECRET WORDS");
+      });
+    });
+
+    describe("progress the learner already made", () => {
+      const withProgress = {
+        progress: [
+          { stepId: "s1", status: "COMPLETED" },
+          { stepId: "s2", status: "IN_PROGRESS" },
+        ],
+      };
+
+      it.each([
+        ["removing a completed step", operation("REMOVE_STEP", "s1")],
+        ["rewriting a completed step", operation("MODIFY_STEP", "s1")],
+        ["removing an in-progress step", operation("REMOVE_STEP", "s2")],
+        [
+          "removing a phase that holds progress",
+          operation("REMOVE_PHASE", "p1"),
+        ],
+      ])("sets aside %s", async (_label, bad) => {
+        const { service, store } = editSetup(
+          editData({ changeOperations: [bad] }),
+          withProgress,
+        );
+
+        await say(service);
+
+        expect(store.drafts[0].pendingChanges).toEqual([]);
+        expect(store.drafts[0].readyToRegenerate).toBe(false);
+      });
+
+      it("still allows changing a phase that holds progress, and a step with none", async () => {
+        const ok = [
+          operation("MODIFY_PHASE", "p1"),
+          operation("MODIFY_STEP", "s4"),
+        ];
+        const { service, store } = editSetup(
+          editData({ changeOperations: ok }),
+          withProgress,
+        );
+
+        await say(service);
+
+        expect(store.drafts[0].pendingChanges).toEqual(ok);
+      });
+    });
+  });
+
+  describe("the preferences it extracts", () => {
+    it("changes only what was extracted and leaves everything else alone", async () => {
+      const { service, store } = editSetup(
+        editData({
+          extracted: {
+            timeCommitment: LearningTimeCommitment.ONE_TO_TWO_HOURS,
+          },
+        }),
+      );
+
+      await say(service, "I can study 2 hours per week.");
+
+      expect(store.drafts[0]).toMatchObject({
+        timeCommitment: LearningTimeCommitment.ONE_TO_TWO_HOURS,
+        goal: contractReady.goal,
+        skillLevel: contractReady.skillLevel,
+        budgetPreference: contractReady.budgetPreference,
+        subjects: contractReady.subjects,
+        cpdAnswered: true,
+      });
+    });
+
+    it("does not clear a field the provider left null", async () => {
+      const { service, store } = editSetup(
+        editData({
+          extracted: {
+            goal: null,
+            skillLevel: null,
+            subjects: null,
+            targetRole: null,
+          },
+        }),
+        {},
+        { targetRole: "Data lead" },
+      );
+
+      await say(service);
+
+      expect(store.drafts[0]).toMatchObject({
+        goal: contractReady.goal,
+        skillLevel: contractReady.skillLevel,
+        subjects: contractReady.subjects,
+        targetRole: "Data lead",
+      });
+    });
+
+    it("clears a field only when the provider lists it as cleared", async () => {
+      const { service, store } = editSetup(
+        editData({ clearedFields: ["targetRole"] }),
+        {},
+        { targetRole: "Data lead", goalReason: "promotion" },
+      );
+
+      await say(service, "Forget the role.");
+
+      expect(store.drafts[0].targetRole).toBeNull();
+      expect(store.drafts[0].goalReason).toBe("promotion");
+    });
+
+    it("sends the learner back to the missing field when a required one is cleared", async () => {
+      const { service, store } = editSetup(
+        editData({ clearedFields: ["goal"], isReadyToRegenerate: true }),
+      );
+
+      await say(service, "Drop my goal.");
+
+      expect(store.drafts[0]).toMatchObject({
+        goal: null,
+        status: RoadmapDraftStatus.COLLECTING,
+        currentStep: RoadmapDraftStep.GOAL,
+      });
+    });
+
+    it("lets a clicked option beat the provider's reading of it", async () => {
+      const { service, store } = editSetup(
+        editData({
+          extracted: {
+            timeCommitment: LearningTimeCommitment.THREE_TO_FIVE_HOURS,
+          },
+        }),
+      );
+
+      await say(service, "Time each week: 5+ hours per week", {
+        answerField: RoadmapDraftFieldKey.TIME_COMMITMENT,
+        answerValue: LearningTimeCommitment.MORE_THAN_FIVE_HOURS,
+      });
+
+      expect(store.drafts[0].timeCommitment).toBe(
+        LearningTimeCommitment.MORE_THAN_FIVE_HOURS,
+      );
+    });
+  });
+
+  describe("readiness is not approval", () => {
+    it("records that the provider thinks the changes are ready, without regenerating", async () => {
+      const { service, store } = editSetup(
+        editData({
+          isReadyToRegenerate: true,
+          changeOperations: [operation("MODIFY_PHASE", "p1")],
+        }),
+      );
+
+      const view = await say(service);
+
+      expect(store.drafts[0].readyToRegenerate).toBe(true);
+      expect(store.drafts[0].status).toBe(RoadmapDraftStatus.READY);
+      expect(view.canGenerate).toBe(true);
+    });
+
+    it("is not ready while the provider still has a question", async () => {
+      const { service, store } = editSetup(
+        editData({
+          isReadyToRegenerate: true,
+          needsClarification: true,
+          changeOperations: [operation("MODIFY_PHASE", "p1")],
+        }),
+      );
+
+      const view = await say(service);
+
+      expect(store.drafts[0].readyToRegenerate).toBe(false);
+      expect(store.drafts[0].needsClarification).toBe(true);
+      expect(view.canGenerate).toBe(false);
+      expect(view.editBlockReason).toBe("AWAITING_CLARIFICATION");
+    });
+
+    it("keeps the draft ready for review even when the provider is not done", async () => {
+      const { service, store } = editSetup(
+        editData({
+          isReadyToRegenerate: false,
+          needsClarification: true,
+          changeOperations: [operation("MODIFY_PHASE", "p1")],
+        }),
+      );
+
+      await say(service);
+
+      expect(store.drafts[0].status).toBe(RoadmapDraftStatus.READY);
+    });
+
+    it("puts a failed edit back in review when the professional keeps talking", async () => {
+      const { service, store } = editSetup(
+        editData({ changeOperations: [operation("MODIFY_PHASE", "p1")] }),
+        {},
+        { status: RoadmapDraftStatus.FAILED },
+      );
+
+      await say(service);
+
+      expect(store.drafts[0].status).toBe(RoadmapDraftStatus.READY);
+    });
+  });
+
+  describe("what the professional sees back", () => {
+    it("stores the provider's reply and the clarification widget", async () => {
+      const { service, store } = editSetup(
+        editData({
+          assistantMessage: "How many hours a week?",
+          needsClarification: true,
+          isReadyToRegenerate: false,
+          widget: {
+            type: "SINGLE_SELECT",
+            field: "timeCommitment",
+            maxSelections: null,
+            options: [{ value: "ONE_TO_THREE_HOURS", label: "1-3 hours" }],
+          },
+        }),
+      );
+
+      const view = await say(service, "Reduce my weekly study time.");
+
+      const reply = store.messages
+        .filter((m) => m.role === RoadmapChatRole.ASSISTANT)
+        .at(-1);
+      expect(reply?.content).toBe("How many hours a week?");
+      expect(view.widget).toMatchObject({
+        type: "SINGLE_SELECT",
+        field: "timeCommitment",
+      });
+      expect(store.drafts[0].timeCommitment).toBe(contractReady.timeCommitment);
+    });
+
+    it("stores the professional's own message once", async () => {
+      const { service, store } = editSetup(editData());
+
+      await say(service, "Make it shorter.");
+
+      expect(
+        store.messages.filter((m) => m.content === "Make it shorter."),
+      ).toHaveLength(1);
+    });
+  });
+
+  describe("when the provider cannot answer", () => {
+    it("leaves the remembered changes as they were after a retryable failure", async () => {
+      const pending = [operation("MODIFY_PHASE", "p1")];
+      const harness = setup(undefined, {
+        roadmap: EDIT_ROADMAP,
+        editResults: [
+          {
+            ok: false,
+            kind: "unavailable",
+            retryable: true,
+            retryAfterSeconds: null,
+            messageCode: RoadmapAiMessageCode.ROADMAP_AI_UNAVAILABLE,
+          },
+        ],
+      });
+      harness.store.seed(editDraftRow({ pendingChanges: pending }));
+
+      await expect(say(harness.service)).rejects.toMatchObject({
+        response: { code: RoadmapAiMessageCode.ROADMAP_AI_UNAVAILABLE },
+      });
+
+      expect(harness.store.drafts[0].pendingChanges).toEqual(pending);
+    });
+
+    it("reports a busy provider with the wait it asked for", async () => {
+      const harness = setup(undefined, {
+        roadmap: EDIT_ROADMAP,
+        editResults: [
+          {
+            ok: false,
+            kind: "busy",
+            retryable: true,
+            retryAfterSeconds: 12,
+            messageCode: RoadmapAiMessageCode.ROADMAP_AI_BUSY,
+          },
+        ],
+      });
+      harness.store.seed(editDraftRow());
+
+      await expect(say(harness.service)).rejects.toMatchObject({
+        status: 429,
+        response: { details: { retryAfterSeconds: 12 } },
+      });
+    });
+
+    it("records a refusal without touching the remembered changes", async () => {
+      const pending = [operation("MODIFY_PHASE", "p1")];
+      const harness = setup(undefined, {
+        roadmap: EDIT_ROADMAP,
+        editResults: [
+          {
+            ok: false,
+            kind: "refused",
+            retryable: false,
+            messageCode: RoadmapAiMessageCode.ROADMAP_AI_REFUSED,
+          },
+        ],
+      });
+      harness.store.seed(editDraftRow({ pendingChanges: pending }));
+
+      await say(harness.service);
+
+      expect(harness.store.drafts[0]).toMatchObject({
+        wasRefused: true,
+        pendingChanges: pending,
+      });
+    });
+
+    it("does not log the professional's words", async () => {
+      const { service } = editSetup(editData());
+
+      await say(service, "my private plans");
+
+      expect(JSON.stringify(logEntries)).not.toContain("my private plans");
+    });
+  });
+
+  describe("two things happening at once", () => {
+    it("refuses a stale answer instead of overwriting what changed while the provider thought", async () => {
+      const { service, store, editTurn } = editSetup(
+        editData({ extracted: { goal: "A stale goal" } }),
+      );
+      editTurn.mockImplementationOnce(async () => {
+        store.drafts[0].updatedAt = new Date("2026-09-01T00:00:00.000Z");
+        return {
+          ok: true as const,
+          data: editData({ extracted: { goal: "A stale goal" } }),
+        };
+      });
+
+      await expect(say(service)).rejects.toMatchObject({
+        status: 409,
+        response: { code: ProfessionalMessageCode.ROADMAP_DRAFT_LOCKED },
+      });
+
+      expect(store.drafts[0].goal).toBe(contractReady.goal);
+      expect(
+        store.messages.filter((m) => m.role === RoadmapChatRole.ASSISTANT),
+      ).toHaveLength(0);
+    });
+
+    it("answers rapid messages one after another, each seeing the changes before it", async () => {
+      const first = operation("MODIFY_PHASE", "p1", "First.");
+      const second = operation("MODIFY_STEP", "s4", "Second.");
+      const { service, editCalls, store } = editSetup([
+        editData({ changeOperations: [first] }),
+        editData({ changeOperations: [first, second] }),
+      ]);
+
+      await Promise.all([
+        say(service, "first request"),
+        say(service, "second request"),
+      ]);
+
+      expect(editCalls[0].pendingChanges).toEqual([]);
+      expect(editCalls[1].pendingChanges).toEqual([first]);
+      expect(store.drafts[0].pendingChanges).toEqual([first, second]);
+    });
+
+    it("waits for a message in flight before saving a sidebar edit", async () => {
+      const { service, store, editTurn } = editSetup(
+        editData({ extracted: { goal: "Goal from the chat" } }),
+      );
+      let release: () => void = () => undefined;
+      editTurn.mockImplementationOnce(
+        () =>
+          new Promise((resolve) => {
+            release = () =>
+              resolve({
+                ok: true as const,
+                data: editData({ extracted: { goal: "Goal from the chat" } }),
+              });
+          }),
+      );
+
+      const chat = say(service);
+      await new Promise((resolve) => setImmediate(resolve));
+      const sidebar = service.patchDraft(OWNER, {
+        draftId: "edit-1",
+        budgetPreference: LearningBudgetPreference.FREE_ONLY,
+      });
+      release();
+      await Promise.all([chat, sidebar]);
+
+      expect(store.drafts[0]).toMatchObject({
+        goal: "Goal from the chat",
+        budgetPreference: LearningBudgetPreference.FREE_ONLY,
+      });
+    });
+  });
+
+  describe("sidebar edits on an edit draft", () => {
+    it("keeps the remembered changes and the readiness the provider reported", async () => {
+      const pending = [operation("MODIFY_PHASE", "p1")];
+      const { service, store } = editSetup(
+        editData(),
+        {},
+        {
+          pendingChanges: pending,
+          readyToRegenerate: true,
+        },
+      );
+
+      await service.patchDraft(OWNER, {
+        draftId: "edit-1",
+        budgetPreference: LearningBudgetPreference.FREE_ONLY,
+      });
+
+      expect(store.drafts[0].pendingChanges).toEqual(pending);
+      expect(store.drafts[0].readyToRegenerate).toBe(true);
+    });
+
+    it("saves against the version it read, so a change made meanwhile is not overwritten", async () => {
+      const { service, store } = editSetup(editData());
+      const readAt = store.drafts[0].updatedAt;
+
+      await service.patchDraft(OWNER, {
+        draftId: "edit-1",
+        goal: "A new goal",
+      });
+
+      expect(store.updateDraft).toHaveBeenCalledWith(
+        OWNER.id,
+        "edit-1",
+        expect.anything(),
+        readAt,
+      );
+    });
+
+    it("refuses a sidebar edit when the draft changed after it was read", async () => {
+      const { service, store } = editSetup(editData());
+      store.updateDraft.mockResolvedValueOnce(null);
+
+      await expect(
+        service.patchDraft(OWNER, { draftId: "edit-1", goal: "A new goal" }),
+      ).rejects.toMatchObject({ status: 409 });
+      expect(store.messages).toHaveLength(0);
+    });
+
+    it("refuses a CPD edit when the draft changed after it was read", async () => {
+      const { service, store } = editSetup(editData());
+      store.updateDraft.mockResolvedValueOnce(null);
+
+      await expect(
+        service.patchCpdSetup(OWNER, {
+          draftId: "edit-1",
+          organization: "Acme",
+        }),
+      ).rejects.toMatchObject({ status: 409 });
+    });
+  });
+
+  describe("the review the professional sees", () => {
+    const sourceDraft = () =>
+      emptyDraft({
+        ...contractReady,
+        id: "source-1",
+        status: RoadmapDraftStatus.COMPLETED,
+      });
+
+    it("lists each change with the name of what it targets", async () => {
+      const { service } = editSetup(
+        editData(),
+        {},
+        {
+          readyToRegenerate: true,
+          pendingChanges: [
+            operation("MODIFY_PHASE", "p1", "Make it project based."),
+            operation("REMOVE_STEP", "s4", "Drop the video."),
+            operation(
+              "UPDATE_DRAFT",
+              "available_time",
+              "Weekly time: 1-3 hours.",
+            ),
+            operation("MODIFY_ROADMAP", null, "Make everything lighter."),
+          ],
+        },
+      );
+
+      const view = await service.draft(OWNER, "edit-1");
+
+      expect(view?.pendingChanges).toEqual([
+        {
+          operation: "MODIFY_PHASE",
+          targetId: "p1",
+          targetLabel: "Basics",
+          instruction: "Make it project based.",
+        },
+        {
+          operation: "REMOVE_STEP",
+          targetId: "s4",
+          targetLabel: "Step s4",
+          instruction: "Drop the video.",
+        },
+        {
+          operation: "UPDATE_DRAFT",
+          targetId: "available_time",
+          targetLabel: null,
+          instruction: "Weekly time: 1-3 hours.",
+        },
+        {
+          operation: "MODIFY_ROADMAP",
+          targetId: null,
+          targetLabel: null,
+          instruction: "Make everything lighter.",
+        },
+      ]);
+    });
+
+    it("names the preferences that differ from the saved ones", async () => {
+      const harness = editSetup(
+        editData(),
+        {},
+        {
+          timeCommitment: LearningTimeCommitment.ONE_TO_TWO_HOURS,
+          subjects: ["term-leadership", "term-data"],
+        },
+      );
+      harness.store.seed(sourceDraft());
+      harness.store.sourceChain = ["source-1"];
+
+      const view = await harness.service.draft(OWNER, "edit-1");
+
+      expect(view?.changedFields).toEqual(["subjects", "timeCommitment"]);
+      expect(view?.hasChanges).toBe(true);
+    });
+
+    it("compares lists regardless of order", async () => {
+      const harness = editSetup(
+        editData(),
+        {},
+        { subjects: ["term-data"], preferredFormats: [LearningFormat.COURSE] },
+      );
+      harness.store.seed(
+        emptyDraft({
+          ...contractReady,
+          id: "source-1",
+          preferredFormats: [LearningFormat.COURSE],
+        }),
+      );
+      harness.store.sourceChain = ["source-1"];
+
+      const view = await harness.service.draft(OWNER, "edit-1");
+
+      expect(view?.changedFields).toEqual([]);
+    });
+
+    it("does not offer regeneration when nothing has changed", async () => {
+      const harness = editSetup(editData());
+      harness.store.seed(sourceDraft());
+      harness.store.sourceChain = ["source-1"];
+
+      const view = await harness.service.draft(OWNER, "edit-1");
+
+      expect(view?.hasChanges).toBe(false);
+      expect(view?.canGenerate).toBe(false);
+      expect(view?.editBlockReason).toBe("NO_CHANGES");
+    });
+
+    it("offers regeneration for a sidebar-only change without waiting on the provider", async () => {
+      const harness = editSetup(
+        editData(),
+        {},
+        { budgetPreference: LearningBudgetPreference.FREE_ONLY },
+      );
+      harness.store.seed(sourceDraft());
+      harness.store.sourceChain = ["source-1"];
+
+      const view = await harness.service.draft(OWNER, "edit-1");
+
+      expect(view?.canGenerate).toBe(true);
+      expect(view?.editBlockReason).toBeNull();
+    });
+
+    it("waits for the provider to confirm requested changes", async () => {
+      const { service } = editSetup(
+        editData(),
+        {},
+        { pendingChanges: [operation("MODIFY_PHASE", "p1")] },
+      );
+
+      const view = await service.draft(OWNER, "edit-1");
+
+      expect(view?.canGenerate).toBe(false);
+      expect(view?.editBlockReason).toBe("CHANGES_NOT_CONFIRMED");
+    });
+
+    it("flags a remembered change that no longer fits the roadmap", async () => {
+      const { service } = editSetup(
+        editData(),
+        {},
+        {
+          readyToRegenerate: true,
+          pendingChanges: [operation("REMOVE_STEP", "gone")],
+        },
+      );
+
+      const view = await service.draft(OWNER, "edit-1");
+
+      expect(view?.canGenerate).toBe(false);
+      expect(view?.editBlockReason).toBe("STALE_CHANGES");
+      expect(view?.pendingChanges).toEqual([]);
+    });
+
+    it("counts the steps that regeneration will protect", async () => {
+      const { service } = editSetup(
+        editData(),
+        {
+          progress: [
+            { stepId: "s1", status: "COMPLETED" },
+            { stepId: "s2", status: "IN_PROGRESS" },
+          ],
+        },
+        {
+          readyToRegenerate: true,
+          pendingChanges: [operation("MODIFY_PHASE", "p2")],
+        },
+      );
+
+      const view = await service.draft(OWNER, "edit-1");
+
+      expect(view?.protectedStepCount).toBe(2);
+      expect(view?.blockedStepTitles).toEqual([]);
+      expect(view?.canGenerate).toBe(true);
+    });
+
+    it("says so when progress on a step without catalog content cannot be preserved safely", async () => {
+      const { service } = editSetup(
+        editData(),
+        { progress: [{ stepId: "s3", status: "COMPLETED" }] },
+        {
+          readyToRegenerate: true,
+          pendingChanges: [operation("MODIFY_PHASE", "p2")],
+        },
+      );
+
+      const view = await service.draft(OWNER, "edit-1");
+
+      expect(view?.canGenerate).toBe(false);
+      expect(view?.editBlockReason).toBe("PRESERVATION_UNSUPPORTED");
+      expect(view?.blockedStepTitles).toEqual(["Step s3"]);
+    });
+
+    it("blocks regeneration of a roadmap that is not the professional's", async () => {
+      const { service } = editSetup(editData(), { roadmap: null });
+
+      const view = await service.draft(OWNER, "edit-1");
+
+      expect(view?.canGenerate).toBe(false);
+      expect(view?.editBlockReason).toBe("NOT_EDITABLE");
+    });
+
+    it("reports nothing edit-specific for a new roadmap", async () => {
+      const { service, store } = setup();
+      store.seed(
+        emptyDraft({ ...contractReady, status: RoadmapDraftStatus.READY }),
+      );
+
+      const view = await service.draft(OWNER, "draft-1");
+
+      expect(view?.editBlockReason).toBeNull();
+      expect(view?.pendingChanges).toEqual([]);
+      expect(view?.changedFields).toEqual([]);
+      expect(view?.hasChanges).toBe(false);
+      expect(view?.canGenerate).toBe(true);
+    });
   });
 });

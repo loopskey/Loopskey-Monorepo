@@ -20,9 +20,12 @@ import type {
   ServiceAiPort,
 } from "@infrastructure/service-ai/service-ai.port";
 import { TUser } from "@common/types/user.types";
+import { ProfessionalMessageCode } from "@professional/enums/message-code.enum";
 
 import { ProfessionalRoadmapCandidateService } from "@professional/services/professional-roadmap-candidate.service";
 import { ProfessionalRoadmapGenerationService } from "@professional/services/professional-roadmap-generation.service";
+import { ProfessionalRoadmapEditContextService } from "@professional/services/professional-roadmap-edit-context.service";
+import { RoadmapProgressNotPreservedError } from "@contentAction/public/professional-engagement-api";
 import { RoadmapGenerationViolation } from "@professional/utils/roadmap-generation-verify.util";
 import type { RankableCandidate } from "@professional/utils/roadmap-candidate-ranking.util";
 
@@ -78,6 +81,9 @@ const draftRow = (overrides: Record<string, unknown> = {}) => ({
   requiredCredits: null,
   completedCredits: null,
   replacesRoadmapId: null,
+  pendingChanges: [],
+  readyToRegenerate: false,
+  needsClarification: false,
   ...overrides,
 });
 
@@ -126,6 +132,18 @@ const buildHarness = (options: {
     contentId: string | null;
     contentType: string | null;
   }[];
+  oldPhases?: {
+    id: string;
+    steps: {
+      id: string;
+      contentId: string | null;
+      contentType: string | null;
+    }[];
+  }[];
+  progress?: { stepId: string; status: string }[];
+  regenerate?: jest.Mock;
+  sourceChain?: string[];
+  sourceDraft?: Record<string, unknown> | null;
   createdSteps?: {
     id: string;
     contentId: string | null;
@@ -147,15 +165,50 @@ const buildHarness = (options: {
       id: "roadmap-1",
       steps: options.createdSteps ?? [],
     }),
-    roadmaps: jest
-      .fn()
-      .mockResolvedValue(
-        options.previousSteps
-          ? [{ id: "roadmap-old", phases: [{ steps: options.previousSteps }] }]
-          : [],
-      ),
+    roadmaps: jest.fn().mockResolvedValue(
+      options.oldPhases || options.previousSteps
+        ? [
+            {
+              id: "roadmap-old",
+              ownerId: "user-1",
+              source: "GENERATED",
+              title: "Old roadmap",
+              description: "Before the edit.",
+              phases: (
+                options.oldPhases ?? [
+                  { id: "phase-old-1", steps: options.previousSteps ?? [] },
+                ]
+              ).map((phase, index) => ({
+                id: phase.id,
+                order: index + 1,
+                title: `Phase ${index + 1}`,
+                description: null,
+                estimatedWeeks: 2,
+                steps: phase.steps.map((step, position) => ({
+                  ...step,
+                  order: position + 1,
+                  title: `Step ${step.id}`,
+                  description: null,
+                  estimatedMinutes: 30,
+                  credits: null,
+                })),
+              })),
+            },
+          ]
+        : [],
+    ),
   };
   const engagement = {
+    roadmapEnrollments: jest
+      .fn()
+      .mockResolvedValue({ rows: [{ id: "enrollment-old" }], totalCount: 1 }),
+    roadmapStepProgress: jest.fn().mockResolvedValue(
+      (options.progress ?? []).map((record) => ({
+        ...record,
+        enrollmentId: "enrollment-old",
+        completedAt: null,
+      })),
+    ),
     createRoadmapEnrollment: jest.fn().mockResolvedValue(undefined),
     unenrollRoadmap: jest.fn().mockResolvedValue(undefined),
     hasRoadmapEnrollmentForDraft: jest
@@ -215,8 +268,21 @@ const buildHarness = (options: {
     generate:
       options.generate ??
       jest.fn().mockResolvedValue({ ok: true, data: generated() }),
+    regenerate:
+      options.regenerate ??
+      jest.fn().mockResolvedValue({ ok: true, data: generated() }),
     chatTurn: jest.fn(),
+    editTurn: jest.fn(),
   };
+  const sourceDrafts = {
+    editSourceChain: jest.fn().mockResolvedValue(options.sourceChain ?? []),
+    findDraft: jest.fn().mockResolvedValue(options.sourceDraft ?? null),
+  };
+  const editContext = new ProfessionalRoadmapEditContextService(
+    engagement as never,
+    catalog as never,
+    sourceDrafts as never,
+  );
 
   const service = new ProfessionalRoadmapGenerationService(
     prisma as unknown as PrismaService,
@@ -225,6 +291,7 @@ const buildHarness = (options: {
     ai as unknown as ServiceAiPort,
     catalog as never,
     engagement as never,
+    editContext,
   );
 
   return { service, prisma, outbox, candidates, ai, tx, catalog, engagement };
@@ -504,7 +571,17 @@ describe("ProfessionalRoadmapGenerationService", () => {
 
     it("replaces the roadmap an edit started from and carries progress on content that is still present", async () => {
       const harness = buildHarness({
-        draft: generatingDraft({ replacesRoadmapId: "roadmap-old" }),
+        draft: generatingDraft({
+          replacesRoadmapId: "roadmap-old",
+          readyToRegenerate: true,
+          pendingChanges: [
+            {
+              operation: "MODIFY_PHASE",
+              targetId: "phase-old-1",
+              instruction: "Make the first phase project based.",
+            },
+          ],
+        }),
         previousSteps: [
           { id: "old-1", contentId: "course-1", contentType: "COURSE" },
           { id: "old-2", contentId: "course-9", contentType: "COURSE" },
@@ -1578,6 +1655,668 @@ describe("ProfessionalRoadmapGenerationService", () => {
       expect(JSON.stringify(result)).not.toContain(
         "some-internal-provider-detail",
       );
+    });
+  });
+});
+
+const PHASE_OPERATION = {
+  operation: "MODIFY_PHASE",
+  targetId: "phase-old-1",
+  instruction: "Make the first phase project based.",
+};
+
+const DRAFT_OPERATION = {
+  operation: "UPDATE_DRAFT",
+  targetId: "available_time",
+  instruction: "Weekly time: 1-3 hours.",
+};
+
+const editDraft = (overrides: Record<string, unknown> = {}) =>
+  generatingDraft({
+    replacesRoadmapId: "roadmap-old",
+    readyToRegenerate: true,
+    pendingChanges: [PHASE_OPERATION, DRAFT_OPERATION],
+    ...overrides,
+  });
+
+const OLD_PHASES = [
+  {
+    id: "phase-old-1",
+    steps: [
+      { id: "old-1", contentId: "course-1", contentType: "COURSE" },
+      { id: "old-2", contentId: "course-2", contentType: "COURSE" },
+      { id: "old-3", contentId: null, contentType: null },
+    ],
+  },
+  {
+    id: "phase-old-2",
+    steps: [{ id: "old-4", contentId: "yt-1", contentType: "YOUTUBE" }],
+  },
+];
+
+const regenerated = (...ids: [string, string][]) =>
+  generated({
+    estimatedWeeks: 4,
+    phases: [
+      {
+        order: 1,
+        title: "Project phase",
+        description: "Build things.",
+        estimatedWeeks: 4,
+        steps: ids.map(([contentType, contentId], index) => ({
+          order: index + 1,
+          title: contentId,
+          description: "Kept or new.",
+          contentId,
+          contentType: contentType as "COURSE" | "YOUTUBE",
+          estimatedMinutes: 30,
+        })),
+      },
+    ],
+  });
+
+describe("ProfessionalRoadmapGenerationService regeneration of an edit", () => {
+  const failureOf = (harness: Harness) => failureReasonOf(harness);
+  const wroteNothing = (harness: Harness) => {
+    expect(harness.catalog.createGeneratedRoadmap).not.toHaveBeenCalled();
+    expect(harness.engagement.createRoadmapEnrollment).not.toHaveBeenCalled();
+  };
+
+  it("regenerates an edit and never takes the creation path", async () => {
+    const harness = buildHarness({
+      draft: editDraft(),
+      oldPhases: OLD_PHASES.slice(0, 1).map((phase) => ({
+        ...phase,
+        steps: phase.steps.slice(0, 2),
+      })),
+    });
+
+    await harness.service.runGeneration("draft-1");
+
+    expect(harness.ai.regenerate).toHaveBeenCalledTimes(1);
+    expect(harness.ai.generate).not.toHaveBeenCalled();
+  });
+
+  it("keeps a new roadmap on the creation path", async () => {
+    const harness = buildHarness({ draft: generatingDraft() });
+
+    await harness.service.runGeneration("draft-1");
+
+    expect(harness.ai.generate).toHaveBeenCalledTimes(1);
+    expect(harness.ai.regenerate).not.toHaveBeenCalled();
+  });
+
+  it("sends the roadmap with its real ids and the learner's progress, the approved changes and the preservation policy", async () => {
+    const harness = buildHarness({
+      draft: editDraft(),
+      oldPhases: OLD_PHASES,
+      progress: [
+        { stepId: "old-1", status: "COMPLETED" },
+        { stepId: "old-2", status: "IN_PROGRESS" },
+      ],
+      regenerate: jest.fn().mockResolvedValue({
+        ok: true,
+        data: regenerated(
+          ["COURSE", "course-1"],
+          ["COURSE", "course-2"],
+          ["YOUTUBE", "yt-1"],
+        ),
+      }),
+      candidates: [candidate("course-9")],
+    });
+
+    await harness.service.runGeneration("draft-1");
+
+    const request = harness.ai.regenerate.mock.calls[0][0];
+    expect(request.changeOperations).toEqual([
+      PHASE_OPERATION,
+      DRAFT_OPERATION,
+    ]);
+    expect(request.preservation).toEqual({
+      completedSteps: true,
+      inProgressSteps: true,
+      unaffectedPhases: true,
+    });
+    expect(
+      request.candidates.map((entry: { contentId: string }) => entry.contentId),
+    ).toEqual(["course-9"]);
+    expect(
+      request.currentRoadmap.phases.map(
+        (phase: { phaseId: string }) => phase.phaseId,
+      ),
+    ).toEqual(["phase-old-1", "phase-old-2"]);
+    const steps = request.currentRoadmap.phases[0].steps;
+    expect(
+      steps.map((step: { stepId: string; progress: string | null }) => [
+        step.stepId,
+        step.progress,
+      ]),
+    ).toEqual([
+      ["old-1", "COMPLETED"],
+      ["old-2", "IN_PROGRESS"],
+      ["old-3", null],
+    ]);
+  });
+
+  it("lets the roadmap grow to at least the phases it already has", async () => {
+    const harness = buildHarness({
+      draft: editDraft(),
+      oldPhases: Array.from({ length: 6 }, (_, index) => ({
+        id: index === 0 ? "phase-old-1" : `phase-old-${index + 1}`,
+        steps: [
+          {
+            id: `old-${index}`,
+            contentId: `course-${index}`,
+            contentType: "COURSE",
+          },
+        ],
+      })),
+      regenerate: jest.fn().mockResolvedValue({
+        ok: false,
+        kind: "failed",
+        retryable: false,
+        messageCode: RoadmapAiMessageCode.ROADMAP_AI_FAILED,
+      }),
+    });
+
+    await harness.service.runGeneration("draft-1");
+
+    expect(harness.ai.regenerate.mock.calls[0][0].maxPhases).toBe(6);
+  });
+
+  it("sends an edit with no new candidates rather than failing it for lack of content", async () => {
+    const harness = buildHarness({
+      draft: editDraft(),
+      oldPhases: [OLD_PHASES[0]].map((phase) => ({
+        ...phase,
+        steps: phase.steps.slice(0, 2),
+      })),
+      candidates: [],
+      regenerate: jest.fn().mockResolvedValue({
+        ok: true,
+        data: regenerated(["COURSE", "course-1"], ["COURSE", "course-2"]),
+      }),
+    });
+
+    await harness.service.runGeneration("draft-1");
+
+    expect(harness.ai.regenerate.mock.calls[0][0].candidates).toEqual([]);
+    expect(failureOf(harness)).toBeUndefined();
+    expect(harness.catalog.createGeneratedRoadmap).toHaveBeenCalledTimes(1);
+  });
+
+  describe("progress that cannot be matched safely", () => {
+    it.each(["COMPLETED", "IN_PROGRESS"])(
+      "fails before any AI call when a %s step has no catalog content, and writes nothing",
+      async (status) => {
+        const harness = buildHarness({
+          draft: editDraft(),
+          oldPhases: OLD_PHASES,
+          progress: [{ stepId: "old-3", status }],
+        });
+
+        await harness.service.runGeneration("draft-1");
+
+        expect(failureOf(harness)).toBe(
+          RoadmapGenerationViolation.PROTECTED_STEP_WITHOUT_IDENTITY,
+        );
+        expect(harness.ai.regenerate).not.toHaveBeenCalled();
+        expect(harness.candidates.build).not.toHaveBeenCalled();
+        wroteNothing(harness);
+      },
+    );
+
+    it("does not block an edit whose protected steps all have catalog content", async () => {
+      const harness = buildHarness({
+        draft: editDraft(),
+        oldPhases: OLD_PHASES,
+        progress: [{ stepId: "old-1", status: "COMPLETED" }],
+        regenerate: jest.fn().mockResolvedValue({
+          ok: true,
+          data: regenerated(["COURSE", "course-1"]),
+        }),
+      });
+
+      await harness.service.runGeneration("draft-1");
+
+      expect(harness.ai.regenerate).toHaveBeenCalledTimes(1);
+      expect(harness.catalog.createGeneratedRoadmap).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  describe("protected content in the regenerated roadmap", () => {
+    const withProgress = (
+      status: string,
+      data = regenerated(["COURSE", "course-9"]),
+    ) =>
+      buildHarness({
+        draft: editDraft(),
+        oldPhases: OLD_PHASES,
+        progress: [{ stepId: "old-1", status }],
+        candidates: [candidate("course-9")],
+        regenerate: jest.fn().mockResolvedValue({ ok: true, data }),
+      });
+
+    it.each(["COMPLETED", "IN_PROGRESS"])(
+      "fails safely when a %s content step is dropped, leaving the old roadmap alone",
+      async (status) => {
+        const harness = withProgress(status);
+
+        await harness.service.runGeneration("draft-1");
+
+        expect(failureOf(harness)).toBe(
+          RoadmapGenerationViolation.PROTECTED_CONTENT_DROPPED,
+        );
+        wroteNothing(harness);
+      },
+    );
+
+    it("accepts the roadmap when the protected content is kept anywhere in it", async () => {
+      const harness = withProgress(
+        "COMPLETED",
+        regenerated(["COURSE", "course-9"], ["COURSE", "course-1"]),
+      );
+
+      await harness.service.runGeneration("draft-1");
+
+      expect(failureOf(harness)).toBeUndefined();
+      expect(harness.engagement.createRoadmapEnrollment).toHaveBeenCalledTimes(
+        1,
+      );
+    });
+
+    it("keeps protected paid content even though the edit is now free only", async () => {
+      const harness = buildHarness({
+        draft: editDraft({
+          budgetPreference: LearningBudgetPreference.FREE_ONLY,
+        }),
+        oldPhases: OLD_PHASES,
+        progress: [{ stepId: "old-1", status: "COMPLETED" }],
+        candidates: [candidate("course-9")],
+        regenerate: jest.fn().mockResolvedValue({
+          ok: true,
+          data: regenerated(["COURSE", "course-1"], ["COURSE", "course-9"]),
+        }),
+      });
+
+      await harness.service.runGeneration("draft-1");
+
+      expect(failureOf(harness)).toBeUndefined();
+      expect(harness.catalog.createGeneratedRoadmap).toHaveBeenCalledTimes(1);
+    });
+
+    it("still refuses genuinely new paid content under free only", async () => {
+      const harness = buildHarness({
+        draft: editDraft({
+          budgetPreference: LearningBudgetPreference.FREE_ONLY,
+        }),
+        oldPhases: OLD_PHASES,
+        progress: [{ stepId: "old-1", status: "COMPLETED" }],
+        candidates: [candidate("course-9", { isFree: false })],
+        regenerate: jest.fn().mockResolvedValue({
+          ok: true,
+          data: regenerated(["COURSE", "course-1"], ["COURSE", "course-9"]),
+        }),
+      });
+
+      await harness.service.runGeneration("draft-1");
+
+      expect(failureOf(harness)).toBe(
+        RoadmapGenerationViolation.PAID_UNDER_FREE_ONLY,
+      );
+      wroteNothing(harness);
+    });
+
+    it("lets unprotected content of the current roadmap stay when the budget is not free only", async () => {
+      const harness = buildHarness({
+        draft: editDraft(),
+        oldPhases: OLD_PHASES,
+        progress: [{ stepId: "old-1", status: "COMPLETED" }],
+        candidates: [],
+        regenerate: jest.fn().mockResolvedValue({
+          ok: true,
+          data: regenerated(["COURSE", "course-1"], ["YOUTUBE", "yt-1"]),
+        }),
+      });
+
+      await harness.service.runGeneration("draft-1");
+
+      expect(failureOf(harness)).toBeUndefined();
+    });
+
+    it("refuses old content that is neither protected nor a candidate under free only", async () => {
+      const harness = buildHarness({
+        draft: editDraft({
+          budgetPreference: LearningBudgetPreference.FREE_ONLY,
+        }),
+        oldPhases: OLD_PHASES,
+        progress: [{ stepId: "old-1", status: "COMPLETED" }],
+        candidates: [],
+        regenerate: jest.fn().mockResolvedValue({
+          ok: true,
+          data: regenerated(["COURSE", "course-1"], ["YOUTUBE", "yt-1"]),
+        }),
+      });
+
+      await harness.service.runGeneration("draft-1");
+
+      expect(failureOf(harness)).toBe(
+        RoadmapGenerationViolation.UNKNOWN_CONTENT,
+      );
+      wroteNothing(harness);
+    });
+
+    it("refuses an identifier the learner never had and the catalog never offered", async () => {
+      const harness = buildHarness({
+        draft: editDraft(),
+        oldPhases: OLD_PHASES,
+        candidates: [candidate("course-9")],
+        regenerate: jest.fn().mockResolvedValue({
+          ok: true,
+          data: regenerated(["COURSE", "invented"]),
+        }),
+      });
+
+      await harness.service.runGeneration("draft-1");
+
+      expect(failureOf(harness)).toBe(
+        RoadmapGenerationViolation.UNKNOWN_CONTENT,
+      );
+      wroteNothing(harness);
+    });
+  });
+
+  describe("phases the changes do not touch", () => {
+    const untouched = (
+      operations: unknown[],
+      data = regenerated(["COURSE", "course-1"], ["COURSE", "course-2"]),
+    ) =>
+      buildHarness({
+        draft: editDraft({ pendingChanges: operations }),
+        oldPhases: OLD_PHASES,
+        candidates: [candidate("course-9")],
+        regenerate: jest.fn().mockResolvedValue({ ok: true, data }),
+      });
+
+    const phaseOperation = PHASE_OPERATION;
+
+    it("fails when a phase nobody asked to change loses its content", async () => {
+      const harness = untouched([phaseOperation]);
+
+      await harness.service.runGeneration("draft-1");
+
+      expect(failureOf(harness)).toBe(
+        RoadmapGenerationViolation.UNAFFECTED_PHASE_CHANGED,
+      );
+      wroteNothing(harness);
+    });
+
+    it("accepts the roadmap when the untouched phase keeps its content", async () => {
+      const harness = untouched(
+        [phaseOperation],
+        regenerated(
+          ["COURSE", "course-1"],
+          ["COURSE", "course-2"],
+          ["YOUTUBE", "yt-1"],
+        ),
+      );
+
+      await harness.service.runGeneration("draft-1");
+
+      expect(failureOf(harness)).toBeUndefined();
+    });
+
+    it("does not hold any phase to that rule when a draft preference changed", async () => {
+      const harness = untouched([
+        phaseOperation,
+        {
+          operation: "UPDATE_DRAFT",
+          targetId: "available_time",
+          instruction: "Weekly time: 1-3 hours.",
+        },
+      ]);
+
+      await harness.service.runGeneration("draft-1");
+
+      expect(failureOf(harness)).toBeUndefined();
+    });
+
+    it("does not hold any phase to that rule when the whole roadmap is rebuilt", async () => {
+      const harness = untouched([
+        {
+          operation: "REBUILD_ROADMAP",
+          targetId: null,
+          instruction: "Start again.",
+        },
+      ]);
+
+      await harness.service.runGeneration("draft-1");
+
+      expect(failureOf(harness)).toBeUndefined();
+    });
+  });
+
+  describe("when the replacement cannot be committed", () => {
+    it("fails the draft instead of retrying forever when the commit would lose progress", async () => {
+      const harness = buildHarness({
+        draft: editDraft(),
+        oldPhases: OLD_PHASES,
+        regenerate: jest.fn().mockResolvedValue({
+          ok: true,
+          data: regenerated(
+            ["COURSE", "course-1"],
+            ["COURSE", "course-2"],
+            ["YOUTUBE", "yt-1"],
+          ),
+        }),
+      });
+      harness.engagement.createRoadmapEnrollment.mockRejectedValue(
+        new RoadmapProgressNotPreservedError(1),
+      );
+
+      await expect(
+        harness.service.runGeneration("draft-1"),
+      ).resolves.toBeUndefined();
+
+      expect(failureOf(harness)).toBe(
+        RoadmapGenerationViolation.PROTECTED_CONTENT_DROPPED,
+      );
+    });
+
+    it("rethrows any other commit failure so the outbox retries", async () => {
+      const harness = buildHarness({
+        draft: editDraft(),
+        oldPhases: OLD_PHASES,
+        regenerate: jest.fn().mockResolvedValue({
+          ok: true,
+          data: regenerated(
+            ["COURSE", "course-1"],
+            ["COURSE", "course-2"],
+            ["YOUTUBE", "yt-1"],
+          ),
+        }),
+      });
+      harness.engagement.createRoadmapEnrollment.mockRejectedValue(
+        new Error("connection lost"),
+      );
+
+      await expect(harness.service.runGeneration("draft-1")).rejects.toThrow(
+        "connection lost",
+      );
+      expect(failureOf(harness)).toBeUndefined();
+    });
+  });
+
+  describe("provider failures during regeneration", () => {
+    it("fails the draft for good when the provider says it is not retryable", async () => {
+      const harness = buildHarness({
+        draft: editDraft(),
+        oldPhases: OLD_PHASES,
+        regenerate: jest.fn().mockResolvedValue({
+          ok: false,
+          kind: "failed",
+          retryable: false,
+          messageCode: RoadmapAiMessageCode.ROADMAP_AI_FAILED,
+        }),
+      });
+
+      await harness.service.runGeneration("draft-1");
+
+      expect(failureOf(harness)).toBe(RoadmapAiMessageCode.ROADMAP_AI_FAILED);
+      wroteNothing(harness);
+    });
+
+    it("rethrows a retryable failure so the outbox tries the regeneration again", async () => {
+      const harness = buildHarness({
+        draft: editDraft(),
+        oldPhases: OLD_PHASES,
+        regenerate: jest.fn().mockResolvedValue({
+          ok: false,
+          kind: "unavailable",
+          retryable: true,
+          messageCode: RoadmapAiMessageCode.ROADMAP_AI_UNAVAILABLE,
+        }),
+      });
+
+      await expect(harness.service.runGeneration("draft-1")).rejects.toThrow();
+      expect(failureOf(harness)).toBeUndefined();
+      wroteNothing(harness);
+    });
+
+    it("does nothing when the draft is no longer generating", async () => {
+      const harness = buildHarness({
+        draft: editDraft({ status: RoadmapDraftStatus.COMPLETED }),
+        oldPhases: OLD_PHASES,
+      });
+
+      await harness.service.runGeneration("draft-1");
+
+      expect(harness.ai.regenerate).not.toHaveBeenCalled();
+      wroteNothing(harness);
+    });
+  });
+
+  describe("an edit that is not fit to regenerate when the job runs", () => {
+    it("fails when the roadmap is no longer the learner's", async () => {
+      const harness = buildHarness({ draft: editDraft() });
+
+      await harness.service.runGeneration("draft-1");
+
+      expect(failureOf(harness)).toBe(
+        ProfessionalMessageCode.ROADMAP_GENERATION_FAILED,
+      );
+      expect(harness.ai.regenerate).not.toHaveBeenCalled();
+    });
+
+    it("fails when a requested change no longer fits the roadmap", async () => {
+      const harness = buildHarness({
+        draft: editDraft({
+          pendingChanges: [
+            {
+              operation: "MODIFY_PHASE",
+              targetId: "someone-elses-phase",
+              instruction: "Rewrite it.",
+            },
+          ],
+        }),
+        oldPhases: OLD_PHASES,
+      });
+
+      await harness.service.runGeneration("draft-1");
+
+      expect(failureOf(harness)).toBe(
+        ProfessionalMessageCode.ROADMAP_GENERATION_FAILED,
+      );
+      expect(harness.ai.regenerate).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("requesting the regeneration", () => {
+    const requestable = (
+      overrides: Record<string, unknown> = {},
+      world: Partial<Parameters<typeof buildHarness>[0]> = {},
+    ) =>
+      buildHarness({
+        draft: draftRow({
+          enrollment: null,
+          status: RoadmapDraftStatus.READY,
+          replacesRoadmapId: "roadmap-old",
+          readyToRegenerate: true,
+          pendingChanges: [
+            {
+              operation: "MODIFY_PHASE",
+              targetId: "phase-old-1",
+              instruction: "Make it project based.",
+            },
+          ],
+          ...overrides,
+        }),
+        oldPhases: OLD_PHASES,
+        ...world,
+      });
+
+    it("queues one generation for an edit whose changes are confirmed", async () => {
+      const harness = requestable();
+
+      await harness.service.requestGeneration(USER, "draft-1");
+
+      expect(harness.outbox.append).toHaveBeenCalledTimes(1);
+    });
+
+    it.each([
+      [
+        "has no changes at all",
+        { pendingChanges: [], readyToRegenerate: false },
+      ],
+      ["still needs the coach to confirm", { readyToRegenerate: false }],
+      ["is waiting for a clarification", { needsClarification: true }],
+      [
+        "holds a change that no longer fits",
+        {
+          pendingChanges: [
+            {
+              operation: "REMOVE_STEP",
+              targetId: "gone",
+              instruction: "Drop it.",
+            },
+          ],
+        },
+      ],
+    ])("refuses an edit that %s", async (_label, overrides) => {
+      const harness = requestable(overrides);
+
+      await expect(
+        harness.service.requestGeneration(USER, "draft-1"),
+      ).rejects.toThrow("ROADMAP_DRAFT_NOT_READY");
+      expect(harness.outbox.append).not.toHaveBeenCalled();
+    });
+
+    it("refuses an edit when a roadmap step with progress has no catalog content", async () => {
+      const harness = requestable(
+        {},
+        { progress: [{ stepId: "old-3", status: "COMPLETED" }] },
+      );
+
+      await expect(
+        harness.service.requestGeneration(USER, "draft-1"),
+      ).rejects.toThrow("ROADMAP_DRAFT_NOT_READY");
+      expect(harness.outbox.append).not.toHaveBeenCalled();
+    });
+
+    it("refuses an edit of a roadmap the professional does not own", async () => {
+      const harness = requestable({}, { oldPhases: undefined });
+
+      await expect(
+        harness.service.requestGeneration(USER, "draft-1"),
+      ).rejects.toThrow("ROADMAP_DRAFT_NOT_READY");
+    });
+
+    it("still queues a failed edit again once its changes are confirmed", async () => {
+      const harness = requestable({ status: RoadmapDraftStatus.FAILED });
+
+      await harness.service.requestGeneration(USER, "draft-1");
+
+      expect(harness.outbox.append).toHaveBeenCalledTimes(1);
     });
   });
 });

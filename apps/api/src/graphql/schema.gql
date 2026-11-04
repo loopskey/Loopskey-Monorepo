@@ -4486,10 +4486,12 @@ type ProfessionalRoadmap {
 }
 
 type ProfessionalRoadmapDraft {
+  blockedStepTitles: [String!]!
   budgetPreference: LearningBudgetPreference
   canGenerate: Boolean!
   certificationId: ID
   certificationName: String
+  changedFields: [RoadmapDraftFieldKey!]!
   completedCredits: Float
   completedFieldCount: Int!
   context: String
@@ -4497,17 +4499,22 @@ type ProfessionalRoadmapDraft {
   cpdEnabled: Boolean!
   cpdPlan: CpdPlan
   currentStep: RoadmapDraftStep!
+  editBlockReason: String
   failure: RoadmapGenerationFailure
   failureReason: String
   goal: String
   goalReason: String
+  hasChanges: Boolean!
   id: ID!
   isComplete: Boolean!
   missingFields: [String!]!
   needsClarification: Boolean!
+  pendingChanges: [RoadmapPendingChange!]!
   preferredContentTypes: [ContentType!]!
   preferredDeliveryFormats: [DeliveryFormat!]!
   preferredFormats: [LearningFormat!]!
+  protectedStepCount: Int!
+  readyToRegenerate: Boolean!
   remainingFields: [RoadmapDraftStep!]!
   replacesRoadmapId: ID
   replacesRoadmapTitle: String
@@ -5106,6 +5113,7 @@ type Query {
   professionalProfileTaxonomy(kind: ProfileTaxonomyKind!): [ProfessionalTaxonomyGroup!]!
   professionalRoadmapDraft(draftId: ID, transcript: ProfessionalPaginationInput): ProfessionalRoadmapDraft
   professionalRoadmapGeneration(draftId: ID): ProfessionalRoadmapGeneration
+  professionalRoadmapHistory(draftId: ID!, pagination: ProfessionalPaginationInput): PaginatedRoadmapChatMessages!
   professionalRoadmapRecommendations(enrollmentId: ID): [RoadmapRecommendation!]!
   professionalRoadmapStats: ProfessionalRoadmapStats!
   professionalSettings: ProfessionalSettings!
@@ -5211,6 +5219,18 @@ input ReviewProviderPublicProfileInput {
   profileId: ID!
 }
 
+enum RoadmapChangeOperationKind {
+  ADD_PHASE
+  ADD_STEP
+  MODIFY_PHASE
+  MODIFY_ROADMAP
+  MODIFY_STEP
+  REBUILD_ROADMAP
+  REMOVE_PHASE
+  REMOVE_STEP
+  UPDATE_DRAFT
+}
+
 type RoadmapChatMessage {
   content: String!
   createdAt: DateTime!
@@ -5284,6 +5304,8 @@ type RoadmapGenerationFailure {
 enum RoadmapGenerationFailureCode {
   INVALID_GENERATED_ROADMAP
   NO_MATCHING_CONTENT
+  PROGRESS_CANNOT_BE_PRESERVED
+  PROGRESS_NOT_PRESERVED
   TEMPORARY_SERVICE_FAILURE
   UNKNOWN
 }
@@ -5303,8 +5325,16 @@ enum RoadmapMatchTier {
   SIMILAR
 }
 
+type RoadmapPendingChange {
+  instruction: String!
+  operation: RoadmapChangeOperationKind!
+  targetId: String
+  targetLabel: String
+}
+
 type RoadmapRecommendation {
   contentId: ID!
+  contentSlug: String
   contentType: ContentType!
   credits: Float
   durationMinutes: Int

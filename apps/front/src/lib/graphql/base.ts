@@ -5802,10 +5802,12 @@ export type ProfessionalRoadmap = {
 
 export type ProfessionalRoadmapDraft = {
   __typename?: 'ProfessionalRoadmapDraft';
+  blockedStepTitles: Array<Scalars['String']['output']>;
   budgetPreference?: Maybe<LearningBudgetPreference>;
   canGenerate: Scalars['Boolean']['output'];
   certificationId?: Maybe<Scalars['ID']['output']>;
   certificationName?: Maybe<Scalars['String']['output']>;
+  changedFields: Array<RoadmapDraftFieldKey>;
   completedCredits?: Maybe<Scalars['Float']['output']>;
   completedFieldCount: Scalars['Int']['output'];
   context?: Maybe<Scalars['String']['output']>;
@@ -5813,17 +5815,22 @@ export type ProfessionalRoadmapDraft = {
   cpdEnabled: Scalars['Boolean']['output'];
   cpdPlan?: Maybe<CpdPlan>;
   currentStep: RoadmapDraftStep;
+  editBlockReason?: Maybe<Scalars['String']['output']>;
   failure?: Maybe<RoadmapGenerationFailure>;
   failureReason?: Maybe<Scalars['String']['output']>;
   goal?: Maybe<Scalars['String']['output']>;
   goalReason?: Maybe<Scalars['String']['output']>;
+  hasChanges: Scalars['Boolean']['output'];
   id: Scalars['ID']['output'];
   isComplete: Scalars['Boolean']['output'];
   missingFields: Array<Scalars['String']['output']>;
   needsClarification: Scalars['Boolean']['output'];
+  pendingChanges: Array<RoadmapPendingChange>;
   preferredContentTypes: Array<ContentType>;
   preferredDeliveryFormats: Array<DeliveryFormat>;
   preferredFormats: Array<LearningFormat>;
+  protectedStepCount: Scalars['Int']['output'];
+  readyToRegenerate: Scalars['Boolean']['output'];
   remainingFields: Array<RoadmapDraftStep>;
   replacesRoadmapId?: Maybe<Scalars['ID']['output']>;
   replacesRoadmapTitle?: Maybe<Scalars['String']['output']>;
@@ -6465,6 +6472,7 @@ export type Query = {
   professionalProfileTaxonomy: Array<ProfessionalTaxonomyGroup>;
   professionalRoadmapDraft?: Maybe<ProfessionalRoadmapDraft>;
   professionalRoadmapGeneration?: Maybe<ProfessionalRoadmapGeneration>;
+  professionalRoadmapHistory: PaginatedRoadmapChatMessages;
   professionalRoadmapRecommendations: Array<RoadmapRecommendation>;
   professionalRoadmapStats: ProfessionalRoadmapStats;
   professionalSettings: ProfessionalSettings;
@@ -7226,6 +7234,12 @@ export type QueryProfessionalRoadmapGenerationArgs = {
 };
 
 
+export type QueryProfessionalRoadmapHistoryArgs = {
+  draftId: Scalars['ID']['input'];
+  pagination?: InputMaybe<ProfessionalPaginationInput>;
+};
+
+
 export type QueryProfessionalRoadmapRecommendationsArgs = {
   enrollmentId?: InputMaybe<Scalars['ID']['input']>;
 };
@@ -7459,6 +7473,19 @@ export type ReviewProviderPublicProfileInput = {
   profileId: Scalars['ID']['input'];
 };
 
+export const RoadmapChangeOperationKind = {
+  AddPhase: 'ADD_PHASE',
+  AddStep: 'ADD_STEP',
+  ModifyPhase: 'MODIFY_PHASE',
+  ModifyRoadmap: 'MODIFY_ROADMAP',
+  ModifyStep: 'MODIFY_STEP',
+  RebuildRoadmap: 'REBUILD_ROADMAP',
+  RemovePhase: 'REMOVE_PHASE',
+  RemoveStep: 'REMOVE_STEP',
+  UpdateDraft: 'UPDATE_DRAFT'
+} as const;
+
+export type RoadmapChangeOperationKind = typeof RoadmapChangeOperationKind[keyof typeof RoadmapChangeOperationKind];
 export type RoadmapChatMessage = {
   __typename?: 'RoadmapChatMessage';
   content: Scalars['String']['output'];
@@ -7539,6 +7566,8 @@ export type RoadmapGenerationFailure = {
 export const RoadmapGenerationFailureCode = {
   InvalidGeneratedRoadmap: 'INVALID_GENERATED_ROADMAP',
   NoMatchingContent: 'NO_MATCHING_CONTENT',
+  ProgressCannotBePreserved: 'PROGRESS_CANNOT_BE_PRESERVED',
+  ProgressNotPreserved: 'PROGRESS_NOT_PRESERVED',
   TemporaryServiceFailure: 'TEMPORARY_SERVICE_FAILURE',
   Unknown: 'UNKNOWN'
 } as const;
@@ -7561,9 +7590,18 @@ export const RoadmapMatchTier = {
 } as const;
 
 export type RoadmapMatchTier = typeof RoadmapMatchTier[keyof typeof RoadmapMatchTier];
+export type RoadmapPendingChange = {
+  __typename?: 'RoadmapPendingChange';
+  instruction: Scalars['String']['output'];
+  operation: RoadmapChangeOperationKind;
+  targetId?: Maybe<Scalars['String']['output']>;
+  targetLabel?: Maybe<Scalars['String']['output']>;
+};
+
 export type RoadmapRecommendation = {
   __typename?: 'RoadmapRecommendation';
   contentId: Scalars['ID']['output'];
+  contentSlug?: Maybe<Scalars['String']['output']>;
   contentType: ContentType;
   credits?: Maybe<Scalars['Float']['output']>;
   durationMinutes?: Maybe<Scalars['Int']['output']>;

@@ -1,16 +1,15 @@
 "use client";
 
-import { ProfessionalExploreRoadmapsQueryVariables } from "@/lib/graphql/operations/professional";
 import { ProfessionalMyRoadmapsQueryVariables } from "@/lib/graphql/operations/professional";
-import { ChangeEvent, useCallback, useEffect } from "react";
 import { RoadmapDraftStatus, RoadmapSource } from "@/lib/graphql/base";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useMemo, useRef, useState } from "react";
+import { useCallback, useEffect } from "react";
 import { useRoadmapStepProgress } from "@/hooks/useRoadmapStepProgress";
-import { buildRoadmapTabHref } from "@/utils/roadmap-navigation.util";
+import { ROADMAP_LIBRARY_VIEW } from "@/utils/roadmap-navigation.util";
+import { ROADMAP_LIST_TAKE } from "@/utils/roadmap-library.util";
 import { useRoadmapEdit } from "@/hooks/useRoadmapEdit";
 import { useDispatch } from "react-redux";
-import { PAGE_SIZE } from "@/utils/constant";
 import { useI18n } from "@/hooks/useI18n";
 
 import * as API from "@/lib/rtk/endpoints/professional.api";
@@ -22,6 +21,10 @@ const DRAFT_POLL_INTERVAL_MS = 5000;
 
 const ROADMAP_TAB_PATH = "/dashboard/professional";
 
+export const MY_ROADMAPS_VARIABLES: ProfessionalMyRoadmapsQueryVariables = {
+  pagination: { take: ROADMAP_LIST_TAKE },
+};
+
 export const useProfessionalRoadmaps = () => {
   const { t, language } = useI18n();
   const dispatch = useDispatch<TAppDispatch>();
@@ -30,46 +33,9 @@ export const useProfessionalRoadmaps = () => {
   const generationDraftId =
     searchParams.get("generationDraftId")?.trim() || undefined;
   const requestedRoadmapId = searchParams.get("roadmapId")?.trim() || undefined;
+  const isLibraryView = searchParams.get("view") === ROADMAP_LIBRARY_VIEW;
 
-  // ============= States ===============
   const [justCompleted, setJustCompleted] = useState<boolean>(false);
-  const [search, setSearch] = useState<string>("");
-  const [exploreSearch, setExploreSearch] = useState<string>("");
-  const [page, setPage] = useState<number>(1);
-  const [cursorStack, setCursorStack] = useState<string[]>([]);
-  const [explorePage, setExplorePage] = useState<number>(1);
-  const [exploreCursorStack, setExploreCursorStack] = useState<string[]>([]);
-
-  const currentCursor = cursorStack.at(-1);
-  const currentExploreCursor = exploreCursorStack.at(-1);
-
-  // =============== Use Memo =============
-  const myRoadmapsVariables = useMemo<ProfessionalMyRoadmapsQueryVariables>(
-    () => ({
-      filter: {
-        search: search.trim() || undefined,
-      },
-      pagination: {
-        take: PAGE_SIZE,
-        cursor: currentCursor,
-      },
-    }),
-    [search, currentCursor],
-  );
-
-  const exploreRoadmapsVariables =
-    useMemo<ProfessionalExploreRoadmapsQueryVariables>(
-      () => ({
-        filter: {
-          search: exploreSearch.trim() || undefined,
-        },
-        pagination: {
-          take: PAGE_SIZE,
-          cursor: currentExploreCursor,
-        },
-      }),
-      [exploreSearch, currentExploreCursor],
-    );
 
   const {
     data: myRoadmapsData,
@@ -77,32 +43,15 @@ export const useProfessionalRoadmaps = () => {
     refetch: refetchMyRoadmaps,
     isLoading: isMyRoadmapsLoading,
     isFetching: isMyRoadmapsFetching,
-  } = API.useProfessionalMyRoadmapsQuery(myRoadmapsVariables, {
+  } = API.useProfessionalMyRoadmapsQuery(MY_ROADMAPS_VARIABLES, {
     refetchOnFocus: true,
     refetchOnMountOrArgChange: true,
   });
 
-  const {
-    data: exploreRoadmapsData,
-    isError: isExploreRoadmapsError,
-    refetch: refetchExploreRoadmaps,
-    isLoading: isExploreRoadmapsLoading,
-    isFetching: isExploreRoadmapsFetching,
-  } = API.useProfessionalExploreRoadmapsQuery(exploreRoadmapsVariables, {
-    refetchOnFocus: true,
-    refetchOnMountOrArgChange: true,
-  });
-
-  const myRoadmaps = useMemo<T.TProfessionalRoadmap[]>(() => {
-    return myRoadmapsData?.items ?? [];
-  }, [myRoadmapsData?.items]);
-
-  const exploreRoadmaps = useMemo<T.TProfessionalExploreRoadmap[]>(() => {
-    return exploreRoadmapsData?.items ?? [];
-  }, [exploreRoadmapsData?.items]);
-
-  const myPageInfo = myRoadmapsData?.pageInfo;
-  const explorePageInfo = exploreRoadmapsData?.pageInfo;
+  const myRoadmaps = useMemo<T.TProfessionalRoadmap[]>(
+    () => myRoadmapsData?.items ?? [],
+    [myRoadmapsData?.items],
+  );
 
   const activeRoadmap = useMemo(
     () =>
@@ -149,43 +98,12 @@ export const useProfessionalRoadmaps = () => {
   const { data: recommendations } =
     API.useProfessionalRoadmapRecommendationsQuery(
       activeRoadmap ? { enrollmentId: activeRoadmap.id } : undefined,
+      { skip: isLibraryView || !activeRoadmap },
     );
 
-  const stepProgress = useRoadmapStepProgress(myRoadmapsVariables);
+  const stepProgress = useRoadmapStepProgress(MY_ROADMAPS_VARIABLES);
 
   const { edit: handleEdit, editingRoadmapId } = useRoadmapEdit();
-
-  const nextStepRef = useRef<HTMLElement | null>(null);
-  const [pendingContinueId, setPendingContinueId] = useState<string | null>(
-    null,
-  );
-  const activeRoadmapId = activeRoadmap?.id;
-
-  const handleContinue = useCallback(
-    (roadmapId: string) => {
-      setPendingContinueId(roadmapId);
-      if (roadmapId !== activeRoadmapId)
-        router.replace(buildRoadmapTabHref(roadmapId), { scroll: false });
-    },
-    [activeRoadmapId, router],
-  );
-
-  useEffect(() => {
-    if (!pendingContinueId || activeRoadmapId !== pendingContinueId) return;
-    const frame = window.requestAnimationFrame(() => {
-      const target = nextStepRef.current;
-      const reduceMotion = window.matchMedia(
-        "(prefers-reduced-motion: reduce)",
-      ).matches;
-      target?.scrollIntoView({
-        block: "center",
-        behavior: reduceMotion ? "auto" : "smooth",
-      });
-      target?.focus({ preventScroll: true });
-      setPendingContinueId(null);
-    });
-    return () => window.cancelAnimationFrame(frame);
-  }, [pendingContinueId, activeRoadmapId]);
 
   const [unenrollRoadmap] = API.useUnenrollRoadmapMutation();
   const [unenrollingId, setUnenrollingId] = useState<string | null>(null);
@@ -197,8 +115,7 @@ export const useProfessionalRoadmaps = () => {
     try {
       await retryGeneration(draft.id).unwrap();
     } catch {
-      // The generation card surfaces `status`/`failure` from the poll, so a
-      // rejected retry just leaves the failed card in place to try again.
+      return;
     }
   }, [draft, retryGeneration]);
 
@@ -208,8 +125,7 @@ export const useProfessionalRoadmaps = () => {
       try {
         await unenrollRoadmap({ enrollmentId }).unwrap();
       } catch {
-        // The tag invalidation still runs on rejection because RTK Query
-        // only skips it for aborted requests; nothing further to do here.
+        return;
       } finally {
         setUnenrollingId(null);
       }
@@ -217,105 +133,31 @@ export const useProfessionalRoadmaps = () => {
     [unenrollRoadmap],
   );
 
-  const isLoading = isMyRoadmapsLoading || isExploreRoadmapsLoading;
-
-  const handleSearchChange = (value: string) => {
-    setSearch(value);
-    setPage(1);
-    setCursorStack([]);
-  };
-
-  const handleSearchInputChange = (event: ChangeEvent<HTMLInputElement>) => {
-    handleSearchChange(event.target.value);
-  };
-
-  const handleExploreSearchChange = (value: string) => {
-    setExploreSearch(value);
-    setExplorePage(1);
-    setExploreCursorStack([]);
-  };
-
-  const handleExploreSearchInputChange = (
-    event: ChangeEvent<HTMLInputElement>,
-  ) => {
-    handleExploreSearchChange(event.target.value);
-  };
-
-  const handleNext = () => {
-    if (!myPageInfo?.hasNextPage || !myPageInfo.nextCursor) return;
-    setCursorStack((previousStack) => [
-      ...previousStack,
-      myPageInfo.nextCursor!,
-    ]);
-    setPage((previousPage) => previousPage + 1);
-  };
-
-  const handlePrevious = () => {
-    setCursorStack((previousStack) => previousStack.slice(0, -1));
-    setPage((previousPage) => Math.max(1, previousPage - 1));
-  };
-
-  const handleExploreNext = () => {
-    if (!explorePageInfo?.hasNextPage || !explorePageInfo.nextCursor) return;
-    setExploreCursorStack((previousStack) => [
-      ...previousStack,
-      explorePageInfo.nextCursor!,
-    ]);
-    setExplorePage((previousPage) => previousPage + 1);
-  };
-
-  const handleExplorePrevious = () => {
-    setExploreCursorStack((previousStack) => previousStack.slice(0, -1));
-    setExplorePage((previousPage) => Math.max(1, previousPage - 1));
-  };
-
   const acknowledgeCompletion = useCallback(() => setJustCompleted(false), []);
 
   return {
     t,
-    page,
     draft,
-    search,
-    isLoading,
+    handleEdit,
     myRoadmaps,
-    myPageInfo,
-    handleNext,
-    explorePage,
     isGenerating,
     stepProgress,
     unenrollingId,
     justCompleted,
     activeRoadmap,
-    handleEdit,
-    nextStepRef,
+    isLibraryView,
     handleUnenroll,
-    handleContinue,
-    editingRoadmapId,
-    exploreSearch,
     myRoadmapsData,
-    handlePrevious,
     hasFailedDraft,
-    exploreRoadmaps,
-    explorePageInfo,
     locale: language,
-    handleExploreNext,
-    handleSearchChange,
-    exploreRoadmapsData,
+    editingRoadmapId,
     isMyRoadmapsError,
     refetchMyRoadmaps,
     isMyRoadmapsLoading,
     isMyRoadmapsFetching,
-    isExploreRoadmapsError,
-    refetchExploreRoadmaps,
     isRetryingGeneration,
     handleRetryGeneration,
-    handleExplorePrevious,
     acknowledgeCompletion,
-    handleSearchInputChange,
-    isExploreRoadmapsLoading,
-    isExploreRoadmapsFetching,
-    handleExploreSearchChange,
-    handleExploreSearchInputChange,
     recommendations: recommendations ?? [],
   };
 };

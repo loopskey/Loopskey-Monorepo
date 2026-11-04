@@ -20,11 +20,19 @@ const createPrismaMock = () => ({
   roadmapChatMessage: {
     create: jest.fn().mockResolvedValue({ id: "message-1" }),
     findMany: jest.fn().mockResolvedValue([]),
+    count: jest.fn().mockResolvedValue(0),
+    deleteMany: jest.fn().mockResolvedValue({ count: 0 }),
   },
+  $queryRaw: jest.fn().mockResolvedValue([{ id: "edit-1" }]),
+  $transaction: jest.fn(),
 });
 
 const createService = (prisma = createPrismaMock()) => ({
-  prisma,
+  prisma: Object.assign(prisma, {
+    $transaction: jest.fn(async (run: (tx: typeof prisma) => unknown) =>
+      run(prisma),
+    ),
+  }),
   service: new ProfessionalRoadmapDraftService(
     prisma as unknown as PrismaService,
   ),
@@ -282,5 +290,227 @@ describe("ProfessionalRoadmapDraftService edit drafts", () => {
     await expect(service.discardEditDraft("user-1", "missing")).resolves.toBe(
       false,
     );
+  });
+});
+
+describe("ProfessionalRoadmapDraftService transcript windows", () => {
+  const message = (id: string) => ({ id, draftId: "draft-1" });
+
+  it("shows the latest messages, oldest first, when no cursor is given", async () => {
+    const { service, prisma } = createService();
+    prisma.roadmapChatMessage.count.mockResolvedValue(40);
+    prisma.roadmapChatMessage.findMany.mockResolvedValue([
+      message("m-40"),
+      message("m-39"),
+      message("m-38"),
+    ]);
+
+    const page = await service.transcriptPage("user-1", "draft-1", { take: 3 });
+
+    expect(prisma.roadmapChatMessage.findMany.mock.calls[0][0]).toMatchObject({
+      where: { draftId: "draft-1" },
+      orderBy: [{ createdAt: "desc" }, { id: "desc" }],
+      take: 3,
+    });
+    expect(page?.items.map((item) => item.id)).toEqual([
+      "m-38",
+      "m-39",
+      "m-40",
+    ]);
+    expect(page?.totalCount).toBe(40);
+    expect(page?.pageInfo).toEqual({ hasNextPage: false, nextCursor: null });
+  });
+
+  it("defaults to a window of thirty messages", async () => {
+    const { service, prisma } = createService();
+
+    await service.transcriptPage("user-1", "draft-1");
+
+    expect(prisma.roadmapChatMessage.findMany.mock.calls[0][0].take).toBe(30);
+  });
+
+  it("pages forward from a cursor", async () => {
+    const { service, prisma } = createService();
+    prisma.roadmapChatMessage.findMany.mockResolvedValue([
+      message("m-2"),
+      message("m-3"),
+      message("m-4"),
+    ]);
+
+    const page = await service.transcriptPage("user-1", "draft-1", {
+      take: 2,
+      cursor: "m-1",
+    });
+
+    expect(prisma.roadmapChatMessage.findMany.mock.calls[0][0]).toMatchObject({
+      cursor: { id: "m-1" },
+      skip: 1,
+      take: 3,
+      orderBy: [{ createdAt: "asc" }, { id: "asc" }],
+    });
+    expect(page?.items.map((item) => item.id)).toEqual(["m-2", "m-3"]);
+    expect(page?.pageInfo).toEqual({ hasNextPage: true, nextCursor: "m-3" });
+  });
+
+  it("returns nothing for a draft the professional does not own", async () => {
+    const { service, prisma } = createService();
+    prisma.roadmapDraft.findFirst.mockResolvedValue(null);
+
+    expect(await service.transcriptPage("user-2", "draft-1")).toBeNull();
+    expect(prisma.roadmapChatMessage.findMany).not.toHaveBeenCalled();
+  });
+});
+
+describe("ProfessionalRoadmapDraftService edit history", () => {
+  it("follows the edits back to the first draft, oldest first", async () => {
+    const { service, prisma } = createService();
+    prisma.roadmapDraft.findFirst
+      .mockResolvedValueOnce({ id: "edit-1", replacesRoadmapId: "roadmap-0" })
+      .mockResolvedValueOnce({ id: "first", replacesRoadmapId: null });
+
+    const ids = await service.editSourceChain("user-1", {
+      replacesRoadmapId: "roadmap-1",
+    });
+
+    expect(ids).toEqual(["first", "edit-1"]);
+    const wheres = prisma.roadmapDraft.findFirst.mock.calls.map(
+      (call) => call[0].where,
+    );
+    expect(wheres[0]).toEqual({
+      userId: "user-1",
+      enrollment: { is: { userId: "user-1", roadmapId: "roadmap-1" } },
+    });
+    expect(wheres[1]).toEqual({
+      userId: "user-1",
+      enrollment: { is: { userId: "user-1", roadmapId: "roadmap-0" } },
+    });
+  });
+
+  it("has no history for a draft that edits nothing", async () => {
+    const { service, prisma } = createService();
+
+    expect(
+      await service.editSourceChain("user-1", { replacesRoadmapId: null }),
+    ).toEqual([]);
+    expect(prisma.roadmapDraft.findFirst).not.toHaveBeenCalled();
+  });
+
+  it("stops when the saved brief behind a roadmap is gone", async () => {
+    const { service, prisma } = createService();
+    prisma.roadmapDraft.findFirst.mockResolvedValue(null);
+
+    expect(
+      await service.editSourceChain("user-1", {
+        replacesRoadmapId: "roadmap-1",
+      }),
+    ).toEqual([]);
+  });
+
+  it("stops rather than loop when the chain points back at itself", async () => {
+    const { service, prisma } = createService();
+    prisma.roadmapDraft.findFirst.mockResolvedValue({
+      id: "loop",
+      replacesRoadmapId: "roadmap-1",
+    });
+
+    expect(
+      await service.editSourceChain("user-1", {
+        replacesRoadmapId: "roadmap-1",
+      }),
+    ).toEqual(["loop"]);
+  });
+
+  it("reads only the messages of the drafts the edit grew out of", async () => {
+    const { service, prisma } = createService();
+    prisma.roadmapDraft.findFirst
+      .mockResolvedValueOnce({
+        id: "edit-draft",
+        replacesRoadmapId: "roadmap-1",
+      })
+      .mockResolvedValueOnce({ id: "source-1", replacesRoadmapId: null });
+
+    await service.historyPage("user-1", "edit-draft");
+
+    expect(prisma.roadmapChatMessage.count.mock.calls[0][0]).toEqual({
+      where: { draftId: { in: ["source-1"] } },
+    });
+    expect(prisma.roadmapChatMessage.findMany.mock.calls[0][0].where).toEqual({
+      draftId: { in: ["source-1"] },
+    });
+  });
+
+  it("returns no history for a draft the professional does not own", async () => {
+    const { service, prisma } = createService();
+    prisma.roadmapDraft.findFirst.mockResolvedValue(null);
+
+    expect(await service.historyPage("user-2", "edit-draft")).toBeNull();
+    expect(prisma.roadmapChatMessage.findMany).not.toHaveBeenCalled();
+  });
+});
+
+describe("ProfessionalRoadmapDraftService edit greeting", () => {
+  const greeting = {
+    content: "ROADMAP_COACH_EDIT_GREETING",
+    stepKey: RoadmapDraftStep.REVIEW,
+  };
+
+  it("writes the greeting once, as the first message of an edit", async () => {
+    const { service, prisma } = createService();
+
+    await expect(
+      service.ensureEditGreeting("user-1", "edit-1", greeting),
+    ).resolves.toBe(true);
+
+    expect(prisma.roadmapChatMessage.create.mock.calls[0][0].data).toEqual({
+      ...greeting,
+      draftId: "edit-1",
+      role: RoadmapChatRole.ASSISTANT,
+    });
+  });
+
+  it("writes nothing when the edit already has messages", async () => {
+    const { service, prisma } = createService();
+    prisma.roadmapChatMessage.count.mockResolvedValue(3);
+
+    await expect(
+      service.ensureEditGreeting("user-1", "edit-1", greeting),
+    ).resolves.toBe(false);
+    expect(prisma.roadmapChatMessage.create).not.toHaveBeenCalled();
+  });
+
+  it("writes nothing for a draft that is not the caller's edit", async () => {
+    const { service, prisma } = createService();
+    prisma.$queryRaw.mockResolvedValue([]);
+
+    await expect(
+      service.ensureEditGreeting("user-2", "edit-1", greeting),
+    ).resolves.toBe(false);
+    expect(prisma.roadmapChatMessage.create).not.toHaveBeenCalled();
+  });
+
+  it("locks the draft row while it checks, so two reopenings cannot both write", async () => {
+    const { service, prisma } = createService();
+
+    await service.ensureEditGreeting("user-1", "edit-1", greeting);
+
+    expect(prisma.$transaction).toHaveBeenCalledTimes(1);
+    const sql = (prisma.$queryRaw.mock.calls[0][0] as string[]).join("");
+    expect(sql).toContain("FOR UPDATE");
+    expect(sql).toContain('"replacesRoadmapId" IS NOT NULL');
+  });
+});
+
+describe("ProfessionalRoadmapDraftService reset of an edit", () => {
+  it("refuses to reset a draft that edits a roadmap", async () => {
+    const { service, prisma } = createService();
+    prisma.$queryRaw.mockResolvedValue([
+      { id: "edit-1", status: "READY", replacesRoadmapId: "roadmap-1" },
+    ]);
+
+    await expect(service.resetInPlace("user-1", "edit-1")).resolves.toEqual({
+      outcome: "edit",
+    });
+    expect(prisma.roadmapDraft.updateMany).not.toHaveBeenCalled();
+    expect(prisma.roadmapChatMessage.deleteMany).not.toHaveBeenCalled();
   });
 });

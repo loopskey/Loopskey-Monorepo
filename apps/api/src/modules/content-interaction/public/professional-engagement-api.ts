@@ -71,6 +71,15 @@ export interface ProfessionalEngagementApi {
 
 export type UnitOfWork = object;
 
+export class RoadmapProgressNotPreservedError extends Error {
+  constructor(readonly uncarriedSteps: number) {
+    super(
+      `${uncarriedSteps} step(s) with learner progress have no counterpart in the replacement roadmap.`,
+    );
+    this.name = "RoadmapProgressNotPreservedError";
+  }
+}
+
 export type RoadmapStepCarryOver = {
   readonly fromStepId: string;
   readonly toStepId: string;

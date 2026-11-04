@@ -12,6 +12,9 @@ export enum RoadmapGenerationViolation {
   DUPLICATE_STEP_ORDER = "DUPLICATE_STEP_ORDER",
   TOO_MANY_PHASES = "TOO_MANY_PHASES",
   BLANK_TEXT = "BLANK_TEXT",
+  PROTECTED_CONTENT_DROPPED = "PROTECTED_CONTENT_DROPPED",
+  UNAFFECTED_PHASE_CHANGED = "UNAFFECTED_PHASE_CHANGED",
+  PROTECTED_STEP_WITHOUT_IDENTITY = "PROTECTED_STEP_WITHOUT_IDENTITY",
 }
 
 export type VerifiedStep = {
@@ -63,10 +66,14 @@ export const verifyGeneratedRoadmap = (input: {
   freeOnly: boolean;
   maxPhases: number;
   candidates: CandidateKey[];
+  preserved?: CandidateKey[];
 }): VerificationResult => {
   const known = new Map<string, CandidateKey>();
   for (const candidate of input.candidates)
     known.set(keyOf(candidate.contentType, candidate.contentId), candidate);
+  const preserved = new Map<string, CandidateKey>();
+  for (const kept of input.preserved ?? [])
+    preserved.set(keyOf(kept.contentType, kept.contentId), kept);
 
   const { phases: generatedPhases } = input.data;
   if (isBlank(input.data.title) || isBlank(input.data.description))
@@ -130,13 +137,13 @@ export const verifyGeneratedRoadmap = (input: {
         );
 
       const key = keyOf(step.contentType, step.contentId);
-      const candidate = known.get(key);
+      const candidate = known.get(key) ?? preserved.get(key);
       if (!candidate)
         return reject(RoadmapGenerationViolation.UNKNOWN_CONTENT, key);
       if (usedContent.has(key))
         return reject(RoadmapGenerationViolation.DUPLICATE_CONTENT, key);
       usedContent.add(key);
-      if (input.freeOnly && !candidate.isFree)
+      if (input.freeOnly && !candidate.isFree && !preserved.has(key))
         return reject(RoadmapGenerationViolation.PAID_UNDER_FREE_ONLY, key);
 
       steps.push({

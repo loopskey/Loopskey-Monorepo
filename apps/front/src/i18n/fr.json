@@ -2672,14 +2672,8 @@
   },
   "navigation": {
     "home": "Accueil",
-    "content": "Contenu",
-    "services": "Services",
-    "about": "À propos",
-    "contact": "Contact",
-    "faq": "FAQ",
     "openMenu": "Ouvrir le menu",
     "closeMenu": "Fermer le menu",
-    "primary": "Principale",
     "homeLink": "Accueil LoopsKey",
     "skipToContent": "Aller au contenu principal",
     "search": {
@@ -2781,6 +2775,8 @@
       "terms": "Conditions d’utilisation",
       "privacy": "Politique de confidentialité",
       "cookies": "Déclaration relative aux cookies",
+      "content": "Bibliothèque de contenu",
+      "services": "Services",
       "about": "À propos de LoopsKey",
       "associationPartners": "Associations partenaires",
       "companyContentProviders": "Fournisseurs de contenu"
@@ -4626,15 +4622,10 @@
       "viewContent": "Voir le contenu",
       "nextStepTag": "Suivant",
       "hero": {
-        "phasesCount": "{{count}} phases",
-        "moreActions": "Plus d'actions",
-        "progressRingLabel": "{{progress}} % terminé"
+        "phasesCount": "{{count}} phases"
       },
-      "myRoadmaps": "Mes feuilles de route",
-      "searchMyRoadmaps": "Rechercher dans vos feuilles de route...",
       "emptyMyRoadmapsTitle": "Aucune feuille de route pour l’instant",
       "emptyMyRoadmapsDescription": "Créez-en une avec le coach pour obtenir un parcours d’apprentissage étape par étape.",
-      "exploreUnavailable": "L'aperçu et l'inscription aux parcours du catalogue ne sont pas encore disponibles.",
       "searchExploreRoadmaps": "Rechercher des feuilles de route disponibles...",
       "emptyExploreTitle": "Aucune feuille de route disponible",
       "emptyExploreDescription": "Aucune feuille de route publiée n’est disponible pour le moment, ou aucune ne correspond à votre recherche.",
@@ -4653,7 +4644,6 @@
       "creditsOf": "{{earned}} sur {{required}} crédits",
       "cpdTarget": "Objectif DPC",
       "cpdTargetComplete": "atteint",
-      "recommendedDescription": "Des contenus adaptés à votre objectif qui ne sont pas déjà dans votre parcours.",
       "weekRange": "Semaines {{start}} à {{end}}",
       "pduValue": "{{count}} UDP",
       "closeMatchDisclosure": {
@@ -4696,28 +4686,26 @@
       "noRoadmapMatches": "Aucune feuille de route ne correspond à votre recherche.",
       "enrolledTag": "Inscrit",
       "weekSingle": "Semaine {{week}}",
-      "openContent": "Ouvrir",
       "stepActions": "Plus d’actions pour {{title}}",
       "showDetails": "Afficher les détails",
       "hideDetails": "Masquer les détails",
       "showMore": "Afficher plus",
       "showLess": "Afficher moins",
       "sections": {
-        "path": "Parcours d’apprentissage",
-        "recommended": "Recommandé",
-        "explore": "Explorer"
+        "path": "Parcours d’apprentissage"
       },
       "focus": {
         "startHere": "Commencez ici",
         "upNext": "À suivre",
         "completedTitle": "Feuille de route terminée",
         "completedDescription": "Vous avez terminé les {{count}} étapes.",
-        "findNext": "Trouver votre prochaine feuille de route"
+        "findNext": "Trouver votre prochaine feuille de route",
+        "eyebrow": "Phase {{phase}} · Étape {{step}} sur {{total}}",
+        "startStep": "Commencer l’étape"
       },
       "summary": {
         "phasesDone": "Phases terminées",
         "countOf": "{{completed}} sur {{total}}",
-        "doneThisWeek": "Étapes terminées cette semaine",
         "streak": "Série",
         "days": "{{count}} jours"
       },
@@ -4731,7 +4719,8 @@
         "edit": "Modifier",
         "continueLabel": "Continuer {{title}}",
         "reviewLabel": "Revoir {{title}}",
-        "editLabel": "Modifier {{title}}"
+        "start": "Commencer",
+        "startLabel": "Commencer {{title}}"
       },
       "edit": {
         "startFailed": "Impossible d’ouvrir cette feuille de route pour la modifier. Veuillez réessayer.",
@@ -4740,7 +4729,89 @@
         "generatingTitle": "Mise à jour de votre feuille de route",
         "generatingStep": "Reconstruction de la feuille de route à partir de vos réponses mises à jour. La progression sur les contenus conservés est gardée.",
         "unchanged": "Votre feuille de route actuelle n’a pas été modifiée."
-      }
+      },
+      "progressNotPreserved": {
+        "title": "La nouvelle version aurait perdu votre progression.",
+        "description": "Nous nous sommes arrêtés avant toute modification. Votre parcours actuel et votre progression sont inchangés. Vous pouvez réessayer."
+      },
+      "progressCannotBePreserved": {
+        "title": "Ce parcours ne peut pas encore être régénéré.",
+        "description": "La progression sur une activité sans contenu associé ne peut pas être conservée en toute sécurité. Votre parcours actuel et votre progression sont inchangés."
+      },
+      "switcher": {
+        "label": "Feuille de route {{current}} sur {{total}}",
+        "open": "Changer de feuille de route",
+        "title": "Vos feuilles de route",
+        "search": "Rechercher vos feuilles de route",
+        "filters": "Filtrer les feuilles de route",
+        "manageAll": "Gérer toutes les feuilles de route",
+        "generating": "Création de votre feuille de route… vous pouvez continuer",
+        "partial": "{{shown}} sur {{total}} affichées. Gérez toutes les feuilles de route pour voir les autres."
+      },
+      "states": {
+        "all": "Toutes",
+        "inProgress": "En cours",
+        "notStarted": "Pas commencées",
+        "completed": "Terminées"
+      },
+      "header": {
+        "allRoadmaps": "Toutes les feuilles de route",
+        "editRoadmap": "Modifier la feuille de route",
+        "phasesSteps": "{{phases}} phases · {{steps}} étapes"
+      },
+      "strip": {
+        "thisWeek": "Cette semaine",
+        "stepsCount": "{{count}} étapes",
+        "phaseLabel": "Phase {{number}} : {{title}}"
+      },
+      "path": {
+        "all": "Toutes {{count}}",
+        "remaining": "Restantes {{count}}",
+        "show": "Afficher les étapes",
+        "expandAll": "Tout déplier",
+        "collapseAll": "Tout replier",
+        "empty": "Toutes les étapes de cette feuille de route sont terminées.",
+        "startStep": "Commencer {{title}}",
+        "completeStep": "Marquer {{title}} comme terminé",
+        "openStep": "Ouvrir {{title}}"
+      },
+      "recommendedCard": {
+        "title": "Recommandé pour cet objectif",
+        "description": "Correspond à votre objectif et ne figure pas encore dans cette feuille de route.",
+        "seeAll": "Tout voir ({{count}})",
+        "showFewer": "Afficher moins"
+      },
+      "editCard": {
+        "title": "Pas tout à fait ça ?",
+        "description": "Dites au coach ce qu’il faut changer. Les étapes terminées restent terminées."
+      },
+      "catalogCard": {
+        "title": "Feuilles de route du catalogue",
+        "description": "Des feuilles de route prêtes à parcourir. L’inscription ouvrira bientôt.",
+        "action": "Parcourir le catalogue"
+      },
+      "library": {
+        "back": "Retour à votre feuille de route",
+        "title": "Vos feuilles de route",
+        "summary": "{{total}} feuilles de route · {{inProgress}} en cours · {{completed}} terminées",
+        "sort": "Trier",
+        "sorts": {
+          "newest": "Plus récentes",
+          "progress": "Plus avancées",
+          "name": "Nom"
+        },
+        "columns": {
+          "roadmap": "Feuille de route",
+          "progress": "Progression",
+          "nextStep": "Étape suivante",
+          "actions": "Actions"
+        },
+        "allDone": "Toutes les étapes terminées",
+        "current": "Actuelle",
+        "emptyFilter": "Aucune feuille de route ne correspond à ces filtres.",
+        "catalogBadge": "Inscription bientôt disponible"
+      },
+      "aside": "Plus pour cette feuille de route"
     },
     "calendar": {
       "eyebrow": "Calendrier professionnel",
@@ -8000,6 +8071,11 @@
       "error": "Échec de l'enregistrement"
     },
     "transcriptLabel": "Conversation avec le coach de parcours",
+    "history": {
+      "label": "Conversation précédente sur ce parcours",
+      "title": "Conversation précédente",
+      "editStarts": "La modification commence ici"
+    },
     "thinking": "Le coach réfléchit…",
     "stepper": {
       "goal": "Objectif",
@@ -8008,6 +8084,7 @@
       "review": "Vérification et génération"
     },
     "coach": {
+      "editGreeting": "Que souhaitez-vous modifier dans votre parcours ? Vous pouvez mettre à jour vos préférences d'apprentissage, les phases ou les activités d'apprentissage.",
       "intro": "Bonjour, je suis votre Coach de parcours Loopskey. Je vais vous poser quelques questions courtes pour construire un parcours adapté. Cela prend environ deux minutes, et vous pourrez modifier chaque réponse ensuite.",
       "question": {
         "GOAL": "Que souhaitez-vous accomplir ? Une certification, un nouveau poste ou une compétence : dites-le avec vos propres mots.",
@@ -8059,7 +8136,8 @@
     },
     "system": {
       "ROADMAP_AI_REFUSED": "Cela semble sans rapport avec la création d'un parcours. Pouvez-vous reformuler ?",
-      "fieldUpdated": "{{field}} mis à jour."
+      "fieldUpdated": "{{field}} mis à jour.",
+      "ROADMAP_EDIT_CHANGE_REJECTED": "Une modification demandée ne correspondait pas à votre parcours et a été mise de côté."
     },
     "error": {
       "retry": "Réessayer",
@@ -8147,6 +8225,35 @@
       "discardConfirmTitle": "Annuler ces modifications ?",
       "discardConfirmDescription": "Votre feuille de route actuelle reste inchangée. Les réponses modifiées ici seront perdues.",
       "discardFailed": "Impossible d’annuler les modifications. Veuillez réessayer."
+    },
+    "editReview": {
+      "title": "Vérifier les modifications",
+      "empty": "Rien n'a encore changé. Dites au coach ce que vous voulez modifier, ou modifiez une préférence ci-dessous.",
+      "preferences": "Préférences mises à jour",
+      "requests": "Modifications demandées",
+      "protected": "{{count}} étape(s) commencée(s) ou terminée(s) seront conservées.",
+      "confirmTitle": "Régénérer votre parcours ?",
+      "confirmDescription": "Nous allons créer une nouvelle version avec ces modifications. Votre parcours actuel reste actif jusqu'à ce que la nouvelle version soit prête.",
+      "confirmDescriptionProtected": "Nous allons créer une nouvelle version avec ces modifications. Votre parcours actuel reste actif jusqu'à ce que la nouvelle version soit prête, et vos {{count}} étape(s) commencée(s) ou terminée(s) sont conservées.",
+      "operation": {
+        "MODIFY_ROADMAP": "Modifier tout le parcours",
+        "REBUILD_ROADMAP": "Reconstruire le parcours",
+        "ADD_PHASE": "Ajouter une phase",
+        "MODIFY_PHASE": "Modifier une phase",
+        "REMOVE_PHASE": "Supprimer une phase",
+        "ADD_STEP": "Ajouter une activité",
+        "MODIFY_STEP": "Modifier une activité",
+        "REMOVE_STEP": "Supprimer une activité",
+        "UPDATE_DRAFT": "Mettre à jour une préférence"
+      },
+      "block": {
+        "NOT_EDITABLE": "Ce parcours ne peut plus être modifié.",
+        "PRESERVATION_UNSUPPORTED": "La progression sur une activité sans contenu associé ne peut pas encore être conservée en toute sécurité, ce parcours ne peut donc pas être régénéré :",
+        "STALE_CHANGES": "Une des modifications demandées ne correspond plus à votre parcours. Dites au coach ce que vous souhaitez à la place.",
+        "NO_CHANGES": "Faites au moins une modification avant de régénérer.",
+        "AWAITING_CLARIFICATION": "Répondez à la question du coach pour terminer votre demande.",
+        "CHANGES_NOT_CONFIRMED": "Le coach confirme encore les modifications demandées."
+      }
     }
   },
   "topicHub": {

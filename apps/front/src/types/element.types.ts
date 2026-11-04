@@ -153,11 +153,6 @@ export type TConfirmDialogProps = {
 };
 
 // ============== Header ================
-export type TNavItem = {
-  href: string;
-  label: string;
-};
-
 export type DashboardNavTab = {
   href: string;
   value: string;
@@ -248,7 +243,7 @@ export type TContentThumbnailProps = {
   category?: string | null;
 };
 
-export type RoadmapArtProps = {
+export type TRoadmapTileProps = {
   className?: string;
   category?: CourseCategory | null;
 };

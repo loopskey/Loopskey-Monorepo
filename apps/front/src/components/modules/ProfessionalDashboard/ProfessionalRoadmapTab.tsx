@@ -1,26 +1,24 @@
 "use client";
 
 import { startTransition, useEffect, useRef, useState } from "react";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@ui/tabs";
-import { RoadmapRecommendationsList } from "@modules/ProfessionalRoadmap/RoadmapRecommendationsList";
+import { RoadmapRecommendationsCard } from "@modules/ProfessionalRoadmap/RoadmapRecommendationsCard";
+import { ROADMAP_CATALOG_ELEMENT_ID } from "@/utils/roadmap-navigation.util";
 import { RoadmapGenerationStatus } from "@modules/ProfessionalRoadmap/RoadmapGenerationStatus";
 import { useProfessionalRoadmaps } from "@/hooks/useProfessionalRoadmap";
-import { findNextActionableStep } from "@/utils/roadmap-journey.util";
 import { RoadmapWorkspaceHeader } from "@modules/ProfessionalRoadmap/RoadmapWorkspaceHeader";
-import { RoadmapSummaryRail } from "@modules/ProfessionalRoadmap/RoadmapSummaryRail";
-import { RoadmapExploreList } from "@modules/ProfessionalRoadmap/RoadmapExploreList";
+import { findNextActionableStep } from "@/utils/roadmap-journey.util";
+import { RoadmapProgressStrip } from "@modules/ProfessionalRoadmap/RoadmapProgressStrip";
+import { RoadmapCatalogCard } from "@modules/ProfessionalRoadmap/RoadmapAsideCards";
+import { RoadmapDraftStatus } from "@/lib/graphql/base";
 import { ROADMAP_CHAT_HREF } from "@/utils/roadmap-navigation.util";
-import { ContentPagination } from "@elements/pagination";
 import { RoadmapFocusCard } from "@modules/ProfessionalRoadmap/RoadmapFocusCard";
 import { RoadmapPhaseList } from "@modules/ProfessionalRoadmap/RoadmapPhaseList";
-import { RoadmapSwitcher } from "@modules/ProfessionalRoadmap/RoadmapSwitcher";
+import { RoadmapEditCard } from "@modules/ProfessionalRoadmap/RoadmapAsideCards";
+import { RoadmapLibrary } from "@modules/ProfessionalRoadmap/RoadmapLibrary";
 import { ViewTransition } from "react";
 import { GlassCard } from "@elements/glass-card";
 import { Skeleton } from "@ui/skeleton";
 import { Button } from "@ui/button";
-import { cn } from "@/lib/utils";
-
-import type { RoadmapSection } from "@/types/professional-roadmap-chat.types";
 
 import Link from "next/link";
 
@@ -28,62 +26,29 @@ import * as L from "lucide-react";
 
 const KEY = "professionalDashboard.roadmap";
 
-const ROADMAP_SEARCH_MIN_COUNT = 7;
-
-type SectionSelection = { roadmapId?: string; section: RoadmapSection };
-
-const SECTION_LABEL_KEY: Record<RoadmapSection, string> = {
-  path: `${KEY}.sections.path`,
-  recommended: `${KEY}.sections.recommended`,
-  explore: `${KEY}.sections.explore`,
-};
-
-const SECTION_TRIGGER_CLASS_NAME =
-  "-mb-px h-auto flex-none rounded-none border-0 border-b-2 border-transparent px-3 py-2.5 text-muted-foreground data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:shadow-none";
-
 const ProfessionalRoadmapTab = () => {
   const {
     t,
-    page,
     draft,
-    search,
-    myPageInfo,
     myRoadmaps,
-    handleNext,
-    explorePage,
+    handleEdit,
     isGenerating,
     stepProgress,
-    handleEdit,
-    nextStepRef,
     justCompleted,
-    exploreSearch,
     unenrollingId,
     activeRoadmap,
+    isLibraryView,
     myRoadmapsData,
     hasFailedDraft,
     handleUnenroll,
-    handleContinue,
-    handlePrevious,
     editingRoadmapId,
     recommendations,
-    exploreRoadmaps,
-    explorePageInfo,
     isMyRoadmapsError,
     refetchMyRoadmaps,
-    handleExploreNext,
-    exploreRoadmapsData,
     isMyRoadmapsLoading,
-    isMyRoadmapsFetching,
     isRetryingGeneration,
-    handleExplorePrevious,
     handleRetryGeneration,
     acknowledgeCompletion,
-    isExploreRoadmapsError,
-    refetchExploreRoadmaps,
-    handleSearchInputChange,
-    isExploreRoadmapsLoading,
-    isExploreRoadmapsFetching,
-    handleExploreSearchInputChange,
   } = useProfessionalRoadmaps();
 
   const isStatusVisible = isGenerating || hasFailedDraft;
@@ -100,97 +65,71 @@ const ProfessionalRoadmapTab = () => {
     acknowledgeCompletion();
   }, [justCompleted, acknowledgeCompletion]);
 
-  const [selection, setSelection] = useState<SectionSelection | null>(null);
-  if (selection && selection.roadmapId !== activeRoadmap?.id)
-    setSelection(null);
-  const selectedSection = selection?.section ?? null;
-  const selectSection = (value: RoadmapSection) =>
-    setSelection({ roadmapId: activeRoadmap?.id, section: value });
-  const sections: RoadmapSection[] = [
-    ...(activeRoadmap ? (["path"] as const) : []),
-    ...(recommendations.length > 0 ? (["recommended"] as const) : []),
-    "explore",
-  ];
-  const section =
-    selectedSection && sections.includes(selectedSection)
-      ? selectedSection
-      : sections[0];
-  const sectionCount: Record<RoadmapSection, number | undefined> = {
-    path: activeRoadmap?.totalSteps,
-    recommended: recommendations.length,
-    explore: exploreRoadmapsData?.totalCount,
-  };
+  useEffect(() => {
+    if (!isLibraryView) return;
+    if (window.location.hash !== `#${ROADMAP_CATALOG_ELEMENT_ID}`) return;
+    document
+      .getElementById(ROADMAP_CATALOG_ELEMENT_ID)
+      ?.scrollIntoView({ block: "start" });
+  }, [isLibraryView]);
 
-  const isSearching = search.trim() !== "";
-  const hasNextPage = Boolean(myPageInfo?.hasNextPage);
-  const isPaged = page > 1 || hasNextPage;
+  const totalCount = myRoadmapsData?.totalCount ?? 0;
   const hasLoadFailed = isMyRoadmapsError && !myRoadmapsData;
-  const isEmpty =
-    !isMyRoadmapsLoading &&
-    !hasLoadFailed &&
-    myRoadmaps.length === 0 &&
-    !isSearching &&
-    !isPaged &&
-    !isStatusVisible;
-  const showSwitcher = myRoadmaps.length > 1 || isSearching || isPaged;
-  const showSearch =
-    isSearching ||
-    (myRoadmapsData?.totalCount ?? 0) >= ROADMAP_SEARCH_MIN_COUNT;
+  const generatingGoal =
+    draft?.status === RoadmapDraftStatus.Generating ? draft.goal : null;
   const nextStepId = activeRoadmap
     ? findNextActionableStep(activeRoadmap.phases)?.stepId
     : null;
 
+  const status = (
+    <ViewTransition>
+      {displayStatus && draft ? (
+        <RoadmapGenerationStatus
+          t={t}
+          goal={draft.goal}
+          draftId={draft.id}
+          status={draft.status}
+          failure={draft.failure}
+          updatedAt={draft.updatedAt}
+          onRetry={handleRetryGeneration}
+          isRetrying={isRetryingGeneration}
+          isEdit={Boolean(draft.replacesRoadmapId)}
+        />
+      ) : null}
+    </ViewTransition>
+  );
+
+  if (isLibraryView)
+    return (
+      <div className="space-y-6">
+        {status}
+        <RoadmapLibrary
+          onEdit={handleEdit}
+          totalRoadmaps={totalCount}
+          onUnenroll={handleUnenroll}
+          unenrollingId={unenrollingId}
+          activeRoadmapId={activeRoadmap?.id}
+          editingRoadmapId={editingRoadmapId}
+        />
+      </div>
+    );
+
   return (
     <div className="space-y-6">
-      <div className="flex flex-col justify-between gap-4 lg:flex-row lg:items-center">
-        <div>
-          <p className="text-sm font-medium text-primary">
-            {t(`${KEY}.eyebrow`)}
-          </p>
-
-          <h1 className="mt-2 text-3xl font-medium tracking-tight md:text-4xl">
-            {t(`${KEY}.title`)}
-          </h1>
-
-          <p className="mt-2 max-w-2xl text-sm leading-6 text-muted-foreground">
-            {t(`${KEY}.subtitle`)}
-          </p>
-        </div>
-
-        <Button
-          asChild
-          variant="outline"
-          className="w-full justify-center sm:w-auto"
-        >
-          <Link href={ROADMAP_CHAT_HREF}>
-            <L.Plus className="size-4" />
-            {t(`${KEY}.newRoadmap`)}
-          </Link>
-        </Button>
-      </div>
-
-      <ViewTransition>
-        {displayStatus && draft ? (
-          <RoadmapGenerationStatus
-            t={t}
-            goal={draft.goal}
-            draftId={draft.id}
-            status={draft.status}
-            failure={draft.failure}
-            isEdit={Boolean(draft.replacesRoadmapId)}
-            updatedAt={draft.updatedAt}
-            onRetry={handleRetryGeneration}
-            isRetrying={isRetryingGeneration}
-          />
-        ) : null}
-      </ViewTransition>
+      {status}
 
       {isMyRoadmapsLoading ? (
-        <div aria-hidden className="space-y-4">
-          <Skeleton className="h-7 w-2/5 rounded-full" />
-          <Skeleton className="h-4 w-3/5 rounded-full" />
-          <Skeleton className="h-24 w-full rounded-xl" />
-          <Skeleton className="h-64 w-full rounded-xl" />
+        <div aria-hidden className="space-y-5">
+          <div className="flex items-center gap-3.5">
+            <Skeleton className="size-12 rounded-xl" />
+            <div className="flex-1 space-y-2">
+              <Skeleton className="h-3 w-32 rounded-full" />
+              <Skeleton className="h-6 w-2/3 rounded-full" />
+            </div>
+          </div>
+          <Skeleton className="h-24 w-full rounded-2xl" />
+          <Skeleton className="h-28 w-full rounded-2xl" />
+          <Skeleton className="h-64 w-full rounded-2xl" />
         </div>
       ) : hasLoadFailed ? (
         <GlassCard>
@@ -205,156 +144,89 @@ const ProfessionalRoadmapTab = () => {
               className="mt-4"
               onClick={() => refetchMyRoadmaps()}
             >
-              <L.RotateCcw className="size-4" />
+              <L.RotateCcw aria-hidden />
               {t("professionalDashboard.common.refresh")}
             </Button>
           </div>
         </GlassCard>
-      ) : (
+      ) : activeRoadmap ? (
         <>
-          {showSwitcher ? (
-            <div className="space-y-3">
-              <RoadmapSwitcher
-                search={search}
-                onEdit={handleEdit}
-                roadmaps={myRoadmaps}
-                onContinue={handleContinue}
-                editingRoadmapId={editingRoadmapId}
-                showSearch={showSearch}
-                isFetching={isMyRoadmapsFetching}
-                activeRoadmapId={activeRoadmap?.id}
-                onSearchChange={handleSearchInputChange}
+          <RoadmapWorkspaceHeader
+            onEdit={handleEdit}
+            key={activeRoadmap.id}
+            roadmaps={myRoadmaps}
+            roadmap={activeRoadmap}
+            totalCount={totalCount}
+            headingRef={headingRef}
+            onUnenroll={handleUnenroll}
+            unenrollingId={unenrollingId}
+            generatingGoal={generatingGoal}
+            editingRoadmapId={editingRoadmapId}
+          />
+
+          <RoadmapProgressStrip roadmap={activeRoadmap} />
+
+          <div className="flex flex-col gap-6 xl:flex-row xl:items-start">
+            <div className="min-w-0 flex-1 space-y-6">
+              <RoadmapFocusCard
+                roadmap={activeRoadmap}
+                onStart={stepProgress.start}
+                pending={stepProgress.pending}
+                onComplete={stepProgress.complete}
+                failedStepId={stepProgress.failedStepId}
               />
 
-              {isPaged ? (
-                <ContentPagination
-                  page={page}
-                  onNext={handleNext}
-                  canPrevious={page > 1}
-                  hasNextPage={hasNextPage}
-                  onPrevious={handlePrevious}
-                  isLoading={isMyRoadmapsFetching}
-                  totalCount={myRoadmapsData?.totalCount}
-                />
-              ) : null}
+              <RoadmapPhaseList
+                key={activeRoadmap.id}
+                nextStepId={nextStepId}
+                phases={activeRoadmap.phases}
+                onStart={stepProgress.start}
+                pending={stepProgress.pending}
+                enrollmentId={activeRoadmap.id}
+                onComplete={stepProgress.complete}
+                failedStepId={stepProgress.failedStepId}
+              />
             </div>
-          ) : null}
 
-          <div className="grid gap-x-8 gap-y-5 border-t pt-6 xl:grid-cols-[minmax(0,1fr)_18rem]">
-            {activeRoadmap ? (
-              <>
-                <div className="min-w-0 xl:col-start-1">
-                  <RoadmapWorkspaceHeader
-                    key={activeRoadmap.id}
-                    roadmap={activeRoadmap}
-                    onEdit={handleEdit}
-                    headingRef={headingRef}
-                    onUnenroll={handleUnenroll}
-                    onContinue={handleContinue}
-                    editingRoadmapId={editingRoadmapId}
-                    isUnenrolling={unenrollingId === activeRoadmap.id}
-                  />
-                </div>
-
-                <div className="min-w-0 xl:col-start-1">
-                  <RoadmapFocusCard
-                    focusRef={nextStepRef}
-                    roadmap={activeRoadmap}
-                    onStart={stepProgress.start}
-                    pending={stepProgress.pending}
-                    onComplete={stepProgress.complete}
-                    failedStepId={stepProgress.failedStepId}
-                    onExplore={() => selectSection("explore")}
-                  />
-                </div>
-
-                <div className="min-w-0 xl:col-start-2 xl:row-span-3 xl:row-start-1">
-                  <RoadmapSummaryRail roadmap={activeRoadmap} />
-                </div>
-              </>
-            ) : isEmpty ? (
-              <div className="flex flex-col items-center rounded-xl border border-dashed px-6 py-10 text-center xl:col-span-2">
-                <div className="rounded-full bg-primary/10 p-4 text-primary">
-                  <L.Route className="size-7" />
-                </div>
-                <p className="mt-4 font-medium">
-                  {t(`${KEY}.emptyMyRoadmapsTitle`)}
-                </p>
-                <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-muted-foreground">
-                  {t(`${KEY}.emptyMyRoadmapsDescription`)}
-                </p>
-                <Button asChild className="mt-5">
-                  <Link href={ROADMAP_CHAT_HREF}>
-                    <L.Plus className="size-4" />
-                    {t(`${KEY}.emptyMyRoadmapsAction`)}
-                  </Link>
-                </Button>
-              </div>
-            ) : null}
-
-            <Tabs
-              value={section}
-              className={cn(
-                "min-w-0 gap-4",
-                activeRoadmap ? "xl:col-start-1" : "xl:col-span-2",
-              )}
-              onValueChange={(value) => selectSection(value as RoadmapSection)}
+            <aside
+              aria-label={t(`${KEY}.aside`)}
+              className="grid gap-4 sm:grid-cols-2 xl:w-80 xl:shrink-0 xl:grid-cols-1"
             >
-              <TabsList className="h-auto w-full justify-start gap-1 overflow-x-auto rounded-none border-b bg-transparent p-0">
-                {sections.map((item) => (
-                  <TabsTrigger
-                    key={item}
-                    value={item}
-                    className={SECTION_TRIGGER_CLASS_NAME}
-                  >
-                    {t(SECTION_LABEL_KEY[item])}
-                    {typeof sectionCount[item] === "number" ? (
-                      <span className="font-normal tabular-nums opacity-70">
-                        {sectionCount[item]}
-                      </span>
-                    ) : null}
-                  </TabsTrigger>
-                ))}
-              </TabsList>
-
-              {activeRoadmap ? (
-                <TabsContent value="path">
-                  <RoadmapPhaseList
-                    key={activeRoadmap.id}
-                    nextStepId={nextStepId}
-                    phases={activeRoadmap.phases}
-                    onStart={stepProgress.start}
-                    pending={stepProgress.pending}
-                    enrollmentId={activeRoadmap.id}
-                    onComplete={stepProgress.complete}
-                    failedStepId={stepProgress.failedStepId}
-                  />
-                </TabsContent>
-              ) : null}
-
-              <TabsContent value="recommended">
-                <RoadmapRecommendationsList recommendations={recommendations} />
-              </TabsContent>
-
-              <TabsContent value="explore">
-                <RoadmapExploreList
-                  page={explorePage}
-                  search={exploreSearch}
-                  roadmaps={exploreRoadmaps}
-                  onNext={handleExploreNext}
-                  isError={isExploreRoadmapsError && !exploreRoadmapsData}
-                  onPrevious={handleExplorePrevious}
-                  isLoading={isExploreRoadmapsLoading}
-                  isFetching={isExploreRoadmapsFetching}
-                  onRetry={() => refetchExploreRoadmaps()}
-                  totalCount={exploreRoadmapsData?.totalCount}
-                  onSearchChange={handleExploreSearchInputChange}
-                  hasNextPage={Boolean(explorePageInfo?.hasNextPage)}
-                />
-              </TabsContent>
-            </Tabs>
+              <RoadmapRecommendationsCard recommendations={recommendations} />
+              <RoadmapEditCard
+                onEdit={handleEdit}
+                roadmap={activeRoadmap}
+                editingRoadmapId={editingRoadmapId}
+              />
+              <RoadmapCatalogCard />
+            </aside>
           </div>
         </>
+      ) : (
+        <div className="space-y-8">
+          <div className="flex flex-col items-center rounded-2xl border border-dashed px-6 py-12 text-center">
+            <span className="rounded-full bg-accent p-4 text-primary">
+              <L.Route aria-hidden className="size-7" />
+            </span>
+            <h1
+              ref={headingRef}
+              tabIndex={-1}
+              className="mt-4 text-lg font-semibold outline-none"
+            >
+              {t(`${KEY}.emptyMyRoadmapsTitle`)}
+            </h1>
+            <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-muted-foreground">
+              {t(`${KEY}.emptyMyRoadmapsDescription`)}
+            </p>
+            <Button asChild className="mt-5">
+              <Link href={ROADMAP_CHAT_HREF}>
+                <L.Plus aria-hidden />
+                {t(`${KEY}.emptyMyRoadmapsAction`)}
+              </Link>
+            </Button>
+          </div>
+          <RoadmapCatalogCard />
+        </div>
       )}
     </div>
   );

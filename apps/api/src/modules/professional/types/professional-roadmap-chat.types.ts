@@ -1,9 +1,14 @@
 import { LearningFormat, LearningTimeCommitment } from "@prisma/client";
 import { ContentType, Prisma, SkillLevel } from "@prisma/client";
 import { LearningBudgetPreference } from "@prisma/client";
+import { OperationValidation } from "@professional/utils/roadmap-edit-operations.util";
+import { StepProgressByStep } from "@professional/utils/roadmap-edit-shape.util";
 import { RoadmapDraftStep } from "@prisma/client";
+import { EditableRoadmap } from "@professional/utils/roadmap-edit-shape.util";
 import { DeliveryFormat } from "@prisma/client";
+import { ProtectedStep } from "@professional/utils/roadmap-edit-preservation.util";
 
+import type { RoadmapChangeOperation } from "@infrastructure/service-ai/service-ai.port";
 import type { PlatformContentType } from "@infrastructure/service-ai/service-ai.port";
 import type { RoadmapWidget } from "@infrastructure/service-ai/service-ai.port";
 
@@ -32,10 +37,10 @@ export type RoadmapSubjectOption = { id: string; label: string };
 
 export type RoadmapDraftView = RoadmapDraftFields & {
   id: string;
-  failureReason: string | null;
   wasRefused: boolean;
   isComplete: boolean;
   needsClarification: boolean;
+  failureReason: string | null;
   widget: RoadmapWidget | null;
   currentStep: RoadmapDraftStep;
 };
@@ -59,3 +64,41 @@ export type RoadmapShape = {
   id: string;
   phases: { id: string; steps: { id: string }[] }[];
 };
+
+export type ResetInPlaceResult =
+  | { outcome: "reset"; draft: Prisma.RoadmapDraftGetPayload<object> }
+  | { outcome: "not_found" }
+  | { outcome: "edit" }
+  | { outcome: "locked" };
+
+export type TranscriptPage = {
+  items: Prisma.RoadmapChatMessageGetPayload<object>[];
+  totalCount: number;
+  pageInfo: { hasNextPage: boolean; nextCursor: string | null };
+};
+
+export type DraftBase = Prisma.RoadmapDraftGetPayload<object>;
+
+export type EditContext = {
+  roadmap: EditableRoadmap;
+  enrollmentId: string | null;
+  progress: StepProgressByStep;
+};
+
+export type EditState = {
+  hasChanges: boolean;
+  changedFields: string[];
+  context: EditContext | null;
+  validation: OperationValidation;
+  protectedSteps: ProtectedStep[];
+  unidentifiable: ProtectedStep[];
+  pending: RoadmapChangeOperation[];
+};
+
+export type EditBlockReason =
+  | "NO_CHANGES"
+  | "NOT_EDITABLE"
+  | "STALE_CHANGES"
+  | "CHANGES_NOT_CONFIRMED"
+  | "AWAITING_CLARIFICATION"
+  | "PRESERVATION_UNSUPPORTED";

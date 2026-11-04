@@ -5,6 +5,7 @@ import { RoadmapDraftFieldKey, RoadmapDraftStatus } from "@/lib/graphql/base";
 import { useRouter, useSearchParams } from "next/navigation";
 import { ROADMAP_MESSAGE_MAX_LENGTH } from "@/utils/roadmap-chat.constant";
 import { ROADMAP_COUNTER_THRESHOLD } from "@/utils/roadmap-chat.constant";
+import { ROADMAP_DRAFT_LOCKED_CODE } from "@/utils/roadmap-chat.constant";
 import { serializeWidgetAnswer } from "@/utils/roadmap-widget-answer.util";
 import { ROADMAP_BUSY_CODE } from "@/utils/roadmap-chat.constant";
 import { roadmapChatApi } from "@/lib/rtk/endpoints/roadmap-chat.api";
@@ -91,6 +92,12 @@ export const useRoadmapChat = () => {
     API.useRequestRoadmapGenerationMutation();
   const [discardEditMutation, { isLoading: isDiscarding }] =
     API.useDiscardRoadmapEditMutation();
+  const draftId = draft?.id;
+  const isEdit = Boolean(draft?.replacesRoadmapId);
+  const { data: history } = API.useProfessionalRoadmapHistoryQuery(
+    draftId ?? "",
+    { skip: !draftId || !isEdit },
+  );
 
   const writeDraft = useCallback(
     (next: T.TRoadmapDraft) => {
@@ -169,6 +176,11 @@ export const useRoadmapChat = () => {
     [draft?.transcript.items],
   );
 
+  const historyMessages = useMemo<T.TRoadmapChatMessage[]>(
+    () => (isEdit ? (history?.items ?? []) : []),
+    [history?.items, isEdit],
+  );
+
   // ============= Handlers =============
   const submit = useCallback(
     async (
@@ -200,11 +212,12 @@ export const useRoadmapChat = () => {
         if (options?.restoresInput !== false) setInput(content);
         if (parsed.code === ROADMAP_BUSY_CODE && parsed.retryAfterSeconds)
           setRetryAfter(parsed.retryAfterSeconds);
+        if (parsed.code === ROADMAP_DRAFT_LOCKED_CODE) void refetchDraft();
       } finally {
         isSubmittingRef.current = false;
       }
     },
-    [draft, sendTurn, writeDraft],
+    [draft, refetchDraft, sendTurn, writeDraft],
   );
 
   const retry = useCallback(() => {
@@ -233,11 +246,13 @@ export const useRoadmapChat = () => {
         writeDraft(next);
         return true;
       } catch (error: unknown) {
-        setTurnError(readChatError(error));
+        const parsed = readChatError(error);
+        setTurnError(parsed);
+        if (parsed.code === ROADMAP_DRAFT_LOCKED_CODE) void refetchDraft();
         return false;
       }
     },
-    [draft, patchDraft, writeDraft],
+    [draft, patchDraft, refetchDraft, writeDraft],
   );
 
   const answerWidget = useCallback(
@@ -274,10 +289,12 @@ export const useRoadmapChat = () => {
         }).unwrap();
         writeDraft(next);
       } catch (error: unknown) {
-        setTurnError(readChatError(error));
+        const parsed = readChatError(error);
+        setTurnError(parsed);
+        if (parsed.code === ROADMAP_DRAFT_LOCKED_CODE) void refetchDraft();
       }
     },
-    [draft, patchCpdSetupMutation, writeDraft],
+    [draft, patchCpdSetupMutation, refetchDraft, writeDraft],
   );
 
   const startOver = useCallback(async () => {
@@ -356,6 +373,7 @@ export const useRoadmapChat = () => {
     answerWidget,
     patchCpdSetup,
     dismissPending,
+    historyMessages,
     isPatchingCpdSetup,
     draft: draft ?? null,
     widget: draft?.widget ?? null,

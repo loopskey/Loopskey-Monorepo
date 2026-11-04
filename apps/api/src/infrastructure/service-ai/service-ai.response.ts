@@ -11,6 +11,10 @@ import {
   inbound,
 } from "./service-ai.translation";
 import {
+  CHANGE_OPERATION_TYPES,
+  type ChangeOperationType,
+  type EditTurnData,
+  type RoadmapChangeOperation,
   type ChatTurnData,
   type GenerateData,
   type GeneratedRoadmapPhase,
@@ -256,6 +260,57 @@ export const parseChatTurnResponse = (
         response.suggested_next_step,
         "suggested_next_step",
         enumeration(SECTION_INBOUND),
+      ),
+    };
+  });
+
+const CHANGE_OPERATION_SET: ReadonlySet<string> = new Set(
+  CHANGE_OPERATION_TYPES,
+);
+
+const parseChangeOperation = (
+  value: unknown,
+  path: string,
+): RoadmapChangeOperation => {
+  const entry = record(value, path);
+  const operation = text(entry.operation, `${path}.operation`);
+  if (!CHANGE_OPERATION_SET.has(operation)) invalid(`${path}.operation`);
+  return {
+    operation: operation as ChangeOperationType,
+    targetId: absent(entry.target_id)
+      ? null
+      : text(entry.target_id, `${path}.target_id`),
+    instruction: filledText(entry.instruction, `${path}.instruction`),
+  };
+};
+
+export const parseEditTurnResponse = (
+  body: unknown,
+): EditTurnData | undefined =>
+  guard(() => {
+    const response = record(body, "editTurn");
+    const extracted = parseDraftState(response.extracted, "extracted");
+    return {
+      extracted: extracted.draft,
+      clearedFields: extracted.clearedFields,
+      widget: parseWidget(response.widget, "widget"),
+      assistantMessage: filledText(
+        response.assistant_message,
+        "assistant_message",
+      ),
+      needsClarification: flag(
+        response.needs_clarification,
+        "needs_clarification",
+      ),
+      isReadyToRegenerate: flag(
+        response.is_ready_to_regenerate,
+        "is_ready_to_regenerate",
+      ),
+      changeOperations: list(
+        response.change_operations,
+        "change_operations",
+      ).map((operation, index) =>
+        parseChangeOperation(operation, `change_operations[${index}]`),
       ),
     };
   });

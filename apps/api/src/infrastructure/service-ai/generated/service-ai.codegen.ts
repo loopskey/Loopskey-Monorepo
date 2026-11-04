@@ -161,6 +161,22 @@ const renderLimits = (schemas: Record<string, JsonSchema>) => {
       "maxLength",
     ),
     candidateTagsMaxItems: at("ContentCandidate", "tags", "maxItems"),
+    changeOperationsMaxItems: at(
+      "EditTurnRequest",
+      "pending_changes",
+      "maxItems",
+    ),
+    changeInstructionMaxLength: at(
+      "ChangeOperation",
+      "instruction",
+      "maxLength",
+    ),
+    changeTargetIdMaxLength: at("ChangeOperation", "target_id", "maxLength"),
+    currentRoadmapPhasesMaxItems: at("CurrentRoadmap", "phases", "maxItems"),
+    currentPhaseStepsMaxItems: at("CurrentPhase", "steps", "maxItems"),
+    currentTitleMaxLength: at("CurrentStep", "title", "maxLength"),
+    currentDescriptionMaxLength: at("CurrentStep", "description", "maxLength"),
+    currentRoadmapIdMaxLength: at("CurrentStep", "step_id", "maxLength"),
     subjectOptionIdMaxLength: at("SubjectOption", "id", "maxLength"),
     subjectOptionLabelMaxLength: at("SubjectOption", "label", "maxLength"),
   };

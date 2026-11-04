@@ -1,6 +1,7 @@
 import { ProfessionalRequirementDirectoryApiService } from "@professional/application/professional-requirement-directory-api.service";
 import { PROFESSIONAL_REQUIREMENT_DIRECTORY_API } from "@professional/public/professional-requirement-directory-api";
 import { ProfessionalCertificateFileController } from "@professional/controllers/professional-certificate-file.controller";
+import { ProfessionalRoadmapEditContextService } from "@professional/services/professional-roadmap-edit-context.service";
 import { ProfessionalRoadmapGenerationService } from "@professional/services/professional-roadmap-generation.service";
 import { ProfessionalProfileCompletionService } from "@professional/services/professional-profile-completion.service";
 import { ProfessionalRoadmapCandidateService } from "@professional/services/professional-roadmap-candidate.service";
@@ -120,6 +121,7 @@ import "@professional/enums/professional-register.enum";
     ProfessionalRoadmapCandidateService,
     ProfessionalRoadmapGenerationService,
     ProfessionalProfileCompletionService,
+    ProfessionalRoadmapEditContextService,
     ProfessionalRequirementDirectoryApiService,
     { provide: EVIDENCE_STORAGE, useExisting: LocalEvidenceStorageAdapter },
     {

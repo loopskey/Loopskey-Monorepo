@@ -1,8 +1,12 @@
 import {
   SERVICE_AI_CREDIT_PATTERN,
   SERVICE_AI_LIMITS,
+  type ProviderChangeOperation,
   type ProviderChatMessage,
   type ProviderChatTurnRequest,
+  type ProviderCurrentRoadmap,
+  type ProviderEditTurnRequest,
+  type ProviderRegenerateRequest,
   type ProviderContentCandidate,
   type ProviderCpdContext,
   type ProviderDraftState,
@@ -22,7 +26,12 @@ import {
 import {
   ServiceAiRequestError,
   type ChatTurnInput,
+  type CurrentRoadmap,
+  type EditTurnInput,
   type GenerateInput,
+  type RegenerateInput,
+  type RoadmapChangeOperation,
+  type RoadmapChatEntry,
   type RoadmapCpdContext,
   type RoadmapDraftState,
   type RoadmapSubjectOption,
@@ -194,15 +203,12 @@ const buildSubjectOptions = (
   );
 };
 
-export const buildChatTurnRequest = (
-  input: ChatTurnInput,
-): { body: ProviderChatTurnRequest; drops: OutboundDrops } => {
-  const drops: OutboundDrops = { formats: 0, historyMessages: 0 };
-  const draft =
-    Object.keys(input.draft).length === 0 ? {} : buildDraft(input.draft, drops);
-
+const buildHistory = (
+  entries: RoadmapChatEntry[] | undefined,
+  drops: OutboundDrops,
+): ProviderChatMessage[] => {
   const history: ProviderChatMessage[] = [];
-  for (const entry of input.history ?? []) {
+  for (const entry of entries ?? []) {
     const role = CHAT_ROLE_OUTBOUND[entry.role];
     const content = entry.content.trim();
     if (!role || !content) {
@@ -218,7 +224,16 @@ export const buildChatTurnRequest = (
       ),
     });
   }
-  withinCount(history, SERVICE_AI_LIMITS.historyMaxItems, "history");
+  return withinCount(history, SERVICE_AI_LIMITS.historyMaxItems, "history");
+};
+
+export const buildChatTurnRequest = (
+  input: ChatTurnInput,
+): { body: ProviderChatTurnRequest; drops: OutboundDrops } => {
+  const drops: OutboundDrops = { formats: 0, historyMessages: 0 };
+  const draft =
+    Object.keys(input.draft).length === 0 ? {} : buildDraft(input.draft, drops);
+  const history = buildHistory(input.history, drops);
 
   return {
     drops,
@@ -228,6 +243,106 @@ export const buildChatTurnRequest = (
       today: toProviderDate(input.today),
       draft,
       current_step: STEP_TO_SECTION[input.currentStep],
+      subject_options: buildSubjectOptions(input.subjectOptions),
+      user_message: text(
+        input.userMessage,
+        SERVICE_AI_LIMITS.userMessageMaxLength,
+        "userMessage",
+      ),
+    },
+  };
+};
+
+const clip = (value: string, allowed: number) =>
+  value.length > allowed ? value.slice(0, allowed) : value;
+
+const clipped = (value: string | null | undefined, allowed: number) => {
+  const trimmed = value?.trim();
+  return trimmed ? clip(trimmed, allowed) : null;
+};
+
+const buildChangeOperations = (
+  operations: RoadmapChangeOperation[],
+  limit: string,
+): ProviderChangeOperation[] =>
+  withinCount(
+    operations.map((operation) => ({
+      operation: operation.operation,
+      target_id: operation.targetId,
+      instruction: withinLength(
+        operation.instruction,
+        SERVICE_AI_LIMITS.changeInstructionMaxLength,
+        "changeInstruction",
+      ),
+    })),
+    SERVICE_AI_LIMITS.changeOperationsMaxItems,
+    limit,
+  );
+
+const buildCurrentRoadmap = (
+  roadmap: CurrentRoadmap,
+): ProviderCurrentRoadmap => {
+  withinCount(
+    roadmap.phases,
+    SERVICE_AI_LIMITS.currentRoadmapPhasesMaxItems,
+    "currentRoadmapPhases",
+  );
+  return {
+    title: clipped(roadmap.title, SERVICE_AI_LIMITS.currentTitleMaxLength),
+    description: clipped(
+      roadmap.description,
+      SERVICE_AI_LIMITS.currentDescriptionMaxLength,
+    ),
+    phases: roadmap.phases.map((phase) => {
+      withinCount(
+        phase.steps,
+        SERVICE_AI_LIMITS.currentPhaseStepsMaxItems,
+        "currentPhaseSteps",
+      );
+      return {
+        phase_id: phase.phaseId,
+        title: clip(phase.title, SERVICE_AI_LIMITS.currentTitleMaxLength),
+        description: clipped(
+          phase.description,
+          SERVICE_AI_LIMITS.currentDescriptionMaxLength,
+        ),
+        estimated_weeks: Math.max(1, Math.round(phase.estimatedWeeks)),
+        steps: phase.steps.map((step) => ({
+          step_id: step.stepId,
+          title: clip(step.title, SERVICE_AI_LIMITS.currentTitleMaxLength),
+          description: clipped(
+            step.description,
+            SERVICE_AI_LIMITS.currentDescriptionMaxLength,
+          ),
+          content_id: step.contentId,
+          content_type: step.contentType
+            ? CONTENT_TYPE_OUTBOUND[step.contentType]
+            : null,
+          estimated_minutes: toDurationMinutes(step.estimatedMinutes),
+          credits: toCandidateCredits(step.credits, "currentStepCredits"),
+          progress: step.progress,
+        })),
+      };
+    }),
+  };
+};
+
+export const buildEditTurnRequest = (
+  input: EditTurnInput,
+): { body: ProviderEditTurnRequest; drops: OutboundDrops } => {
+  const drops: OutboundDrops = { formats: 0, historyMessages: 0 };
+  return {
+    drops,
+    body: {
+      locale: input.locale ?? "en",
+      today: toProviderDate(input.today),
+      draft: buildDraft(input.draft, drops),
+      current_roadmap: buildCurrentRoadmap(input.currentRoadmap),
+      history: buildHistory(input.history, drops),
+      pending_changes: buildChangeOperations(
+        input.pendingChanges,
+        "pendingChanges",
+      ),
       subject_options: buildSubjectOptions(input.subjectOptions),
       user_message: text(
         input.userMessage,
@@ -281,6 +396,52 @@ const buildCpd = (cpd: RoadmapCpdContext): ProviderCpdContext => ({
     "totalRequiredCredits",
   ),
 });
+
+export const buildRegenerateRequest = (
+  input: RegenerateInput,
+): { body: ProviderRegenerateRequest; drops: OutboundDrops } => {
+  const drops: OutboundDrops = { formats: 0, historyMessages: 0 };
+
+  const candidates = withinCount(
+    withUniqueIdentity(input.candidates),
+    SERVICE_AI_LIMITS.candidatesMaxItems,
+    "candidates",
+  );
+
+  const maxPhases = input.maxPhases ?? SERVICE_AI_LIMITS.maxPhasesDefault;
+  if (
+    maxPhases < SERVICE_AI_LIMITS.maxPhasesMinimum ||
+    maxPhases > SERVICE_AI_LIMITS.maxPhasesMaximum
+  )
+    throw new ServiceAiRequestError(
+      "maxPhases",
+      maxPhases,
+      SERVICE_AI_LIMITS.maxPhasesMaximum,
+    );
+
+  return {
+    drops,
+    body: {
+      max_phases: maxPhases,
+      locale: input.locale ?? "en",
+      today: toProviderDate(input.today),
+      draft: buildDraft(input.draft, drops),
+      cpd: input.cpd ? buildCpd(input.cpd) : null,
+      candidates: candidates.map(buildCandidate),
+      current_roadmap: buildCurrentRoadmap(input.currentRoadmap),
+      change_operations: buildChangeOperations(
+        input.changeOperations,
+        "changeOperations",
+      ),
+      subject_options: buildSubjectOptions(input.subjectOptions),
+      preservation: {
+        preserve_completed_steps: input.preservation.completedSteps,
+        preserve_in_progress_steps: input.preservation.inProgressSteps,
+        preserve_unaffected_phases: input.preservation.unaffectedPhases,
+      },
+    },
+  };
+};
 
 export const buildGenerateRequest = (
   input: GenerateInput,
