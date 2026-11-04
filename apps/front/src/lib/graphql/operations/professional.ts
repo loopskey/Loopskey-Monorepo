@@ -386,7 +386,7 @@ export type ProfessionalRoadmapRecommendationsQueryVariables = Types.Exact<{
 }>;
 
 
-export type ProfessionalRoadmapRecommendationsQuery = { __typename?: 'Query', professionalRoadmapRecommendations: Array<{ __typename?: 'RoadmapRecommendation', title: string, isFree: boolean, credits?: number | null, summary?: string | null, contentId: string, contentType: Types.ContentType, durationMinutes?: number | null }> };
+export type ProfessionalRoadmapRecommendationsQuery = { __typename?: 'Query', professionalRoadmapRecommendations: Array<{ __typename?: 'RoadmapRecommendation', title: string, isFree: boolean, credits?: number | null, summary?: string | null, contentId: string, contentSlug?: string | null, contentType: Types.ContentType, durationMinutes?: number | null }> };
 
 export type ProfessionalMyRoadmapsQueryVariables = Types.Exact<{
   filter?: Types.InputMaybe<Types.ProfessionalSearchInput>;
@@ -2889,6 +2889,7 @@ export const ProfessionalRoadmapRecommendationsDocument = /*#__PURE__*/ new Type
     credits
     summary
     contentId
+    contentSlug
     contentType
     durationMinutes
   }

@@ -248,7 +248,7 @@ export type TContentThumbnailProps = {
   category?: string | null;
 };
 
-export type RoadmapArtProps = {
+export type TRoadmapTileProps = {
   className?: string;
   category?: CourseCategory | null;
 };

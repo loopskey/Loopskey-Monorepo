@@ -5334,6 +5334,7 @@ type RoadmapPendingChange {
 
 type RoadmapRecommendation {
   contentId: ID!
+  contentSlug: String
   contentType: ContentType!
   credits: Float
   durationMinutes: Int

@@ -4626,15 +4626,10 @@
       "viewContent": "Voir le contenu",
       "nextStepTag": "Suivant",
       "hero": {
-        "phasesCount": "{{count}} phases",
-        "moreActions": "Plus d'actions",
-        "progressRingLabel": "{{progress}} % terminé"
+        "phasesCount": "{{count}} phases"
       },
-      "myRoadmaps": "Mes feuilles de route",
-      "searchMyRoadmaps": "Rechercher dans vos feuilles de route...",
       "emptyMyRoadmapsTitle": "Aucune feuille de route pour l’instant",
       "emptyMyRoadmapsDescription": "Créez-en une avec le coach pour obtenir un parcours d’apprentissage étape par étape.",
-      "exploreUnavailable": "L'aperçu et l'inscription aux parcours du catalogue ne sont pas encore disponibles.",
       "searchExploreRoadmaps": "Rechercher des feuilles de route disponibles...",
       "emptyExploreTitle": "Aucune feuille de route disponible",
       "emptyExploreDescription": "Aucune feuille de route publiée n’est disponible pour le moment, ou aucune ne correspond à votre recherche.",
@@ -4653,7 +4648,6 @@
       "creditsOf": "{{earned}} sur {{required}} crédits",
       "cpdTarget": "Objectif DPC",
       "cpdTargetComplete": "atteint",
-      "recommendedDescription": "Des contenus adaptés à votre objectif qui ne sont pas déjà dans votre parcours.",
       "weekRange": "Semaines {{start}} à {{end}}",
       "pduValue": "{{count}} UDP",
       "closeMatchDisclosure": {
@@ -4696,28 +4690,26 @@
       "noRoadmapMatches": "Aucune feuille de route ne correspond à votre recherche.",
       "enrolledTag": "Inscrit",
       "weekSingle": "Semaine {{week}}",
-      "openContent": "Ouvrir",
       "stepActions": "Plus d’actions pour {{title}}",
       "showDetails": "Afficher les détails",
       "hideDetails": "Masquer les détails",
       "showMore": "Afficher plus",
       "showLess": "Afficher moins",
       "sections": {
-        "path": "Parcours d’apprentissage",
-        "recommended": "Recommandé",
-        "explore": "Explorer"
+        "path": "Parcours d’apprentissage"
       },
       "focus": {
         "startHere": "Commencez ici",
         "upNext": "À suivre",
         "completedTitle": "Feuille de route terminée",
         "completedDescription": "Vous avez terminé les {{count}} étapes.",
-        "findNext": "Trouver votre prochaine feuille de route"
+        "findNext": "Trouver votre prochaine feuille de route",
+        "eyebrow": "Phase {{phase}} · Étape {{step}} sur {{total}}",
+        "startStep": "Commencer l’étape"
       },
       "summary": {
         "phasesDone": "Phases terminées",
         "countOf": "{{completed}} sur {{total}}",
-        "doneThisWeek": "Étapes terminées cette semaine",
         "streak": "Série",
         "days": "{{count}} jours"
       },
@@ -4731,7 +4723,8 @@
         "edit": "Modifier",
         "continueLabel": "Continuer {{title}}",
         "reviewLabel": "Revoir {{title}}",
-        "editLabel": "Modifier {{title}}"
+        "start": "Commencer",
+        "startLabel": "Commencer {{title}}"
       },
       "edit": {
         "startFailed": "Impossible d’ouvrir cette feuille de route pour la modifier. Veuillez réessayer.",
@@ -4748,7 +4741,81 @@
       "progressCannotBePreserved": {
         "title": "Ce parcours ne peut pas encore être régénéré.",
         "description": "La progression sur une activité sans contenu associé ne peut pas être conservée en toute sécurité. Votre parcours actuel et votre progression sont inchangés."
-      }
+      },
+      "switcher": {
+        "label": "Feuille de route {{current}} sur {{total}}",
+        "open": "Changer de feuille de route",
+        "title": "Vos feuilles de route",
+        "search": "Rechercher vos feuilles de route",
+        "filters": "Filtrer les feuilles de route",
+        "manageAll": "Gérer toutes les feuilles de route",
+        "generating": "Création de votre feuille de route… vous pouvez continuer",
+        "partial": "{{shown}} sur {{total}} affichées. Gérez toutes les feuilles de route pour voir les autres."
+      },
+      "states": {
+        "all": "Toutes",
+        "inProgress": "En cours",
+        "notStarted": "Pas commencées",
+        "completed": "Terminées"
+      },
+      "header": {
+        "allRoadmaps": "Toutes les feuilles de route",
+        "editRoadmap": "Modifier la feuille de route",
+        "phasesSteps": "{{phases}} phases · {{steps}} étapes"
+      },
+      "strip": {
+        "thisWeek": "Cette semaine",
+        "stepsCount": "{{count}} étapes",
+        "phaseLabel": "Phase {{number}} : {{title}}"
+      },
+      "path": {
+        "all": "Toutes {{count}}",
+        "remaining": "Restantes {{count}}",
+        "show": "Afficher les étapes",
+        "expandAll": "Tout déplier",
+        "collapseAll": "Tout replier",
+        "empty": "Toutes les étapes de cette feuille de route sont terminées.",
+        "startStep": "Commencer {{title}}",
+        "completeStep": "Marquer {{title}} comme terminé",
+        "openStep": "Ouvrir {{title}}"
+      },
+      "recommendedCard": {
+        "title": "Recommandé pour cet objectif",
+        "description": "Correspond à votre objectif et ne figure pas encore dans cette feuille de route.",
+        "seeAll": "Tout voir ({{count}})",
+        "showFewer": "Afficher moins"
+      },
+      "editCard": {
+        "title": "Pas tout à fait ça ?",
+        "description": "Dites au coach ce qu’il faut changer. Les étapes terminées restent terminées."
+      },
+      "catalogCard": {
+        "title": "Feuilles de route du catalogue",
+        "description": "Des feuilles de route prêtes à parcourir. L’inscription ouvrira bientôt.",
+        "action": "Parcourir le catalogue"
+      },
+      "library": {
+        "back": "Retour à votre feuille de route",
+        "title": "Vos feuilles de route",
+        "summary": "{{total}} feuilles de route · {{inProgress}} en cours · {{completed}} terminées",
+        "sort": "Trier",
+        "sorts": {
+          "newest": "Plus récentes",
+          "progress": "Plus avancées",
+          "name": "Nom"
+        },
+        "columns": {
+          "roadmap": "Feuille de route",
+          "progress": "Progression",
+          "nextStep": "Étape suivante",
+          "actions": "Actions"
+        },
+        "allDone": "Toutes les étapes terminées",
+        "current": "Actuelle",
+        "emptyFilter": "Aucune feuille de route ne correspond à ces filtres.",
+        "catalogBadge": "Inscription bientôt disponible"
+      },
+      "aside": "Plus pour cette feuille de route"
     },
     "calendar": {
       "eyebrow": "Calendrier professionnel",

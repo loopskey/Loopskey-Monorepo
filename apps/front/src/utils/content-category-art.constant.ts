@@ -73,9 +73,6 @@ const CONTENT_CATEGORY_ART: Record<TContentCategoryValue, StaticImageData> = {
 
 const FALLBACK_CATEGORY: TContentCategoryValue = "GENERAL";
 
-export const CONTENT_CATEGORY_ART_CLASS_NAME =
-  "bg-cover bg-[position:100%_center]";
-
 const ART_BY_CATEGORY: ReadonlyMap<string, StaticImageData> = new Map(
   Object.entries(CONTENT_CATEGORY_ART),
 );
