@@ -177,3 +177,4 @@ into this index and do not rewrite previous records.
 - [`roadmap-table-view`](feature-runs/active/roadmap-table-view.md) — PR [#354](https://github.com/loopskey/Loopskey-Monorepo/pull/354)
 - [`roadmap-edit-hardening`](feature-runs/active/roadmap-edit-hardening.md) — PR [#356](https://github.com/loopskey/Loopskey-Monorepo/pull/356)
 - [`language-switch-and-favicon`](feature-runs/active/language-switch-and-favicon.md) — PR [#357](https://github.com/loopskey/Loopskey-Monorepo/pull/357)
+- [`roadmap-table-default-collapsed`](feature-runs/active/roadmap-table-default-collapsed.md) — PR [#359](https://github.com/loopskey/Loopskey-Monorepo/pull/359)

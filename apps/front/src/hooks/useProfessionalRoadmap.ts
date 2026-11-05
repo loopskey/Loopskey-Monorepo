@@ -9,7 +9,6 @@ import { useRoadmapStepProgress } from "@/hooks/useRoadmapStepProgress";
 import { RoadmapDraftStatus } from "@/lib/graphql/base";
 import { ROADMAP_LIST_TAKE } from "@/utils/roadmap-library.util";
 import { useRoadmapEdit } from "@/hooks/useRoadmapEdit";
-import { roadmapState } from "@/utils/roadmap-library.util";
 import { useDispatch } from "react-redux";
 import { useI18n } from "@/hooks/useI18n";
 
@@ -53,13 +52,7 @@ export const useProfessionalRoadmaps = () => {
     [myRoadmapsData?.items],
   );
 
-  const defaultOpenId =
-    requestedRoadmapId ??
-    (
-      myRoadmaps.find((roadmap) => roadmapState(roadmap) === "inProgress") ??
-      myRoadmaps[0]
-    )?.id ??
-    null;
+  const defaultOpenId = requestedRoadmapId ?? null;
   const [openChoice, setOpenChoice] = useState<{
     requested?: string;
     id: string | null;
@@ -74,7 +67,7 @@ export const useProfessionalRoadmaps = () => {
 
   const showRoadmap = useCallback(
     (roadmapId: string | null) => {
-      setOpenChoice({ requested: roadmapId ?? undefined, id: roadmapId });
+      setOpenChoice({ requested: requestedRoadmapId, id: roadmapId });
       const params = new URLSearchParams(searchParams.toString());
       if (roadmapId) params.set("roadmapId", roadmapId);
       else params.delete("roadmapId");
@@ -82,7 +75,7 @@ export const useProfessionalRoadmaps = () => {
         scroll: false,
       });
     },
-    [router, searchParams],
+    [requestedRoadmapId, router, searchParams],
   );
 
   const toggleRoadmap = (roadmapId: string) =>
