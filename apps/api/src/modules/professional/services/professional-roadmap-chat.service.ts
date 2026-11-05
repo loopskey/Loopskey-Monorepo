@@ -1,11 +1,11 @@
 import { ProfessionalRoadmapEditContextService } from "@professional/services/professional-roadmap-edit-context.service";
 import { getRoadmapDraftContractReadiness } from "@professional/utils/roadmap-draft-readiness.util";
 import { ProfessionalRoadmapDraftService } from "@professional/services/professional-roadmap-draft.service";
-import { COACH_EDIT_CHANGE_REJECTED_CODE } from "@professional/utils/roadmap-coach.util";
 import { RoadmapSuggestionOptionsInput } from "@professional/dtos/roadmap-suggestion-options.input";
 import { ServiceUnavailableException } from "@nestjs/common";
 import { ProfessionalPaginationInput } from "@professional/dtos/professional-pagination.input";
 import { ProfessionalTaxonomyService } from "@professional/services/professional-taxonomy.service";
+import { draftFieldOfProviderTarget } from "@infrastructure/service-ai/service-ai.port";
 import { ProfessionalCpdPlanService } from "@professional/services/professional-cpd-plan.service";
 import { ProfessionalProfileService } from "@professional/services/professional-profile.service";
 import { CertificationSearchService } from "@professional/services/certification-search.service";
@@ -20,21 +20,26 @@ import { widgetRejectionReason } from "@professional/utils/roadmap-widget-valida
 import { RoadmapDraftFieldKey } from "@professional/enums/roadmap-draft.enum";
 import { mergeExtractedFields } from "@professional/utils/roadmap-draft-merge.util";
 import { RoadmapChatTurnInput } from "@professional/dtos/roadmap-chat-turn.input";
+import { draftClosedException } from "@professional/utils/roadmap-draft-lifecycle.util";
 import { mapGenerationFailure } from "@professional/utils/roadmap-generation-failure.util";
+import { draftLockedException } from "@professional/utils/roadmap-draft-lifecycle.util";
 import { RoadmapAiMessageCode } from "@infrastructure/service-ai/service-ai.port";
 import { resolveWidgetAnswer } from "@professional/utils/roadmap-widget-answer.util";
 import { BadRequestException } from "@nestjs/common";
 import { ProfileTaxonomyKind } from "@prisma/client";
+import { OPEN_DRAFT_STATUSES } from "@professional/utils/roadmap-draft-lifecycle.util";
 import { ForbiddenException } from "@nestjs/common";
 import { RoadmapDraftStatus } from "@prisma/client";
 import { NotFoundException } from "@nestjs/common";
 import { TAXONOMY_PAGE_MAX } from "@professional/enums/profile-section.enum";
 import { groupKeysMatching } from "@professional/utils/roadmap-relevance.util";
 import { SERVICE_AI_LIMITS } from "@infrastructure/service-ai/service-ai.port";
+import { rejectionMessages } from "@professional/utils/roadmap-edit-operations.util";
 import { toCurrentRoadmap } from "@professional/utils/roadmap-edit-shape.util";
 import { ProfileTermUsage } from "@prisma/client";
 import { RoadmapDraftStep } from "@prisma/client";
 import { RoadmapChatRole } from "@prisma/client";
+import { assertDraftOpen } from "@professional/utils/roadmap-draft-lifecycle.util";
 import { subjectLabelsOf } from "@professional/utils/roadmap-draft-merge.util";
 import { SERVICE_AI_PORT } from "@infrastructure/service-ai/service-ai.port";
 import { requestContext } from "@infrastructure/observability/request-context";
@@ -100,24 +105,6 @@ const PATCHABLE_FIELDS = [
 
 type PatchableField = (typeof PATCHABLE_FIELDS)[number];
 
-const PATCHABLE_STATUS: RoadmapDraftStatus[] = [
-  RoadmapDraftStatus.COLLECTING,
-  RoadmapDraftStatus.READY,
-  RoadmapDraftStatus.FAILED,
-];
-
-class RoadmapDraftLockedException extends HttpException {
-  constructor() {
-    super(
-      {
-        code: ProfessionalMessageCode.ROADMAP_DRAFT_LOCKED,
-        message: ProfessionalMessageCode.ROADMAP_DRAFT_LOCKED,
-      },
-      409,
-    );
-  }
-}
-
 @Injectable()
 export class ProfessionalRoadmapChatService {
   private readonly logger = new Logger(ProfessionalRoadmapChatService.name);
@@ -156,6 +143,13 @@ export class ProfessionalRoadmapChatService {
     return next.finally(() => {
       if (this.inFlight.get(draftId) === next) this.inFlight.delete(draftId);
     });
+  }
+
+  private async lifecycleConflict(user: TUser, draftId: string) {
+    const latest = await this.drafts.findDraft(user.id, draftId);
+    return latest?.status === RoadmapDraftStatus.COMPLETED
+      ? draftClosedException()
+      : draftLockedException();
   }
 
   private async ownedDraft(user: TUser, draftId: string) {
@@ -465,14 +459,23 @@ export class ProfessionalRoadmapChatService {
       labels.set(phase.id, phase.title);
       for (const step of phase.steps) labels.set(step.id, step.title);
     }
-    return edit.validation.accepted.map((operation) => ({
-      operation: operation.operation,
-      targetId: operation.targetId,
-      targetLabel: operation.targetId
-        ? (labels.get(operation.targetId) ?? null)
-        : null,
-      instruction: operation.instruction,
-    }));
+    return edit.validation.accepted.map((operation) => {
+      const isDraftChange = operation.operation === "UPDATE_DRAFT";
+      return {
+        operation: operation.operation,
+        targetId: operation.targetId,
+        targetLabel:
+          operation.targetId && !isDraftChange
+            ? (labels.get(operation.targetId) ?? null)
+            : null,
+        targetField: isDraftChange
+          ? (draftFieldOfProviderTarget(
+              operation.targetId,
+            ) as RoadmapDraftFieldKey | null)
+          : null,
+        instruction: operation.instruction,
+      };
+    });
   }
 
   private async turnInput(
@@ -626,6 +629,7 @@ export class ProfessionalRoadmapChatService {
           : RoadmapDraftStatus.COLLECTING,
       },
       expectedUpdatedAt,
+      OPEN_DRAFT_STATUSES,
     );
     if (!updated) {
       this.logger.warn({
@@ -633,7 +637,7 @@ export class ProfessionalRoadmapChatService {
         draftId: draft.id,
         correlationId: requestContext.correlationId() ?? null,
       });
-      throw new RoadmapDraftLockedException();
+      throw await this.lifecycleConflict(user, draft.id);
     }
 
     const validatedWidget = await this.validatedWidget(
@@ -812,8 +816,9 @@ export class ProfessionalRoadmapChatService {
         throw new NotFoundException(
           ProfessionalMessageCode.ROADMAP_DRAFT_NOT_FOUND,
         );
+      if (result.outcome === "closed") throw draftClosedException();
       if (result.outcome === "locked" || result.outcome === "edit")
-        throw new RoadmapDraftLockedException();
+        throw draftLockedException();
       const updated = await this.initialTurn(user, result.draft);
       return this.view(user, updated, pagination);
     });
@@ -855,8 +860,7 @@ export class ProfessionalRoadmapChatService {
 
     return this.serialize(input.draftId, async () => {
       const draft = await this.ownedDraft(user, input.draftId);
-      if (draft.status === RoadmapDraftStatus.GENERATING)
-        throw new RoadmapDraftLockedException();
+      assertDraftOpen(draft.status);
       if (draft.replacesRoadmapId)
         return this.editChatTurn(user, draft, message, chosen);
 
@@ -1003,10 +1007,7 @@ export class ProfessionalRoadmapChatService {
       context.roadmap,
       context.progress,
     );
-    const isReady =
-      data.isReadyToRegenerate &&
-      !data.needsClarification &&
-      validation.rejected.length === 0;
+    const isReady = data.isReadyToRegenerate && !data.needsClarification;
     const step = readiness.isValid
       ? RoadmapDraftStep.REVIEW
       : (stepOfFirstMissingField(readiness.missingFields) ?? draft.currentStep);
@@ -1027,6 +1028,7 @@ export class ProfessionalRoadmapChatService {
           : RoadmapDraftStatus.COLLECTING,
       },
       expectedUpdatedAt,
+      OPEN_DRAFT_STATUSES,
     );
     if (!updated) {
       this.logger.warn({
@@ -1034,7 +1036,7 @@ export class ProfessionalRoadmapChatService {
         draftId: draft.id,
         correlationId: requestContext.correlationId() ?? null,
       });
-      throw new RoadmapDraftLockedException();
+      throw await this.lifecycleConflict(user, draft.id);
     }
 
     this.logger.log({
@@ -1062,11 +1064,15 @@ export class ProfessionalRoadmapChatService {
       data.assistantMessage,
       widget,
     );
-    if (validation.rejected.length > 0)
+    for (const content of rejectionMessages(
+      validation.rejected,
+      context.roadmap,
+      context.progress,
+    ))
       await this.drafts.appendMessage(user.id, draft.id, {
         role: RoadmapChatRole.SYSTEM,
         stepKey: step,
-        content: COACH_EDIT_CHANGE_REJECTED_CODE,
+        content,
       });
 
     return updated;
@@ -1109,16 +1115,20 @@ export class ProfessionalRoadmapChatService {
     draft: DraftRow,
     code: RoadmapAiMessageCode,
   ) {
-    const updated = await this.drafts.updateDraft(user.id, draft.id, {
-      wasRefused: true,
-      needsClarification: false,
-    });
+    const updated = await this.drafts.updateDraft(
+      user.id,
+      draft.id,
+      { wasRefused: true, needsClarification: false },
+      undefined,
+      OPEN_DRAFT_STATUSES,
+    );
+    if (!updated) throw await this.lifecycleConflict(user, draft.id);
     await this.drafts.appendMessage(user.id, draft.id, {
       content: code,
       role: RoadmapChatRole.SYSTEM,
       stepKey: draft.currentStep,
     });
-    return this.view(user, updated ?? draft);
+    return this.view(user, updated);
   }
 
   async patchDraft(user: TUser, input: PatchRoadmapDraftInput) {
@@ -1139,8 +1149,7 @@ export class ProfessionalRoadmapChatService {
 
     return this.serialize(input.draftId, async () => {
       const draft = await this.ownedDraft(user, input.draftId);
-      if (!PATCHABLE_STATUS.includes(draft.status))
-        throw new RoadmapDraftLockedException();
+      assertDraftOpen(draft.status);
 
       const current = this.fields(draft);
       const changes = await this.patchChanges(user, field, input, current);
@@ -1157,8 +1166,9 @@ export class ProfessionalRoadmapChatService {
           ...this.statusAfterEdit(draft, merged, knownSubjectIds),
         },
         draft.updatedAt,
+        OPEN_DRAFT_STATUSES,
       );
-      if (!updated) throw new RoadmapDraftLockedException();
+      if (!updated) throw await this.lifecycleConflict(user, draft.id);
       if (updated)
         this.logState(
           "patch",
@@ -1192,8 +1202,7 @@ export class ProfessionalRoadmapChatService {
 
     return this.serialize(input.draftId, async () => {
       const draft = await this.ownedDraft(user, input.draftId);
-      if (!PATCHABLE_STATUS.includes(draft.status))
-        throw new RoadmapDraftLockedException();
+      assertDraftOpen(draft.status);
 
       const { draftId: _draftId, ...changes } = input;
       const plan = await this.cpdPlans.upsertDraftPlan(user, {
@@ -1222,8 +1231,9 @@ export class ProfessionalRoadmapChatService {
           ...this.statusAfterEdit(draft, merged, knownSubjectIds),
         },
         draft.updatedAt,
+        OPEN_DRAFT_STATUSES,
       );
-      if (!updated) throw new RoadmapDraftLockedException();
+      if (!updated) throw await this.lifecycleConflict(user, draft.id);
       if (updated)
         this.logState(
           "cpd-setup",

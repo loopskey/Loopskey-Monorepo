@@ -270,7 +270,7 @@ describe("ProfessionalRoadmapDraftService edit drafts", () => {
     const { service, prisma } = createService();
 
     await expect(service.discardEditDraft("user-1", "edit-1")).resolves.toBe(
-      true,
+      "discarded",
     );
 
     const where = prisma.roadmapDraft.deleteMany.mock.calls[0][0].where;
@@ -286,11 +286,28 @@ describe("ProfessionalRoadmapDraftService edit drafts", () => {
   it("reports nothing discarded when no such edit exists", async () => {
     const { service, prisma } = createService();
     prisma.roadmapDraft.deleteMany.mockResolvedValue({ count: 0 });
+    prisma.roadmapDraft.findFirst.mockResolvedValue(null);
 
     await expect(service.discardEditDraft("user-1", "missing")).resolves.toBe(
-      false,
+      "not_found",
     );
   });
+
+  it.each([
+    [RoadmapDraftStatus.COMPLETED, "closed"],
+    [RoadmapDraftStatus.GENERATING, "locked"],
+  ])(
+    "keeps a %s edit and says why it was not discarded",
+    async (status, outcome) => {
+      const { service, prisma } = createService();
+      prisma.roadmapDraft.deleteMany.mockResolvedValue({ count: 0 });
+      prisma.roadmapDraft.findFirst.mockResolvedValue({ status });
+
+      await expect(service.discardEditDraft("user-1", "edit-1")).resolves.toBe(
+        outcome,
+      );
+    },
+  );
 });
 
 describe("ProfessionalRoadmapDraftService transcript windows", () => {

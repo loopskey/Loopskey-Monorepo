@@ -47,15 +47,20 @@ export const RoadmapGenerationStatus = ({
   if (status === RoadmapDraftStatus.Failed) {
     const isNoContent =
       failure?.code === RoadmapGenerationFailureCode.NoMatchingContent;
+    const isReplaced =
+      failure?.code === RoadmapGenerationFailureCode.RoadmapNotEditable;
     const isUnpreservable =
+      isReplaced ||
       failure?.code === RoadmapGenerationFailureCode.ProgressCannotBePreserved;
     const failureKey = isNoContent
       ? "noContent"
-      : isUnpreservable
-        ? "progressCannotBePreserved"
-        : failure?.code === RoadmapGenerationFailureCode.ProgressNotPreserved
-          ? "progressNotPreserved"
-          : "genericFailure";
+      : isReplaced
+        ? "roadmapNotEditable"
+        : isUnpreservable
+          ? "progressCannotBePreserved"
+          : failure?.code === RoadmapGenerationFailureCode.ProgressNotPreserved
+            ? "progressNotPreserved"
+            : "genericFailure";
 
     return (
       <GlassCard className="p-8">

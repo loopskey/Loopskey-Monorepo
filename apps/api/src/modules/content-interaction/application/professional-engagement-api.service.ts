@@ -1,5 +1,6 @@
 import { PaymentStatus, Prisma, RoadmapEnrollmentStatus } from "@prisma/client";
 import { ContentEnrollmentStatus, ContentType } from "@prisma/client";
+import { RoadmapReplacementUnavailableError } from "@contentAction/public/professional-engagement-api";
 import { RoadmapProgressNotPreservedError } from "@contentAction/public/professional-engagement-api";
 import { RoadmapStepProgressStatus } from "@prisma/client";
 import { ProfessionalEngagementApi } from "@contentAction/public/professional-engagement-api";
@@ -328,7 +329,8 @@ export class ProfessionalEngagementApiService
       },
       select: { id: true },
     });
-    if (!previous) return;
+    if (!previous)
+      throw new RoadmapReplacementUnavailableError(replaces.roadmapId);
 
     const retired = await writer.roadmapEnrollment.updateMany({
       where: {
@@ -337,7 +339,8 @@ export class ProfessionalEngagementApiService
       },
       data: { status: RoadmapEnrollmentStatus.UNENROLLED },
     });
-    if (retired.count !== 1) return;
+    if (retired.count !== 1)
+      throw new RoadmapReplacementUnavailableError(replaces.roadmapId);
 
     const targetByStep = new Map(
       replaces.carriedSteps.map((step) => [step.fromStepId, step.toStepId]),

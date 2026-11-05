@@ -1,4 +1,5 @@
 export { PROVIDER_DRAFT_FIELD_NAMES } from "@infrastructure/service-ai/service-ai.translation";
+export { draftFieldOfProviderTarget } from "@infrastructure/service-ai/service-ai.translation";
 export { SERVICE_AI_LIMITS } from "@infrastructure/service-ai/generated/service-ai.types";
 
 export const SERVICE_AI_PORT = Symbol("SERVICE_AI_PORT");

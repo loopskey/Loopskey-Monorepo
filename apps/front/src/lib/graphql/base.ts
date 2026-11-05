@@ -7568,6 +7568,7 @@ export const RoadmapGenerationFailureCode = {
   NoMatchingContent: 'NO_MATCHING_CONTENT',
   ProgressCannotBePreserved: 'PROGRESS_CANNOT_BE_PRESERVED',
   ProgressNotPreserved: 'PROGRESS_NOT_PRESERVED',
+  RoadmapNotEditable: 'ROADMAP_NOT_EDITABLE',
   TemporaryServiceFailure: 'TEMPORARY_SERVICE_FAILURE',
   Unknown: 'UNKNOWN'
 } as const;
@@ -7594,6 +7595,7 @@ export type RoadmapPendingChange = {
   __typename?: 'RoadmapPendingChange';
   instruction: Scalars['String']['output'];
   operation: RoadmapChangeOperationKind;
+  targetField?: Maybe<RoadmapDraftFieldKey>;
   targetId?: Maybe<Scalars['String']['output']>;
   targetLabel?: Maybe<Scalars['String']['output']>;
 };

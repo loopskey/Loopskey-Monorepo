@@ -7,6 +7,8 @@ import { PROFESSIONAL_ENGAGEMENT_API } from "@contentAction/public/professional-
 import { PROFESSIONAL_CATALOG_API } from "@course/public/professional-catalog-api";
 import { COACH_EDIT_GREETING_CODE } from "@professional/utils/roadmap-coach.util";
 import { ProfessionalMessageCode } from "@professional/enums/message-code.enum";
+import { draftClosedException } from "@professional/utils/roadmap-draft-lifecycle.util";
+import { draftLockedException } from "@professional/utils/roadmap-draft-lifecycle.util";
 import { TUser } from "@common/types/user.types";
 
 import { type ProfessionalEngagementApi } from "@contentAction/public/professional-engagement-api";
@@ -70,7 +72,14 @@ export class ProfessionalRoadmapEditService {
 
   async discardEdit(user: TUser, draftId: string) {
     this.assertProfessional(user);
-    return this.draftsService.discardEditDraft(user.id, draftId);
+    const outcome = await this.draftsService.discardEditDraft(user.id, draftId);
+    if (outcome === "not_found")
+      throw new NotFoundException(
+        ProfessionalMessageCode.ROADMAP_DRAFT_NOT_FOUND,
+      );
+    if (outcome === "closed") throw draftClosedException();
+    if (outcome === "locked") throw draftLockedException();
+    return true;
   }
 
   private async enrollmentOf(user: TUser, roadmapId: string) {

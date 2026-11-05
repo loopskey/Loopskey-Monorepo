@@ -535,7 +535,13 @@ describe("Roadmap conversational edit and regeneration (e2e)", () => {
         where: { id: opened.id },
       });
       expect(stored.pendingChanges).toEqual([]);
-      expect(stored.readyToRegenerate).toBe(false);
+      const notices = await prisma.roadmapChatMessage.findMany({
+        where: { draftId: opened.id, role: RoadmapChatRole.SYSTEM },
+        select: { content: true },
+      });
+      expect(notices.map((notice) => notice.content)).toEqual([
+        "ROADMAP_EDIT_CHANGE_REJECTED:UNMATCHED",
+      ]);
     });
   });
 
@@ -862,6 +868,133 @@ describe("Roadmap conversational edit and regeneration (e2e)", () => {
       expect(
         await prisma.roadmapEnrollment.count({ where: { draftId: draft.id } }),
       ).toBe(0);
+    });
+  });
+
+  describe("after the edit was applied", () => {
+    const closed = {
+      status: 409,
+      response: { code: "ROADMAP_DRAFT_CLOSED" },
+    };
+
+    const applied = async (label: string) => {
+      const user = await professional(label);
+      const { roadmap, phases } = await seedRoadmap(user);
+      const draftId = await confirmedEdit(user, roadmap.id, phases[0].id);
+      await generation.requestGeneration(user, draftId);
+      const done = await settled(draftId);
+      expect(done.status).toBe(RoadmapDraftStatus.COMPLETED);
+      const replacement = await prisma.roadmapEnrollment.findUniqueOrThrow({
+        where: { draftId },
+      });
+      return { user, oldRoadmapId: roadmap.id, draftId, replacement };
+    };
+
+    it("refuses every write to the used edit and leaves it as it was", async () => {
+      const { user, draftId } = await applied("closed-writes");
+      const before = await prisma.roadmapDraft.findUniqueOrThrow({
+        where: { id: draftId },
+      });
+      const messagesBefore = await prisma.roadmapChatMessage.count({
+        where: { draftId },
+      });
+      fakeAi.editTurn.mockClear();
+
+      await expect(
+        chat.chatTurn(user, { draftId, message: "One more change." }),
+      ).rejects.toMatchObject(closed);
+      await expect(
+        chat.patchDraft(user, { draftId, goal: "Something else" }),
+      ).rejects.toMatchObject(closed);
+      await expect(
+        chat.patchCpdSetup(user, { draftId, organization: "Acme" }),
+      ).rejects.toMatchObject(closed);
+      await expect(edit.discardEdit(user, draftId)).rejects.toMatchObject(
+        closed,
+      );
+      await expect(
+        generation.requestGeneration(user, draftId),
+      ).rejects.toMatchObject(closed);
+
+      expect(fakeAi.editTurn).not.toHaveBeenCalled();
+      const after = await prisma.roadmapDraft.findUniqueOrThrow({
+        where: { id: draftId },
+      });
+      expect(after).toMatchObject({
+        status: RoadmapDraftStatus.COMPLETED,
+        goal: before.goal,
+        updatedAt: before.updatedAt,
+      });
+      expect(
+        await prisma.roadmapChatMessage.count({ where: { draftId } }),
+      ).toBe(messagesBefore);
+      expect(
+        await prisma.outboxEvent.count({
+          where: { aggregateType: "RoadmapDraft", aggregateId: draftId },
+        }),
+      ).toBe(1);
+    });
+
+    it("keeps the used edit and its conversation readable", async () => {
+      const { user, draftId } = await applied("closed-read");
+
+      const view = await chat.draft(user, draftId);
+
+      expect(view).toMatchObject({
+        status: RoadmapDraftStatus.COMPLETED,
+        canGenerate: false,
+        editBlockReason: "NOT_EDITABLE",
+      });
+      expect(
+        view?.transcript.items.map((message) => message.content),
+      ).toContain("Make the first phase more project-based.");
+    });
+
+    it("no longer treats the replaced roadmap as editable, while the new one opens a fresh edit", async () => {
+      const { user, oldRoadmapId, draftId, replacement } =
+        await applied("closed-next");
+
+      await expect(edit.startEdit(user, oldRoadmapId)).rejects.toThrow(
+        NotFoundException,
+      );
+      const next = await openEdit(user, replacement.roadmapId);
+
+      expect(next.id).not.toBe(draftId);
+      expect(next.status).toBe(RoadmapDraftStatus.READY);
+      expect(
+        await prisma.roadmapChatMessage.count({
+          where: { draftId: next.id, content: "ROADMAP_COACH_EDIT_GREETING" },
+        }),
+      ).toBe(1);
+    });
+
+    it("does not let an answer that arrives after the roadmap was regenerated reopen the edit", async () => {
+      const user = await professional("closed-late");
+      const { roadmap, phases } = await seedRoadmap(user);
+      const opened = await openEdit(user, roadmap.id);
+      fakeAi.editTurn.mockImplementationOnce(async () => {
+        await prisma.roadmapDraft.update({
+          where: { id: opened.id },
+          data: { status: RoadmapDraftStatus.COMPLETED },
+        });
+        return editReply([
+          {
+            operation: "MODIFY_PHASE",
+            targetId: phases[0].id,
+            instruction: "Too late.",
+          },
+        ]);
+      });
+
+      await expect(
+        chat.chatTurn(user, { draftId: opened.id, message: "Change it." }),
+      ).rejects.toMatchObject(closed);
+
+      const stored = await prisma.roadmapDraft.findUniqueOrThrow({
+        where: { id: opened.id },
+      });
+      expect(stored.status).toBe(RoadmapDraftStatus.COMPLETED);
+      expect(stored.pendingChanges).toEqual([]);
     });
   });
 
