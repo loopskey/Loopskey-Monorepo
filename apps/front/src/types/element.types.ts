@@ -284,9 +284,9 @@ export type TLanguageLinksProps = {
   available?: readonly PublicLocale[];
 };
 
-export type TLanguageMenuProps = {
-  search: string;
+export type TLanguageSwitchProps = {
+  search?: string;
   className?: string;
   available?: readonly PublicLocale[];
-  nameKeys: Record<PublicLocale, string>;
+  onSelect?: (locale: PublicLocale) => void;
 };

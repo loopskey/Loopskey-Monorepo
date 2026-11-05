@@ -410,6 +410,7 @@
   },
   "common": {
     "languageSwitcher": {
+      "label": "Language",
       "unavailable": "Not available in this language",
       "current": "Language: {{name}}"
     },

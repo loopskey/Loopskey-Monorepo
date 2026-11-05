@@ -204,6 +204,7 @@
     "language": "Language",
     "languageSwitcher": {
       "current": "Language: {{name}}",
+      "label": "Language",
       "unavailable": "Not available in this language"
     },
     "loading": "Loading...",

@@ -2,7 +2,7 @@
 
 import { MAIN_CONTENT_ID, SkipToContent } from "@elements/skip-to-content";
 import { RouteLanguageProvider } from "@/providers/route-language-provider";
-import { PublicLanguageMenu } from "@elements/public-language-menu";
+import { PublicLanguageSwitch } from "@elements/public-language-switch";
 import { ActiveRoleProvider } from "@/providers/active-role-provider";
 import { useRouteLocale } from "@/providers/route-locale-provider";
 import { useI18n } from "@/hooks/useI18n";
@@ -26,7 +26,7 @@ const StandaloneNotFound = () => {
     <RouteLanguageProvider language={locale} dictionary={dictionary}>
       <ActiveRoleProvider>
         <SkipLink />
-        <Header languageControl={<PublicLanguageMenu />} />
+        <Header languageControl={<PublicLanguageSwitch />} />
         <div id={MAIN_CONTENT_ID} tabIndex={-1} className="outline-none">
           <NotFoundContent />
         </div>
