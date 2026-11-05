@@ -4680,7 +4680,6 @@
         "action": "Try generation again",
         "reviewBrief": "Review brief"
       },
-      "noRoadmapMatches": "No roadmap matches your search.",
       "enrolledTag": "Enrolled",
       "weekSingle": "Week {{week}}",
       "stepActions": "More actions for {{title}}",
@@ -4736,14 +4735,8 @@
         "description": "Progress on an activity without linked content can't be carried over safely. Your current roadmap and progress are unchanged."
       },
       "switcher": {
-        "label": "Roadmap {{current}} of {{total}}",
-        "open": "Switch roadmap",
-        "title": "Your roadmaps",
         "search": "Search your roadmaps",
-        "filters": "Filter roadmaps",
-        "manageAll": "Manage all roadmaps",
-        "generating": "Building your roadmap… you can keep working",
-        "partial": "Showing {{shown}} of {{total}}. Manage all roadmaps to see the rest."
+        "filters": "Filter roadmaps"
       },
       "states": {
         "all": "All",
@@ -4752,9 +4745,7 @@
         "completed": "Completed"
       },
       "header": {
-        "allRoadmaps": "All roadmaps",
-        "editRoadmap": "Edit roadmap",
-        "phasesSteps": "{{phases}} phases · {{steps}} steps"
+        "editRoadmap": "Edit roadmap"
       },
       "strip": {
         "thisWeek": "This week",
@@ -4778,17 +4769,10 @@
         "seeAll": "See all {{count}}",
         "showFewer": "Show fewer"
       },
-      "editCard": {
-        "title": "Not quite right?",
-        "description": "Tell the roadmap coach what to change. Steps you finished stay finished."
-      },
       "catalogCard": {
-        "title": "Catalog roadmaps",
-        "description": "Ready-made roadmaps you can browse. Enrolling opens soon.",
-        "action": "Browse the catalog"
+        "title": "Catalog roadmaps"
       },
       "library": {
-        "back": "Back to your roadmap",
         "title": "Your roadmaps",
         "summary": "{{total}} roadmaps · {{inProgress}} in progress · {{completed}} completed",
         "sort": "Sort",
@@ -4804,11 +4788,15 @@
           "actions": "Actions"
         },
         "allDone": "All steps done",
-        "current": "Current",
         "emptyFilter": "No roadmap matches these filters.",
         "catalogBadge": "Enrolling opens soon"
       },
-      "aside": "More for this roadmap"
+      "aside": "More for this roadmap",
+      "table": {
+        "show": "Show details",
+        "hide": "Hide details",
+        "details": "{{title}} details"
+      }
     },
     "calendar": {
       "eyebrow": "Professional calendar",

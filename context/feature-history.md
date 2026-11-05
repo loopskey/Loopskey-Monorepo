@@ -174,3 +174,4 @@ into this index and do not rewrite previous records.
 - [`roadmap-conversational-edit`](feature-runs/active/roadmap-conversational-edit.md) — PR [#350](https://github.com/loopskey/Loopskey-Monorepo/pull/350)
 - [`landing-header-dashboard-style`](feature-runs/active/landing-header-dashboard-style.md) — PR [#351](https://github.com/loopskey/Loopskey-Monorepo/pull/351)
 - [`roadmap-workspace-redesign`](feature-runs/active/roadmap-workspace-redesign.md) — PR [#352](https://github.com/loopskey/Loopskey-Monorepo/pull/352)
+- [`roadmap-table-view`](feature-runs/active/roadmap-table-view.md) — PR [#354](https://github.com/loopskey/Loopskey-Monorepo/pull/354)

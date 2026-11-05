@@ -40,9 +40,10 @@ export const RoadmapFocusCard = ({
   if (!phase || !step)
     return (
       <section
+        tabIndex={-1}
         id={ROADMAP_NEXT_STEP_ELEMENT_ID}
         aria-labelledby="roadmap-focus-title"
-        className="flex scroll-mt-24 flex-col gap-4 rounded-2xl border border-success/25 bg-success-soft p-5 sm:flex-row sm:items-center sm:justify-between"
+        className="flex scroll-mt-24 flex-col gap-4 rounded-2xl border border-success/25 bg-success-soft p-5 outline-none focus-visible:ring-2 focus-visible:ring-ring sm:flex-row sm:items-center sm:justify-between"
       >
         <div className="min-w-0 space-y-1">
           <p className="text-xs font-bold uppercase tracking-wider text-success-soft-foreground">
@@ -94,9 +95,10 @@ export const RoadmapFocusCard = ({
 
   return (
     <section
+      tabIndex={-1}
       id={ROADMAP_NEXT_STEP_ELEMENT_ID}
       aria-labelledby="roadmap-focus-title"
-      className="flex scroll-mt-24 flex-col gap-4 rounded-2xl bg-primary p-5 text-primary-foreground sm:flex-row sm:items-center sm:justify-between sm:px-6"
+      className="flex scroll-mt-24 flex-col gap-4 rounded-2xl bg-primary p-5 text-primary-foreground outline-none focus-visible:ring-4 focus-visible:ring-brand-sky sm:flex-row sm:items-center sm:justify-between sm:px-6"
     >
       <div className="min-w-0 space-y-1.5">
         <p className="text-xs font-bold uppercase tracking-wider text-primary-foreground/80">
