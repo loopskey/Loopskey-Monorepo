@@ -73,6 +73,7 @@ fragment ProfessionalRoadmapDraftFields on ProfessionalRoadmapDraft {
     operation
     targetId
     targetLabel
+    targetField
     instruction
   }
   needsClarification

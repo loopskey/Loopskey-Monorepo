@@ -264,14 +264,16 @@ export const RoadmapPhaseList = ({
                         const isBusy = pending?.stepId === step.id;
                         const isNext = step.id === nextStepId;
                         const showsAction = isNext || isStarted;
-                        const isDetailed = detailedSteps.has(step.id);
+                        const isActivity = !step.contentType;
+                        const isDetailed =
+                          isActivity || detailedSteps.has(step.id);
                         const contentHref = roadmapContentHref(
                           step.contentType,
                           step.contentSlug,
                         );
                         const hasMenuItems =
                           (!isComplete && !showsAction) ||
-                          Boolean(step.description);
+                          (!isActivity && Boolean(step.description));
                         const runAction = () =>
                           isStarted
                             ? onComplete(enrollmentId, step.id)
@@ -436,7 +438,7 @@ export const RoadmapPhaseList = ({
                                       </DM.DropdownMenuItem>
                                     ) : null}
 
-                                    {step.description ? (
+                                    {step.description && !isActivity ? (
                                       <DM.DropdownMenuItem
                                         onSelect={() =>
                                           setDetailedSteps((current) =>

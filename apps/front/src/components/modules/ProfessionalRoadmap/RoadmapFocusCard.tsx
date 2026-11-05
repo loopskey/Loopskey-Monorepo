@@ -85,7 +85,7 @@ export const RoadmapFocusCard = ({
           `common.contentTypes.${step.contentType}`,
           humanizeEnumValue(step.contentType),
         )
-      : null,
+      : t(`${KEY}.activityType`),
     duration,
     typeof step.credits === "number"
       ? t(`${KEY}.pduValue`, { count: step.credits })
@@ -123,6 +123,12 @@ export const RoadmapFocusCard = ({
         </h2>
 
         <p className="text-sm text-primary-foreground/85">{meta.join(" · ")}</p>
+
+        {!step.contentType && step.description ? (
+          <p className="line-clamp-3 max-w-2xl text-sm leading-6 text-primary-foreground/85">
+            {step.description}
+          </p>
+        ) : null}
 
         {failedStepId === step.id ? (
           <p

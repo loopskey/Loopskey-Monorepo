@@ -8,7 +8,7 @@ import { OVERLAY_LAYER_CLASS } from "@ui/overlay-layer";
 import { HeaderSearchToggle } from "@layouts/parts/header-search-control";
 import { useDashboardDrawer } from "@/providers/dashboard-drawer-provider";
 import { HeaderSearchField } from "@layouts/parts/header-search-control";
-import { LanguageToggleBtn } from "@elements/language-switcher";
+import { LanguageSwitcher } from "@elements/language-switcher";
 import { HeaderSearchRow } from "@layouts/parts/header-search-control";
 import { UserMenu } from "@layouts/parts/user-menu";
 import { useI18n } from "@/hooks/useI18n";
@@ -66,7 +66,7 @@ export const DashboardTopBar = () => {
           />
           <div className="ml-auto flex items-center gap-0.5 min-[380px]:gap-1.5 sm:gap-2 lg:gap-3">
             <HeaderSearchToggle isOpen={isSearchOpen} onToggle={toggleSearch} />
-            <LanguageToggleBtn />
+            <LanguageSwitcher />
             <UserMenu />
           </div>
         </div>

@@ -5306,6 +5306,7 @@ enum RoadmapGenerationFailureCode {
   NO_MATCHING_CONTENT
   PROGRESS_CANNOT_BE_PRESERVED
   PROGRESS_NOT_PRESERVED
+  ROADMAP_NOT_EDITABLE
   TEMPORARY_SERVICE_FAILURE
   UNKNOWN
 }
@@ -5328,6 +5329,7 @@ enum RoadmapMatchTier {
 type RoadmapPendingChange {
   instruction: String!
   operation: RoadmapChangeOperationKind!
+  targetField: RoadmapDraftFieldKey
   targetId: String
   targetLabel: String
 }

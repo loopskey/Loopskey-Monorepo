@@ -1,6 +1,7 @@
 import { ProfessionalRoadmapEditContextService } from "@professional/services/professional-roadmap-edit-context.service";
 import { Injectable, Logger, NotFoundException } from "@nestjs/common";
 import { ProfessionalRoadmapCandidateService } from "@professional/services/professional-roadmap-candidate.service";
+import { RoadmapReplacementUnavailableError } from "@contentAction/public/professional-engagement-api";
 import { RoadmapProgressNotPreservedError } from "@contentAction/public/professional-engagement-api";
 import { getRoadmapDraftContractReadiness } from "@professional/utils/roadmap-draft-readiness.util";
 import { Prisma, ProfileTaxonomyKind } from "@prisma/client";
@@ -11,9 +12,11 @@ import { LearningBudgetPreference } from "@prisma/client";
 import { RoadmapDraftStatus, Role } from "@prisma/client";
 import { PROFESSIONAL_CATALOG_API } from "@course/public/professional-catalog-api";
 import { ProfessionalMessageCode } from "@professional/enums/message-code.enum";
+import { ROADMAP_REPLACED_REASON } from "@professional/utils/roadmap-generation-failure.util";
 import { verifyGeneratedRoadmap } from "@professional/utils/roadmap-generation-verify.util";
 import { mapGenerationFailure } from "@professional/utils/roadmap-generation-failure.util";
 import { NO_CANDIDATES_REASON } from "@professional/utils/roadmap-generation-failure.util";
+import { draftClosedException } from "@professional/utils/roadmap-draft-lifecycle.util";
 import { BadRequestException } from "@nestjs/common";
 import { unaffectedPhaseIds } from "@professional/utils/roadmap-edit-preservation.util";
 import { verifyPreservation } from "@professional/utils/roadmap-edit-preservation.util";
@@ -95,10 +98,9 @@ export class ProfessionalRoadmapGenerationService {
         ProfessionalMessageCode.ROADMAP_DRAFT_NOT_FOUND,
       );
 
-    if (draft.enrollment)
-      throw new BadRequestException(
-        ProfessionalMessageCode.ROADMAP_DRAFT_NOT_READY,
-      );
+    if (draft.status === RoadmapDraftStatus.COMPLETED || draft.enrollment)
+      throw draftClosedException();
+    if (draft.status === RoadmapDraftStatus.GENERATING) return draft;
 
     const { knownIds } = await this.resolveSubjectContext(draft.subjects);
     if (!getRoadmapDraftContractReadiness(draft, knownIds).isValid)
@@ -593,6 +595,14 @@ export class ProfessionalRoadmapGenerationService {
         );
         return false;
       }
+      if (error instanceof RoadmapReplacementUnavailableError) {
+        this.logger.error("Edited roadmap was already replaced", {
+          draftId,
+          correlationId: requestContext.correlationId() ?? null,
+        });
+        await this.fail(draftId, ROADMAP_REPLACED_REASON);
+        return false;
+      }
       if (!(error instanceof GenerationClaimLostError)) throw error;
       this.logger.warn("Generated roadmap discarded, draft left generating", {
         draftId,
@@ -608,11 +618,8 @@ export class ProfessionalRoadmapGenerationService {
     const reason = this.editContext.blockReason(draft, edit);
     if (reason === "PRESERVATION_UNSUPPORTED")
       return RoadmapGenerationViolation.PROTECTED_STEP_WITHOUT_IDENTITY;
-    if (
-      reason === "NOT_EDITABLE" ||
-      reason === "STALE_CHANGES" ||
-      reason === "NO_CHANGES"
-    )
+    if (reason === "NOT_EDITABLE") return ROADMAP_REPLACED_REASON;
+    if (reason === "STALE_CHANGES" || reason === "NO_CHANGES")
       return ProfessionalMessageCode.ROADMAP_GENERATION_FAILED;
     return null;
   }

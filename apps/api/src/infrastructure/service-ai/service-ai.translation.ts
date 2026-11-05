@@ -199,6 +199,11 @@ export const inbound = <TKey extends string, TValue>(
     : undefined;
 };
 
+export const draftFieldOfProviderTarget = (
+  target: string | null,
+): RoadmapDraftField | null =>
+  target ? (inbound(DRAFT_FIELD_INBOUND, target) ?? null) : null;
+
 export const withoutEchoedBands = (
   sent: RoadmapDraftState,
   extracted: RoadmapDraftState,

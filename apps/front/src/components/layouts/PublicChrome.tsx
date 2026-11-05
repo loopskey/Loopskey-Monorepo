@@ -1,6 +1,6 @@
 import { MAIN_CONTENT_ID, SkipToContent } from "@elements/skip-to-content";
 import { ContentLocaleProvider } from "@/providers/content-locale-provider";
-import { PublicLanguageMenu } from "@elements/public-language-menu";
+import { PublicLanguageSwitch } from "@elements/public-language-switch";
 import { ActiveRoleProvider } from "@/providers/active-role-provider";
 import { TPublicChromeProps } from "@/types/layouts.types";
 import { ScrollToTopButton } from "@elements/scroll-to-top-button";
@@ -16,7 +16,7 @@ const PublicChrome = async ({ locale, children }: TPublicChromeProps) => {
     <ActiveRoleProvider>
       <ContentLocaleProvider>
         <SkipToContent label={t("navigation.skipToContent")} />
-        <Header languageControl={<PublicLanguageMenu />} />
+        <Header languageControl={<PublicLanguageSwitch />} />
         <div id={MAIN_CONTENT_ID} tabIndex={-1} className="outline-none">
           {children}
         </div>

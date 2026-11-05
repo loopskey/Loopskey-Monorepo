@@ -21,6 +21,8 @@ const DISCARDABLE_EDIT_STATUSES: RoadmapDraftStatus[] = [
   RoadmapDraftStatus.FAILED,
 ];
 
+export type DiscardEditResult = "discarded" | "not_found" | "closed" | "locked";
+
 export type OpenEditDraftResult = {
   draft: Prisma.RoadmapDraftGetPayload<object>;
   created: boolean;
@@ -165,7 +167,10 @@ export class ProfessionalRoadmapDraftService {
     }
   }
 
-  async discardEditDraft(userId: string, draftId: string) {
+  async discardEditDraft(
+    userId: string,
+    draftId: string,
+  ): Promise<DiscardEditResult> {
     const result = await this.prismaService.roadmapDraft.deleteMany({
       where: {
         id: draftId,
@@ -174,7 +179,13 @@ export class ProfessionalRoadmapDraftService {
         status: { in: DISCARDABLE_EDIT_STATUSES },
       },
     });
-    return result.count > 0;
+    if (result.count > 0) return "discarded";
+    const draft = await this.prismaService.roadmapDraft.findFirst({
+      where: { id: draftId, userId, replacesRoadmapId: { not: null } },
+      select: { status: true },
+    });
+    if (!draft) return "not_found";
+    return draft.status === RoadmapDraftStatus.COMPLETED ? "closed" : "locked";
   }
 
   async findActiveGeneration(userId: string) {
@@ -204,6 +215,8 @@ export class ProfessionalRoadmapDraftService {
       const row = rows[0];
       if (!row) return { outcome: "not_found" };
       if (row.replacesRoadmapId) return { outcome: "edit" };
+      if (row.status === RoadmapDraftStatus.COMPLETED)
+        return { outcome: "closed" };
       if (!RESETTABLE_STATUSES.includes(row.status))
         return { outcome: "locked" };
 
@@ -230,12 +243,14 @@ export class ProfessionalRoadmapDraftService {
     draftId: string,
     data: Prisma.RoadmapDraftUncheckedUpdateManyInput,
     expectedUpdatedAt?: Date,
+    allowedStatuses?: readonly RoadmapDraftStatus[],
   ) {
     const updated = await this.prismaService.roadmapDraft.updateMany({
       where: {
         id: draftId,
         userId,
         ...(expectedUpdatedAt ? { updatedAt: expectedUpdatedAt } : {}),
+        ...(allowedStatuses ? { status: { in: [...allowedStatuses] } } : {}),
       },
       data,
     });

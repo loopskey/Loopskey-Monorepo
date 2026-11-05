@@ -3,7 +3,7 @@
 import { useContentLocales } from "@/providers/content-locale-provider";
 import { LanguageLinks } from "@elements/language-links";
 
-export const PublicLanguageMenu = () => {
+export const PublicLanguageSwitch = () => {
   const available = useContentLocales() ?? undefined;
   return <LanguageLinks available={available} />;
 };

@@ -47,6 +47,8 @@ export class RoadmapPendingChangeEntity {
   @Field() instruction: string;
   @Field(() => String, { nullable: true }) targetId?: string | null;
   @Field(() => String, { nullable: true }) targetLabel?: string | null;
+  @Field(() => RoadmapDraftFieldKey, { nullable: true })
+  targetField?: RoadmapDraftFieldKey | null;
   @Field(() => RoadmapChangeOperationKind)
   operation: RoadmapChangeOperationKind;
 }

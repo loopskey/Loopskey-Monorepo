@@ -1,3 +1,4 @@
+import { COACH_EDIT_CHANGE_REJECTED_CODE } from "@professional/utils/roadmap-coach.util";
 import { PROVIDER_DRAFT_FIELD_NAMES } from "@infrastructure/service-ai/service-ai.port";
 import { SERVICE_AI_LIMITS } from "@infrastructure/service-ai/service-ai.port";
 
@@ -7,9 +8,9 @@ import type { EditableRoadmap } from "@professional/utils/roadmap-edit-shape.uti
 
 export type OperationRejection =
   | "OVER_LIMIT"
-  | "TARGET_REQUIRED"
   | "UNKNOWN_TARGET"
   | "PROTECTED_STEP"
+  | "TARGET_REQUIRED"
   | "BLANK_INSTRUCTION"
   | "INSTRUCTION_TOO_LONG";
 
@@ -163,3 +164,60 @@ export const parseStoredOperations = (
         ];
       })
     : [];
+
+export type RejectionKind =
+  | "STEP_COMPLETED_REMOVE"
+  | "STEP_COMPLETED_CHANGE"
+  | "STEP_STARTED_REMOVE"
+  | "STEP_STARTED_CHANGE"
+  | "PHASE_PROTECTED_REMOVE"
+  | "UNMATCHED"
+  | "OVER_LIMIT";
+
+const MAX_REJECTION_MESSAGES = 5;
+const MAX_REJECTION_LABEL_LENGTH = 200;
+
+const rejectionOf = (
+  { operation, reason }: RejectedOperation,
+  roadmap: EditableRoadmap,
+  progress: StepProgressByStep,
+): { kind: RejectionKind; label: string | null } => {
+  if (reason === "OVER_LIMIT") return { kind: "OVER_LIMIT", label: null };
+  if (reason !== "PROTECTED_STEP") return { kind: "UNMATCHED", label: null };
+  if (operation.operation === "REMOVE_PHASE") {
+    const phase = roadmap.phases.find((item) => item.id === operation.targetId);
+    return { kind: "PHASE_PROTECTED_REMOVE", label: phase?.title ?? null };
+  }
+  const step = roadmap.phases
+    .flatMap((phase) => phase.steps)
+    .find((item) => item.id === operation.targetId);
+  const isCompleted =
+    !!operation.targetId && progress.get(operation.targetId) === "COMPLETED";
+  const isRemoval = operation.operation === "REMOVE_STEP";
+  const kind: RejectionKind = isCompleted
+    ? isRemoval
+      ? "STEP_COMPLETED_REMOVE"
+      : "STEP_COMPLETED_CHANGE"
+    : isRemoval
+      ? "STEP_STARTED_REMOVE"
+      : "STEP_STARTED_CHANGE";
+  return { kind, label: step?.title ?? null };
+};
+
+export const rejectionMessages = (
+  rejected: readonly RejectedOperation[],
+  roadmap: EditableRoadmap,
+  progress: StepProgressByStep,
+): string[] => {
+  const messages: string[] = [];
+  for (const entry of rejected) {
+    const { kind, label } = rejectionOf(entry, roadmap, progress);
+    const clipped = label?.trim().slice(0, MAX_REJECTION_LABEL_LENGTH) || null;
+    const message = [COACH_EDIT_CHANGE_REJECTED_CODE, kind, clipped]
+      .filter((part): part is string => part !== null)
+      .join(":");
+    if (!messages.includes(message)) messages.push(message);
+    if (messages.length === MAX_REJECTION_MESSAGES) break;
+  }
+  return messages;
+};

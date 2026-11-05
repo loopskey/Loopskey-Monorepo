@@ -1,10 +1,10 @@
 "use client";
 
 import { ROADMAP_COACH_EDIT_GREETING_CODE } from "@/utils/roadmap-chat.constant";
+import { CheckCircle2, Info, Sparkles } from "lucide-react";
 import { ROADMAP_COACH_QUESTION_CODE } from "@/utils/roadmap-chat.constant";
 import { ROADMAP_COACH_INTRO_CODE } from "@/utils/roadmap-chat.constant";
 import { usePrefersReducedMotion } from "@/hooks/usePrefersReducedMotion";
-import { CheckCircle2, Sparkles } from "lucide-react";
 import { RoadmapWidgetControl } from "./RoadmapWidgetControl";
 import { useEffect, useRef } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -16,14 +16,44 @@ import type * as T from "@/types/professional-roadmap-chat.types";
 
 const BUBBLE_CLASS_NAME = "min-w-0 px-4 py-2.5 text-sm leading-6 break-words";
 
+const REJECTED_CODE = "ROADMAP_EDIT_CHANGE_REJECTED";
+
 const systemKey = (content: string) => {
   const [code, field] = content.split(":");
   return { code, field: field ?? null };
 };
 
+const rejectionOf = (content: string) => {
+  const [, kind = null, ...label] = content.split(":");
+  return { kind, label: label.join(":") || null };
+};
+
+const RejectedChange = ({ content }: { content: string }) => {
+  const { t } = useI18n();
+  const { kind, label } = rejectionOf(content);
+  const key = "professionalRoadmapChat.system.rejected";
+  const text = !kind
+    ? t(`professionalRoadmapChat.system.${REJECTED_CODE}`)
+    : label
+      ? t(`${key}.${kind}`, { title: label })
+      : t(`${key}.${kind}Untitled`);
+
+  return (
+    <p
+      role="status"
+      className="flex w-fit max-w-md items-start gap-1.5 self-center rounded-2xl border border-warning/40 bg-warning-soft px-3 py-1.5 text-left text-xs leading-5 text-warning-soft-foreground"
+    >
+      <Info aria-hidden className="mt-0.5 size-3.5 shrink-0" />
+      {text}
+    </p>
+  );
+};
+
 const SystemMessage = ({ content }: { content: string }) => {
   const { t } = useI18n();
   const { code, field } = systemKey(content);
+
+  if (code === REJECTED_CODE) return <RejectedChange content={content} />;
 
   const text =
     code === "ROADMAP_DRAFT_FIELD_UPDATED" && field

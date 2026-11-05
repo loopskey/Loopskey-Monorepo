@@ -2,6 +2,7 @@ import { SERVICE_AI_LIMITS } from "@infrastructure/service-ai/service-ai.port";
 
 import {
   parseStoredOperations,
+  rejectionMessages,
   validateChangeOperations,
 } from "./roadmap-edit-operations.util";
 import { toEditableRoadmap } from "./roadmap-edit-shape.util";
@@ -208,5 +209,82 @@ describe("parseStoredOperations", () => {
     ).toEqual([
       { operation: "MODIFY_ROADMAP", targetId: null, instruction: "x" },
     ]);
+  });
+});
+
+describe("rejectionMessages", () => {
+  const titled = toEditableRoadmap({
+    id: "roadmap-1",
+    title: "Python",
+    phases: [
+      {
+        id: "p1",
+        order: 1,
+        title: "Basics: part one",
+        steps: [{ id: "s1", order: 1, title: "Git: the essentials" }],
+      },
+    ],
+  });
+  const explain = (
+    operations: RoadmapChangeOperation[],
+    progress: [string, "COMPLETED" | "IN_PROGRESS"][] = [["s1", "COMPLETED"]],
+  ) => {
+    const map = new Map(progress);
+    return rejectionMessages(
+      validateChangeOperations(operations, titled, map).rejected,
+      titled,
+      map,
+    );
+  };
+
+  it("names the step by its title, even when the title holds a colon", () => {
+    expect(explain([op("REMOVE_STEP", "s1")])).toEqual([
+      "ROADMAP_EDIT_CHANGE_REJECTED:STEP_COMPLETED_REMOVE:Git: the essentials",
+    ]);
+  });
+
+  it("names the phase a protected step lives in", () => {
+    expect(
+      explain([op("REMOVE_PHASE", "p1")], [["s1", "IN_PROGRESS"]]),
+    ).toEqual([
+      "ROADMAP_EDIT_CHANGE_REJECTED:PHASE_PROTECTED_REMOVE:Basics: part one",
+    ]);
+  });
+
+  it("never quotes an identifier it could not match", () => {
+    expect(explain([op("MODIFY_STEP", "someone-elses-step")])).toEqual([
+      "ROADMAP_EDIT_CHANGE_REJECTED:UNMATCHED",
+    ]);
+  });
+
+  it("says nothing when every change was accepted", () => {
+    expect(explain([op("MODIFY_PHASE", "p1")])).toEqual([]);
+  });
+
+  it("keeps the chat short when many changes are refused", () => {
+    const many = Array.from({ length: 8 }, (_value, index) =>
+      op("MODIFY_STEP", `missing-${index}`, `Change ${index}.`),
+    );
+    const rejected = many.map((operation) => ({
+      operation,
+      reason: "PROTECTED_STEP" as const,
+    }));
+
+    expect(rejectionMessages(rejected, titled, new Map())).toHaveLength(1);
+    expect(
+      rejectionMessages(
+        [
+          ...rejected.slice(0, 1),
+          { operation: op("REMOVE_STEP", "s1"), reason: "PROTECTED_STEP" },
+          { operation: op("MODIFY_STEP", "s1"), reason: "PROTECTED_STEP" },
+          { operation: op("REMOVE_PHASE", "p1"), reason: "PROTECTED_STEP" },
+          { operation: op("MODIFY_STEP", null), reason: "TARGET_REQUIRED" },
+          { operation: op("MODIFY_STEP", "s1"), reason: "OVER_LIMIT" },
+          { operation: op("MODIFY_STEP", "x"), reason: "UNKNOWN_TARGET" },
+        ],
+        titled,
+        new Map([["s1", "COMPLETED"]]),
+      ),
+    ).toHaveLength(5);
   });
 });
