@@ -32,7 +32,7 @@ export const RoadmapRecommendationsCard = ({
   return (
     <section
       aria-labelledby="roadmap-recommended-title"
-      className="space-y-2 rounded-2xl border p-4"
+      className="space-y-2 rounded-2xl border bg-card p-4"
     >
       <div className="flex items-baseline justify-between gap-3">
         <h2

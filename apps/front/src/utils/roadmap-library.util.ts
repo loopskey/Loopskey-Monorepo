@@ -82,12 +82,6 @@ export const sortRoadmaps = (
   return [...roadmaps].sort(compare[sort]);
 };
 
-export const groupRoadmapsByState = (roadmaps: TProfessionalRoadmap[]) =>
-  ROADMAP_STATES.map((state) => ({
-    state,
-    roadmaps: roadmaps.filter((roadmap) => roadmapState(roadmap) === state),
-  })).filter((group) => group.roadmaps.length > 0);
-
 export const nextStepTitle = (roadmap: TProfessionalRoadmap) =>
   findNextActionableStep(roadmap.phases)?.title ?? null;
 

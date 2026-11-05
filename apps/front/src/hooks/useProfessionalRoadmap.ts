@@ -1,14 +1,15 @@
 "use client";
 
 import { ProfessionalMyRoadmapsQueryVariables } from "@/lib/graphql/operations/professional";
-import { RoadmapDraftStatus, RoadmapSource } from "@/lib/graphql/base";
+import { ROADMAP_NEXT_STEP_ELEMENT_ID } from "@/utils/roadmap-navigation.util";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useMemo, useRef, useState } from "react";
 import { useCallback, useEffect } from "react";
 import { useRoadmapStepProgress } from "@/hooks/useRoadmapStepProgress";
-import { ROADMAP_LIBRARY_VIEW } from "@/utils/roadmap-navigation.util";
+import { RoadmapDraftStatus } from "@/lib/graphql/base";
 import { ROADMAP_LIST_TAKE } from "@/utils/roadmap-library.util";
 import { useRoadmapEdit } from "@/hooks/useRoadmapEdit";
+import { roadmapState } from "@/utils/roadmap-library.util";
 import { useDispatch } from "react-redux";
 import { useI18n } from "@/hooks/useI18n";
 
@@ -33,7 +34,6 @@ export const useProfessionalRoadmaps = () => {
   const generationDraftId =
     searchParams.get("generationDraftId")?.trim() || undefined;
   const requestedRoadmapId = searchParams.get("roadmapId")?.trim() || undefined;
-  const isLibraryView = searchParams.get("view") === ROADMAP_LIBRARY_VIEW;
 
   const [justCompleted, setJustCompleted] = useState<boolean>(false);
 
@@ -53,15 +53,66 @@ export const useProfessionalRoadmaps = () => {
     [myRoadmapsData?.items],
   );
 
-  const activeRoadmap = useMemo(
-    () =>
-      myRoadmaps.find((roadmap) => roadmap.id === requestedRoadmapId) ??
-      myRoadmaps.find(
-        (roadmap) => roadmap.source === RoadmapSource.Generated,
-      ) ??
-      myRoadmaps[0],
-    [myRoadmaps, requestedRoadmapId],
+  const defaultOpenId =
+    requestedRoadmapId ??
+    (
+      myRoadmaps.find((roadmap) => roadmapState(roadmap) === "inProgress") ??
+      myRoadmaps[0]
+    )?.id ??
+    null;
+  const [openChoice, setOpenChoice] = useState<{
+    requested?: string;
+    id: string | null;
+  } | null>(null);
+  const openRoadmapId =
+    openChoice && openChoice.requested === requestedRoadmapId
+      ? openChoice.id
+      : defaultOpenId;
+  const openRoadmap = myRoadmaps.find(
+    (roadmap) => roadmap.id === openRoadmapId,
   );
+
+  const showRoadmap = useCallback(
+    (roadmapId: string | null) => {
+      setOpenChoice({ requested: roadmapId ?? undefined, id: roadmapId });
+      const params = new URLSearchParams(searchParams.toString());
+      if (roadmapId) params.set("roadmapId", roadmapId);
+      else params.delete("roadmapId");
+      router.replace(`${ROADMAP_TAB_PATH}?${params.toString()}`, {
+        scroll: false,
+      });
+    },
+    [router, searchParams],
+  );
+
+  const toggleRoadmap = (roadmapId: string) =>
+    showRoadmap(openRoadmapId === roadmapId ? null : roadmapId);
+
+  const [pendingContinueId, setPendingContinueId] = useState<string | null>(
+    null,
+  );
+
+  const continueRoadmap = (roadmapId: string) => {
+    setPendingContinueId(roadmapId);
+    if (openRoadmapId !== roadmapId) showRoadmap(roadmapId);
+  };
+
+  useEffect(() => {
+    if (!pendingContinueId || openRoadmap?.id !== pendingContinueId) return;
+    const frame = window.requestAnimationFrame(() => {
+      const target = document.getElementById(ROADMAP_NEXT_STEP_ELEMENT_ID);
+      const reduceMotion = window.matchMedia(
+        "(prefers-reduced-motion: reduce)",
+      ).matches;
+      target?.scrollIntoView({
+        block: "center",
+        behavior: reduceMotion ? "auto" : "smooth",
+      });
+      target?.focus({ preventScroll: true });
+      setPendingContinueId(null);
+    });
+    return () => window.cancelAnimationFrame(frame);
+  }, [pendingContinueId, openRoadmap?.id]);
 
   const [draftPollMs, setDraftPollMs] = useState(0);
   const { data: draft } = API.useProfessionalRoadmapGenerationStatusQuery(
@@ -97,8 +148,8 @@ export const useProfessionalRoadmaps = () => {
 
   const { data: recommendations } =
     API.useProfessionalRoadmapRecommendationsQuery(
-      activeRoadmap ? { enrollmentId: activeRoadmap.id } : undefined,
-      { skip: isLibraryView || !activeRoadmap },
+      openRoadmap ? { enrollmentId: openRoadmap.id } : undefined,
+      { skip: !openRoadmap },
     );
 
   const stepProgress = useRoadmapStepProgress(MY_ROADMAPS_VARIABLES);
@@ -140,15 +191,16 @@ export const useProfessionalRoadmaps = () => {
     draft,
     handleEdit,
     myRoadmaps,
+    openRoadmap,
     isGenerating,
     stepProgress,
     unenrollingId,
     justCompleted,
-    activeRoadmap,
-    isLibraryView,
+    toggleRoadmap,
     handleUnenroll,
     myRoadmapsData,
     hasFailedDraft,
+    continueRoadmap,
     locale: language,
     editingRoadmapId,
     isMyRoadmapsError,
