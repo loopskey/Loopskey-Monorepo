@@ -71,25 +71,31 @@ export const RoadmapTableRow = ({
     >
       <div
         className={cn(
-          "flex flex-col gap-3 px-4 py-3.5 md:py-3",
+          "relative flex flex-col gap-3 px-4 py-3.5 md:py-3",
           TABLE_ROW_GRID_CLASS_NAME,
         )}
       >
-        <div className="flex min-w-0 items-center gap-3">
-          <button
-            type="button"
-            aria-expanded={isOpen}
-            aria-controls={isOpen ? detailsId : undefined}
-            onClick={() => onToggle(roadmap.id)}
-            className="group flex min-w-0 flex-1 items-center gap-3 rounded-xl text-left outline-none focus-visible:ring-2 focus-visible:ring-ring"
-          >
+        <button
+          type="button"
+          aria-expanded={isOpen}
+          aria-controls={isOpen ? detailsId : undefined}
+          onClick={() => onToggle(roadmap.id)}
+          className="absolute inset-0 z-0 cursor-pointer outline-none transition-colors hover:bg-muted/30 focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring"
+        >
+          <span className="sr-only">
+            {t(isOpen ? `${KEY}.table.hide` : `${KEY}.table.show`)} {roadmap.title}
+          </span>
+        </button>
+
+        <div className="pointer-events-none relative z-10 flex min-w-0 items-center gap-3">
+          <div className="flex min-w-0 flex-1 items-center gap-3 text-left">
             <span
               aria-hidden
               className={cn(
                 "grid size-8 shrink-0 place-items-center rounded-lg transition-colors",
                 isOpen
                   ? "bg-primary text-primary-foreground"
-                  : "bg-muted text-primary group-hover:bg-accent",
+                  : "bg-muted text-primary",
               )}
             >
               <L.ChevronRight
@@ -101,20 +107,17 @@ export const RoadmapTableRow = ({
             </span>
             <RoadmapTile category={roadmap.category} />
             <span className="min-w-0">
-              <span className="block font-semibold text-foreground group-hover:text-primary">
+              <span className="block font-semibold text-foreground">
                 {roadmap.title}
               </span>
               <span className="block text-xs text-muted-foreground">
                 {meta.join(" · ")}
               </span>
-              <span className="sr-only">
-                {t(isOpen ? `${KEY}.table.hide` : `${KEY}.table.show`)}
-              </span>
             </span>
-          </button>
+          </div>
         </div>
 
-        <div className="space-y-1.5 md:pl-0">
+        <div className="pointer-events-none relative z-10 space-y-1.5 md:pl-0">
           <p className="text-xs font-semibold tabular-nums">
             <span className={cn(isCompleted && "text-success-soft-foreground")}>
               {isCompleted
@@ -146,14 +149,14 @@ export const RoadmapTableRow = ({
           </span>
         </div>
 
-        <p className="min-w-0 text-sm text-muted-foreground md:truncate">
+        <p className="pointer-events-none relative z-10 min-w-0 text-sm text-muted-foreground md:truncate">
           <span className="font-medium text-foreground md:sr-only">
             {t(`${KEY}.library.columns.nextStep`)}:{" "}
           </span>
           {nextTitle ?? t(`${KEY}.library.allDone`)}
         </p>
 
-        <div className="flex items-center gap-1 md:justify-end">
+        <div className="relative z-10 flex items-center gap-1 md:justify-end">
           <Button
             size="sm"
             type="button"
