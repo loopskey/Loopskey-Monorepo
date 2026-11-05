@@ -44,7 +44,7 @@ const setup = (options: TSetup = {}) => {
     openEditDraft: jest
       .fn()
       .mockResolvedValue({ draft: { id: "edit-1" }, created: true }),
-    discardEditDraft: jest.fn().mockResolvedValue(true),
+    discardEditDraft: jest.fn().mockResolvedValue("discarded"),
     ensureEditGreeting: jest.fn().mockResolvedValue(true),
   };
   const chat = {
@@ -193,6 +193,28 @@ describe("ProfessionalRoadmapEditService.discardEdit", () => {
 
     await expect(service.discardEdit(USER, "edit-1")).resolves.toBe(true);
     expect(drafts.discardEditDraft).toHaveBeenCalledWith("user-1", "edit-1");
+  });
+
+  it.each([
+    ["closed", ProfessionalMessageCode.ROADMAP_DRAFT_CLOSED],
+    ["locked", ProfessionalMessageCode.ROADMAP_DRAFT_LOCKED],
+  ])("refuses with a conflict when the edit is %s", async (outcome, code) => {
+    const { service, drafts } = setup();
+    drafts.discardEditDraft.mockResolvedValue(outcome);
+
+    await expect(service.discardEdit(USER, "edit-1")).rejects.toMatchObject({
+      status: 409,
+      response: { code },
+    });
+  });
+
+  it("reports a missing edit as not found", async () => {
+    const { service, drafts } = setup();
+    drafts.discardEditDraft.mockResolvedValue("not_found");
+
+    await expect(service.discardEdit(USER, "edit-1")).rejects.toThrow(
+      NotFoundException,
+    );
   });
 
   it("refuses an actor who is not a professional", async () => {

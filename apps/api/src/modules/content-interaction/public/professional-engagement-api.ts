@@ -80,6 +80,13 @@ export class RoadmapProgressNotPreservedError extends Error {
   }
 }
 
+export class RoadmapReplacementUnavailableError extends Error {
+  constructor(readonly roadmapId: string) {
+    super(`The roadmap ${roadmapId} has no active enrollment to replace.`);
+    this.name = "RoadmapReplacementUnavailableError";
+  }
+}
+
 export type RoadmapStepCarryOver = {
   readonly fromStepId: string;
   readonly toStepId: string;

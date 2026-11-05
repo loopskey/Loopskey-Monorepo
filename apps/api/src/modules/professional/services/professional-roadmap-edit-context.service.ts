@@ -49,12 +49,11 @@ export class ProfessionalRoadmapEditContextService {
     });
     const enrollmentId =
       typeof rows[0]?.id === "string" ? (rows[0].id as string) : null;
-    const records = enrollmentId
-      ? await this.engagement.roadmapStepProgress({
-          userId,
-          enrollmentIds: [enrollmentId],
-        })
-      : [];
+    if (!enrollmentId) return null;
+    const records = await this.engagement.roadmapStepProgress({
+      userId,
+      enrollmentIds: [enrollmentId],
+    });
 
     const progress = new Map<string, CurrentStepProgress>();
     for (const record of records) {

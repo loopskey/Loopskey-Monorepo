@@ -6,6 +6,7 @@ import {
   Role,
 } from "@prisma/client";
 import { PROFESSIONAL_ENGAGEMENT_API } from "@contentAction/public/professional-engagement-api";
+import { RoadmapReplacementUnavailableError } from "@contentAction/public/professional-engagement-api";
 import { ProfessionalRoadmapEditService } from "@professional/services/professional-roadmap-edit.service";
 import { ProfessionalRoadmapChatService } from "@professional/services/professional-roadmap-chat.service";
 import { INestApplication, NotFoundException } from "@nestjs/common";
@@ -185,7 +186,9 @@ describe("Roadmap edit and regeneration (e2e)", () => {
       const first = await edit.startEdit(owner, roadmap.id);
 
       expect(await edit.discardEdit(owner, first!.id)).toBe(true);
-      expect(await edit.discardEdit(owner, first!.id)).toBe(false);
+      await expect(edit.discardEdit(owner, first!.id)).rejects.toThrow(
+        NotFoundException,
+      );
       const second = await edit.startEdit(owner, roadmap.id);
 
       expect(second?.id).not.toBe(first?.id);
@@ -229,7 +232,9 @@ describe("Roadmap edit and regeneration (e2e)", () => {
       const { roadmap } = await seedRoadmap(owner, ["course-a"]);
       const draft = await edit.startEdit(owner, roadmap.id);
 
-      expect(await edit.discardEdit(stranger, draft!.id)).toBe(false);
+      await expect(edit.discardEdit(stranger, draft!.id)).rejects.toThrow(
+        NotFoundException,
+      );
       expect(await openEdits(roadmap.id)).toHaveLength(1);
     });
 
@@ -241,7 +246,10 @@ describe("Roadmap edit and regeneration (e2e)", () => {
         data: { status: RoadmapDraftStatus.GENERATING },
       });
 
-      expect(await edit.discardEdit(owner, draft!.id)).toBe(false);
+      await expect(edit.discardEdit(owner, draft!.id)).rejects.toMatchObject({
+        status: 409,
+        response: { code: "ROADMAP_DRAFT_LOCKED" },
+      });
       expect(await openEdits(roadmap.id)).toHaveLength(1);
     });
 
@@ -429,7 +437,7 @@ describe("Roadmap edit and regeneration (e2e)", () => {
       });
     });
 
-    it("creates a plain enrollment and carries nothing when the old one was already unenrolled", async () => {
+    it("refuses to replace a roadmap whose enrollment was already ended, and writes nothing", async () => {
       const user = await professional("gone");
       const old = await seedRoadmap(user, ["a"]);
       await prisma.roadmapStepProgress.create({
@@ -445,15 +453,23 @@ describe("Roadmap edit and regeneration (e2e)", () => {
         enrollmentId: old.enrollment.id,
       });
 
-      const { enrollment } = await replace(
-        user,
-        { roadmapId: old.roadmap.id, steps: old.steps },
-        old.steps,
-        [[0, 0]],
-      );
+      await expect(
+        replace(
+          user,
+          { roadmapId: old.roadmap.id, steps: old.steps },
+          old.steps,
+          [[0, 0]],
+        ),
+      ).rejects.toBeInstanceOf(RoadmapReplacementUnavailableError);
 
-      expect(enrollment.status).toBe(RoadmapEnrollmentStatus.ACTIVE);
-      expect(enrollment.stepProgress).toHaveLength(0);
+      expect(
+        await prisma.roadmapEnrollment.count({
+          where: {
+            userId: user.id,
+            status: { not: RoadmapEnrollmentStatus.UNENROLLED },
+          },
+        }),
+      ).toBe(0);
     });
 
     it("leaves another professional's enrollment alone", async () => {

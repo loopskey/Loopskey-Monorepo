@@ -182,6 +182,7 @@ class FakeDraftStore {
       draftId: string,
       data: object,
       expectedUpdatedAt?: Date,
+      allowedStatuses?: readonly RoadmapDraftStatus[],
     ) => {
       const draft = this.owned(userId, draftId);
       if (!draft) return null;
@@ -189,6 +190,8 @@ class FakeDraftStore {
         expectedUpdatedAt &&
         (draft.updatedAt as Date).getTime() !== expectedUpdatedAt.getTime()
       )
+        return null;
+      if (allowedStatuses && !allowedStatuses.includes(draft.status))
         return null;
       Object.assign(draft, data);
       return draft;
@@ -314,11 +317,14 @@ class FakeDraftStore {
       | { outcome: "reset"; draft: StoredDraft }
       | { outcome: "not_found" }
       | { outcome: "edit" }
+      | { outcome: "closed" }
       | { outcome: "locked" }
     > => {
       const draft = this.owned(userId, draftId);
       if (!draft) return { outcome: "not_found" };
       if (draft.replacesRoadmapId) return { outcome: "edit" };
+      if (draft.status === RoadmapDraftStatus.COMPLETED)
+        return { outcome: "closed" };
       if (
         !(
           [
@@ -355,6 +361,7 @@ const turnData = (overrides: Partial<ChatTurnData> = {}): ChatTurnData => ({
 
 type World = {
   roadmap?: Record<string, unknown> | null;
+  enrollments?: { id: string }[];
   progress?: { stepId: string; status: string }[];
   editResults?: ServiceAiResult<EditTurnData>[];
 };
@@ -479,10 +486,10 @@ const setup = (
     roadmaps: jest.fn(async () => (world.roadmap ? [world.roadmap] : [])),
   };
   const engagement = {
-    roadmapEnrollments: jest.fn(async () => ({
-      rows: [{ id: "enrollment-1" }],
-      totalCount: 1,
-    })),
+    roadmapEnrollments: jest.fn(async () => {
+      const rows = world.enrollments ?? [{ id: "enrollment-1" }];
+      return { rows, totalCount: rows.length };
+    }),
     roadmapStepProgress: jest.fn(async () =>
       (world.progress ?? []).map((record) => ({
         ...record,
@@ -4090,23 +4097,39 @@ describe("a conversation about editing an existing roadmap", () => {
         expect(store.drafts[0].pendingChanges).toEqual([good]);
       });
 
-      it("will not say the changes are ready when one was dropped", async () => {
-        const { store } = await rejected(
+      it("keeps the valid changes ready when another one was dropped", async () => {
+        const { store, good } = await rejected(
           operation("MODIFY_PHASE", "foreign-phase"),
         );
 
-        expect(store.drafts[0].readyToRegenerate).toBe(false);
+        expect(store.drafts[0].pendingChanges).toEqual([good]);
+        expect(store.drafts[0].readyToRegenerate).toBe(true);
       });
 
-      it("tells the professional a change was set aside", async () => {
+      it("tells the professional a change was set aside, after the coach's answer", async () => {
         const { store } = await rejected(
           operation("MODIFY_PHASE", "foreign-phase"),
         );
 
-        expect(store.messages.at(-1)).toMatchObject({
-          role: RoadmapChatRole.SYSTEM,
-          content: "ROADMAP_EDIT_CHANGE_REJECTED",
-        });
+        expect(store.messages.slice(-2)).toMatchObject([
+          { role: RoadmapChatRole.ASSISTANT, content: "Noted." },
+          {
+            role: RoadmapChatRole.SYSTEM,
+            content: "ROADMAP_EDIT_CHANGE_REJECTED:UNMATCHED",
+          },
+        ]);
+      });
+
+      it("never shows a dropped change in the review", async () => {
+        const { service } = await rejected(
+          operation("MODIFY_STEP", "foreign-step"),
+        );
+
+        const view = await service.draft(OWNER, "edit-1");
+
+        expect(view?.pendingChanges.map((change) => change.targetId)).toEqual([
+          "p1",
+        ]);
       });
 
       it("logs why without logging what the professional wrote", async () => {
@@ -4135,14 +4158,32 @@ describe("a conversation about editing an existing roadmap", () => {
       };
 
       it.each([
-        ["removing a completed step", operation("REMOVE_STEP", "s1")],
-        ["rewriting a completed step", operation("MODIFY_STEP", "s1")],
-        ["removing an in-progress step", operation("REMOVE_STEP", "s2")],
+        [
+          "removing a completed step",
+          operation("REMOVE_STEP", "s1"),
+          "ROADMAP_EDIT_CHANGE_REJECTED:STEP_COMPLETED_REMOVE:Step s1",
+        ],
+        [
+          "rewriting a completed step",
+          operation("MODIFY_STEP", "s1"),
+          "ROADMAP_EDIT_CHANGE_REJECTED:STEP_COMPLETED_CHANGE:Step s1",
+        ],
+        [
+          "removing an in-progress step",
+          operation("REMOVE_STEP", "s2"),
+          "ROADMAP_EDIT_CHANGE_REJECTED:STEP_STARTED_REMOVE:Step s2",
+        ],
+        [
+          "rewriting an in-progress step",
+          operation("MODIFY_STEP", "s2"),
+          "ROADMAP_EDIT_CHANGE_REJECTED:STEP_STARTED_CHANGE:Step s2",
+        ],
         [
           "removing a phase that holds progress",
           operation("REMOVE_PHASE", "p1"),
+          "ROADMAP_EDIT_CHANGE_REJECTED:PHASE_PROTECTED_REMOVE:Basics",
         ],
-      ])("sets aside %s", async (_label, bad) => {
+      ])("sets aside %s and says why, by name", async (_label, bad, notice) => {
         const { service, store } = editSetup(
           editData({ changeOperations: [bad] }),
           withProgress,
@@ -4151,7 +4192,51 @@ describe("a conversation about editing an existing roadmap", () => {
         await say(service);
 
         expect(store.drafts[0].pendingChanges).toEqual([]);
-        expect(store.drafts[0].readyToRegenerate).toBe(false);
+        expect(store.messages.at(-1)).toMatchObject({
+          role: RoadmapChatRole.SYSTEM,
+          content: notice,
+        });
+      });
+
+      it("keeps a valid change made in the same message as a refused one", async () => {
+        const valid = operation("MODIFY_STEP", "s4", "Use a shorter video.");
+        const { service, store } = editSetup(
+          editData({
+            changeOperations: [operation("REMOVE_STEP", "s1"), valid],
+          }),
+          withProgress,
+        );
+
+        await say(service, "Drop Step s1 and shorten the video.");
+
+        expect(store.drafts[0].pendingChanges).toEqual([valid]);
+        expect(
+          store.messages
+            .filter((message) => message.role === RoadmapChatRole.SYSTEM)
+            .map((message) => message.content),
+        ).toEqual([
+          "ROADMAP_EDIT_CHANGE_REJECTED:STEP_COMPLETED_REMOVE:Step s1",
+        ]);
+      });
+
+      it("explains each refused change once, even when the provider repeats it", async () => {
+        const { service, store } = editSetup(
+          editData({
+            changeOperations: [
+              operation("REMOVE_STEP", "s1", "Remove it."),
+              operation("REMOVE_STEP", "s1", "Please remove it."),
+            ],
+          }),
+          withProgress,
+        );
+
+        await say(service);
+
+        expect(
+          store.messages.filter(
+            (message) => message.role === RoadmapChatRole.SYSTEM,
+          ),
+        ).toHaveLength(1);
       });
 
       it("still allows changing a phase that holds progress, and a step with none", async () => {
@@ -4550,6 +4635,11 @@ describe("a conversation about editing an existing roadmap", () => {
         "edit-1",
         expect.anything(),
         readAt,
+        [
+          RoadmapDraftStatus.COLLECTING,
+          RoadmapDraftStatus.READY,
+          RoadmapDraftStatus.FAILED,
+        ],
       );
     });
 
@@ -4610,26 +4700,50 @@ describe("a conversation about editing an existing roadmap", () => {
           operation: "MODIFY_PHASE",
           targetId: "p1",
           targetLabel: "Basics",
+          targetField: null,
           instruction: "Make it project based.",
         },
         {
           operation: "REMOVE_STEP",
           targetId: "s4",
           targetLabel: "Step s4",
+          targetField: null,
           instruction: "Drop the video.",
         },
         {
           operation: "UPDATE_DRAFT",
           targetId: "available_time",
           targetLabel: null,
+          targetField: "timeCommitment",
           instruction: "Weekly time: 1-3 hours.",
         },
         {
           operation: "MODIFY_ROADMAP",
           targetId: null,
           targetLabel: null,
+          targetField: null,
           instruction: "Make everything lighter.",
         },
+      ]);
+    });
+
+    it("names the draft field a preference change is about, never a provider name", async () => {
+      const { service } = editSetup(
+        editData(),
+        {},
+        {
+          pendingChanges: [
+            operation("UPDATE_DRAFT", "formats", "Formats: VIDEO"),
+            operation("UPDATE_DRAFT", null, "Something about the draft."),
+          ],
+        },
+      );
+
+      const view = await service.draft(OWNER, "edit-1");
+
+      expect(view?.pendingChanges.map((change) => change.targetField)).toEqual([
+        "preferredFormats",
+        null,
       ]);
     });
 
@@ -4790,5 +4904,231 @@ describe("a conversation about editing an existing roadmap", () => {
       expect(view?.hasChanges).toBe(false);
       expect(view?.canGenerate).toBe(true);
     });
+  });
+});
+
+describe("a draft whose session is over", () => {
+  const closed = {
+    status: 409,
+    response: { code: ProfessionalMessageCode.ROADMAP_DRAFT_CLOSED },
+  };
+  const locked = {
+    status: 409,
+    response: { code: ProfessionalMessageCode.ROADMAP_DRAFT_LOCKED },
+  };
+
+  it("refuses a chat message on a completed edit without asking the provider or recording it", async () => {
+    const { service, store, editTurn } = editSetup(
+      editData(),
+      {},
+      { status: RoadmapDraftStatus.COMPLETED },
+    );
+
+    await expect(say(service, "One more change.")).rejects.toMatchObject(
+      closed,
+    );
+    expect(editTurn).not.toHaveBeenCalled();
+    expect(store.messages).toHaveLength(0);
+    expect(store.drafts[0].status).toBe(RoadmapDraftStatus.COMPLETED);
+  });
+
+  it("refuses a chat message on a completed new-roadmap draft", async () => {
+    const { service, store, chatTurn } = setup();
+    store.seed(emptyDraft({ status: RoadmapDraftStatus.COMPLETED }));
+
+    await expect(
+      service.chatTurn(OWNER, { draftId: "draft-1", message: "hello" }),
+    ).rejects.toMatchObject(closed);
+    expect(chatTurn).not.toHaveBeenCalled();
+  });
+
+  it("refuses a chat message while the roadmap is being generated", async () => {
+    const { service, editTurn } = editSetup(
+      editData(),
+      {},
+      { status: RoadmapDraftStatus.GENERATING },
+    );
+
+    await expect(say(service)).rejects.toMatchObject(locked);
+    expect(editTurn).not.toHaveBeenCalled();
+  });
+
+  it.each([
+    [RoadmapDraftStatus.COMPLETED, closed],
+    [RoadmapDraftStatus.GENERATING, locked],
+  ])("refuses a sidebar edit on a %s draft", async (status, expected) => {
+    const { service, store } = editSetup(editData(), {}, { status });
+
+    await expect(
+      service.patchDraft(OWNER, { draftId: "edit-1", goal: "A new goal" }),
+    ).rejects.toMatchObject(expected);
+    expect(store.drafts[0].goal).toBe(contractReady.goal);
+    expect(store.messages).toHaveLength(0);
+  });
+
+  it.each([
+    [RoadmapDraftStatus.COMPLETED, closed],
+    [RoadmapDraftStatus.GENERATING, locked],
+  ])("refuses a CPD edit on a %s draft", async (status, expected) => {
+    const { service, cpdPlans } = editSetup(editData(), {}, { status });
+
+    await expect(
+      service.patchCpdSetup(OWNER, { draftId: "edit-1", organization: "Acme" }),
+    ).rejects.toMatchObject(expected);
+    expect(cpdPlans.upsertDraftPlan).not.toHaveBeenCalled();
+  });
+
+  it("refuses to start a completed new-roadmap draft over", async () => {
+    const { service, store, chatTurn } = setup();
+    store.seed(emptyDraft({ status: RoadmapDraftStatus.COMPLETED }));
+
+    await expect(service.resetDraft(OWNER, "draft-1")).rejects.toMatchObject(
+      closed,
+    );
+    expect(chatTurn).not.toHaveBeenCalled();
+  });
+
+  it("does not let an answer that arrives after the roadmap was generated reopen the draft", async () => {
+    const harness = editSetup(
+      editData({
+        changeOperations: [operation("MODIFY_PHASE", "p1")],
+        assistantMessage: "Too late.",
+      }),
+    );
+    harness.editTurn.mockImplementationOnce(async () => {
+      harness.store.drafts[0].status = RoadmapDraftStatus.COMPLETED;
+      return {
+        ok: true as const,
+        data: editData({
+          changeOperations: [operation("MODIFY_PHASE", "p1")],
+          assistantMessage: "Too late.",
+        }),
+      };
+    });
+
+    await expect(say(harness.service)).rejects.toMatchObject(closed);
+
+    expect(harness.store.drafts[0]).toMatchObject({
+      status: RoadmapDraftStatus.COMPLETED,
+      pendingChanges: [],
+    });
+    expect(
+      harness.store.messages.some((message) => message.content === "Too late."),
+    ).toBe(false);
+  });
+
+  it("does not let a refusal that arrives after the roadmap was generated touch the draft", async () => {
+    const harness = editSetup(editData());
+    harness.editTurn.mockImplementationOnce(async () => {
+      harness.store.drafts[0].status = RoadmapDraftStatus.COMPLETED;
+      return {
+        ok: false as const,
+        kind: "refused" as const,
+        retryable: false,
+        messageCode: RoadmapAiMessageCode.ROADMAP_AI_REFUSED,
+      } as never;
+    });
+
+    await expect(say(harness.service)).rejects.toMatchObject(closed);
+    expect(harness.store.drafts[0].wasRefused).toBe(false);
+  });
+
+  it("treats a roadmap that was already replaced as no longer editable", async () => {
+    const { service, editTurn } = editSetup(editData(), { enrollments: [] });
+
+    await expect(say(service)).rejects.toMatchObject({
+      response: { code: ProfessionalMessageCode.ROADMAP_NOT_EDITABLE },
+    });
+    expect(editTurn).not.toHaveBeenCalled();
+  });
+
+  it("keeps a completed edit readable, with nothing left to regenerate", async () => {
+    const { service, store } = editSetup(
+      editData(),
+      { enrollments: [] },
+      {
+        status: RoadmapDraftStatus.COMPLETED,
+        pendingChanges: [operation("MODIFY_PHASE", "p1")],
+      },
+    );
+    store.addMessage({
+      draftId: "edit-1",
+      role: RoadmapChatRole.PROFESSIONAL,
+      content: "Make the first phase shorter.",
+    });
+
+    const view = await service.draft(OWNER, "edit-1");
+
+    expect(view).toMatchObject({
+      status: RoadmapDraftStatus.COMPLETED,
+      canGenerate: false,
+      editBlockReason: "NOT_EDITABLE",
+      pendingChanges: [],
+    });
+    expect(view?.transcript.items.map((item) => item.content)).toEqual([
+      "Make the first phase shorter.",
+    ]);
+  });
+});
+
+describe("what an edit conversation remembers between turns", () => {
+  it("sends every earlier question and answer, oldest first, without the new message or platform notices", async () => {
+    const { service, store, editCalls } = editSetup(editData());
+    const conversation: [RoadmapChatRole, string][] = [
+      [RoadmapChatRole.ASSISTANT, "ROADMAP_COACH_EDIT_GREETING"],
+      [RoadmapChatRole.PROFESSIONAL, "Swap one of the courses."],
+      [RoadmapChatRole.ASSISTANT, "Which course should I swap?"],
+      [RoadmapChatRole.PROFESSIONAL, "Replace Step s3 with a Linux course."],
+      [RoadmapChatRole.SYSTEM, "ROADMAP_DRAFT_FIELD_UPDATED:context"],
+      [RoadmapChatRole.ASSISTANT, "What should it be replaced with?"],
+    ];
+    for (const [role, content] of conversation)
+      store.addMessage({ draftId: "edit-1", role, content });
+
+    await say(service, "A free beginner Linux command line course.");
+
+    expect(editCalls[0].history).toEqual([
+      {
+        role: RoadmapChatRole.PROFESSIONAL,
+        content: "Swap one of the courses.",
+      },
+      {
+        role: RoadmapChatRole.ASSISTANT,
+        content: "Which course should I swap?",
+      },
+      {
+        role: RoadmapChatRole.PROFESSIONAL,
+        content: "Replace Step s3 with a Linux course.",
+      },
+      {
+        role: RoadmapChatRole.ASSISTANT,
+        content: "What should it be replaced with?",
+      },
+    ]);
+    expect(editCalls[0].userMessage).toBe(
+      "A free beginner Linux command line course.",
+    );
+  });
+
+  it("sends the preferences saved by the previous turn and the changes it kept", async () => {
+    const kept = operation("MODIFY_STEP", "s3", "Replace it with Linux.");
+    const { service, editCalls } = editSetup([
+      editData({
+        extracted: {
+          timeCommitment: LearningTimeCommitment.MORE_THAN_FIVE_HOURS,
+        },
+        changeOperations: [kept],
+        needsClarification: true,
+      }),
+      editData({ changeOperations: [kept] }),
+    ]);
+
+    await say(service, "I have more time now. Swap Step s3.");
+    await say(service, "A Linux course.");
+
+    expect(editCalls[1].draft.timeCommitment).toBe(
+      LearningTimeCommitment.MORE_THAN_FIVE_HOURS,
+    );
+    expect(editCalls[1].pendingChanges).toEqual([kept]);
   });
 });

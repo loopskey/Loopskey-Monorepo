@@ -4,6 +4,7 @@ import { ArrowLeft, CheckCircle2, Loader2, RotateCcw } from "lucide-react";
 import { useMemo, useRef, useState } from "react";
 import { RoadmapChatTranscript } from "./RoadmapChatTranscript";
 import { RoadmapChatComposer } from "./RoadmapChatComposer";
+import { RoadmapClosedBanner } from "./RoadmapClosedBanner";
 import { RoadmapChatStages } from "./RoadmapChatStages";
 import { RoadmapEditBanner } from "./RoadmapEditBanner";
 import { RoadmapBriefRing } from "./RoadmapBriefRing";
@@ -106,6 +107,7 @@ export const ProfessionalRoadmapChatPage = () => {
       key={chat.resetCount}
       focusStage={focusStage}
       onGenerate={chat.generate}
+      isReadOnly={chat.isReadOnly}
       isPatching={chat.isPatching}
       isGenerating={chat.isGenerating}
       onPatchCpdSetup={chat.patchCpdSetup}
@@ -196,7 +198,7 @@ export const ProfessionalRoadmapChatPage = () => {
           </Sh.Sheet>
         ) : null}
 
-        {chat.draft && !chat.draft.replacesRoadmapId ? (
+        {chat.draft && !chat.draft.replacesRoadmapId && !chat.isReadOnly ? (
           <ConfirmDialog
             open={startOverOpen}
             confirmVariant="destructive"
@@ -226,7 +228,13 @@ export const ProfessionalRoadmapChatPage = () => {
         ) : null}
       </header>
 
-      {chat.draft?.replacesRoadmapId ? (
+      {chat.draft && chat.isReadOnly ? (
+        <RoadmapClosedBanner
+          status={chat.draft.status}
+          isEdit={Boolean(chat.draft.replacesRoadmapId)}
+          title={chat.draft.replacesRoadmapTitle}
+        />
+      ) : chat.draft?.replacesRoadmapId ? (
         <RoadmapEditBanner
           onDiscard={chat.discardEdit}
           isDiscarding={chat.isDiscarding}
@@ -243,7 +251,6 @@ export const ProfessionalRoadmapChatPage = () => {
 
           <div className="relative min-h-0 flex-1 overflow-y-auto px-4 py-4 sm:px-5">
             <RoadmapChatTranscript
-              widget={chat.widget}
               onRetry={chat.retry}
               pending={chat.pending}
               messages={chat.messages}
@@ -253,18 +260,21 @@ export const ProfessionalRoadmapChatPage = () => {
               onAnswer={chat.answerWidget}
               draftId={chat.draft?.id ?? ""}
               historyMessages={chat.historyMessages}
+              widget={chat.isReadOnly ? null : chat.widget}
             />
           </div>
 
-          <RoadmapChatComposer
-            onSend={chat.send}
-            canSend={chat.canSend}
-            onChange={chat.setInput}
-            composer={chat.composer}
-            questionKey={questionKey}
-            retryAfter={chat.retryAfter}
-            isSending={chat.isSending || chat.isPatching}
-          />
+          {chat.isReadOnly ? null : (
+            <RoadmapChatComposer
+              onSend={chat.send}
+              canSend={chat.canSend}
+              onChange={chat.setInput}
+              composer={chat.composer}
+              questionKey={questionKey}
+              retryAfter={chat.retryAfter}
+              isSending={chat.isSending || chat.isPatching}
+            />
+          )}
         </section>
 
         {brief ? (

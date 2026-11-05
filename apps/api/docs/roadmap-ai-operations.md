@@ -194,9 +194,16 @@ each entry against the learner's roadmap: a phase target must be one of its
 phases, a step target one of its steps, `UPDATE_DRAFT` a known draft field and
 `MODIFY_ROADMAP`/`REBUILD_ROADMAP` this roadmap or none. Removing or rewriting
 a step that holds progress, or removing a phase that holds one, is refused.
-Refused entries are logged by reason (never by instruction text), dropped, and
-reported to the professional as a system message; while any are refused the
-draft is not ready to regenerate. Extracted draft fields merge under the same
+Refused entries are logged by reason (never by instruction text) and dropped;
+the changes accepted in the same turn are kept. Each refusal is explained in
+the chat by a system message
+`ROADMAP_EDIT_CHANGE_REJECTED:<kind>[:<title>]`, where the kind says what was
+refused and why (`STEP_COMPLETED_REMOVE`, `STEP_COMPLETED_CHANGE`,
+`STEP_STARTED_REMOVE`, `STEP_STARTED_CHANGE`, `PHASE_PROTECTED_REMOVE`,
+`UNMATCHED`, `OVER_LIMIT`) and the title is the step or phase title, never an
+id; at most five such notices are written per turn. System messages are never
+sent back to the provider. A refused change never reaches `pendingChanges`, so
+Review never shows it. Extracted draft fields merge under the same
 rules as the interview, and the write is conditional on the draft's
 `updatedAt`, so a stale answer is refused (409) rather than overwriting a
 sidebar edit made while the provider was thinking. Sidebar edits are
@@ -208,6 +215,29 @@ draft is valid, something changed (pending changes or a preference that differs
 from the saved brief), the provider is not waiting for a clarification, any
 pending changes are confirmed, and no stored change has gone stale.
 `editBlockReason` names the first condition that fails.
+
+Review lists `pendingChanges`. For an `UPDATE_DRAFT` change the view adds
+`targetField`, the platform field the provider's `target_id` names, so the
+browser shows the saved value of that field with its own localized label
+instead of the provider's paraphrase. A preference that differs from the saved
+brief is shown once, under the changed preferences, with its saved value.
+
+### When an edit session is over
+
+A draft is open only while it is `COLLECTING`, `READY` or `FAILED`.
+`GENERATING` answers `ROADMAP_DRAFT_LOCKED` (409) and `COMPLETED` answers
+`ROADMAP_DRAFT_CLOSED` (409) to a chat turn, a sidebar or CPD edit, a reset, a
+discard and a generation request; a repeated request for a draft that is
+already generating returns it without a second outbox event. Every write is
+also conditioned on the status in the same `UPDATE`, so a provider answer that
+arrives after the draft was claimed or completed is refused instead of moving
+it back to `READY`. A roadmap is editable only while the professional's
+enrollment in it is active: once a regeneration retires that enrollment, the
+old roadmap's context is gone, its used edit draft reports `NOT_EDITABLE`, and a
+job that still finds it fails with `ROADMAP_REPLACED` (failure code
+`ROADMAP_NOT_EDITABLE`, no recovery action). The used draft and its
+conversation stay readable; the browser shows them read-only with a link back
+to the roadmaps page, and a new edit starts from the new roadmap.
 
 ### Regeneration and progress
 
@@ -232,7 +262,10 @@ its content. A failure marks the draft `FAILED` with
 transaction `createRoadmapEnrollment` refuses (`RoadmapProgressNotPreservedError`)
 when any progress record on the old enrollment, including one written after the
 handler read it, has no step to move to; the transaction rolls back and the
-draft fails. In every failure the old roadmap, enrollment and progress are
+draft fails. It also refuses (`RoadmapReplacementUnavailableError`) when the
+old enrollment is no longer active, or was retired by a concurrent commit, so a
+regeneration can never add a second active roadmap. In every failure the old
+roadmap, enrollment and progress are
 untouched and the edit draft keeps its brief and pending changes, so it can be
 retried.
 
@@ -243,3 +276,26 @@ an edit is refused before any provider call: `editBlockReason` is
 `PRESERVATION_UNSUPPORTED`, the request returns `ROADMAP_DRAFT_NOT_READY`, and a
 job that finds it fails with `PROTECTED_STEP_WITHOUT_IDENTITY`. The activity
 itself can be started and completed like any other step.
+
+### Provider-side behaviour seen in production
+
+These were traced to the provider, not to this platform, and are recorded so
+they are not re-investigated:
+
+- **Weekly time in the coach's text.** The contract has no 3–5 hour band, so
+  `THREE_TO_FIVE_HOURS` is sent as `FOUR_TO_SIX_HOURS`, the nearest band (see
+  `contracts/roadmap-ai/README.md`). The saved draft keeps 3–5, the sidebar and
+  Review show 3–5, but the coach's own sentences can say "4–6 hours". The
+  platform does not rewrite provider text.
+- **Repeated clarification.** The provider can ask again for something the
+  professional already answered. Each turn sends every earlier edit message
+  oldest first (up to 12), without platform notices and without the message
+  being answered, together with the saved draft and the accepted pending
+  changes; a unit test pins this.
+- **Silently ignored requests.** Asking to remove a completed step can produce
+  no change operation at all, so there is nothing for the platform to refuse or
+  explain. The step is still protected.
+- **Duration.** `estimated_weeks` for the roadmap and each phase are stored as
+  the provider returns them; the platform only checks that the phases add up to
+  the total. More weekly time does not guarantee a shorter plan when the scope
+  also changed.

@@ -4796,6 +4796,11 @@
         "show": "Show details",
         "hide": "Hide details",
         "details": "{{title}} details"
+      },
+      "activityType": "Self-guided activity",
+      "roadmapNotEditable": {
+        "title": "This roadmap has already been replaced.",
+        "description": "These changes were made to an older version that is no longer active, so nothing was changed. Open your current roadmap to edit it."
       }
     },
     "calendar": {
@@ -8123,7 +8128,21 @@
     "system": {
       "ROADMAP_AI_REFUSED": "That looks unrelated to building a roadmap. Could you rephrase it?",
       "fieldUpdated": "{{field}} updated.",
-      "ROADMAP_EDIT_CHANGE_REJECTED": "One requested change didn't match your roadmap, so it was set aside."
+      "ROADMAP_EDIT_CHANGE_REJECTED": "One requested change didn't match your roadmap, so it was set aside.",
+      "rejected": {
+        "STEP_COMPLETED_REMOVE": "“{{title}}” stays in your roadmap: you've already completed it, so it can't be removed.",
+        "STEP_COMPLETED_REMOVEUntitled": "A completed activity stays in your roadmap, so it can't be removed.",
+        "STEP_COMPLETED_CHANGE": "“{{title}}” stays as it is: you've already completed it, so it can't be changed.",
+        "STEP_COMPLETED_CHANGEUntitled": "A completed activity stays as it is, so it can't be changed.",
+        "STEP_STARTED_REMOVE": "“{{title}}” stays in your roadmap: you've already started it, so it can't be removed.",
+        "STEP_STARTED_REMOVEUntitled": "An activity you've started stays in your roadmap, so it can't be removed.",
+        "STEP_STARTED_CHANGE": "“{{title}}” stays as it is: you've already started it, so it can't be changed.",
+        "STEP_STARTED_CHANGEUntitled": "An activity you've started stays as it is, so it can't be changed.",
+        "PHASE_PROTECTED_REMOVE": "The phase “{{title}}” stays in your roadmap: it holds activities you've started or completed.",
+        "PHASE_PROTECTED_REMOVEUntitled": "A phase with activities you've started or completed can't be removed.",
+        "UNMATCHEDUntitled": "One requested change didn't match anything in your roadmap, so it was set aside.",
+        "OVER_LIMITUntitled": "That's more changes than we can apply at once, so the last ones were set aside."
+      }
     },
     "error": {
       "retry": "Try again",
@@ -8239,6 +8258,26 @@
         "NO_CHANGES": "Make at least one change before regenerating.",
         "AWAITING_CLARIFICATION": "Answer the coach's question to finish your request.",
         "CHANGES_NOT_CONFIRMED": "The coach is still confirming your requested changes."
+      },
+      "cleared": "Cleared"
+    },
+    "closed": {
+      "goToRoadmap": "Go to your roadmaps",
+      "actionRefused": "This session is already finished, so nothing was changed.",
+      "edit": {
+        "title": "Your changes to “{{title}}” have already been applied",
+        "titleUntitled": "Your changes have already been applied",
+        "description": "This edit session is complete and kept here for reference. To change the roadmap again, choose Edit roadmap on the new version."
+      },
+      "create": {
+        "title": "“{{title}}” has already been generated",
+        "titleUntitled": "This roadmap has already been generated",
+        "description": "This conversation is complete and kept here for reference. Start a new roadmap or edit the one you have."
+      },
+      "generating": {
+        "title": "Your new version of “{{title}}” is being generated",
+        "titleUntitled": "Your roadmap is being generated",
+        "description": "You can't change anything while it's being built. We'll show the result on your roadmaps page."
       }
     }
   },

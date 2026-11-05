@@ -120,6 +120,7 @@ export type RoadmapBriefProps = {
   draft: TRoadmapDraft;
   isGenerating?: boolean;
   onGenerate?: () => void;
+  isReadOnly?: boolean;
   isPatchingCpdSetup?: boolean;
   focusStage?: RoadmapChatStage;
   onPatch: (changes: Patch) => Promise<boolean>;
@@ -149,6 +150,7 @@ export type TRowProps = {
   onEdit: () => void;
   isRequired: boolean;
   isPatching: boolean;
+  isReadOnly?: boolean;
   onCancel: () => void;
   draft: TRoadmapDraft;
   onCommit: (field: keyof Patch, value: Patch[keyof Patch]) => void;

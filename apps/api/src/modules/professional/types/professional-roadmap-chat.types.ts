@@ -69,6 +69,7 @@ export type ResetInPlaceResult =
   | { outcome: "reset"; draft: Prisma.RoadmapDraftGetPayload<object> }
   | { outcome: "not_found" }
   | { outcome: "edit" }
+  | { outcome: "closed" }
   | { outcome: "locked" };
 
 export type TranscriptPage = {

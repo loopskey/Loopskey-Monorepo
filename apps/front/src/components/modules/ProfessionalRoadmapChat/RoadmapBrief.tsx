@@ -1,19 +1,17 @@
 "use client";
 
 import { Fragment, useEffect, useId, useState } from "react";
-import { ContentType, RoadmapDraftFieldKey } from "@/lib/graphql/base";
-import { LEARNING_BUDGET_PREFERENCES } from "@/utils/professional-profile.constant";
-import { LEARNING_TIME_COMMITMENTS } from "@/utils/professional-profile.constant";
+import { RoadmapDraftFieldKey } from "@/lib/graphql/base";
 import { isRoadmapStepReached } from "@/utils/roadmap-chat-step.util";
 import { RoadmapCpdSetupPanel } from "./RoadmapCpdSetupPanel";
 import { RoadmapDraftStatus } from "@/lib/graphql/base";
 import { RoadmapEditReview } from "./RoadmapEditReview";
-import { DELIVERY_FORMATS } from "@/utils/professional-profile.constant";
-import { LEARNING_FORMATS } from "@/utils/professional-profile.constant";
 import { RoadmapDraftStep } from "@/lib/graphql/base";
 import { RoadmapBriefRing } from "./RoadmapBriefRing";
+import { buildBriefRows } from "@/utils/roadmap-brief-rows.util";
+import { hasBriefValue } from "@/utils/roadmap-brief-rows.util";
 import { ConfirmDialog } from "@/components/elements/confirm-dialog";
-import { SKILL_LEVELS } from "@/utils/professional-profile.constant";
+import { briefRowText } from "@/utils/roadmap-brief-rows.util";
 import { Textarea } from "@/components/ui/textarea";
 import { useI18n } from "@/hooks/useI18n";
 import { Button } from "@/components/ui/button";
@@ -26,7 +24,6 @@ import type * as T from "@/types/professional-roadmap-chat.types";
 
 import * as L from "lucide-react";
 
-const OPTION_NS = "professionalDashboard.profile.options";
 const KEY = "professionalRoadmapChat.review";
 
 type PatchField = keyof T.Patch;
@@ -41,9 +38,9 @@ const GROUPS: BriefGroup[] = [
   {
     stage: "preferences",
     fields: [
+      "subjects",
       "skillLevel",
       "timeCommitment",
-      "subjects",
       "budgetPreference",
       "preferredFormats",
       "preferredContentTypes",
@@ -55,11 +52,11 @@ const GROUPS: BriefGroup[] = [
 
 const REQUIRED_FIELDS: ReadonlySet<PatchField> = new Set([
   "goal",
-  "skillLevel",
-  "timeCommitment",
   "subjects",
-  "budgetPreference",
+  "skillLevel",
   "cpdEnabled",
+  "timeCommitment",
+  "budgetPreference",
 ]);
 
 const FIELD_STEP: Partial<Record<PatchField, RoadmapDraftStep>> = {
@@ -119,101 +116,6 @@ const MISSING_LABEL_FIELD: Record<(typeof MISSING_ORDER)[number], string> = {
 
 const elementId = (prefix: string, part: string) => `${prefix}-${part}`;
 
-const hasValue = (value: T.Row["value"]) =>
-  Array.isArray(value)
-    ? value.length > 0
-    : value !== null && value !== undefined && value !== "";
-
-const buildRows = (draft: T.TRoadmapDraft): Record<PatchField, T.Row> => {
-  const rows: T.Row[] = [
-    {
-      field: "goal",
-      editor: { kind: "text", multiline: true },
-      value: draft.goal,
-    },
-    {
-      field: "targetRole",
-      editor: { kind: "text", multiline: false },
-      value: draft.targetRole,
-    },
-    {
-      field: "goalReason",
-      editor: { kind: "text", multiline: true },
-      value: draft.goalReason,
-    },
-    {
-      field: "context",
-      editor: { kind: "text", multiline: true },
-      value: draft.context,
-    },
-    { field: "targetDate", editor: { kind: "date" }, value: draft.targetDate },
-    {
-      field: "skillLevel",
-      editor: {
-        kind: "single",
-        values: SKILL_LEVELS,
-        labelNs: `${OPTION_NS}.skillLevel`,
-      },
-      value: draft.skillLevel,
-    },
-    {
-      field: "timeCommitment",
-      editor: {
-        kind: "single",
-        values: LEARNING_TIME_COMMITMENTS,
-        labelNs: `${OPTION_NS}.learningTime`,
-      },
-      value: draft.timeCommitment,
-    },
-    {
-      field: "budgetPreference",
-      editor: {
-        kind: "single",
-        values: LEARNING_BUDGET_PREFERENCES,
-        labelNs: `${OPTION_NS}.budget`,
-      },
-      value: draft.budgetPreference,
-    },
-    { field: "subjects", editor: { kind: "subjects" }, value: draft.subjects },
-    {
-      field: "preferredFormats",
-      editor: {
-        kind: "multi",
-        values: LEARNING_FORMATS,
-        labelNs: `${OPTION_NS}.learningFormat`,
-      },
-      value: draft.preferredFormats,
-    },
-    {
-      field: "preferredContentTypes",
-      editor: {
-        kind: "multi",
-        values: Object.values(ContentType),
-        labelNs: "professionalRoadmapChat.enum.contentType",
-      },
-      value: draft.preferredContentTypes,
-    },
-    {
-      field: "preferredDeliveryFormats",
-      editor: {
-        kind: "multi",
-        values: DELIVERY_FORMATS,
-        labelNs: `${OPTION_NS}.deliveryFormat`,
-      },
-      value: draft.preferredDeliveryFormats,
-    },
-    {
-      field: "cpdEnabled",
-      editor: { kind: "boolean" },
-      value: draft.cpdAnswered ? draft.cpdEnabled : null,
-    },
-  ];
-  return Object.fromEntries(rows.map((row) => [row.field, row])) as Record<
-    PatchField,
-    T.Row
-  >;
-};
-
 const askingField = (draft: T.TRoadmapDraft): PatchField | null => {
   if (draft.widget) return WIDGET_FIELD[draft.widget.field];
   return (
@@ -230,6 +132,7 @@ export const RoadmapBrief = ({
   onGenerate,
   focusStage,
   isGenerating,
+  isReadOnly,
   onPatchCpdSetup,
   isPatchingCpdSetup,
 }: T.RoadmapBriefProps) => {
@@ -246,7 +149,7 @@ export const RoadmapBrief = ({
       ?.scrollIntoView({ block: "start" });
   }, [focusStage, idPrefix]);
 
-  const rows = buildRows(draft);
+  const rows = buildBriefRows(draft);
   const asking = askingField(draft);
   const missing = new Set(draft.missingFields);
   const missingFields = MISSING_ORDER.filter((field) => missing.has(field));
@@ -256,7 +159,7 @@ export const RoadmapBrief = ({
 
   const isRowVisible = (field: PatchField) => {
     if (REQUIRED_FIELDS.has(field) || field === asking) return true;
-    if (hasValue(rows[field].value)) return true;
+    if (hasBriefValue(rows[field].value)) return true;
     if (field === "targetRole") return false;
     const step = FIELD_STEP[field] ?? RoadmapDraftStep.Preferences;
     return isRoadmapStepReached(draft.currentStep, step);
@@ -302,7 +205,7 @@ export const RoadmapBrief = ({
       </div>
 
       <div className="relative space-y-4 overflow-y-auto px-4 pb-4">
-        {isEdit ? <RoadmapEditReview draft={draft} /> : null}
+        {isEdit && !isReadOnly ? <RoadmapEditReview draft={draft} /> : null}
 
         {GROUPS.map((group) => {
           const fields = group.fields.filter(isRowVisible);
@@ -334,6 +237,7 @@ export const RoadmapBrief = ({
                       row={rows[field]}
                       idPrefix={idPrefix}
                       isPatching={isPatching}
+                      isReadOnly={isReadOnly}
                       isAsking={field === asking}
                       onEdit={() => setEditing(field)}
                       onCancel={() => setEditing(null)}
@@ -353,7 +257,7 @@ export const RoadmapBrief = ({
                       <p className="text-xs font-medium text-muted-foreground">
                         {t("professionalRoadmapChat.stepper.cpdSetup")}
                       </p>
-                      {hasCertification && !isBusy ? (
+                      {hasCertification && !isBusy && !isReadOnly ? (
                         <Button
                           size="iconSm"
                           variant="ghost"
@@ -389,7 +293,7 @@ export const RoadmapBrief = ({
         })}
       </div>
 
-      {onGenerate ? (
+      {onGenerate && !isReadOnly ? (
         <div className="space-y-2 border-t bg-card px-4 pb-4 pt-3">
           {isEdit ? (
             <ConfirmDialog
@@ -497,39 +401,12 @@ const BriefRow = ({
   isEditing,
   isPatching,
   isRequired,
+  isReadOnly,
 }: T.TRowProps) => {
   const { t, language } = useI18n();
   const label = t(`professionalRoadmapChat.field.${String(row.field)}`);
-  const isAnswered = hasValue(row.value);
-
-  const display = () => {
-    const { value, editor } = row;
-    if (editor.kind === "boolean")
-      return value ? t(`${KEY}.yes`) : t(`${KEY}.no`);
-    if (Array.isArray(value)) {
-      if (editor.kind === "subjects")
-        return value
-          .map(
-            (id) =>
-              draft.subjectOptions.find((option) => option.id === id)?.label ??
-              id,
-          )
-          .join(", ");
-      if (editor.kind === "multi")
-        return value.map((entry) => t(`${editor.labelNs}.${entry}`)).join(", ");
-      return value.join(", ");
-    }
-    if (editor.kind === "single")
-      return t(`${editor.labelNs}.${String(value)}`);
-    if (editor.kind === "date")
-      return new Intl.DateTimeFormat(language, { dateStyle: "medium" }).format(
-        new Date(String(value)),
-      );
-    return String(value);
-  };
-
-  const valueText =
-    isAsking && !isAnswered ? null : isAnswered ? display() : null;
+  const isAnswered = hasBriefValue(row.value);
+  const valueText = isAnswered ? briefRowText(row, draft, t, language) : null;
 
   return (
     <li
@@ -565,7 +442,7 @@ const BriefRow = ({
         ) : null}
       </span>
 
-      {isEditing ? null : (
+      {isEditing || isReadOnly ? null : (
         <Button
           size="iconSm"
           variant="ghost"

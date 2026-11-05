@@ -5,6 +5,7 @@ import { ProfessionalMessageCode } from "@professional/enums/message-code.enum";
 import { RoadmapAiMessageCode } from "@infrastructure/service-ai/service-ai.port";
 
 export const NO_CANDIDATES_REASON = "NO_CANDIDATES";
+export const ROADMAP_REPLACED_REASON = "ROADMAP_REPLACED";
 
 export type RoadmapGenerationFailureView = {
   code: RoadmapGenerationFailureCode;
@@ -13,6 +14,7 @@ export type RoadmapGenerationFailureView = {
 
 const REASON_TO_CODE: Record<string, RoadmapGenerationFailureCode> = {
   [NO_CANDIDATES_REASON]: RoadmapGenerationFailureCode.NO_MATCHING_CONTENT,
+  [ROADMAP_REPLACED_REASON]: RoadmapGenerationFailureCode.ROADMAP_NOT_EDITABLE,
   [RoadmapAiMessageCode.ROADMAP_AI_FAILED]:
     RoadmapGenerationFailureCode.TEMPORARY_SERVICE_FAILURE,
   [RoadmapAiMessageCode.ROADMAP_AI_UNAVAILABLE]:
@@ -70,6 +72,7 @@ const CODE_TO_RECOVERY: Record<
     RoadmapGenerationRecoveryAction.RETRY,
   ],
   [RoadmapGenerationFailureCode.PROGRESS_CANNOT_BE_PRESERVED]: [],
+  [RoadmapGenerationFailureCode.ROADMAP_NOT_EDITABLE]: [],
   [RoadmapGenerationFailureCode.UNKNOWN]: [
     RoadmapGenerationRecoveryAction.RETRY,
     RoadmapGenerationRecoveryAction.START_OVER,

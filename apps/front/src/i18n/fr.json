@@ -4799,6 +4799,11 @@
         "show": "Afficher les détails",
         "hide": "Masquer les détails",
         "details": "Détails : {{title}}"
+      },
+      "activityType": "Activité en autonomie",
+      "roadmapNotEditable": {
+        "title": "Ce parcours a déjà été remplacé.",
+        "description": "Ces modifications portaient sur une ancienne version qui n'est plus active, rien n'a donc été modifié. Ouvrez votre parcours actuel pour le modifier."
       }
     },
     "calendar": {
@@ -8125,7 +8130,21 @@
     "system": {
       "ROADMAP_AI_REFUSED": "Cela semble sans rapport avec la création d'un parcours. Pouvez-vous reformuler ?",
       "fieldUpdated": "{{field}} mis à jour.",
-      "ROADMAP_EDIT_CHANGE_REJECTED": "Une modification demandée ne correspondait pas à votre parcours et a été mise de côté."
+      "ROADMAP_EDIT_CHANGE_REJECTED": "Une modification demandée ne correspondait pas à votre parcours et a été mise de côté.",
+      "rejected": {
+        "STEP_COMPLETED_REMOVE": "« {{title}} » reste dans votre parcours : vous l'avez déjà terminée, elle ne peut donc pas être supprimée.",
+        "STEP_COMPLETED_REMOVEUntitled": "Une activité terminée reste dans votre parcours, elle ne peut donc pas être supprimée.",
+        "STEP_COMPLETED_CHANGE": "« {{title}} » reste telle quelle : vous l'avez déjà terminée, elle ne peut donc pas être modifiée.",
+        "STEP_COMPLETED_CHANGEUntitled": "Une activité terminée reste telle quelle, elle ne peut donc pas être modifiée.",
+        "STEP_STARTED_REMOVE": "« {{title}} » reste dans votre parcours : vous l'avez déjà commencée, elle ne peut donc pas être supprimée.",
+        "STEP_STARTED_REMOVEUntitled": "Une activité commencée reste dans votre parcours, elle ne peut donc pas être supprimée.",
+        "STEP_STARTED_CHANGE": "« {{title}} » reste telle quelle : vous l'avez déjà commencée, elle ne peut donc pas être modifiée.",
+        "STEP_STARTED_CHANGEUntitled": "Une activité commencée reste telle quelle, elle ne peut donc pas être modifiée.",
+        "PHASE_PROTECTED_REMOVE": "La phase « {{title}} » reste dans votre parcours : elle contient des activités commencées ou terminées.",
+        "PHASE_PROTECTED_REMOVEUntitled": "Une phase contenant des activités commencées ou terminées ne peut pas être supprimée.",
+        "UNMATCHEDUntitled": "Une modification demandée ne correspondait à rien dans votre parcours et a été mise de côté.",
+        "OVER_LIMITUntitled": "Il y a trop de modifications à appliquer en une fois, les dernières ont été mises de côté."
+      }
     },
     "error": {
       "retry": "Réessayer",
@@ -8241,6 +8260,26 @@
         "NO_CHANGES": "Faites au moins une modification avant de régénérer.",
         "AWAITING_CLARIFICATION": "Répondez à la question du coach pour terminer votre demande.",
         "CHANGES_NOT_CONFIRMED": "Le coach confirme encore les modifications demandées."
+      },
+      "cleared": "Effacé"
+    },
+    "closed": {
+      "goToRoadmap": "Voir vos parcours",
+      "actionRefused": "Cette session est déjà terminée, rien n'a été modifié.",
+      "edit": {
+        "title": "Vos modifications de « {{title}} » ont déjà été appliquées",
+        "titleUntitled": "Vos modifications ont déjà été appliquées",
+        "description": "Cette session de modification est terminée et conservée pour référence. Pour modifier à nouveau le parcours, choisissez Modifier le parcours sur la nouvelle version."
+      },
+      "create": {
+        "title": "« {{title}} » a déjà été généré",
+        "titleUntitled": "Ce parcours a déjà été généré",
+        "description": "Cette conversation est terminée et conservée pour référence. Créez un nouveau parcours ou modifiez celui que vous avez."
+      },
+      "generating": {
+        "title": "La nouvelle version de « {{title}} » est en cours de génération",
+        "titleUntitled": "Votre parcours est en cours de génération",
+        "description": "Vous ne pouvez rien modifier pendant sa création. Le résultat s'affichera sur la page de vos parcours."
       }
     }
   },

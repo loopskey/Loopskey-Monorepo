@@ -26,6 +26,8 @@ import { ProfessionalRoadmapCandidateService } from "@professional/services/prof
 import { ProfessionalRoadmapGenerationService } from "@professional/services/professional-roadmap-generation.service";
 import { ProfessionalRoadmapEditContextService } from "@professional/services/professional-roadmap-edit-context.service";
 import { RoadmapProgressNotPreservedError } from "@contentAction/public/professional-engagement-api";
+import { RoadmapReplacementUnavailableError } from "@contentAction/public/professional-engagement-api";
+import { ROADMAP_REPLACED_REASON } from "@professional/utils/roadmap-generation-failure.util";
 import { RoadmapGenerationViolation } from "@professional/utils/roadmap-generation-verify.util";
 import type { RankableCandidate } from "@professional/utils/roadmap-candidate-ranking.util";
 
@@ -523,7 +525,34 @@ describe("ProfessionalRoadmapGenerationService", () => {
 
       await expect(
         harness.service.requestGeneration(USER, "draft-1"),
-      ).rejects.toThrow("ROADMAP_DRAFT_NOT_READY");
+      ).rejects.toMatchObject({
+        status: 409,
+        response: { code: ProfessionalMessageCode.ROADMAP_DRAFT_CLOSED },
+      });
+      expect(harness.outbox.append).not.toHaveBeenCalled();
+    });
+
+    it("refuses a completed draft even when its enrollment is gone", async () => {
+      const harness = buildHarness({
+        draft: draftRow({ status: RoadmapDraftStatus.COMPLETED }),
+      });
+
+      await expect(
+        harness.service.requestGeneration(USER, "draft-1"),
+      ).rejects.toMatchObject({
+        response: { code: ProfessionalMessageCode.ROADMAP_DRAFT_CLOSED },
+      });
+      expect(harness.outbox.append).not.toHaveBeenCalled();
+    });
+
+    it("answers a repeated request for a generating draft without a second event", async () => {
+      const harness = buildHarness({
+        draft: draftRow({ status: RoadmapDraftStatus.GENERATING }),
+      });
+
+      await expect(
+        harness.service.requestGeneration(USER, "draft-1"),
+      ).resolves.toMatchObject({ status: RoadmapDraftStatus.GENERATING });
       expect(harness.outbox.append).not.toHaveBeenCalled();
     });
 
@@ -2123,6 +2152,30 @@ describe("ProfessionalRoadmapGenerationService regeneration of an edit", () => {
       );
     });
 
+    it("fails the draft when the roadmap it edits was replaced in the meantime", async () => {
+      const harness = buildHarness({
+        draft: editDraft(),
+        oldPhases: OLD_PHASES,
+        regenerate: jest.fn().mockResolvedValue({
+          ok: true,
+          data: regenerated(
+            ["COURSE", "course-1"],
+            ["COURSE", "course-2"],
+            ["YOUTUBE", "yt-1"],
+          ),
+        }),
+      });
+      harness.engagement.createRoadmapEnrollment.mockRejectedValue(
+        new RoadmapReplacementUnavailableError("roadmap-old"),
+      );
+
+      await expect(
+        harness.service.runGeneration("draft-1"),
+      ).resolves.toBeUndefined();
+
+      expect(failureOf(harness)).toBe(ROADMAP_REPLACED_REASON);
+    });
+
     it("rethrows any other commit failure so the outbox retries", async () => {
       const harness = buildHarness({
         draft: editDraft(),
@@ -2202,9 +2255,7 @@ describe("ProfessionalRoadmapGenerationService regeneration of an edit", () => {
 
       await harness.service.runGeneration("draft-1");
 
-      expect(failureOf(harness)).toBe(
-        ProfessionalMessageCode.ROADMAP_GENERATION_FAILED,
-      );
+      expect(failureOf(harness)).toBe(ROADMAP_REPLACED_REASON);
       expect(harness.ai.regenerate).not.toHaveBeenCalled();
     });
 

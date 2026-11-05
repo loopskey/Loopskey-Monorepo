@@ -21,6 +21,7 @@ export const ROADMAP_TRANSCRIPT_PAGE_SIZE = 30;
  */
 export const ROADMAP_BUSY_CODE = "ROADMAP_AI_BUSY";
 export const ROADMAP_DRAFT_LOCKED_CODE = "ROADMAP_DRAFT_LOCKED";
+export const ROADMAP_DRAFT_CLOSED_CODE = "ROADMAP_DRAFT_CLOSED";
 
 /**
  * The coach's own lines arrive as these codes rather than prose, so the

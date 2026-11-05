@@ -41,7 +41,15 @@ export const RoadmapStepMeta = ({
             humanizeEnumValue(contentType),
           )}
         </span>
-      ) : null}
+      ) : (
+        <span className="flex items-center gap-1.5">
+          <span
+            aria-hidden
+            className="size-2 rounded-full bg-muted-foreground"
+          />
+          {t("professionalDashboard.roadmap.activityType")}
+        </span>
+      )}
 
       {duration ? <span className="tabular-nums">{duration}</span> : null}
 

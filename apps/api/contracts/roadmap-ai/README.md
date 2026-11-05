@@ -81,6 +81,12 @@ platform side, so the price tiers are recorded but filter nothing.
 platform already stored is not narrowed by an echo. It does not help the first
 capture.
 
+The provider only ever sees its own band, so its prose follows it: a
+professional who chose 3–5 hours can read "4–6 hours" in the coach's reply.
+The stored draft, the brief and the edit Review always show the platform
+value; closing this gap needs a 3–5 hour band (or a free-form hours field) in
+the contract.
+
 **The translation layer is required, not defensive.**
 `Record<Platform…, Provider…>` is what stops compiling if either vocabulary
 changes.
