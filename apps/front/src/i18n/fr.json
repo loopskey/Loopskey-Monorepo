@@ -4683,7 +4683,6 @@
         "action": "Réessayer la génération",
         "reviewBrief": "Revoir la synthèse"
       },
-      "noRoadmapMatches": "Aucune feuille de route ne correspond à votre recherche.",
       "enrolledTag": "Inscrit",
       "weekSingle": "Semaine {{week}}",
       "stepActions": "Plus d’actions pour {{title}}",
@@ -4739,14 +4738,8 @@
         "description": "La progression sur une activité sans contenu associé ne peut pas être conservée en toute sécurité. Votre parcours actuel et votre progression sont inchangés."
       },
       "switcher": {
-        "label": "Feuille de route {{current}} sur {{total}}",
-        "open": "Changer de feuille de route",
-        "title": "Vos feuilles de route",
         "search": "Rechercher vos feuilles de route",
-        "filters": "Filtrer les feuilles de route",
-        "manageAll": "Gérer toutes les feuilles de route",
-        "generating": "Création de votre feuille de route… vous pouvez continuer",
-        "partial": "{{shown}} sur {{total}} affichées. Gérez toutes les feuilles de route pour voir les autres."
+        "filters": "Filtrer les feuilles de route"
       },
       "states": {
         "all": "Toutes",
@@ -4755,9 +4748,7 @@
         "completed": "Terminées"
       },
       "header": {
-        "allRoadmaps": "Toutes les feuilles de route",
-        "editRoadmap": "Modifier la feuille de route",
-        "phasesSteps": "{{phases}} phases · {{steps}} étapes"
+        "editRoadmap": "Modifier la feuille de route"
       },
       "strip": {
         "thisWeek": "Cette semaine",
@@ -4781,17 +4772,10 @@
         "seeAll": "Tout voir ({{count}})",
         "showFewer": "Afficher moins"
       },
-      "editCard": {
-        "title": "Pas tout à fait ça ?",
-        "description": "Dites au coach ce qu’il faut changer. Les étapes terminées restent terminées."
-      },
       "catalogCard": {
-        "title": "Feuilles de route du catalogue",
-        "description": "Des feuilles de route prêtes à parcourir. L’inscription ouvrira bientôt.",
-        "action": "Parcourir le catalogue"
+        "title": "Feuilles de route du catalogue"
       },
       "library": {
-        "back": "Retour à votre feuille de route",
         "title": "Vos feuilles de route",
         "summary": "{{total}} feuilles de route · {{inProgress}} en cours · {{completed}} terminées",
         "sort": "Trier",
@@ -4807,11 +4791,15 @@
           "actions": "Actions"
         },
         "allDone": "Toutes les étapes terminées",
-        "current": "Actuelle",
         "emptyFilter": "Aucune feuille de route ne correspond à ces filtres.",
         "catalogBadge": "Inscription bientôt disponible"
       },
-      "aside": "Plus pour cette feuille de route"
+      "aside": "Plus pour cette feuille de route",
+      "table": {
+        "show": "Afficher les détails",
+        "hide": "Masquer les détails",
+        "details": "Détails : {{title}}"
+      }
     },
     "calendar": {
       "eyebrow": "Calendrier professionnel",

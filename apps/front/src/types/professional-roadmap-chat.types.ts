@@ -7,10 +7,11 @@ import { StepPending } from "@/hooks/useRoadmapStepProgress";
 import type { RoadmapGenerationRecoveryAction } from "@/lib/graphql/base";
 import type { RoadmapGenerationFailureCode } from "@/lib/graphql/base";
 import type { TProfessionalExploreRoadmap } from "@/types/professional-dashboard.types";
-import type { ReactNode, RefObject } from "react";
 import type { RoadmapDraftFieldKey } from "@/lib/graphql/base";
 import type { TProfessionalRoadmap } from "@/types/professional-dashboard.types";
+import type { useRoadmapLibrary } from "@/hooks/useRoadmapLibrary";
 import type { RoadmapChatStage } from "@/utils/roadmap-chat-step.util";
+import type { ReactNode } from "react";
 
 import type * as G from "@/lib/graphql/operations/roadmap-chat";
 
@@ -186,39 +187,22 @@ export type TRoadmapUnenrollHandlers = {
   onUnenroll: (enrollmentId: string) => void;
 };
 
-export type TRoadmapSwitcherProps = {
-  totalCount: number;
-  generatingGoal?: string | null;
-  roadmap: TProfessionalRoadmap;
-  roadmaps: TProfessionalRoadmap[];
-  headingRef: RefObject<HTMLHeadingElement | null>;
-};
-
-export type TRoadmapSwitcherPanelProps = {
-  totalCount: number;
-  onNavigate: () => void;
-  activeRoadmapId: string;
-  generatingGoal?: string | null;
-  roadmaps: TProfessionalRoadmap[];
-};
-
 export type TRoadmapActionsMenuProps = TRoadmapUnenrollHandlers &
   Partial<TRoadmapEditHandlers> & {
     className?: string;
     roadmap: TProfessionalRoadmap;
   };
 
-export type TRoadmapWorkspaceHeaderProps = TRoadmapEditHandlers &
-  TRoadmapUnenrollHandlers & {
-    totalCount: number;
-    generatingGoal?: string | null;
-    roadmap: TProfessionalRoadmap;
-    roadmaps: TProfessionalRoadmap[];
-    headingRef: RefObject<HTMLHeadingElement | null>;
-  };
-
-export type TRoadmapProgressStripProps = {
+export type TRoadmapProgressCardProps = {
   roadmap: TProfessionalRoadmap;
+};
+
+export type TStat = {
+  key: string;
+  label: string;
+  value: string;
+  isLate?: boolean;
+  note?: string | null;
 };
 
 export type TRoadmapFocusCardProps = {
@@ -240,10 +224,6 @@ export type TRoadmapRecommendationsCardProps = {
   recommendations: Recommendation[];
 };
 
-export type TRoadmapEditCardProps = TRoadmapEditHandlers & {
-  roadmap: TProfessionalRoadmap;
-};
-
 export type TRoadmapListPaging = {
   page: number;
   hasNextPage: boolean;
@@ -262,16 +242,31 @@ export type TRoadmapCatalogProps = TRoadmapListPaging & {
   onSearchChange: (value: string) => void;
 };
 
-export type TRoadmapLibraryProps = TRoadmapEditHandlers &
+export type TRoadmapDetailsProps = TRoadmapEditHandlers & {
+  pending: StepPending | null;
+  failedStepId: string | null;
+  roadmap: TProfessionalRoadmap;
+  recommendations: Recommendation[];
+  onStart: (enrollmentId: string, stepId: string) => void;
+  onComplete: (enrollmentId: string, stepId: string) => void;
+};
+
+export type TRoadmapTableRowProps = TRoadmapEditHandlers &
   TRoadmapUnenrollHandlers & {
-    totalRoadmaps: number;
-    activeRoadmapId?: string;
+    isOpen: boolean;
+    details?: ReactNode;
+    roadmap: TProfessionalRoadmap;
+    onToggle: (roadmapId: string) => void;
+    onContinue: (roadmapId: string) => void;
   };
 
-export type TRoadmapLibraryRowProps = TRoadmapEditHandlers &
+export type TRoadmapTableProps = TRoadmapEditHandlers &
   TRoadmapUnenrollHandlers & {
-    isActive: boolean;
-    roadmap: TProfessionalRoadmap;
+    library: ReturnType<typeof useRoadmapLibrary>;
+    openRoadmapId: string | null;
+    onToggle: (roadmapId: string) => void;
+    onContinue: (roadmapId: string) => void;
+    renderDetails: (roadmap: TProfessionalRoadmap) => ReactNode;
   };
 
 export type RoadmapBriefRingProps = {
