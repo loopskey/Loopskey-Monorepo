@@ -4,7 +4,7 @@
 - Model: `Standard development — a bounded interaction-state change in the existing professional roadmap table`
 - Branch: `feature/roadmap-table-default-collapsed`
 - Base: `48b04f6c`
-- Status: `Ready`
+- Status: `Submitted`
 
 ## Acceptance
 
@@ -24,6 +24,6 @@
 
 ## Submission
 
-- Commit:
-- PR:
-- CI:
+- Commit: `c1fc5e6e`
+- PR: https://github.com/loopskey/Loopskey-Monorepo/pull/359
+- CI: pending
